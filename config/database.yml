@@ -87,18 +87,16 @@ test:
 production:
   primary: &primary_production
     <<: *default
-    database: flowpulse_v_4_production
-    username: flowpulse_v_4
-    password: <%= ENV["FLOWPULSE_V_4_DATABASE_PASSWORD"] %>
+    url: <%= ENV["DATABASE_PRIMARY_URL"] %>
   cache:
-    <<: *primary_production
-    database: flowpulse_v_4_production_cache
+    <<: *default
+    url: <%= ENV["DATABASE_CACHE_URL"] %>
     migrations_paths: db/cache_migrate
   queue:
-    <<: *primary_production
-    database: flowpulse_v_4_production_queue
+    <<: *default
+    url: <%= ENV["DATABASE_QUEUE_URL"] %>
     migrations_paths: db/queue_migrate
   cable:
-    <<: *primary_production
-    database: flowpulse_v_4_production_cable
+    <<: *default
+    url: <%= ENV["DATABASE_CABLE_URL"] %>
     migrations_paths: db/cable_migrate
