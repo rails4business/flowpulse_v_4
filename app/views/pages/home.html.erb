@@ -3,7 +3,7 @@
 <section class="home-shell">
   <nav class="top-nav">
     <%= link_to root_path, class: "brand-mark" do %>
-      <span class="brand-dot"></span>
+      <%= image_tag "flowpulse_brand.png", alt: "Flowpulse", class: "brand-logo" %>
       <span>Flowpulse</span>
     <% end %>
 
@@ -11,6 +11,7 @@
       <a href="#struttura">Struttura</a>
       <a href="#journey">Journey</a>
       <%= link_to "About", about_path %>
+      <%= link_to "Blog", blog_path %>
 
       <% if authenticated? %>
         <details class="user-menu">

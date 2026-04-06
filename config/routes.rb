@@ -35,5 +35,7 @@ Rails.application.routes.draw do
   get "professionals/titles", to: "professionals#titles", as: :professionals_titles
   resource :dashboard, only: :show
   get "about", to: "pages#about", as: :about
+  get "blog", to: "blog#index", as: :blog
+  get "blog/:slug", to: "blog#show", as: :blog_post
   root "pages#home"
 end

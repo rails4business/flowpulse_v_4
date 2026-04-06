@@ -1,0 +1,52 @@
+<% content_for :title, @post.title %>
+
+<section class="home-shell">
+  <nav class="top-nav">
+    <%= link_to root_path, class: "brand-mark" do %>
+      <%= image_tag "flowpulse_brand.png", alt: "Flowpulse", class: "brand-logo" %>
+      <span>Flowpulse</span>
+    <% end %>
+
+    <div class="top-nav-links">
+      <a href="<%= root_path %>#struttura">Struttura</a>
+      <a href="<%= root_path %>#journey">Journey</a>
+      <%= link_to "About", about_path %>
+      <%= link_to "Blog", blog_path %>
+
+      <% if authenticated? %>
+        <details class="user-menu">
+          <summary class="user-trigger">
+            <span class="user-avatar"><%= Current.session.user.email_address.first.upcase %></span>
+          </summary>
+
+          <div class="user-dropdown">
+            <% if Current.session.user.profile.present? %>
+              <%= link_to "Dashboard", dashboard_path %>
+              <%= link_to "Profilo", edit_profile_path(anchor: "profile-main") %>
+              <%= link_to "Impostazioni", edit_profile_path(anchor: "profile-settings") %>
+            <% else %>
+              <%= link_to "Completa profilo", new_profile_path %>
+            <% end %>
+
+            <%= button_to "Esci", session_path, method: :delete, class: "user-menu-button" %>
+          </div>
+        </details>
+      <% else %>
+        <%= link_to "Registrati", new_registration_path %>
+        <%= link_to "Accedi", new_session_path, class: "nav-login" %>
+      <% end %>
+    </div>
+  </nav>
+
+  <article class="wide-card blog-post">
+    <p class="eyebrow">Blog</p>
+    <h1 class="blog-post-title"><%= @post.title %></h1>
+    <% if @post.published_on %>
+      <p class="blog-post-date"><%= l(@post.published_on, format: :long) %></p>
+    <% end %>
+
+    <div class="blog-content">
+      <%= render_markdown(@post.body) %>
+    </div>
+  </article>
+</section>

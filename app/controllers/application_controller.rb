@@ -18,7 +18,8 @@ class ApplicationController < ActionController::Base
     end
 
     def public_flow_controller?
-      return true if controller_name == "pages" && action_name == "home"
+      return true if controller_name == "pages" && action_name.in?(%w[home about])
+      return true if controller_name == "blog"
       return true if controller_name == "sessions" && action_name.in?(%w[new create destroy])
       return true if controller_name == "registrations" && action_name.in?(%w[new create])
       return true if controller_name == "passwords"
