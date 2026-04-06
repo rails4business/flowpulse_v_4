@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ticket Show Journey - Utente</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg: #f5f7fb;
+      --panel: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --dark: #111827;
+      --line: #e5e7eb;
+
+      --blue: #2563eb;
+      --green: #16a34a;
+      --orange: #ea580c;
+      --purple: #7c3aed;
+      --red: #dc2626;
+
+      --soft-blue: #dbeafe;
+      --soft-green: #dcfce7;
+      --soft-orange: #ffedd5;
+      --soft-purple: #ede9fe;
+      --soft-red: #fee2e2;
+      --soft-gray: #f3f4f6;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .topbar {
+      background: white;
+      border-bottom: 1px solid var(--line);
+      padding: 20px 28px;
+    }
+
+    .topbar .back {
+      display: inline-block;
+      margin-bottom: 10px;
+      color: var(--blue);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    .topbar h1 {
+      margin: 0;
+      font-size: 28px;
+    }
+
+    .topbar p {
+      margin: 6px 0 0;
+      color: var(--muted);
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px 28px 40px;
+    }
+
+    .hero {
+      background: var(--panel);
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+      margin-bottom: 20px;
+    }
+
+    .hero-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .title-block h2 {
+      margin: 0 0 8px;
+      font-size: 26px;
+    }
+
+    .journey-path {
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .ticket-code {
+      background: var(--soft-purple);
+      color: var(--purple);
+      padding: 10px 14px;
+      border-radius: 999px;
+      font-weight: bold;
+      font-size: 13px;
+      align-self: flex-start;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .chip {
+      padding: 9px 12px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: bold;
+      background: var(--soft-gray);
+      color: #374151;
+    }
+
+    .chip.green {
+      background: var(--soft-green);
+      color: var(--green);
+    }
+
+    .chip.blue {
+      background: var(--soft-blue);
+      color: var(--blue);
+    }
+
+    .chip.orange {
+      background: var(--soft-orange);
+      color: var(--orange);
+    }
+
+    .chip.purple {
+      background: var(--soft-purple);
+      color: var(--purple);
+    }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--panel);
+      border-radius: 20px;
+      padding: 22px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+    }
+
+    .card h3 {
+      margin: 0 0 16px;
+      font-size: 22px;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .info-item {
+      background: #f9fafb;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+    }
+
+    .info-label {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .info-value {
+      font-size: 16px;
+      font-weight: bold;
+      color: var(--text);
+    }
+
+    .timeline {
+      position: relative;
+      padding-left: 28px;
+      margin-top: 6px;
+    }
+
+    .timeline::before {
+      content: "";
+      position: absolute;
+      left: 10px;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: linear-gradient(to bottom, var(--blue), var(--purple), var(--green));
+      border-radius: 999px;
+    }
+
+    .step {
+      position: relative;
+      margin-bottom: 16px;
+    }
+
+    .step::before {
+      content: "";
+      position: absolute;
+      left: -24px;
+      top: 18px;
+      width: 16px;
+      height: 16px;
+      border-radius: 999px;
+      background: white;
+      border: 4px solid var(--green);
+      z-index: 1;
+    }
+
+    .step.waiting::before {
+      border-color: var(--orange);
+    }
+
+    .step-card {
+      background: #f9fafb;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 16px;
+    }
+
+    .step-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+    }
+
+    .step-title {
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    .step-date {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: bold;
+    }
+
+    .step-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 10px 0 8px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: bold;
+      white-space: nowrap;
+    }
+
+    .badge.done {
+      background: var(--soft-green);
+      color: var(--green);
+    }
+
+    .badge.waiting {
+      background: var(--soft-orange);
+      color: var(--orange);
+    }
+
+    .badge.role {
+      background: var(--soft-purple);
+      color: var(--purple);
+    }
+
+    .badge.service {
+      background: var(--soft-blue);
+      color: var(--blue);
+    }
+
+    .step-note {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .money-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .money-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      background: #f9fafb;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+    }
+
+    .money-item strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 15px;
+    }
+
+    .money-item span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .money-value {
+      font-size: 16px;
+      font-weight: bold;
+      white-space: nowrap;
+    }
+
+    .money-value.income {
+      color: var(--green);
+    }
+
+    .money-value.expense {
+      color: var(--red);
+    }
+
+    .money-value.neutral {
+      color: var(--muted);
+    }
+
+    .people-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .person {
+      background: #f9fafb;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+    }
+
+    .person-role {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .person-name {
+      font-size: 15px;
+      font-weight: bold;
+    }
+
+    .final-box {
+      background: linear-gradient(135deg, #ecfdf5, #f0fdf4);
+      border: 1px solid #bbf7d0;
+      border-radius: 18px;
+      padding: 18px;
+      margin-top: 18px;
+    }
+
+    .final-box h4 {
+      margin: 0 0 8px;
+      font-size: 18px;
+      color: var(--green);
+    }
+
+    .final-box p {
+      margin: 0;
+      color: #166534;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 960px) {
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .info-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .container {
+        padding: 20px 16px 32px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <a href="/flowpulse_v_4/4_1impegno.html" class="back">← Torna a 1Impegno</a>
+    <h1>Dettaglio ticket utente</h1>
+    <p>Vista reale della partecipazione di un utente a un journey specifico</p>
+  </div>
+
+  <div class="container">
+    <section class="hero">
+      <div class="hero-top">
+        <div class="title-block">
+          <h2>Percorso con Professionista</h2>
+          <div class="journey-path">
+            Valutazione → 4 lezioni → Test finale → Certificazione
+          </div>
+        </div>
+        <div class="ticket-code">Ticket #JG-2026-014</div>
+      </div>
+
+      <div class="chips">
+        <span class="chip green">Stato: Completato</span>
+        <span class="chip blue">Servizio: Gruppo</span>
+        <span class="chip purple">Ruolo utente: Cliente</span>
+        <span class="chip orange">Fase: Percorri</span>
+      </div>
+    </section>
+
+    <div class="main-grid">
+      <div>
+        <section class="card">
+          <h3>Partecipazione</h3>
+          <div class="info-grid">
+            <div class="info-item">
+              <div class="info-label">Utente</div>
+              <div class="info-value">Mario Rossi</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Servizio scelto</div>
+              <div class="info-value">Gruppo</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Ruolo</div>
+              <div class="info-value">Cliente</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Modalità</div>
+              <div class="info-value">In presenza</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Data inizio</div>
+              <div class="info-value">12 marzo 2026</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Data fine</div>
+              <div class="info-value">18 aprile 2026</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card" style="margin-top:20px;">
+          <h3>Tappe reali del ticket</h3>
+
+          <div class="timeline">
+            <div class="step">
+              <div class="step-card">
+                <div class="step-top">
+                  <div class="step-title">1. Iscrizione e conferma</div>
+                  <div class="step-date">10 marzo 2026</div>
+                </div>
+                <div class="step-meta">
+                  <span class="badge done">Completata</span>
+                  <span class="badge role">Segreteria + Cliente</span>
+                  <span class="badge service">Gruppo</span>
+                </div>
+                <div class="step-note">
+                  Registrazione del ticket, conferma del posto nel gruppo e invio delle informazioni iniziali.
+                </div>
+              </div>
+            </div>
+
+            <div class="step">
+              <div class="step-card">
+                <div class="step-top">
+                  <div class="step-title">2. Visita iniziale</div>
+                  <div class="step-date">12 marzo 2026</div>
+                </div>
+                <div class="step-meta">
+                  <span class="badge done">Completata</span>
+                  <span class="badge role">Professionista + Cliente</span>
+                  <span class="badge service">Gruppo</span>
+                </div>
+                <div class="step-note">
+                  Prima valutazione del percorso e definizione del punto di partenza personale.
+                </div>
+              </div>
+            </div>
+
+            <div class="step">
+              <div class="step-card">
+                <div class="step-top">
+                  <div class="step-title">3. Lezione 1 di 4</div>
+                  <div class="step-date">19 marzo 2026</div>
+                </div>
+                <div class="step-meta">
+                  <span class="badge done">Completata</span>
+                  <span class="badge role">Professionista + Gruppo</span>
+                  <span class="badge service">Gruppo</span>
+                </div>
+                <div class="step-note">
+                  Introduzione teorica e prima pratica guidata insieme al gruppo.
+                </div>
+              </div>
+            </div>
+
+            <div class="step">
+              <div class="step-card">
+                <div class="step-top">
+                  <div class="step-title">4. Lezione 2 di 4</div>
+                  <div class="step-date">26 marzo 2026</div>
+                </div>
+                <div class="step-meta">
+                  <span class="badge done">Completata</span>
+                  <span class="badge role">Professionista + Gruppo</span>
+                  <span class="badge service">Gruppo</span>
+                </div>
+                <div class="step-note">
+                  Approfondimento degli esercizi e verifica dell’esecuzione.
+                </div>
+              </div>
+            </div>
+
+            <div class="step">
+              <div class="step-card">
+                <div class="step-top">
+                  <div class="step-title">5. Lezione 3 di 4</div>
+                  <div class="step-date">2 aprile 2026</div>
+                </div>
+                <div class="step-meta">
+                  <span class="badge done">Completata</span>
+                  <span class="badge role">Professionista + Gruppo</span>
+                  <span class="badge service">Gruppo</span>
+                </div>
+                <div class="step-note">
+                  Consolidamento delle pratiche e lavoro personalizzato dentro il gruppo.
+                </div>
+              </div>
+            </div>
+
+            <div class="step">
+              <div class="step-card">
+                <div class="step-top">
+                  <div class="step-title">6. Lezione 4 di 4</div>
+                  <div class="step-date">9 aprile 2026</div>
+                </div>
+                <div class="step-meta">
+                  <span class="badge done">Completata</span>
+                  <span class="badge role">Professionista + Gruppo</span>
+                  <span class="badge service">Gruppo</span>
+                </div>
+                <div class="step-note">
+                  Chiusura della parte formativa del percorso.
+                </div>
+              </div>
+            </div>
+
+            <div class="step">
+              <div class="step-card">
+                <div class="step-top">
+                  <div class="step-title">7. Test finale e certificazione</div>
+                  <div class="step-date">18 aprile 2026</div>
+                </div>
+                <div class="step-meta">
+                  <span class="badge done">Completata</span>
+                  <span class="badge role">Tutor + Cliente</span>
+                  <span class="badge service">Gruppo</span>
+                </div>
+                <div class="step-note">
+                  Verifica finale del percorso, chiusura del ticket e rilascio dell’attestazione.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="final-box">
+            <h4>Esito finale</h4>
+            <p>
+              Il ticket è stato completato con successo. L’utente ha concluso tutte le tappe previste
+              del servizio di gruppo e ha ottenuto la certificazione finale.
+            </p>
+          </div>
+        </section>
+      </div>
+
+      <div>
+        <section class="card">
+          <h3>Economica</h3>
+          <div class="money-list">
+            <div class="money-item">
+              <div>
+                <strong>Biglietto del servizio</strong>
+                <span>Quota pagata dall’utente per partecipare</span>
+              </div>
+              <div class="money-value expense">-120 €</div>
+            </div>
+
+            <div class="money-item">
+              <div>
+                <strong>Materiale incluso</strong>
+                <span>Dispense e supporto base</span>
+              </div>
+              <div class="money-value neutral">Incluso</div>
+            </div>
+
+            <div class="money-item">
+              <div>
+                <strong>Saldo finale</strong>
+                <span>Totale versato per questo ticket</span>
+              </div>
+              <div class="money-value expense">-120 €</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card" style="margin-top:20px;">
+          <h3>Ruoli coinvolti</h3>
+          <div class="people-list">
+            <div class="person">
+              <div class="person-role">Cliente</div>
+              <div class="person-name">Mario Rossi</div>
+            </div>
+
+            <div class="person">
+              <div class="person-role">Professionista</div>
+              <div class="person-name">Dott. Luca Bianchi</div>
+            </div>
+
+            <div class="person">
+              <div class="person-role">Tutor</div>
+              <div class="person-name">Sara Verdi</div>
+            </div>
+
+            <div class="person">
+              <div class="person-role">Segreteria</div>
+              <div class="person-name">Anna Neri</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card" style="margin-top:20px;">
+          <h3>Riepilogo rapido</h3>
+          <div class="info-grid" style="grid-template-columns:1fr;">
+            <div class="info-item">
+              <div class="info-label">Journey</div>
+              <div class="info-value">Percorso con Professionista</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Stazione partenza</div>
+              <div class="info-value">Valutazione</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Stazione arrivo</div>
+              <div class="info-value">Certificazione</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Numero tappe completate</div>
+              <div class="info-value">7 / 7</div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

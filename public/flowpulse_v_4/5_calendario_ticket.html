@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calendario Ticket - Flowpulse</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg: #f5f7fb;
+      --panel: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --dark: #111827;
+      --line: #e5e7eb;
+
+      --blue: #2563eb;
+      --green: #16a34a;
+      --orange: #ea580c;
+      --purple: #7c3aed;
+      --red: #dc2626;
+      --gray: #6b7280;
+
+      --soft-blue: #dbeafe;
+      --soft-green: #dcfce7;
+      --soft-orange: #ffedd5;
+      --soft-purple: #ede9fe;
+      --soft-red: #fee2e2;
+      --soft-gray: #f3f4f6;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      min-height: 100vh;
+    }
+
+    aside.sidebar {
+      width: 260px;
+      background: linear-gradient(180deg, #18202b 0%, #101722 100%);
+      color: white;
+      padding: 28px 18px;
+      flex-shrink: 0;
+    }
+
+    .sidebar h2 {
+      margin: 0 0 28px;
+      font-size: 20px;
+      letter-spacing: 0.02em;
+    }
+
+    .nav-group {
+      margin-bottom: 24px;
+      padding-left: 12px;
+      border-left: 3px solid #d3b38b;
+    }
+
+    .nav-group.creator {
+      border-left-color: #8db06f;
+    }
+
+    .nav-label {
+      margin: 0 0 10px;
+      font-size: 11px;
+      font-weight: bold;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #93a0b4;
+    }
+
+    .sidebar nav a {
+      display: block;
+      color: #d1d5db;
+      text-decoration: none;
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin-bottom: 6px;
+    }
+
+    .sidebar nav a:hover,
+    .sidebar nav a.active {
+      background: #242f3e;
+      color: #fff;
+    }
+
+    main {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .topbar {
+      background: white;
+      border-bottom: 1px solid var(--line);
+      padding: 20px 28px;
+    }
+
+    .topbar h1 {
+      margin: 0;
+      font-size: 28px;
+    }
+
+    .topbar p {
+      margin: 6px 0 0;
+      color: var(--muted);
+    }
+
+    .content {
+      padding: 24px 28px 40px;
+      max-width: 1300px;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 20px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .view-tabs {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .view-btn {
+      border: 1px solid var(--line);
+      background: white;
+      color: #374151;
+      padding: 12px 18px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .view-btn.active[data-view="calendar"] {
+      background: var(--soft-blue);
+      color: var(--blue);
+      border-color: #bfdbfe;
+    }
+
+    .view-btn.active[data-view="list"] {
+      background: var(--soft-green);
+      color: var(--green);
+      border-color: #bbf7d0;
+    }
+
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .filter-chip {
+      background: white;
+      border: 1px solid var(--line);
+      color: #374151;
+      padding: 10px 12px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: bold;
+    }
+
+    .panel {
+      display: none;
+    }
+
+    .panel.active {
+      display: block;
+    }
+
+    .summary-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .summary-card {
+      background: var(--panel);
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+    }
+
+    .summary-label {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .summary-value {
+      font-size: 28px;
+      font-weight: bold;
+    }
+
+    .calendar-box,
+    .list-box {
+      background: var(--panel);
+      border-radius: 18px;
+      padding: 20px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+    }
+
+    .calendar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+
+    .calendar-header h3,
+    .list-header h3 {
+      margin: 0;
+      font-size: 22px;
+    }
+
+    .calendar-sub,
+    .list-sub {
+      color: var(--muted);
+      font-size: 14px;
+      margin-top: 6px;
+    }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 12px;
+    }
+
+    .day-name {
+      text-align: center;
+      font-size: 13px;
+      font-weight: bold;
+      color: var(--muted);
+      padding-bottom: 6px;
+    }
+
+    .day-card {
+      background: #f9fafb;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      min-height: 160px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .day-number {
+      font-size: 14px;
+      font-weight: bold;
+      color: #374151;
+      margin-bottom: 4px;
+    }
+
+    .ticket-mini {
+      border-radius: 12px;
+      padding: 8px;
+      font-size: 12px;
+      line-height: 1.4;
+      border: 1px solid transparent;
+    }
+
+    .ticket-mini strong {
+      display: block;
+      margin-bottom: 3px;
+      font-size: 12px;
+    }
+
+    .phase-explore {
+      background: var(--soft-blue);
+      border-color: #bfdbfe;
+      color: var(--blue);
+    }
+
+    .phase-test {
+      background: var(--soft-orange);
+      border-color: #fed7aa;
+      color: var(--orange);
+    }
+
+    .phase-percorri {
+      background: var(--soft-green);
+      border-color: #bbf7d0;
+      color: var(--green);
+    }
+
+    .list-header {
+      margin-bottom: 16px;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 980px;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 14px 12px;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+      font-size: 14px;
+    }
+
+    th {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: bold;
+      background: #f9fafb;
+    }
+
+    .journey-name {
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+
+    .journey-path {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: bold;
+      white-space: nowrap;
+    }
+
+    .badge.blue {
+      background: var(--soft-blue);
+      color: var(--blue);
+    }
+
+    .badge.orange {
+      background: var(--soft-orange);
+      color: var(--orange);
+    }
+
+    .badge.green {
+      background: var(--soft-green);
+      color: var(--green);
+    }
+
+    .badge.purple {
+      background: var(--soft-purple);
+      color: var(--purple);
+    }
+
+    .status {
+      font-size: 13px;
+      font-weight: bold;
+      padding: 6px 10px;
+      border-radius: 999px;
+      display: inline-block;
+    }
+
+    .status.done {
+      background: var(--soft-green);
+      color: var(--green);
+    }
+
+    .status.waiting {
+      background: var(--soft-orange);
+      color: var(--orange);
+    }
+
+    .status.progress {
+      background: var(--soft-blue);
+      color: var(--blue);
+    }
+
+    .money {
+      font-weight: bold;
+      font-size: 14px;
+      white-space: nowrap;
+    }
+
+    .money.income {
+      color: var(--green);
+    }
+
+    .money.expense {
+      color: var(--red);
+    }
+
+    .money.neutral {
+      color: var(--gray);
+    }
+
+    @media (max-width: 1200px) {
+      .summary-row {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .calendar-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .day-name {
+        display: none;
+      }
+    }
+
+    @media (max-width: 960px) {
+      body {
+        flex-direction: column;
+      }
+
+      aside.sidebar {
+        width: 100%;
+      }
+
+      .content {
+        padding: 20px 16px 32px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .summary-row {
+        grid-template-columns: 1fr;
+      }
+
+      .calendar-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <h2>Flowpulse</h2>
+    <nav>
+      <div class="nav-group">
+        <p class="nav-label">Viaggiatore</p>
+        <a href="/flowpulse_v_4/4_1impegno.html">4. 1Impegno</a>
+        <a href="/flowpulse_v_4/5_calendario_ticket.html" class="active">5. Calendario Ticket</a>
+      </div>
+      <div class="nav-group creator">
+        <p class="nav-label">Creator</p>
+        <a href="/flowpulse_v_4/1_flowpulse_albero_indice_mappe.html">1. Albero Mappe</a>
+        <a href="/flowpulse_v_4/2_generaimpresa_mappa.html">2. GeneraImpresa</a>
+        <a href="/flowpulse_v_4/3_rails4b.html">3. Rails4Business</a>
+      </div>
+    </nav>
+  </aside>
+
+  <main>
+    <div class="topbar">
+      <h1>Calendario Ticket</h1>
+      <p>Tutte le attività legate ai tuoi ticket nei vari journey</p>
+    </div>
+
+    <div class="content">
+      <section class="summary-row">
+        <div class="summary-card">
+          <div class="summary-label">Ticket totali</div>
+          <div class="summary-value">12</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-label">Attività questa settimana</div>
+          <div class="summary-value">5</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-label">Entrate</div>
+          <div class="summary-value" style="color: var(--green);">+120€</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-label">Uscite</div>
+          <div class="summary-value" style="color: var(--red);">-175€</div>
+        </div>
+      </section>
+
+      <div class="toolbar">
+        <div class="view-tabs">
+          <button class="view-btn active" data-view="calendar">Vista Calendario</button>
+          <button class="view-btn" data-view="list">Vista Elenco</button>
+        </div>
+
+        <div class="filters">
+          <span class="filter-chip">Fase: tutte</span>
+          <span class="filter-chip">Servizio: tutti</span>
+          <span class="filter-chip">Ruolo: tutti</span>
+          <span class="filter-chip">Periodo: settimana</span>
+        </div>
+      </div>
+
+      <!-- CALENDARIO -->
+      <section class="panel active" id="calendar">
+        <div class="calendar-box">
+          <div class="calendar-header">
+            <div>
+              <h3>Settimana corrente</h3>
+              <div class="calendar-sub">Panoramica semplice delle attività-ticket</div>
+            </div>
+            <span class="badge purple">Aprile 2026</span>
+          </div>
+
+          <div class="calendar-grid">
+            <div class="day-name">Lun</div>
+            <div class="day-name">Mar</div>
+            <div class="day-name">Mer</div>
+            <div class="day-name">Gio</div>
+            <div class="day-name">Ven</div>
+            <div class="day-name">Sab</div>
+            <div class="day-name">Dom</div>
+
+            <div class="day-card">
+              <div class="day-number">1</div>
+              <div class="ticket-mini phase-explore">
+                <strong>Business Model Base</strong>
+                Revisione tappa 2<br>
+                Esplora · Creatore
+              </div>
+            </div>
+
+            <div class="day-card">
+              <div class="day-number">2</div>
+              <div class="ticket-mini phase-test">
+                <strong>Percorso Cliente Demo</strong>
+                Lezione test 1<br>
+                Testa · Cliente
+              </div>
+            </div>
+
+            <div class="day-card">
+              <div class="day-number">3</div>
+              <div class="ticket-mini phase-percorri">
+                <strong>Percorso con Professionista</strong>
+                Visita iniziale<br>
+                Percorri · Cliente
+              </div>
+            </div>
+
+            <div class="day-card">
+              <div class="day-number">4</div>
+              <div class="ticket-mini phase-percorri">
+                <strong>Corso in Gruppo</strong>
+                Onboarding gruppo<br>
+                Percorri · Tutor
+              </div>
+            </div>
+
+            <div class="day-card">
+              <div class="day-number">5</div>
+              <div class="ticket-mini phase-test">
+                <strong>Igiene Posturale Base</strong>
+                Raccolta feedback<br>
+                Testa · Guida
+              </div>
+            </div>
+
+            <div class="day-card">
+              <div class="day-number">6</div>
+              <div class="ticket-mini phase-percorri">
+                <strong>Corso in Gruppo</strong>
+                Lezione 1 di 4<br>
+                Percorri · Tutor
+              </div>
+            </div>
+
+            <div class="day-card">
+              <div class="day-number">7</div>
+              <div class="ticket-mini phase-explore">
+                <strong>Onboarding Tutor</strong>
+                Definizione step finali<br>
+                Esplora · Creatore
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ELENCO -->
+      <section class="panel" id="list">
+        <div class="list-box">
+          <div class="list-header">
+            <h3>Elenco attività e ticket</h3>
+            <div class="list-sub">
+              Vista operativa con journey, fase, servizio, ruolo, stato e valore economico
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Journey</th>
+                  <th>Attività</th>
+                  <th>Fase</th>
+                  <th>Servizio</th>
+                  <th>Ruolo</th>
+                  <th>Data</th>
+                  <th>Stato</th>
+                  <th>Valore</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <div class="journey-name">Business Model Base</div>
+                    <div class="journey-path">Visione → Sistema</div>
+                  </td>
+                  <td>Revisione tappa 2</td>
+                  <td><span class="badge blue">Esplora</span></td>
+                  <td><span class="badge purple">Autonomia</span></td>
+                  <td>Creatore</td>
+                  <td>1 Apr 2026</td>
+                  <td><span class="status progress">In corso</span></td>
+                  <td><span class="money neutral">0 €</span></td>
+                </tr>
+
+                <tr>
+                  <td>
+                    <div class="journey-name">Percorso Cliente Demo</div>
+                    <div class="journey-path">Ingresso → Verifica</div>
+                  </td>
+                  <td>Lezione test 1</td>
+                  <td><span class="badge orange">Testa</span></td>
+                  <td><span class="badge purple">Singolo</span></td>
+                  <td>Cliente</td>
+                  <td>2 Apr 2026</td>
+                  <td><span class="status done">Completato</span></td>
+                  <td><span class="money expense">-25 €</span></td>
+                </tr>
+
+                <tr>
+                  <td>
+                    <div class="journey-name">Percorso con Professionista</div>
+                    <div class="journey-path">Valutazione → Certificazione</div>
+                  </td>
+                  <td>Visita iniziale</td>
+                  <td><span class="badge green">Percorri</span></td>
+                  <td><span class="badge purple">Singolo</span></td>
+                  <td>Cliente</td>
+                  <td>3 Apr 2026</td>
+                  <td><span class="status done">Completato</span></td>
+                  <td><span class="money expense">-70 €</span></td>
+                </tr>
+
+                <tr>
+                  <td>
+                    <div class="journey-name">Corso in Gruppo</div>
+                    <div class="journey-path">Ingresso → Attestato</div>
+                  </td>
+                  <td>Onboarding gruppo</td>
+                  <td><span class="badge green">Percorri</span></td>
+                  <td><span class="badge purple">Gruppo</span></td>
+                  <td>Tutor</td>
+                  <td>4 Apr 2026</td>
+                  <td><span class="status done">Completato</span></td>
+                  <td><span class="money income">+20 €</span></td>
+                </tr>
+
+                <tr>
+                  <td>
+                    <div class="journey-name">Igiene Posturale Base</div>
+                    <div class="journey-path">Valutazione → Test finale</div>
+                  </td>
+                  <td>Raccolta feedback</td>
+                  <td><span class="badge orange">Testa</span></td>
+                  <td><span class="badge purple">Gruppo</span></td>
+                  <td>Guida</td>
+                  <td>5 Apr 2026</td>
+                  <td><span class="status waiting">Da fare</span></td>
+                  <td><span class="money income">+40 €</span></td>
+                </tr>
+
+                <tr>
+                  <td>
+                    <div class="journey-name">Corso in Gruppo</div>
+                    <div class="journey-path">Ingresso → Attestato</div>
+                  </td>
+                  <td>Lezione 1 di 4</td>
+                  <td><span class="badge green">Percorri</span></td>
+                  <td><span class="badge purple">Gruppo</span></td>
+                  <td>Tutor</td>
+                  <td>6 Apr 2026</td>
+                  <td><span class="status waiting">Da fare</span></td>
+                  <td><span class="money income">+20 €</span></td>
+                </tr>
+
+                <tr>
+                  <td>
+                    <div class="journey-name">Onboarding Tutor</div>
+                    <div class="journey-path">Ingresso → Attivazione</div>
+                  </td>
+                  <td>Definizione step finali</td>
+                  <td><span class="badge blue">Esplora</span></td>
+                  <td><span class="badge purple">Autonomia</span></td>
+                  <td>Creatore</td>
+                  <td>7 Apr 2026</td>
+                  <td><span class="status progress">In corso</span></td>
+                  <td><span class="money neutral">0 €</span></td>
+                </tr>
+
+                <tr>
+                  <td>
+                    <div class="journey-name">Percorso con Professionista</div>
+                    <div class="journey-path">Valutazione → Certificazione</div>
+                  </td>
+                  <td>Lezione 1 di 4</td>
+                  <td><span class="badge green">Percorri</span></td>
+                  <td><span class="badge purple">Singolo</span></td>
+                  <td>Professionista</td>
+                  <td>8 Apr 2026</td>
+                  <td><span class="status waiting">Da fare</span></td>
+                  <td><span class="money income">+35 €</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const viewButtons = document.querySelectorAll('.view-btn');
+    const panels = document.querySelectorAll('.panel');
+
+    viewButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        viewButtons.forEach(btn => btn.classList.remove('active'));
+        panels.forEach(panel => panel.classList.remove('active'));
+
+        button.classList.add('active');
+        document.getElementById(button.dataset.view).classList.add('active');
+      });
+    });
+  </script>
+</body>
+</html>

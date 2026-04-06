@@ -1,0 +1,160 @@
+<% content_for :title, "Professionisti" %>
+
+<section class="dashboard-shell">
+  <div class="app-layout">
+    <%= render "shared/app_sidebar" %>
+
+    <div class="dashboard-card" data-controller="tabs" data-tabs-default-tab-value="listino">
+      <p class="eyebrow">Professionisti</p>
+
+      <p>
+        Questa area accompagna il professionista dall'ingresso della persona nel percorso fino alla costruzione
+        di una proposta, di un preventivo e di una mappa personalizzata.
+      </p>
+
+      <div class="dashboard-section">
+        <h2>Tre motivi di ingresso</h2>
+        <div class="dashboard-grid">
+          <article class="dashboard-panel dashboard-panel-blue">
+            <span class="dashboard-panel-kicker">Ingresso 01</span>
+            <h3>Malattia / bisogno</h3>
+            <p>La persona entra perche' ha un problema reale, urgente o da trattare.</p>
+          </article>
+          <article class="dashboard-panel dashboard-panel-green">
+            <span class="dashboard-panel-kicker">Ingresso 02</span>
+            <h3>Benessere / miglioramento</h3>
+            <p>La persona entra per stare meglio, crescere o migliorare una condizione esistente.</p>
+          </article>
+          <article class="dashboard-panel dashboard-panel-red">
+            <span class="dashboard-panel-kicker">Ingresso 03</span>
+            <h3>Conoscenza</h3>
+            <p>La persona entra per capire, imparare, orientarsi o costruire una nuova consapevolezza.</p>
+          </article>
+        </div>
+      </div>
+
+      <div class="dashboard-tabs" role="tablist" aria-label="Operativita professionale">
+        <button type="button" class="dashboard-tab-link" role="tab" aria-selected="true" data-tabs-target="tab" data-tab-id="listino" data-action="tabs#switch">
+          Listino servizi
+        </button>
+        <button type="button" class="dashboard-tab-link" role="tab" aria-selected="false" data-tabs-target="tab" data-tab-id="inquadramento" data-action="tabs#switch">
+          Inquadramento
+        </button>
+        <button type="button" class="dashboard-tab-link" role="tab" aria-selected="false" data-tabs-target="tab" data-tab-id="proposta" data-action="tabs#switch">
+          Proposta percorso
+        </button>
+        <button type="button" class="dashboard-tab-link" role="tab" aria-selected="false" data-tabs-target="tab" data-tab-id="preventivo" data-action="tabs#switch">
+          Preventivo
+        </button>
+        <button type="button" class="dashboard-tab-link" role="tab" aria-selected="false" data-tabs-target="tab" data-tab-id="personalizzato" data-action="tabs#switch">
+          Percorso personalizzato
+        </button>
+      </div>
+
+      <div class="dashboard-section" role="tabpanel" data-tabs-target="panel" data-tab-id="listino">
+        <h2>Listino servizi</h2>
+        <div class="dashboard-grid dashboard-grid-professionals">
+          <article class="dashboard-panel dashboard-panel-blue">
+            <span class="dashboard-panel-kicker">Catalogo</span>
+            <h3>Cosa posso erogare</h3>
+            <p>
+              Elenco dei servizi erogabili dal professionista, con ambiti, modalita', prezzo base e valore professionale applicabile.
+            </p>
+          </article>
+
+          <article class="dashboard-panel">
+            <span class="dashboard-panel-kicker">Target</span>
+            <h3>Ambiti e classi</h3>
+            <p>
+              Ogni servizio potra' chiarire in quali ambiti e in quali contesti e' realmente in target.
+            </p>
+          </article>
+        </div>
+      </div>
+
+      <div class="dashboard-section" role="tabpanel" data-tabs-target="panel" data-tab-id="inquadramento" hidden>
+        <h2>Inquadramento</h2>
+        <div class="dashboard-grid dashboard-grid-professionals">
+          <article class="dashboard-panel dashboard-panel-green">
+            <span class="dashboard-panel-kicker">Problema o obiettivo</span>
+            <h3>Lettura iniziale</h3>
+            <p>
+              Serve a capire il bisogno della persona, l'ambito corretto e quali mappe o servizi possono essere davvero utili.
+            </p>
+          </article>
+
+          <article class="dashboard-panel">
+            <span class="dashboard-panel-kicker">Matching</span>
+            <h3>Servizi in target</h3>
+            <p>
+              Il sistema dovra' aiutare a vedere se esistono servizi, journey o mappe coerenti con la richiesta della persona.
+            </p>
+          </article>
+        </div>
+      </div>
+
+      <div class="dashboard-section" role="tabpanel" data-tabs-target="panel" data-tab-id="proposta" hidden>
+        <h2>Proposta percorso</h2>
+        <div class="dashboard-grid dashboard-grid-professionals">
+          <article class="dashboard-panel dashboard-panel-red">
+            <span class="dashboard-panel-kicker">Composizione</span>
+            <h3>Servizi, mappe, journey</h3>
+            <p>
+              Qui il professionista costruisce la proposta selezionando servizi, journey e mappe che possono comporre il percorso.
+            </p>
+          </article>
+
+          <article class="dashboard-panel">
+            <span class="dashboard-panel-kicker">Collaborazione</span>
+            <h3>Persone di fiducia</h3>
+            <p>
+              La proposta potra' includere altri professionisti o persone di fiducia che ampliano il percorso con i loro journey.
+            </p>
+          </article>
+        </div>
+      </div>
+
+      <div class="dashboard-section" role="tabpanel" data-tabs-target="panel" data-tab-id="preventivo" hidden>
+        <h2>Preventivo</h2>
+        <div class="dashboard-grid dashboard-grid-professionals">
+          <article class="dashboard-panel dashboard-panel-blue">
+            <span class="dashboard-panel-kicker">Prezzo</span>
+            <h3>Offerta economica</h3>
+            <p>
+              Qui entrano prezzi, servizi inclusi, composizione del valore e proposta economica finale.
+            </p>
+          </article>
+
+          <article class="dashboard-panel">
+            <span class="dashboard-panel-kicker">Valore</span>
+            <h3>Percorso + professionista</h3>
+            <p>
+              Il preventivo dovra' chiarire il valore del percorso, il valore del servizio e l'eventuale professional value aggiunto.
+            </p>
+          </article>
+        </div>
+      </div>
+
+      <div class="dashboard-section" role="tabpanel" data-tabs-target="panel" data-tab-id="personalizzato" hidden>
+        <h2>Percorso personalizzato</h2>
+        <div class="dashboard-grid dashboard-grid-professionals">
+          <article class="dashboard-panel dashboard-panel-green">
+            <span class="dashboard-panel-kicker">Mappa / percorso  personale</span>
+            <h3>Problema / obiettivo</h3>
+            <p>
+              Nasce una mappa personalizzata centrata sul problema o sull'obiettivo della persona, collegata anche ad altre mappe utili.
+            </p>
+          </article>
+
+          <article class="dashboard-panel dashboard-panel-red">
+            <span class="dashboard-panel-kicker">Percorso condiviso</span>
+            <h3>Rete ampliabile</h3>
+            <p>
+              Il percorso puo' essere condiviso e ampliato da persone di fiducia o da altri professionisti che aggiungono i loro journey.
+            </p>
+          </article>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

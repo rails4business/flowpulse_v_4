@@ -1,0 +1,98 @@
+<% content_for :title, "Dashboard" %>
+
+<section class="dashboard-shell">
+  <div class="app-layout">
+    <%= render "shared/app_sidebar" %>
+
+    <div class="dashboard-card">
+      <p class="eyebrow">Dashboard</p>
+      
+      <p>
+        Flowpulse tiene insieme tre soggetti: creator, professionisti e persone. Da qui il tuo spazio puo'
+        diventare mondo condiviso, servizio oppure percorso vissuto.
+      </p>
+
+      <div class="dashboard-meta">
+        <div class="dashboard-item">
+          <span class="dashboard-label">Utente</span>
+          <strong><%= Current.session.user.email_address %></strong>
+        </div>
+
+        <% if Current.session.user.superadmin? %>
+          <div class="dashboard-item">
+            <span class="dashboard-label">Superadmin</span>
+            <strong>Abilitato</strong>
+          </div>
+        <% end %>
+
+        <% if Current.session.user.profile.present? %>
+          <div class="dashboard-item">
+            <span class="dashboard-label">Profilo</span>
+            <strong><%= Current.session.user.profile.display_name %></strong>
+          </div>
+
+          <div class="dashboard-item">
+            <span class="dashboard-label">Stato creator</span>
+            <strong><%= Current.session.user.profile.creator_status_label %></strong>
+          </div>
+        <% end %>
+      </div>
+
+      <div class="dashboard-section">
+        <h2>Tre soggetti del sistema</h2>
+        <div class="dashboard-grid">
+          <article class="dashboard-panel dashboard-panel-blue">
+            <span class="dashboard-panel-kicker">Creator</span>
+            <h3>Mondi comuni</h3>
+            <p>Crea branch, mappe comuni, journey template e servizi.</p>
+          </article>
+          <article class="dashboard-panel dashboard-panel-green">
+            <span class="dashboard-panel-kicker">Professionista</span>
+            <h3>Servizi e competenze</h3>
+            <p>Porta formazione, servizi e valore professionale dentro mappe e percorsi.</p>
+          </article>
+          <article class="dashboard-panel dashboard-panel-red">
+            <span class="dashboard-panel-kicker">Persona</span>
+            <h3>Mappe vissute</h3>
+            <p>Attraversa un percorso e costruisce nel tempo le proprie mappe del mondo.</p>
+          </article>
+        </div>
+      </div>
+
+      <div class="dashboard-actions">
+        <% if Current.session.user.profile.present? && Current.session.user.profile.creator? %>
+          <div class="request-creator-box request-creator-box-success">
+            <p class="request-price">Creator attivo</p>
+            <p>
+              L'accesso creator e' abilitato. Ora puoi creare branch, mappe e journey del tuo spazio.
+            </p>
+          </div>
+        <% elsif Current.session.user.profile.present? && !Current.session.user.profile.creator? && !Current.session.user.profile.creator_requested? %>
+          <div class="request-creator-box">
+            <p class="request-price">Piano creator: EUR 29</p>
+            <p>
+              L'accesso creator abilita la creazione di branch e mappe. Dopo la richiesta l'attivazione
+              avverra' con verifica e pagamento.
+            </p>
+            <%= button_to "Richiedi piano creator", request_creator_profile_path, method: :patch, class: "btn btn-primary btn-block" %>
+          </div>
+        <% elsif Current.session.user.profile.present? && Current.session.user.profile.creator_requested? %>
+          <div class="request-creator-box">
+            <p class="request-price">Richiesta creator inviata</p>
+            <p>
+              La richiesta e' stata registrata. Il piano creator verra' attivato dopo conferma e pagamento.
+            </p>
+          </div>
+        <% end %>
+
+        <div class="hero-actions">
+          <% if Current.session.user.profile.present? %>
+            <%= link_to "Modifica profilo", edit_profile_path, class: "btn btn-primary" %>
+          <% end %>
+          <%= link_to "Torna alla home", root_path, class: "btn btn-secondary" %>
+          <%= button_to "Esci", session_path, method: :delete, class: "btn btn-secondary" %>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

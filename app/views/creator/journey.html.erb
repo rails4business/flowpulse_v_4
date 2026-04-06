@@ -1,0 +1,42 @@
+<% content_for :title, "Journey creator" %>
+
+<section class="dashboard-shell">
+  <div class="app-layout">
+    <%= render "shared/app_sidebar" %>
+
+    <div class="dashboard-card">
+      <p class="eyebrow">Creator</p>
+      <h1>Journey creator</h1>
+      <p>
+        Questa vista sara' il punto di lavoro del journey template. Per ora mantiene la shell autenticata
+        e collega il journey statico come riferimento.
+      </p>
+
+      <div class="tree-panel">
+        <div class="tree-title">Focus</div>
+        <div class="tree-preview">
+          <div>• fasi exploration / validation / service</div>
+          <div>• eventi collegati al journey</div>
+          <div>• risorse e materiali del percorso</div>
+        </div>
+      </div>
+
+      <div class="dashboard-actions">
+        <div class="admin-section">
+          <h2>Riferimento attuale</h2>
+          <div class="admin-list">
+            <article class="admin-list-item">
+              <div class="admin-list-copy">
+                <strong>Mockup statico Rails4Business</strong>
+                <p>Base temporanea per la vista di dettaglio del journey creator.</p>
+              </div>
+              <div class="admin-list-actions">
+                <a href="/flowpulse_v_4/3_rails4b.html" class="btn btn-secondary">Apri riferimento</a>
+              </div>
+            </article>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Flowpulse - Albero Mappe</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f7f7f9;
+      color: #222;
+      display: flex;
+      min-height: 100vh;
+    }
+
+    aside {
+      width: 260px;
+      background: linear-gradient(180deg, #18202b 0%, #101722 100%);
+      color: white;
+      padding: 28px 18px;
+      flex-shrink: 0;
+    }
+
+    aside h2 {
+      margin-top: 0;
+      margin-bottom: 28px;
+      font-size: 20px;
+      letter-spacing: 0.02em;
+    }
+
+    .nav-group {
+      margin-bottom: 24px;
+      padding-left: 12px;
+      border-left: 3px solid #d3b38b;
+    }
+
+    .nav-group.creator {
+      border-left-color: #8db06f;
+    }
+
+    .nav-label {
+      margin: 0 0 10px;
+      font-size: 11px;
+      font-weight: bold;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #93a0b4;
+    }
+
+    aside nav a {
+      display: block;
+      color: #d1d5db;
+      text-decoration: none;
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin-bottom: 6px;
+      transition: 0.2s;
+    }
+
+    aside nav a:hover,
+    aside nav a.active {
+      background: #242f3e;
+      color: white;
+    }
+
+    main {
+      flex: 1;
+      padding: 40px;
+    }
+
+    .page-header {
+      margin-bottom: 32px;
+    }
+
+    .page-header h1 {
+      margin: 0 0 8px;
+      font-size: 32px;
+    }
+
+    .page-header p {
+      margin: 0;
+      color: #666;
+    }
+
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 24px 32px;
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+      max-width: 700px;
+    }
+
+    .tree {
+      font-family: "Courier New", monospace;
+      font-size: 20px;
+      line-height: 1.8;
+      white-space: pre-wrap;
+    }
+
+    .tree-title {
+      font-size: 22px;
+      margin-bottom: 16px;
+      font-weight: bold;
+    }
+
+    .note {
+      margin-top: 24px;
+      font-size: 14px;
+      color: #666;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        flex-direction: column;
+      }
+
+      aside {
+        width: 100%;
+      }
+
+      main {
+        padding: 24px;
+      }
+
+      .tree {
+        font-size: 17px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <aside>
+    <h2>Flowpulse</h2>
+    <nav>
+      <div class="nav-group creator">
+        <p class="nav-label">Creator</p>
+        <a href="/flowpulse_v_4/1_flowpulse_albero_indice_mappe.html" class="active">1. Albero Mappe</a>
+        <a href="/flowpulse_v_4/2_generaimpresa_mappa.html">2. GeneraImpresa</a>
+        <a href="/flowpulse_v_4/3_rails4b.html">3. Rails4Business</a>
+      </div>
+      <div class="nav-group">
+        <p class="nav-label">Viaggiatore</p>
+        <a href="/flowpulse_v_4/4_1impegno.html">4. 1Impegno</a>
+        <a href="/flowpulse_v_4/5_calendario_ticket.html">5. Calendario Ticket</a>
+      </div>
+    </nav>
+  </aside>
+
+  <main>
+    <div class="page-header">
+      <h1>Business Model</h1>
+      <p>Vista base ad albero della mappa</p>
+    </div>
+
+    <div class="card">
+      <div class="tree-title">🧠 Business Model</div>
+      <div class="tree">├── 🎯 Obiettivo
+├── 🏗️ Struttura
+├── 🧍‍♂️ Attori
+│   └── 🔁 Flussi
+├── 🛠️ Strumenti
+└── 📊 Metriche</div>
+
+      <div class="note">
+        Questa è una versione iniziale molto semplice, pensata come prima schermata
+        di accesso alla mappa.
+      </div>
+    </div>
+  </main>
+</body>
+</html>

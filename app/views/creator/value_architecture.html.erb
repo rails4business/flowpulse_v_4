@@ -1,0 +1,72 @@
+<% content_for :title, "Valore percorsi" %>
+
+<section class="dashboard-shell">
+  <div class="app-layout">
+    <%= render "shared/app_sidebar" %>
+
+    <div class="dashboard-card">
+      <p class="eyebrow">Creator</p>
+      <h1>Valore percorsi</h1>
+      <p>
+        Questa pagina riassume come un journey entra nella logica di servizio e come il valore finale
+        possa essere composto dal percorso, dal servizio e dal professionista che lo eroga.
+      </p>
+
+      <div class="dashboard-grid dashboard-grid-professionals">
+        <article class="dashboard-panel">
+          <span class="dashboard-panel-kicker">Journey</span>
+          <h3>Percorso</h3>
+          <p>
+            Il journey mantiene valore intrinseco dato da contenuto, struttura, tappe, esplorazione, validazione ed efficacia.
+          </p>
+        </article>
+
+        <article class="dashboard-panel">
+          <span class="dashboard-panel-kicker">Service</span>
+          <h3>Erogazione</h3>
+          <p>
+            Il service raccoglie delivery mode, ruoli, ricompense, impostazione del servizio e valore base dell'erogazione.
+          </p>
+        </article>
+      </div>
+
+      <div class="dashboard-section">
+        <h2>Composizione del valore</h2>
+        <div class="dashboard-grid">
+          <article class="dashboard-panel dashboard-panel-blue">
+            <span class="dashboard-panel-kicker">Journey Value</span>
+            <h3>Valore del percorso</h3>
+            <p>
+              E' il valore generato dal journey standard o personalized, a partire da exploration, validation e service.
+            </p>
+          </article>
+
+          <article class="dashboard-panel dashboard-panel-green">
+            <span class="dashboard-panel-kicker">Service Value</span>
+            <h3>Valore del servizio</h3>
+            <p>
+              E' il valore della modalita' di erogazione: gruppo, individuale, online, in presenza, struttura e setup.
+            </p>
+          </article>
+
+          <article class="dashboard-panel dashboard-panel-red">
+            <span class="dashboard-panel-kicker">Offer Value</span>
+            <h3>Valore dell'offerta</h3>
+            <p>
+              E' il valore finale della proposta concreta, dove il professionista puo' decidere di aggiungere il proprio professional value.
+            </p>
+          </article>
+        </div>
+      </div>
+
+      <div class="tree-panel">
+        <div class="tree-title">Formula orientativa</div>
+        <div class="tree-preview">
+          <div>journey_value + service_value + professional_value = offer_value</div>
+          <div>journey.kind = standard / personalized</div>
+          <div>service raccoglie delivery_mode, ruoli, rewards e setup</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,80 @@
+<% content_for :title, "Modifica profilo" %>
+
+<section class="auth-shell">
+  <div class="app-layout">
+    <%= render "shared/app_sidebar" %>
+
+    <div class="auth-card">
+      <div class="auth-copy auth-copy-inline">
+        <p class="eyebrow">Profilo</p>
+        <h1>Modifica il tuo profilo.</h1>
+        <p>
+          Qui puoi aggiornare le informazioni visibili del tuo profilo e verificare lo stato dell'accesso creator.
+        </p>
+      </div>
+
+      <div class="status-stack" id="profile-settings">
+        <div class="status-card">
+          <span class="dashboard-label">Stato creator</span>
+          <strong><%= @profile.creator_status_label %></strong>
+        </div>
+      </div>
+
+      <% if @profile.creator? %>
+        <div class="request-creator-box request-creator-box-success">
+          <p class="request-price">Creator attivo</p>
+          <p>
+            L'accesso creator e' abilitato. Ora puoi creare branch, mappe e journey del tuo spazio.
+          </p>
+        </div>
+      <% elsif !@profile.creator? && !@profile.creator_requested? %>
+        <div class="request-creator-box">
+          <p class="request-price">Piano creator: EUR 29</p>
+          <p>
+            Se vuoi creare branch e mappe puoi richiedere il piano creator.
+            L'attivazione avverra' dopo conferma e pagamento.
+          </p>
+          <%= button_to "Richiedi piano creator", request_creator_profile_path, method: :patch, class: "btn btn-primary btn-block" %>
+        </div>
+      <% elsif @profile.creator_requested? %>
+        <div class="request-creator-box">
+          <p class="request-price">Richiesta creator inviata</p>
+          <p>
+            La richiesta e' stata registrata. Il piano creator verra' attivato dopo conferma e pagamento.
+          </p>
+        </div>
+      <% end %>
+
+      <% if @profile.errors.any? %>
+        <div class="flash-card flash-alert">
+          <strong>Profilo non aggiornato.</strong>
+          <p><%= @profile.errors.full_messages.to_sentence %></p>
+        </div>
+      <% end %>
+
+      <%= form_with model: @profile, url: profile_path, method: :patch, class: "auth-form", id: "profile-main" do |form| %>
+        <div>
+          <label>Slug profilo</label>
+          <div class="readonly-field"><%= @profile.slug %></div>
+        </div>
+
+        <div>
+          <%= form.label :display_name, "Nome profilo" %>
+          <%= form.text_field :display_name, required: true, class: "text-input" %>
+        </div>
+
+        <div>
+          <%= form.label :bio, "Bio" %>
+          <%= form.text_area :bio, rows: 4, class: "text-area" %>
+        </div>
+
+        <div>
+          <%= form.label :visibility, "Visibilita'" %>
+          <%= form.select :visibility, [["Privato", "private"], ["Pubblico", "public"]], {}, class: "text-input" %>
+        </div>
+
+        <%= form.submit "Salva profilo", class: "btn btn-primary auth-submit" %>
+      <% end %>
+    </div>
+  </div>
+</section>

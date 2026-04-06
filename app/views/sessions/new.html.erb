@@ -1,0 +1,49 @@
+<% content_for :title, "Accedi a Flowpulse" %>
+
+<section class="auth-shell">
+  <div class="auth-grid">
+    <div class="auth-copy">
+      <p class="eyebrow">Accedi</p>
+      <h1>Entra nel tuo spazio Flowpulse.</h1>
+      <p>
+        Accedi al tuo account per continuare a lavorare su mappe, branch e journey.
+      </p>
+      <%= link_to "Torna alla home", root_path, class: "btn btn-secondary" %>
+    </div>
+
+    <div class="auth-card">
+      <% if alert = flash[:alert] %>
+        <div class="flash-card flash-alert">
+          <strong>Accesso non riuscito.</strong>
+          <p><%= alert %></p>
+        </div>
+      <% end %>
+
+      <% if notice = flash[:notice] %>
+        <div class="flash-card flash-notice">
+          <strong>Info.</strong>
+          <p><%= notice %></p>
+        </div>
+      <% end %>
+
+      <%= form_with url: session_url, class: "auth-form" do |form| %>
+        <div>
+          <%= form.label :email_address, "Email" %>
+          <%= form.email_field :email_address, required: true, autofocus: true, autocomplete: "username", value: params[:email_address], class: "text-input" %>
+        </div>
+
+        <div>
+          <%= form.label :password, "Password" %>
+          <%= form.password_field :password, required: true, autocomplete: "current-password", maxlength: 72, class: "text-input" %>
+        </div>
+
+        <%= form.submit "Accedi", class: "btn btn-primary auth-submit" %>
+      <% end %>
+
+      <div class="auth-links">
+        <%= link_to "Password dimenticata?", new_password_path %>
+        <%= link_to "Crea account", new_registration_path %>
+      </div>
+    </div>
+  </div>
+</section>

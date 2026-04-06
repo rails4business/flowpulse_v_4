@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>1Impegno - Dashboard personale</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg: #f5f7fb;
+      --panel: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --dark: #111827;
+      --line: #e5e7eb;
+      --blue: #2563eb;
+      --green: #16a34a;
+      --orange: #ea580c;
+      --purple: #7c3aed;
+      --soft-blue: #dbeafe;
+      --soft-green: #dcfce7;
+      --soft-orange: #ffedd5;
+      --soft-purple: #ede9fe;
+      --soft-gray: #f3f4f6;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      min-height: 100vh;
+    }
+
+    aside.sidebar {
+      width: 260px;
+      background: linear-gradient(180deg, #18202b 0%, #101722 100%);
+      color: white;
+      padding: 28px 18px;
+      flex-shrink: 0;
+    }
+
+    .sidebar h2 {
+      margin: 0 0 28px;
+      font-size: 20px;
+      letter-spacing: 0.02em;
+    }
+
+    .nav-group {
+      margin-bottom: 24px;
+      padding-left: 12px;
+      border-left: 3px solid #d3b38b;
+    }
+
+    .nav-group.creator {
+      border-left-color: #8db06f;
+    }
+
+    .nav-label {
+      margin: 0 0 10px;
+      font-size: 11px;
+      font-weight: bold;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #93a0b4;
+    }
+
+    .sidebar nav a {
+      display: block;
+      color: #d1d5db;
+      text-decoration: none;
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin-bottom: 6px;
+    }
+
+    .sidebar nav a:hover,
+    .sidebar nav a.active {
+      background: #242f3e;
+      color: #fff;
+    }
+
+    main {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .topbar {
+      background: white;
+      border-bottom: 1px solid var(--line);
+      padding: 20px 28px;
+    }
+
+    .topbar h1 {
+      margin: 0;
+      font-size: 28px;
+    }
+
+    .topbar p {
+      margin: 6px 0 0;
+      color: var(--muted);
+    }
+
+    .content {
+      padding: 24px 28px 40px;
+      max-width: 1200px;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .summary-card {
+      background: var(--panel);
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+    }
+
+    .summary-label {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .summary-value {
+      font-size: 28px;
+      font-weight: bold;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    .tab {
+      border: 1px solid var(--line);
+      background: white;
+      color: #374151;
+      padding: 12px 18px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .tab.active[data-tab="created"] {
+      background: var(--soft-blue);
+      color: var(--blue);
+      border-color: #bfdbfe;
+    }
+
+    .tab.active[data-tab="tested"] {
+      background: var(--soft-orange);
+      color: var(--orange);
+      border-color: #fed7aa;
+    }
+
+    .tab.active[data-tab="active"] {
+      background: var(--soft-green);
+      color: var(--green);
+      border-color: #bbf7d0;
+    }
+
+    .tab-panel {
+      display: none;
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+
+    .panel-header {
+      background: var(--panel);
+      border-radius: 18px;
+      padding: 20px 22px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+      margin-bottom: 18px;
+    }
+
+    .panel-header h3 {
+      margin: 0 0 8px;
+      font-size: 22px;
+    }
+
+    .panel-header p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 18px;
+    }
+
+    .journey-card {
+      background: var(--panel);
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+      border: 1px solid transparent;
+    }
+
+    .journey-card.created {
+      border-color: #bfdbfe;
+    }
+
+    .journey-card.tested {
+      border-color: #fed7aa;
+    }
+
+    .journey-card.active {
+      border-color: #bbf7d0;
+    }
+
+    .journey-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .journey-title {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+
+    .journey-path {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .badge {
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: bold;
+      white-space: nowrap;
+    }
+
+    .badge.blue {
+      background: var(--soft-blue);
+      color: var(--blue);
+    }
+
+    .badge.orange {
+      background: var(--soft-orange);
+      color: var(--orange);
+    }
+
+    .badge.green {
+      background: var(--soft-green);
+      color: var(--green);
+    }
+
+    .badge.purple {
+      background: var(--soft-purple);
+      color: var(--purple);
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .meta {
+      background: var(--soft-gray);
+      color: #374151;
+      border-radius: 10px;
+      padding: 8px 10px;
+      font-size: 13px;
+      font-weight: bold;
+    }
+
+    .progress-wrap {
+      margin-bottom: 14px;
+    }
+
+    .progress-label {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 10px;
+      background: #e5e7eb;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      border-radius: 999px;
+    }
+
+    .progress-fill.blue {
+      width: 42%;
+      background: var(--blue);
+    }
+
+    .progress-fill.orange {
+      width: 75%;
+      background: var(--orange);
+    }
+
+    .progress-fill.green {
+      width: 58%;
+      background: var(--green);
+    }
+
+    .section-title {
+      font-size: 14px;
+      font-weight: bold;
+      margin-bottom: 10px;
+      color: #374151;
+    }
+
+    .mini-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .mini-item {
+      background: #f9fafb;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 14px;
+      color: #374151;
+    }
+
+    .mini-item strong {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--text);
+    }
+
+    .note {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 12px;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 1100px) {
+      .summary-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .cards-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 960px) {
+      body {
+        flex-direction: column;
+      }
+
+      aside.sidebar {
+        width: 100%;
+      }
+
+      .content {
+        padding: 20px 16px 32px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .summary-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <h2>Flowpulse</h2>
+    <nav>
+      <div class="nav-group">
+        <p class="nav-label">Viaggiatore</p>
+        <a href="/flowpulse_v_4/4_1impegno.html" class="active">4. 1Impegno</a>
+        <a href="/flowpulse_v_4/5_calendario_ticket.html">5. Calendario Ticket</a>
+      </div>
+      <div class="nav-group creator">
+        <p class="nav-label">Creator</p>
+        <a href="/flowpulse_v_4/1_flowpulse_albero_indice_mappe.html">1. Albero Mappe</a>
+        <a href="/flowpulse_v_4/2_generaimpresa_mappa.html">2. GeneraImpresa</a>
+        <a href="/flowpulse_v_4/3_rails4b.html">3. Rails4Business</a>
+      </div>
+    </nav>
+  </aside>
+
+  <main>
+    <div class="topbar">
+      <h1>1Impegno</h1>
+      <p>Dashboard personale: tragitti creati, testati e percorsi attivi</p>
+    </div>
+
+    <div class="content">
+      <section class="summary-grid">
+        <div class="summary-card">
+          <div class="summary-label">Tragitti creati</div>
+          <div class="summary-value">3</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-label">Tragitti testati</div>
+          <div class="summary-value">4</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-label">Percorsi attivi</div>
+          <div class="summary-value">2</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-label">Prossima tappa</div>
+          <div class="summary-value" style="font-size:18px;">Lezione 2</div>
+        </div>
+      </section>
+
+      <div class="tabs">
+        <button class="tab active" data-tab="created">1. Creati</button>
+        <button class="tab" data-tab="tested">2. Testati</button>
+        <button class="tab" data-tab="active">3. Percorri</button>
+      </div>
+
+      <!-- CREATI -->
+      <section class="tab-panel active" id="created">
+        <div class="panel-header">
+          <h3>Tragitti creati</h3>
+          <p>
+            Qui vedi i journey che stai costruendo. Questa è la vista del creatore:
+            definisci partenza, tappe, arrivo e stato del percorso.
+          </p>
+        </div>
+
+        <div class="cards-grid">
+          <article class="journey-card created">
+            <div class="journey-top">
+              <div>
+                <div class="journey-title">Business Model Base</div>
+                <div class="journey-path">Visione → Obiettivo → Struttura → Sistema</div>
+              </div>
+              <span class="badge blue">Esplora</span>
+            </div>
+
+            <div class="meta-row">
+              <span class="meta">4 tappe</span>
+              <span class="meta">Bozza attiva</span>
+              <span class="meta">Autonomia</span>
+            </div>
+
+            <div class="progress-wrap">
+              <div class="progress-label">Costruzione percorso</div>
+              <div class="progress-bar">
+                <div class="progress-fill blue"></div>
+              </div>
+            </div>
+
+            <div class="section-title">Parti già definite</div>
+            <div class="mini-list">
+              <div class="mini-item"><strong>Partenza</strong> Visione</div>
+              <div class="mini-item"><strong>Tappe</strong> Obiettivo, Struttura, Attori</div>
+              <div class="mini-item"><strong>Arrivo</strong> Sistema</div>
+            </div>
+
+            <div class="note">
+              In futuro qui puoi vedere anche prezzo autonomia, costo simbolico e ricavo creatore.
+            </div>
+          </article>
+
+          <article class="journey-card created">
+            <div class="journey-top">
+              <div>
+                <div class="journey-title">Percorso Onboarding Tutor</div>
+                <div class="journey-path">Ingresso → Regole → Prova pratica → Attivazione</div>
+              </div>
+              <span class="badge blue">Esplora</span>
+            </div>
+
+            <div class="meta-row">
+              <span class="meta">4 tappe</span>
+              <span class="meta">Da completare</span>
+              <span class="meta">Con guida</span>
+            </div>
+
+            <div class="progress-wrap">
+              <div class="progress-label">Costruzione percorso</div>
+              <div class="progress-bar">
+                <div class="progress-fill blue" style="width:68%;"></div>
+              </div>
+            </div>
+
+            <div class="section-title">Parti già definite</div>
+            <div class="mini-list">
+              <div class="mini-item"><strong>Partenza</strong> Ingresso</div>
+              <div class="mini-item"><strong>Tappe</strong> Regole, Affiancamento, Test</div>
+              <div class="mini-item"><strong>Arrivo</strong> Attivazione</div>
+            </div>
+
+            <div class="note">
+              Questa sezione serve a chi costruisce il journey e ne definisce struttura e logica.
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- TESTATI -->
+      <section class="tab-panel" id="tested">
+        <div class="panel-header">
+          <h3>Tragitti testati</h3>
+          <p>
+            Qui vedi i journey testati. Puoi averli testati come guida oppure come cliente
+            che seguiva una guida.
+          </p>
+        </div>
+
+        <div class="cards-grid">
+          <article class="journey-card tested">
+            <div class="journey-top">
+              <div>
+                <div class="journey-title">Igiene Posturale Base</div>
+                <div class="journey-path">Valutazione → Lezione 1 → Lezione 2 → Test finale</div>
+              </div>
+              <span class="badge orange">Testa</span>
+            </div>
+
+            <div class="meta-row">
+              <span class="meta">Ruolo: Guida</span>
+              <span class="meta">2 clienti</span>
+              <span class="meta">Test completato</span>
+            </div>
+
+            <div class="progress-wrap">
+              <div class="progress-label">Avanzamento test</div>
+              <div class="progress-bar">
+                <div class="progress-fill orange"></div>
+              </div>
+            </div>
+
+            <div class="section-title">Cosa hai fatto</div>
+            <div class="mini-list">
+              <div class="mini-item"><strong>Fase 1</strong> Accoglienza e spiegazione percorso</div>
+              <div class="mini-item"><strong>Fase 2</strong> Lezioni test con guida</div>
+              <div class="mini-item"><strong>Fase 3</strong> Raccolta feedback finale</div>
+            </div>
+
+            <div class="note">
+              Qui la logica è di test: il percorso è abbastanza chiaro ma non ancora ufficiale.
+            </div>
+          </article>
+
+          <article class="journey-card tested">
+            <div class="journey-top">
+              <div>
+                <div class="journey-title">Percorso Cliente Demo</div>
+                <div class="journey-path">Ingresso → 2 lezioni → pratica → verifica</div>
+              </div>
+              <span class="badge orange">Testa</span>
+            </div>
+
+            <div class="meta-row">
+              <span class="meta">Ruolo: Cliente</span>
+              <span class="meta">Con guida</span>
+              <span class="meta">Feedback inviato</span>
+            </div>
+
+            <div class="progress-wrap">
+              <div class="progress-label">Avanzamento test</div>
+              <div class="progress-bar">
+                <div class="progress-fill orange" style="width:60%;"></div>
+              </div>
+            </div>
+
+            <div class="section-title">Tappe eseguite</div>
+            <div class="mini-list">
+              <div class="mini-item"><strong>Lezione 1</strong> Teoria e pratica iniziale</div>
+              <div class="mini-item"><strong>Lezione 2</strong> Esercizi guidati</div>
+              <div class="mini-item"><strong>Verifica</strong> Quiz e osservazioni finali</div>
+            </div>
+
+            <div class="note">
+              Questa vista va bene sia per chi guida il test sia per chi lo segue come cliente.
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- PERCORRI -->
+      <section class="tab-panel" id="active">
+        <div class="panel-header">
+          <h3>Tragitti ufficiali attivi</h3>
+          <p>
+            Qui vedi i journey che stai percorrendo davvero. Ogni tragitto può avere un servizio
+            scelto e un ruolo specifico: cliente, tutor, professionista, operatore.
+          </p>
+        </div>
+
+        <div class="cards-grid">
+          <article class="journey-card active">
+            <div class="journey-top">
+              <div>
+                <div class="journey-title">Percorso con Professionista</div>
+                <div class="journey-path">Valutazione → 4 lezioni → test finale → certificazione</div>
+              </div>
+              <span class="badge green">Percorri</span>
+            </div>
+
+            <div class="meta-row">
+              <span class="meta">Servizio: Singolo</span>
+              <span class="meta">Ruolo: Cliente</span>
+              <span class="meta">Prezzo biglietto: 150€</span>
+            </div>
+
+            <div class="progress-wrap">
+              <div class="progress-label">Avanzamento percorso</div>
+              <div class="progress-bar">
+                <div class="progress-fill green"></div>
+              </div>
+            </div>
+
+            <div class="section-title">Le tue tappe</div>
+            <div class="mini-list">
+              <div class="mini-item"><strong>Segreteria + cliente</strong> Iscrizione e conferma</div>
+              <div class="mini-item"><strong>Professionista + cliente</strong> Visita iniziale</div>
+              <div class="mini-item"><strong>Professionista + cliente</strong> Lezione 1 di 4</div>
+            </div>
+
+            <div class="note">
+              Qui vedi il tragitto scelto, il servizio selezionato e solo le tappe rilevanti per il tuo ruolo.
+            </div>
+          </article>
+
+          <article class="journey-card active">
+            <div class="journey-top">
+              <div>
+                <div class="journey-title">Corso in Gruppo</div>
+                <div class="journey-path">Ingresso → gruppo 4 lezioni → test → attestato</div>
+              </div>
+              <span class="badge green">Percorri</span>
+            </div>
+
+            <div class="meta-row">
+              <span class="meta">Servizio: Gruppo</span>
+              <span class="meta">Ruolo: Tutor</span>
+              <span class="meta">Compenso: 40€</span>
+            </div>
+
+            <div class="progress-wrap">
+              <div class="progress-label">Avanzamento percorso</div>
+              <div class="progress-bar">
+                <div class="progress-fill green" style="width:82%;"></div>
+              </div>
+            </div>
+
+            <div class="section-title">Le tue tappe</div>
+            <div class="mini-list">
+              <div class="mini-item"><strong>Tutor + cliente</strong> Onboarding del gruppo</div>
+              <div class="mini-item"><strong>Professionista + gruppo</strong> Lezione 1</div>
+              <div class="mini-item"><strong>Tutor</strong> Supporto e verifica presenze</div>
+            </div>
+
+            <div class="note">
+              In futuro qui puoi distinguere meglio costo per cliente, compensi per ruoli e tempi di erogazione.
+            </div>
+          </article>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const tabs = document.querySelectorAll('.tab');
+    const panels = document.querySelectorAll('.tab-panel');
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        tabs.forEach(t => t.classList.remove('active'));
+        panels.forEach(panel => panel.classList.remove('active'));
+
+        tab.classList.add('active');
+        document.getElementById(tab.dataset.tab).classList.add('active');
+      });
+    });
+  </script>
+</body>
+</html>

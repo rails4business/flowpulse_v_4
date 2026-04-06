@@ -1,0 +1,48 @@
+<% content_for :title, "Registrati a Flowpulse" %>
+
+<section class="auth-shell">
+  <div class="auth-grid">
+    <div class="auth-copy">
+      <p class="eyebrow">Registrazione</p>
+      <h1>Crea il tuo account.</h1>
+      <p>
+        Primo step: email e password. Il profilo lo completi subito dopo l'accesso.
+      </p>
+      <%= link_to "Torna alla home", root_path, class: "btn btn-secondary" %>
+    </div>
+
+    <div class="auth-card">
+      <% if @user.errors.any? %>
+        <div class="flash-card flash-alert">
+          <strong>Registrazione non completata.</strong>
+          <p><%= @user.errors.full_messages.to_sentence %></p>
+        </div>
+      <% end %>
+
+      <%= form_with model: @user, url: registration_path, class: "auth-form" do |form| %>
+        <div>
+          <%= form.label :email_address, "Email" %>
+          <%= form.email_field :email_address, required: true, autocomplete: "username", class: "text-input" %>
+        </div>
+
+        <div class="field-grid">
+          <div>
+            <%= form.label :password, "Password" %>
+            <%= form.password_field :password, required: true, autocomplete: "new-password", class: "text-input" %>
+          </div>
+
+          <div>
+            <%= form.label :password_confirmation, "Conferma password" %>
+            <%= form.password_field :password_confirmation, required: true, autocomplete: "new-password", class: "text-input" %>
+          </div>
+        </div>
+
+        <%= form.submit "Crea account", class: "btn btn-primary auth-submit" %>
+      <% end %>
+
+      <p class="auth-note">
+        Hai gia' un account? <%= link_to "Accedi", new_session_path %>
+      </p>
+    </div>
+  </div>
+</section>

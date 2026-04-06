@@ -1,0 +1,160 @@
+<% content_for :title, "Flowpulse" %>
+
+<section class="home-shell">
+  <nav class="top-nav">
+    <%= link_to root_path, class: "brand-mark" do %>
+      <span class="brand-dot"></span>
+      <span>Flowpulse</span>
+    <% end %>
+
+    <div class="top-nav-links">
+      <a href="#struttura">Struttura</a>
+      <a href="#journey">Journey</a>
+      <%= link_to "About", about_path %>
+
+      <% if authenticated? %>
+        <details class="user-menu">
+          <summary class="user-trigger">
+            <span class="user-avatar"><%= Current.session.user.email_address.first.upcase %></span>
+          </summary>
+
+          <div class="user-dropdown">
+            <% if Current.session.user.profile.present? %>
+              <%= link_to "Dashboard", dashboard_path %>
+              <%= link_to "Profilo", edit_profile_path(anchor: "profile-main") %>
+              <%= link_to "Impostazioni", edit_profile_path(anchor: "profile-settings") %>
+            <% else %>
+              <%= link_to "Completa profilo", new_profile_path %>
+            <% end %>
+
+            <%= button_to "Esci", session_path, method: :delete, class: "user-menu-button" %>
+          </div>
+        </details>
+      <% else %>
+        <%= link_to "Registrati", new_registration_path %>
+        <%= link_to "Accedi", new_session_path, class: "nav-login" %>
+      <% end %>
+    </div>
+  </nav>
+
+  <nav class="top-nav sub-nav">
+    <div class="top-nav-links">
+      <a href="#struttura">Struttura</a>
+      <a href="#journey">Ingresso</a>
+    </div>
+  </nav>
+
+  <header class="home-hero">
+    <div class="hero-copy">
+      <p class="eyebrow">Flowpulse</p>
+      <h1>La vita e' un viaggio che lascia mappe.</h1>
+      <p class="hero-text">
+        Quando un'esperienza viene condivisa, non resta solo individuale: diventa racconto, pratica, metodo, relazione.
+        Flowpulse nasce per dare forma a questo passaggio, trasformando esperienze vissute in mappe, percorsi e mondi condivisi tra creator, professionisti e persone.
+      </p>
+
+      <div class="hero-actions">
+        <% if authenticated? %>
+          <% if Current.session.user.profile.present? %>
+            <%= link_to "Vai alla dashboard", dashboard_path, class: "btn btn-primary" %>
+            <%= link_to "Impostazioni profilo", edit_profile_path, class: "btn btn-secondary" %>
+          <% else %>
+            <%= link_to "Completa profilo", new_profile_path, class: "btn btn-primary" %>
+          <% end %>
+        <% else %>
+          <%= link_to "Registrati", new_registration_path, class: "btn btn-primary" %>
+          <%= link_to "Accedi", new_session_path, class: "btn btn-secondary" %>
+        <% end %>
+        <a href="#struttura" class="btn btn-secondary">Vedi struttura iniziale</a>
+      </div>
+    </div>
+
+    <div class="hero-panel" data-controller="changelog-modal">
+      <div class="hero-card">
+        <div class="changelog-head">
+          <p class="hero-card-label">Changelog</p>
+        </div>
+
+        <div class="changelog-stream">
+          <button type="button" class="changelog-item" data-action="click->changelog-modal#open" data-changelog-title="Home pubblica iniziale di Flowpulse" data-changelog-date="2026-04-05" data-changelog-type="Update" data-changelog-body="Prima pagina Rails pensata come ingresso pubblico della piattaforma.">
+            <span class="change-pill change-pill-update">2026-04-05 · Update</span>
+            <span class="changelog-line">Home pubblica iniziale di Flowpulse.</span>
+          </button>
+
+          <button type="button" class="changelog-item" data-action="click->changelog-modal#open" data-changelog-title="UX orientata alla presentazione" data-changelog-date="2026-04-05" data-changelog-type="UX" data-changelog-body="La home e' stata trattata come pagina introduttiva, non come dashboard operativa.">
+            <span class="change-pill change-pill-ux">2026-04-05 · UX</span>
+            <span class="changelog-line">UX orientata alla presentazione.</span>
+          </button>
+
+          <button type="button" class="changelog-item" data-action="click->changelog-modal#open" data-changelog-title="Separazione tra home, dashboard e admin" data-changelog-date="2026-04-05" data-changelog-type="Update" data-changelog-body="La struttura iniziale distingue ingresso pubblico, workspace futuro e area superadmin.">
+            <span class="change-pill change-pill-update">2026-04-05 · Update</span>
+            <span class="changelog-line">Separazione tra home, dashboard e admin.</span>
+          </button>
+
+          <button type="button" class="changelog-item" data-action="click->changelog-modal#open" data-changelog-title="Indice mappe statico come riferimento iniziale" data-changelog-date="2026-04-05" data-changelog-type="Link" data-changelog-body="Il mockup dell'albero mappe resta il primo riferimento operativo per l'area admin.">
+            <span class="change-pill change-pill-link">2026-04-05 · Link</span>
+            <span class="changelog-line">Indice mappe statico come riferimento iniziale.</span>
+          </button>
+        </div>
+
+        <dialog class="changelog-modal" data-changelog-modal-target="dialog" data-action="click->changelog-modal#closeOnBackdrop">
+          <div class="changelog-modal-card">
+            <div class="changelog-modal-head">
+              <span class="changelog-modal-pill" data-changelog-modal-target="meta"></span>
+              <button type="button" class="changelog-modal-close" data-action="click->changelog-modal#close" aria-label="Chiudi">×</button>
+            </div>
+            <h3 data-changelog-modal-target="title"></h3>
+            <p class="changelog-modal-text" data-changelog-modal-target="body"></p>
+          </div>
+        </dialog>
+      </div>
+    </div>
+  </header>
+
+  <section class="section-grid" id="struttura">
+    <% @pillars.each do |pillar| %>
+      <article class="info-card">
+        <h2><%= pillar[:title] %></h2>
+        <p><%= pillar[:description] %></p>
+      </article>
+    <% end %>
+  </section>
+
+  <section class="split-section" id="journey">
+    <article class="wide-card">
+      <p class="eyebrow">Struttura</p>
+      <h2>Mondi condivisi, mappe e percorsi.</h2>
+      <p>
+        Flowpulse tiene insieme tre livelli: i mondi comuni costruiti dai creator, i servizi portati dai professionisti
+        e le mappe personali che nascono quando una persona attraversa un percorso reale.
+      </p>
+      <div class="tree-preview">
+        <div>Flowpulse</div>
+        <div>├── Creator</div>
+        <div>│   ├── Branch</div>
+        <div>│   ├── Mappe comuni</div>
+        <div>│   └── Journey template</div>
+        <div>├── Professionisti</div>
+        <div>│   ├── Servizi</div>
+        <div>│   └── Valore professionale</div>
+        <div>└── Persone</div>
+        <div>    ├── Mappe percorse</div>
+        <div>    └── Mappe personali</div>
+      </div>
+    </article>
+
+    <article class="wide-card accent-card">
+      <p class="eyebrow">Ingresso</p>
+      <h2>Tre motivi iniziali per entrare in un percorso.</h2>
+      <ul class="journey-list">
+        <% @journeys.each do |journey| %>
+          <li><%= journey %></li>
+        <% end %>
+      </ul>
+      <p class="small-note">
+        In Flowpulse si entra per un bisogno, per un miglioramento o per una ricerca di conoscenza.
+        Da qui possono nascere servizi, percorsi condivisi e mappe personali del mondo.
+      </p>
+    </article>
+  </section>
+</section>

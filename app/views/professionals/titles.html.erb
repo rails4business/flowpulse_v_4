@@ -1,0 +1,109 @@
+<% content_for :title, "Formazione" %>
+
+<section class="dashboard-shell">
+  <div class="app-layout">
+    <%= render "shared/app_sidebar" %>
+
+    <div class="dashboard-card" data-controller="tabs" data-tabs-default-tab-value="istituzionali">
+      <p class="eyebrow">Professionisti</p>
+      <h1>Formazione</h1>
+      <p>
+        Questa pagina tiene insieme due assi: i titoli e percorsi formativi del professionista,
+        e il modo in cui questa formazione costruisce il suo valore reale dentro servizi, mappe, journey e ruoli.
+      </p>
+
+      <div class="dashboard-tabs" role="tablist" aria-label="Formazione professionale">
+        <button type="button" class="dashboard-tab-link" role="tab" aria-selected="true" data-tabs-target="tab" data-tab-id="istituzionali" data-action="tabs#switch">
+          Istituzionali
+        </button>
+        <button type="button" class="dashboard-tab-link" role="tab" aria-selected="false" data-tabs-target="tab" data-tab-id="brand" data-action="tabs#switch">
+          Brand
+        </button>
+      </div>
+
+      <div class="dashboard-section" role="tabpanel" data-tabs-target="panel" data-tab-id="istituzionali">
+        <h2>Titoli istituzionali</h2>
+        <div class="dashboard-grid dashboard-grid-professionals">
+          <article class="dashboard-panel dashboard-panel-blue">
+            <span class="dashboard-panel-kicker">Formazione riconosciuta</span>
+            <h3>Diplomi ufficiali</h3>
+            <p>
+              Lauree, abilitazioni, diplomi ufficiali, certificazioni riconosciute, corsi accreditati e percorsi esterni validati.
+            </p>
+          </article>
+
+          <article class="dashboard-panel">
+            <span class="dashboard-panel-kicker">Gallery istituzionale</span>
+            <h3>Prove formali</h3>
+            <p>
+              In futuro qui andra' la raccolta dei documenti ufficiali che attestano la formazione esterna e la professione riconosciuta.
+            </p>
+          </article>
+        </div>
+
+        <div class="dashboard-section">
+          <h2>Valore prodotto da questi titoli</h2>
+          <div class="dashboard-grid dashboard-grid-professionals">
+            <article class="dashboard-panel">
+              <span class="dashboard-panel-kicker">Autorevolezza</span>
+              <h3>Professione riconosciuta</h3>
+              <p>
+                Questi titoli costruiscono il nucleo istituzionale del professionista: identita', competenza riconosciuta e responsabilita' del ruolo.
+              </p>
+            </article>
+
+            <article class="dashboard-panel">
+              <span class="dashboard-panel-kicker">Professional value</span>
+              <h3>Valore spendibile</h3>
+              <p>
+                Questo patrimonio puo' aumentare il valore con cui il professionista partecipa a eventi, incontri e servizi.
+              </p>
+            </article>
+          </div>
+        </div>
+      </div>
+
+      <div class="dashboard-section" role="tabpanel" data-tabs-target="panel" data-tab-id="brand" hidden>
+        <h2>Titoli interni di brand</h2>
+        <div class="dashboard-grid dashboard-grid-professionals">
+          <article class="dashboard-panel dashboard-panel-red">
+            <span class="dashboard-panel-kicker">Formazione interna</span>
+            <h3>Metodo, branch, creator</h3>
+            <p>
+              Certificazioni private, formazione di metodo, percorsi interni e abilitazioni costruite dentro un creator, un branch o un brand.
+            </p>
+          </article>
+
+          <article class="dashboard-panel dashboard-panel-green">
+            <span class="dashboard-panel-kicker">Collegamento operativo</span>
+            <h3>Mappe, journey, servizi, ruoli</h3>
+            <p>
+              Questi titoli non sono generici: servono ad abilitare la partecipazione professionale dentro mappe, percorsi, servizi e ruoli interni.
+            </p>
+          </article>
+        </div>
+
+        <div class="dashboard-section">
+          <h2>Valore prodotto da questi titoli</h2>
+          <div class="dashboard-grid dashboard-grid-professionals">
+            <article class="dashboard-panel">
+              <span class="dashboard-panel-kicker">Abilitazione</span>
+              <h3>Accesso interno</h3>
+              <p>
+                La formazione di brand abilita l'ingresso del professionista nel sistema operativo del creator: mappe, journey, servizi e ruoli.
+              </p>
+            </article>
+
+            <article class="dashboard-panel">
+              <span class="dashboard-panel-kicker">Valore contestuale</span>
+              <h3>Metodo e coerenza</h3>
+              <p>
+                Il titolo interno aggiunge valore quando il professionista opera in coerenza con il metodo, il contesto e la struttura del branch.
+              </p>
+            </article>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

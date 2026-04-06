@@ -1,0 +1,225 @@
+<% content_for :title, "About Flowpulse" %>
+
+<section class="home-shell">
+  <nav class="top-nav">
+    <%= link_to root_path, class: "brand-mark" do %>
+      <span class="brand-dot"></span>
+      <span>Flowpulse</span>
+    <% end %>
+
+    <div class="top-nav-links">
+      <a href="<%= root_path %>#struttura">Struttura</a>
+      <a href="<%= root_path %>#journey">Journey</a>
+      <%= link_to "About", about_path %>
+
+      <% if authenticated? %>
+        <details class="user-menu">
+          <summary class="user-trigger">
+            <span class="user-avatar"><%= Current.session.user.email_address.first.upcase %></span>
+          </summary>
+
+          <div class="user-dropdown">
+            <% if Current.session.user.profile.present? %>
+              <%= link_to "Dashboard", dashboard_path %>
+              <%= link_to "Profilo", edit_profile_path(anchor: "profile-main") %>
+              <%= link_to "Impostazioni", edit_profile_path(anchor: "profile-settings") %>
+            <% else %>
+              <%= link_to "Completa profilo", new_profile_path %>
+            <% end %>
+
+            <%= button_to "Esci", session_path, method: :delete, class: "user-menu-button" %>
+          </div>
+        </details>
+      <% else %>
+        <%= link_to "Registrati", new_registration_path %>
+        <%= link_to "Accedi", new_session_path, class: "nav-login" %>
+      <% end %>
+    </div>
+  </nav>
+
+  <nav class="top-nav sub-nav">
+    <div class="sub-nav-links">
+      <a href="#visione">Visione</a>
+      <a href="#soggetti">Soggetti</a>
+      <a href="#journey-about">Journey</a>
+      <a href="#ambiti">Ambiti</a>
+    </div>
+  </nav>
+
+  <section class="wide-card" id="visione">
+    <p class="eyebrow">About</p>
+    <h2>La vita e' un viaggio, ma non resta mai solo privata.</h2>
+    <h3 class="about-step-title">1. Il reale non e' solo fisico</h3>
+    <p>
+      Flowpulse nasce dall'idea che non tutto cio' che e' reale esiste soltanto sul piano fisico.
+      Esistono anche realta' condivise fatte di storie, pratiche, idee, formazione, ruoli e percorsi.
+    </p>
+    <h3 class="about-step-title">2. Le storie condivise sono reali</h3>
+    <p>
+      Cappuccetto Rosso non esiste come fatto fisico, ma esiste realmente come storia condivisa.
+      Allo stesso modo, anche i mondi costruiti da esperienze, servizi, mappe e percorsi possono essere reali:
+      non come oggetti, ma come forme di vita condivise, riconoscibili e trasmissibili.
+    </p>
+    <h3 class="about-step-title">3. La domanda da cui nasce Flowpulse</h3>
+    <p>
+      Flowpulse prova a dare struttura a questo livello dell'esperienza:
+      mappare mondi, costruire percorsi, collegare persone, creator e professionisti,
+      e rendere leggibile cio' che altrimenti resterebbe disperso.
+    </p>
+    <p>
+      Flowpulse nasce anche per rispondere a una domanda semplice e radicale:
+      che cos'e' l'esperienza umana, e in che modo determina le nostre vite?
+      In questa visione, l'esperienza umana e il viaggio che la nostra anima compie sulla terra
+      restano profondamente legati, e i percorsi che viviamo lasciano forme, mappe e significati condivisibili.
+    </p>
+    <h3 class="about-step-title">4. I tre mondi e la nascita di nuovi mondi</h3>
+    <p>
+      Possiamo leggere Flowpulse anche alla luce dei tre mondi di Karl Popper:
+      il mondo fisico delle cose, il mondo soggettivo dell'esperienza vissuta,
+      e il mondo dei contenuti condivisi, fatto di idee, linguaggi, storie, teorie e strutture culturali.
+      Flowpulse nasce proprio nel punto in cui questi livelli si toccano.
+    </p>
+    <p>
+      Ci sono fatti materiali, ci sono vissuti interiori, e ci sono mondi che nascono quando l'esperienza soggettiva
+      trova una forma condivisibile. E' spesso da cio' che non e' ancora soltanto oggettivo, ma viene vissuto,
+      interpretato e condiviso, che possono nascere nuovi mondi.
+    </p>
+    <h3 class="about-step-title">5. Venezia e il dominio delle rotte</h3>
+    <p>
+      In questa visione tornano centrali anche le figure dell'esploratore e del pioniere.
+      Citta' come Venezia sono diventate grandi perche' il viaggio sul mare ha collegato mondi diversi,
+      rendendo possibile uno scambio continuo tra luoghi, saperi, culture e destini. Venezia e' stata una repubblica potente
+      non solo per la sua ricchezza, ma per la sua capacita' di dominare le rotte, attraversare i mari e tenere aperti i collegamenti
+      tra mondi differenti. Chi domina i mari non controlla soltanto uno spazio fisico: controlla passaggi, scambi, alleanze,
+      conoscenze, commerci e possibilita' di incontro. Per questo il dominio del mare e' stato per secoli una forma di potenza.
+    </p>
+    <h3 class="about-step-title">6. La barca come metafora della mente</h3>
+    <p>
+      Nelle culture antiche la barca e' stata spesso anche una metafora della mente: qualcosa che attraversa,
+      orienta, rischia, collega rive lontane e porta con se' persone, memorie, visioni e trasformazioni.
+      Flowpulse nasce con una tensione simile, ma spostata su un altro piano: se per secoli abbiamo esplorato
+      soprattutto il mondo fisico, oggi siamo chiamati a esplorare anche cio' che non coincide piu' soltanto con il fisico.
+      Flowpulse prova a essere un viaggio nella mente, nell'esperienza e nei mondi condivisi che emergono quando questi viaggi trovano una forma.
+    </p>
+    <h3 class="about-step-title">7. Brand, mappe e territori da esplorare</h3>
+    <p>
+      In Flowpulse, brand e mappe servono anche a chiarire imprese e territori da esplorare.
+      Non sono solo strutture organizzative: sono strumenti per vedere meglio dove stiamo andando,
+      con chi ci stiamo muovendo e quali mondi stiamo cercando di costruire.
+    </p>
+    <p>
+      Possono diventare luoghi di incontro, gruppi e alleanze tra persone che sentono che molte convenzioni
+      sono diventate troppo strette per contenere il viaggio umano. Per questo Flowpulse invita anche a salpare:
+      non per fuggire dal mondo, ma per scoprire nuovi mondi possibili.
+    </p>
+    <h3 class="about-step-title">8. Journey: esplorazione, validazione, attivazione</h3>
+    <p>
+      Anche i journey seguono questa logica. Prima si esplora, poi si valida, infine si attiva un percorso che puo'
+      diventare servizio, mondo condiviso o pratica viva. Non tutto nasce gia' completo: molte cose si scoprono camminando.
+    </p>
+    <h3 class="about-step-title">9. Salire sulle spalle dei giganti</h3>
+    <p>
+      La formazione istituzionale e professionale non va distrutta. E' un punto di partenza.
+      Non si tratta di cancellare cio' che e' gia' stato creato, ma di partire dalle spalle dei giganti:
+      usare cio' che gia' conosciamo, integrarlo, collegarlo e andare oltre.
+    </p>
+    <p>
+      Flowpulse non vuole reinventare la ruota. Vuole riconoscere il valore di cio' che esiste,
+      metterlo in relazione con nuovi percorsi e aprire spazi in cui conoscenza, esperienza e innovazione possano progredire insieme.
+    </p>
+  </section>
+
+  <section class="section-grid" id="soggetti">
+    <article class="info-card">
+      <h2>Creator</h2>
+      <p>Crea un mondo proprio fatto di branch, mappe comuni, journey template e servizi.</p>
+    </article>
+    <article class="info-card">
+      <h2>Professionista</h2>
+      <p>Porta competenze, servizi, formazione e valore professionale dentro percorsi e mondi condivisi.</p>
+    </article>
+    <article class="info-card">
+      <h2>Persona</h2>
+      <p>Entra per un bisogno, un miglioramento o una ricerca di conoscenza e costruisce le proprie mappe del mondo.</p>
+    </article>
+  </section>
+
+  <section class="split-section" id="journey-about">
+    <article class="wide-card">
+      <p class="eyebrow">Journey</p>
+      <h2>Tre passaggi perche' un percorso diventi vivo.</h2>
+      <div class="dashboard-grid">
+        <article class="dashboard-panel dashboard-panel-blue">
+          <span class="dashboard-panel-kicker">Exploration</span>
+          <h3>Esplorare</h3>
+          <p>
+            Un percorso nasce quando qualcuno prova, osserva, collega esperienze e apre un territorio che prima non era chiaro.
+          </p>
+        </article>
+
+        <article class="dashboard-panel dashboard-panel-green">
+          <span class="dashboard-panel-kicker">Validation</span>
+          <h3>Validare</h3>
+          <p>
+            Il journey viene testato, corretto e compreso meglio, finche' i suoi passaggi iniziano a mostrare una coerenza reale.
+          </p>
+        </article>
+
+        <article class="dashboard-panel dashboard-panel-red">
+          <span class="dashboard-panel-kicker">Service</span>
+          <h3>Attivare</h3>
+          <p>
+            Quando il percorso diventa abbastanza solido, puo' essere attivato come servizio, pratica condivisa o mondo percorribile.
+          </p>
+        </article>
+      </div>
+    </article>
+
+    <article class="wide-card accent-card">
+      <p class="eyebrow">Valore</p>
+      <h2>L'esperienza nasce dall'incontro tra percorso e guida.</h2>
+      <p>
+        Alcuni journey diventano abbastanza chiari da funzionare come percorsi standard. Altri restano o diventano
+        personalizzati, perche' si costruiscono attorno a un bisogno, a una persona o a un contesto specifico.
+      </p>
+      <p>
+        In entrambi i casi esiste un valore del percorso: dato dalla sua struttura, dalla sua efficacia e dalla sua validazione.
+        Questo e' il valore del journey creato, esplorato e reso leggibile dal creator.
+      </p>
+      <p>
+        Ma l'esperienza finale puo' crescere ancora quando entra in gioco un professionista che accompagna,
+        interpreta o guida il viaggio. La sua formazione, la sua esperienza e il suo modo di erogare il servizio
+        aggiungono un secondo livello di valore.
+      </p>
+      <p class="small-note">
+        Per questo Flowpulse distingue tra valore del journey e valore di chi lo eroga:
+        l'esperienza puo' nascere dall'incontro tra valore del percorso creator e valore del professionista che lo guida.
+      </p>
+    </article>
+  </section>
+
+  <section class="split-section" id="ambiti">
+    <article class="wide-card">
+      <p class="eyebrow">Motivi di ingresso</p>
+      <h2>Perche' si entra in Flowpulse.</h2>
+      <ul class="journey-list">
+        <li>Malattia / bisogno</li>
+        <li>Benessere / miglioramento</li>
+        <li>Conoscenza</li>
+      </ul>
+    </article>
+
+    <article class="wide-card accent-card">
+      <p class="eyebrow">Ambiti</p>
+      <h2>Tre famiglie iniziali di percorso.</h2>
+      <ul class="journey-list">
+        <li>Salute / principi</li>
+        <li>Relazione / lavoro / risorse</li>
+        <li>Formazione / eventi</li>
+      </ul>
+      <p class="small-note">
+        Questi ambiti non sono categorie chiuse: sono tre modi iniziali di leggere il viaggio di una persona nel mondo.
+      </p>
+    </article>
+  </section>
+</section>

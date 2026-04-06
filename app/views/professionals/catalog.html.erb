@@ -1,0 +1,63 @@
+<% content_for :title, "Listino servizi offerti" %>
+
+<section class="dashboard-shell">
+  <div class="app-layout">
+    <%= render "shared/app_sidebar" %>
+
+    <div class="dashboard-card">
+      <p class="eyebrow">Professionisti</p>
+      <h1>Listino servizi offerti</h1>
+      <p>
+        Questa pagina raccoglie il catalogo dei servizi che il professionista puo' erogare, con una prima distinzione
+        tra ambito, modalita' di erogazione e prezzo base.
+      </p>
+
+      <div class="dashboard-grid">
+        <article class="dashboard-panel dashboard-panel-blue">
+          <span class="dashboard-panel-kicker">Servizio 01</span>
+          <h3>Igiene posturale</h3>
+          <p>
+            Percorso o servizio orientato a salute e benessere, erogabile in forma individuale o di gruppo.
+          </p>
+        </article>
+
+        <article class="dashboard-panel dashboard-panel-green">
+          <span class="dashboard-panel-kicker">Delivery Mode</span>
+          <h3>Gruppo in studio</h3>
+          <p>
+            Esempio di modalita' di erogazione con numero massimo di persone, durata, cadenza e setting.
+          </p>
+        </article>
+
+        <article class="dashboard-panel dashboard-panel-red">
+          <span class="dashboard-panel-kicker">Prezzo base</span>
+          <h3>Service base value</h3>
+          <p>
+            Il listino parte dal valore del servizio prima dell'eventuale aggiunta del professional value.
+          </p>
+        </article>
+      </div>
+
+      <div class="dashboard-section">
+        <h2>Elementi del listino</h2>
+        <div class="dashboard-grid dashboard-grid-professionals">
+          <article class="dashboard-panel">
+            <span class="dashboard-panel-kicker">Ambito</span>
+            <h3>Salute, relazione, formazione</h3>
+            <p>
+              Ogni servizio puo' essere collocato in uno o piu' ambiti, per chiarire meglio a chi si rivolge.
+            </p>
+          </article>
+
+          <article class="dashboard-panel">
+            <span class="dashboard-panel-kicker">Applicazione</span>
+            <h3>Servizio prenotabile o da proposta</h3>
+            <p>
+              Il listino potra' servire sia per rendere un servizio prenotabile, sia per inserirlo in una proposta o in un preventivo.
+            </p>
+          </article>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

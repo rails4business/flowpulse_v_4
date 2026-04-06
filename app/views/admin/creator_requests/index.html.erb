@@ -1,0 +1,83 @@
+<% content_for :title, "Richieste creator" %>
+
+<section class="dashboard-shell">
+  <div class="app-layout">
+    <%= render "shared/app_sidebar" %>
+
+    <div class="dashboard-card">
+      <p class="eyebrow">Superadmin</p>
+      <h1>Richieste creator</h1>
+      <p>
+        Qui puoi vedere le richieste creator in attesa e abilitare manualmente i profili.
+      </p>
+
+      <div class="status-stack">
+        <div class="status-card">
+          <span class="dashboard-label">In attesa</span>
+          <strong><%= @requested_profiles.count %></strong>
+        </div>
+
+        <div class="status-card">
+          <span class="dashboard-label">Creator attivi</span>
+          <strong><%= @enabled_profiles.count %></strong>
+        </div>
+      </div>
+
+      <div class="admin-section">
+        <h2>Da approvare</h2>
+
+        <% if @requested_profiles.any? %>
+          <div class="admin-list">
+            <% @requested_profiles.each do |profile| %>
+              <article class="admin-list-item">
+                <div class="admin-list-copy">
+                  <strong><%= profile.display_name %></strong>
+                  <p>@<%= profile.slug %></p>
+                  <p><%= profile.user.email_address %></p>
+                </div>
+
+                <div class="admin-list-actions">
+                  <%= button_to "Abilita creator", toggle_creator_profile_path(profile, enabled: true), method: :patch, class: "btn btn-primary" %>
+                </div>
+              </article>
+            <% end %>
+          </div>
+        <% else %>
+          <div class="status-card">
+            <strong>Nessuna richiesta creator in attesa.</strong>
+          </div>
+        <% end %>
+      </div>
+
+      <div class="admin-section">
+        <h2>Gia' abilitati</h2>
+
+        <% if @enabled_profiles.any? %>
+          <div class="admin-list">
+            <% @enabled_profiles.each do |profile| %>
+              <article class="admin-list-item">
+                <div class="admin-list-copy">
+                  <strong><%= profile.display_name %></strong>
+                  <p>@<%= profile.slug %></p>
+                  <p><%= profile.user.email_address %></p>
+                </div>
+
+                <div class="admin-list-actions">
+                  <%= button_to "Disabilita creator",
+                        toggle_creator_profile_path(profile, enabled: false),
+                        method: :patch,
+                        class: "btn btn-secondary",
+                        form: { data: { turbo_confirm: "Sei sicuro di voler disabilitare creator per questo profilo?" } } %>
+                </div>
+              </article>
+            <% end %>
+          </div>
+        <% else %>
+          <div class="status-card">
+            <strong>Nessun creator attivo.</strong>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</section>

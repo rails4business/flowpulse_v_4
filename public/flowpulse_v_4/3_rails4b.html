@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rails4Business - Journey</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg: #f5f7fb;
+      --panel: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --line: #d1d5db;
+      --dark: #111827;
+      --blue: #2563eb;
+      --green: #16a34a;
+      --orange: #ea580c;
+      --purple: #7c3aed;
+      --soft-blue: #dbeafe;
+      --soft-green: #dcfce7;
+      --soft-orange: #ffedd5;
+      --soft-purple: #ede9fe;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      min-height: 100vh;
+    }
+
+    aside.sidebar {
+      width: 260px;
+      background: linear-gradient(180deg, #18202b 0%, #101722 100%);
+      color: white;
+      padding: 28px 18px;
+      flex-shrink: 0;
+    }
+
+    .sidebar h2 {
+      margin: 0 0 28px;
+      font-size: 20px;
+      letter-spacing: 0.02em;
+    }
+
+    .nav-group {
+      margin-bottom: 24px;
+      padding-left: 12px;
+      border-left: 3px solid #d3b38b;
+    }
+
+    .nav-group.creator {
+      border-left-color: #8db06f;
+    }
+
+    .nav-label {
+      margin: 0 0 10px;
+      font-size: 11px;
+      font-weight: bold;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #93a0b4;
+    }
+
+    .sidebar nav a {
+      display: block;
+      color: #d1d5db;
+      text-decoration: none;
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin-bottom: 6px;
+    }
+
+    .sidebar nav a:hover,
+    .sidebar nav a.active {
+      background: #242f3e;
+      color: #fff;
+    }
+
+    main {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .topbar {
+      background: white;
+      border-bottom: 1px solid #e5e7eb;
+      padding: 20px 28px;
+    }
+
+    .topbar h1 {
+      margin: 0;
+      font-size: 28px;
+    }
+
+    .topbar p {
+      margin: 6px 0 0;
+      color: var(--muted);
+    }
+
+    .content {
+      padding: 24px 28px 40px;
+      max-width: 1100px;
+    }
+
+    .journey-header {
+      background: var(--panel);
+      border-radius: 18px;
+      padding: 22px 24px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+      margin-bottom: 20px;
+    }
+
+    .journey-path {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+      font-size: 15px;
+      color: var(--muted);
+    }
+
+    .journey-path strong {
+      color: var(--text);
+    }
+
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .chip {
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: bold;
+      background: #eef2f7;
+      color: #374151;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    .tab {
+      border: none;
+      border-radius: 12px;
+      padding: 12px 18px;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      background: white;
+      color: #374151;
+      border: 1px solid #e5e7eb;
+    }
+
+    .tab.active[data-tab="explora"] {
+      background: var(--soft-blue);
+      color: var(--blue);
+      border-color: #bfdbfe;
+    }
+
+    .tab.active[data-tab="testa"] {
+      background: var(--soft-orange);
+      color: var(--orange);
+      border-color: #fed7aa;
+    }
+
+    .tab.active[data-tab="percorri"] {
+      background: var(--soft-green);
+      color: var(--green);
+      border-color: #bbf7d0;
+    }
+
+    .tab-panel {
+      display: none;
+      background: var(--panel);
+      border-radius: 18px;
+      padding: 22px 24px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+      margin-bottom: 24px;
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+
+    .tab-panel h3 {
+      margin-top: 0;
+      margin-bottom: 8px;
+      font-size: 20px;
+    }
+
+    .tab-panel p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .route-board {
+      background: var(--panel);
+      border-radius: 20px;
+      padding: 28px 22px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+    }
+
+    .timeline {
+      position: relative;
+      margin-top: 8px;
+      padding-left: 26px;
+    }
+
+    .timeline::before {
+      content: "";
+      position: absolute;
+      left: 10px;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: linear-gradient(to bottom, var(--blue), var(--purple), var(--green));
+      border-radius: 999px;
+    }
+
+    .station-block,
+    .step-block {
+      position: relative;
+      margin-bottom: 22px;
+    }
+
+    .station-block::before,
+    .step-block::before {
+      content: "";
+      position: absolute;
+      left: -22px;
+      top: 16px;
+      width: 16px;
+      height: 16px;
+      border-radius: 999px;
+      background: white;
+      border: 4px solid var(--purple);
+      z-index: 1;
+    }
+
+    .station-block.start::before {
+      border-color: var(--blue);
+      width: 20px;
+      height: 20px;
+      left: -24px;
+      top: 14px;
+    }
+
+    .station-block.end::before {
+      border-color: var(--green);
+      width: 20px;
+      height: 20px;
+      left: -24px;
+      top: 14px;
+    }
+
+    .station-card,
+    .step-card {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+      padding: 18px;
+    }
+
+    .station-title {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+
+    .station-subtitle {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .step-top {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .step-title {
+      font-size: 17px;
+      font-weight: bold;
+    }
+
+    .duration {
+      font-size: 13px;
+      font-weight: bold;
+      color: #374151;
+      background: #eef2f7;
+      padding: 7px 10px;
+      border-radius: 999px;
+    }
+
+    .mini-events {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .mini-event {
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: bold;
+      border: 1px solid transparent;
+    }
+
+    .mini-event.theory {
+      background: var(--soft-blue);
+      color: var(--blue);
+      border-color: #bfdbfe;
+    }
+
+    .mini-event.quiz {
+      background: var(--soft-orange);
+      color: var(--orange);
+      border-color: #fed7aa;
+    }
+
+    .mini-event.practice {
+      background: var(--soft-green);
+      color: var(--green);
+      border-color: #bbf7d0;
+    }
+
+    .bottom-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-top: 22px;
+    }
+
+    .info-box {
+      background: var(--panel);
+      border-radius: 18px;
+      padding: 20px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+    }
+
+    .info-box h4 {
+      margin: 0 0 12px;
+      font-size: 18px;
+    }
+
+    .info-box ul {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    @media (max-width: 960px) {
+      body {
+        flex-direction: column;
+      }
+
+      aside.sidebar {
+        width: 100%;
+      }
+
+      .content {
+        padding: 20px 16px 32px;
+      }
+
+      .bottom-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <h2>Flowpulse</h2>
+    <nav>
+      <div class="nav-group creator">
+        <p class="nav-label">Creator</p>
+        <a href="/flowpulse_v_4/1_flowpulse_albero_indice_mappe.html">1. Albero Mappe</a>
+        <a href="/flowpulse_v_4/2_generaimpresa_mappa.html">2. GeneraImpresa</a>
+        <a href="/flowpulse_v_4/3_rails4b.html" class="active">3. Rails4Business</a>
+      </div>
+      <div class="nav-group">
+        <p class="nav-label">Viaggiatore</p>
+        <a href="/flowpulse_v_4/4_1impegno.html">4. 1Impegno</a>
+        <a href="/flowpulse_v_4/5_calendario_ticket.html">5. Calendario Ticket</a>
+      </div>
+    </nav>
+  </aside>
+
+  <main>
+    <div class="topbar">
+      <h1>Rails4Business</h1>
+      <p>Vista del singolo journey: partenza, tappe e arrivo</p>
+    </div>
+
+    <div class="content">
+      <section class="journey-header">
+        <div class="journey-path">
+          <span>Journey:</span>
+          <strong>Business Model Base</strong>
+          <span>•</span>
+          <span>da <strong>Visione</strong></span>
+          <span>→</span>
+          <span>a <strong>Sistema</strong></span>
+        </div>
+
+        <div class="chip-row">
+          <span class="chip">Stazione partenza: Visione</span>
+          <span class="chip">3 tappe intermedie</span>
+          <span class="chip">Stazione arrivo: Sistema</span>
+        </div>
+      </section>
+
+      <div class="tabs">
+        <button class="tab active" data-tab="explora">1. Esplora</button>
+        <button class="tab" data-tab="testa">2. Testa</button>
+        <button class="tab" data-tab="percorri">3. Percorri</button>
+      </div>
+
+      <section class="tab-panel active" id="explora">
+        <h3>Journey in esplorazione</h3>
+        <p>
+          Questa è la fase di costruzione. Il tragitto è in definizione, le tappe si stanno
+          organizzando e il journey può ancora essere modificato.
+        </p>
+      </section>
+
+      <section class="tab-panel" id="testa">
+        <h3>Journey stabilizzato in test</h3>
+        <p>
+          Questa è la fase di prova con una guida. Il tragitto è già abbastanza chiaro,
+          ma viene ancora testato prima di diventare un percorso ufficiale.
+        </p>
+      </section>
+
+      <section class="tab-panel" id="percorri">
+        <h3>Journey strutturato</h3>
+        <p>
+          Questa è la fase ufficiale del percorso. In futuro qui potranno comparire servizi,
+          ruoli, costi, compensi e modalità come autonomia, singolo o gruppo.
+        </p>
+      </section>
+
+      <section class="route-board">
+        <div class="timeline">
+          <!-- PARTENZA -->
+          <div class="station-block start">
+            <div class="station-card">
+              <div class="station-title">🚉 Stazione di partenza: Visione</div>
+              <div class="station-subtitle">
+                Punto iniziale del journey. Qui nasce l’idea del percorso.
+              </div>
+            </div>
+          </div>
+
+          <!-- TAPPA 1 -->
+          <div class="step-block">
+            <div class="step-card">
+              <div class="step-top">
+                <div class="step-title">Tappa 1 · Obiettivo</div>
+                <div class="duration">Durata: 45 min</div>
+              </div>
+              <div class="mini-events">
+                <span class="mini-event theory">Lezione teoria</span>
+                <span class="mini-event quiz">Quiz</span>
+                <span class="mini-event practice">Pratica</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAPPA 2 -->
+          <div class="step-block">
+            <div class="step-card">
+              <div class="step-top">
+                <div class="step-title">Tappa 2 · Struttura</div>
+                <div class="duration">Durata: 60 min</div>
+              </div>
+              <div class="mini-events">
+                <span class="mini-event theory">Lezione teoria</span>
+                <span class="mini-event quiz">Quiz</span>
+                <span class="mini-event practice">Pratica</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAPPA 3 -->
+          <div class="step-block">
+            <div class="step-card">
+              <div class="step-top">
+                <div class="step-title">Tappa 3 · Attori e Flussi</div>
+                <div class="duration">Durata: 50 min</div>
+              </div>
+              <div class="mini-events">
+                <span class="mini-event theory">Lezione teoria</span>
+                <span class="mini-event quiz">Quiz</span>
+                <span class="mini-event practice">Pratica</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- ARRIVO -->
+          <div class="station-block end">
+            <div class="station-card">
+              <div class="station-title">🏁 Stazione di arrivo: Sistema</div>
+              <div class="station-subtitle">
+                Punto finale del journey. Da qui, in futuro, potrà partire un altro tragitto.
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="bottom-grid">
+        <div class="info-box">
+          <h4>Struttura del journey</h4>
+          <ul>
+            <li>1 stazione di partenza</li>
+            <li>3 tappe intermedie</li>
+            <li>Ogni tappa contiene micro-eventi</li>
+            <li>1 stazione finale</li>
+          </ul>
+        </div>
+
+        <div class="info-box">
+          <h4>Uso futuro</h4>
+          <ul>
+            <li>Esplora = costruzione del percorso</li>
+            <li>Testa = test con guida</li>
+            <li>Percorri = percorso ufficiale</li>
+            <li>In seguito si potranno aggiungere servizi e ruoli</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const tabs = document.querySelectorAll('.tab');
+    const panels = document.querySelectorAll('.tab-panel');
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        tabs.forEach(t => t.classList.remove('active'));
+        panels.forEach(panel => panel.classList.remove('active'));
+
+        tab.classList.add('active');
+        document.getElementById(tab.dataset.tab).classList.add('active');
+      });
+    });
+  </script>
+</body>
+</html>

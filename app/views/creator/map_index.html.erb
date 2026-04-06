@@ -1,0 +1,55 @@
+<% content_for :title, "Indice mappe creator" %>
+
+<section class="dashboard-shell">
+  <div class="app-layout">
+    <%= render "shared/app_sidebar" %>
+
+    <div class="dashboard-card">
+      <p class="eyebrow">Creator</p>
+      <h1>Indice mappe</h1>
+      <p>
+        Questa e' la prima pagina interna Rails per l'area creator. Da qui poi rifiniremo l'albero mappe,
+        i branch e la navigazione tra i journey.
+      </p>
+
+      <div class="tree-panel">
+        <div class="tree-title">Business Model</div>
+        <div class="tree-preview">
+          <div>├── 🎯 Obiettivo</div>
+          <div>├── 🏗️ Struttura</div>
+          <div>├── 🧍‍♂️ Attori</div>
+          <div>│   └── 🔁 Flussi</div>
+          <div>├── 🛠️ Strumenti</div>
+          <div>└── 📊 Metriche</div>
+        </div>
+      </div>
+
+      <div class="dashboard-actions">
+        <div class="admin-section">
+          <h2>Accessi creator</h2>
+          <div class="admin-list">
+            <article class="admin-list-item">
+              <div class="admin-list-copy">
+                <strong>GeneraImpresa</strong>
+                <p>Mappa generale dei branch e delle connessioni.</p>
+              </div>
+              <div class="admin-list-actions">
+                <%= link_to "Apri", creator_branch_map_path, class: "btn btn-secondary" %>
+              </div>
+            </article>
+
+            <article class="admin-list-item">
+              <div class="admin-list-copy">
+                <strong>Journey creator</strong>
+                <p>Vista del singolo journey in costruzione e validazione.</p>
+              </div>
+              <div class="admin-list-actions">
+                <%= link_to "Apri", creator_journey_path, class: "btn btn-secondary" %>
+              </div>
+            </article>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

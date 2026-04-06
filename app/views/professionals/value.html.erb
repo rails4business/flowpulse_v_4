@@ -1,0 +1,72 @@
+<% content_for :title, "Servizi offerti" %>
+
+<section class="dashboard-shell">
+  <div class="app-layout">
+    <%= render "shared/app_sidebar" %>
+
+    <div class="dashboard-card">
+      <p class="eyebrow">Professionisti</p>
+      <h1>Servizi offerti</h1>
+      <p>
+        Questa pagina riassume i servizi che un professionista puo' erogare, come vengono impostati
+        e in che punto il valore del professionista si aggiunge al valore del servizio.
+      </p>
+
+      <div class="dashboard-grid">
+        <article class="dashboard-panel dashboard-panel-blue">
+          <span class="dashboard-panel-kicker">Service</span>
+          <h3>Catalogo servizi</h3>
+          <p>
+            Ogni servizio definisce cosa puo' essere erogato, in quale ambito, con quale logica e con quale valore base.
+          </p>
+        </article>
+
+        <article class="dashboard-panel dashboard-panel-green">
+          <span class="dashboard-panel-kicker">Delivery Mode</span>
+          <h3>Modalita' di erogazione</h3>
+          <p>
+            Individuale, gruppo, online, presenza, studio, evento o altre forme di erogazione entrano nella struttura del servizio.
+          </p>
+        </article>
+
+        <article class="dashboard-panel dashboard-panel-red">
+          <span class="dashboard-panel-kicker">Service Value</span>
+          <h3>Valore del servizio</h3>
+          <p>
+            Il servizio ha un proprio valore base, indipendente dal professionista che lo eroga, e legato alla sua struttura.
+          </p>
+        </article>
+      </div>
+
+      <div class="dashboard-section">
+        <h2>Composizione dell'offerta</h2>
+        <div class="dashboard-grid dashboard-grid-professionals">
+          <article class="dashboard-panel">
+            <span class="dashboard-panel-kicker">Valore del professionista</span>
+            <h3>Professional value</h3>
+            <p>
+              Il professionista puo' decidere se aggiungere o meno il proprio valore al servizio quando eroga lezioni, incontri, eventi o percorsi.
+            </p>
+          </article>
+
+          <article class="dashboard-panel">
+            <span class="dashboard-panel-kicker">Offerta finale</span>
+            <h3>Service + professionista</h3>
+            <p>
+              Il risultato puo' diventare un'offerta concreta da listino, proposta, preventivo o futura prenotazione.
+            </p>
+          </article>
+        </div>
+      </div>
+
+      <div class="tree-panel">
+        <div class="tree-title">Struttura orientativa</div>
+        <div class="tree-preview">
+          <div>service_value = valore base del servizio</div>
+          <div>professional_value = valore aggiunto del professionista</div>
+          <div>offer_value = service_value + professional_value</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
