@@ -33,7 +33,9 @@ Rails.application.routes.draw do
   get "professionals/catalog", to: "professionals#catalog", as: :professionals_catalog
   get "professionals/value", to: "professionals#value", as: :professionals_value
   get "professionals/titles", to: "professionals#titles", as: :professionals_titles
-  resource :dashboard, only: :show
+  resource :dashboard, only: :show do
+    patch :workspace
+  end
   get "about", to: "pages#about", as: :about
   get "blog", to: "blog#index", as: :blog
   get "blog/:slug", to: "blog#show", as: :blog_post

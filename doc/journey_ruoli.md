@@ -1,4 +1,4 @@
-# Journey e Ruoli
+# Trail e Ruoli
 
 ## Visione
 
@@ -11,44 +11,44 @@ La direzione del progetto e' costruire percorsi e formazione a 360 gradi sulla p
 - accompagnamento professionale
 - contesti diversi come `salute`, `business`, `formazione`
 
-## Fasi del journey
+## Fasi del trail
 
-Prima di distinguere i tipi di journey attivi, va fissato il loro ciclo di vita.
+Prima di distinguere i tipi di trail attivi, va fissato il loro ciclo di vita.
 
 Le fasi di riferimento sono:
 
 - `exploration`
-  - il journey e' in costruzione
+  - il trail e' in costruzione
   - le tappe vengono esplorate, provate e corrette
   - la struttura non e' ancora stabile
 
 - `validation`
-  - il journey e' abbastanza definito da poter essere testato
+  - il trail e' abbastanza definito da poter essere testato
   - puo' essere percorso in autonomia o con guida
   - serve a capire se il percorso funziona davvero
 
-- `service`
-  - il journey e' attivo come servizio
+- `active`
+  - il trail e' attivo come servizio
   - qui entrano in gioco erogazione, ruoli, supporto professionale e valore reale del percorso
 
 Questa sequenza aiuta a leggere meglio anche le differenze tra:
 
-- journey che diventano standard efficaci
-- journey che restano o diventano professional-supported
+- trail che diventano standard efficaci
+- trail che restano o diventano professional-supported
 
-## Journey standard e journey professional-supported
+## Trail standard e trail professional-supported
 
-Non tutti i journey attivi sono uguali.
+Non tutti i trail attivi sono uguali.
 
 Va tenuta questa distinzione:
 
-- `Journey standard`
+- `Trail standard`
   - nasce da esplorazione, test e validazione
   - puo' diventare un percorso efficace replicabile
-  - il valore principale sta nella struttura del journey, nelle tappe e nei contenuti
+  - il valore principale sta nella struttura del trail, nelle tappe e nei contenuti
 
-- `Journey professional-supported`
-  - e' un journey attivo sostenuto anche da uno o piu' professionisti
+- `Trail professional-supported`
+  - e' un trail attivo sostenuto anche da uno o piu' professionisti
   - il valore non dipende solo dal contenuto del percorso
   - il valore dipende anche dall'esperienza, competenza o ruolo del professionista che eroga il servizio
 
@@ -56,7 +56,7 @@ Va tenuta questa distinzione:
 
 Nel tempo il sistema dovra' permettere di:
 
-- osservare i journey piu' efficaci
+- osservare i trail piu' efficaci
 - capire quali passaggi funzionano davvero
 - distinguere cio' che genera valore come contenuto
 - distinguere cio' che genera valore come esperienza professionale
@@ -87,7 +87,7 @@ Le famiglie da considerare sono almeno queste:
 
 - `professionisti tecnici`
   - figure specialistiche o operative che supportano l'erogazione del servizio
-  - non coincidono sempre con il contenuto del journey, ma possono essere essenziali per farlo funzionare
+  - non coincidono sempre con il contenuto del trail, ma possono essere essenziali per farlo funzionare
 
 ## Ambiti e percorsi
 
@@ -114,7 +114,7 @@ Questa parte dovra' influenzare in futuro:
 - servizi o pacchetti
 - bacheche professionali
 - dashboard dedicate
-- lettura dei risultati dei journey
+- lettura dei risultati dei trail
 
 ## Nota di progetto
 

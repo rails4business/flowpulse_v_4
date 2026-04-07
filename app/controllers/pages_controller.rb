@@ -5,7 +5,7 @@ class PagesController < ApplicationController
     @pillars = [
       {
         title: "Creator",
-        description: "Il creator costruisce un proprio mondo fatto di branch, mappe comuni, journey template e servizi."
+        description: "Il creator costruisce un proprio mondo fatto di branch, mappe comuni, trail template e servizi."
       },
       {
         title: "Professionista",

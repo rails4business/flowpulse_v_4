@@ -7,10 +7,7 @@
     <div class="dashboard-card">
       <p class="eyebrow">Dashboard</p>
       
-      <p>
-        Flowpulse tiene insieme tre soggetti: creator, professionisti e persone. Da qui il tuo spazio puo'
-        diventare mondo condiviso, servizio oppure percorso vissuto.
-      </p>
+    
 
       <div class="dashboard-meta">
         <div class="dashboard-item">
@@ -18,73 +15,68 @@
           <strong><%= Current.session.user.email_address %></strong>
         </div>
 
-        <% if Current.session.user.superadmin? %>
-          <div class="dashboard-item">
-            <span class="dashboard-label">Superadmin</span>
-            <strong>Abilitato</strong>
-          </div>
-        <% end %>
+        
 
         <% if Current.session.user.profile.present? %>
           <div class="dashboard-item">
             <span class="dashboard-label">Profilo</span>
             <strong><%= Current.session.user.profile.display_name %></strong>
           </div>
-
+        <% end %>
+        <% if Current.session.user.superadmin? %>
           <div class="dashboard-item">
-            <span class="dashboard-label">Stato creator</span>
-            <strong><%= Current.session.user.profile.creator_status_label %></strong>
+            <span class="dashboard-label">Superadmin</span>
+            <strong>Abilitato</strong>
           </div>
         <% end %>
       </div>
 
       <div class="dashboard-section">
         <h2>Tre soggetti del sistema</h2>
+          <p>
+        Flowpulse tiene insieme tre soggetti: creator, professionisti e persone. Da qui il tuo spazio puo'
+        diventare mondo condiviso, servizio oppure percorso vissuto.
+      </p>
+      <br>
         <div class="dashboard-grid">
+             <article class="dashboard-panel dashboard-panel-green">
+            <span class="dashboard-panel-kicker">Viaggiatore</span>
+            <h3>Inizia un viaggio</h3>
+            <p>Attraversa un percorso e costruisce nel tempo le proprie mappe del mondo.</p>
+          </article>
           <article class="dashboard-panel dashboard-panel-blue">
             <span class="dashboard-panel-kicker">Creator</span>
-            <h3>Mondi comuni</h3>
-            <p>Crea branch, mappe comuni, journey template e servizi.</p>
+            <h3>Crea e condividi i tuoi viaggi</h3>
+            <p>Crea branch, mappe comuni, trail template e servizi.</p>
+
+            <% if Current.session.user.profile.present? && Current.session.user.profile.creator? %>
+              <div class="dashboard-panel-status">
+                <span class="dashboard-status-pill dashboard-status-pill-success">Creator attivo</span>
+                <p>Il tuo spazio creator e' attivo. Ora puoi costruire mondi, mappe e trail del tuo ecosistema.</p>
+              </div>
+            <% elsif Current.session.user.profile.present? && Current.session.user.profile.creator_requested? %>
+              <div class="dashboard-panel-status">
+                <span class="dashboard-status-pill dashboard-status-pill-waiting">Richiesta inviata</span>
+                <p>La richiesta e' stata registrata. L'attivazione creator avverra' dopo conferma e pagamento.</p>
+              </div>
+            <% elsif Current.session.user.profile.present? %>
+              <div class="dashboard-panel-status">
+                <span class="dashboard-status-pill dashboard-status-pill-price">Piano creator EUR 29</span>
+                <p>L'accesso creator abilita la creazione di branch e mappe. Dopo la richiesta l'attivazione avverra' con verifica e pagamento.</p>
+                <%= button_to "Richiedi piano creator", request_creator_profile_path, method: :patch, class: "btn btn-primary btn-block" %>
+              </div>
+            <% end %>
           </article>
-          <article class="dashboard-panel dashboard-panel-green">
+          <article class="dashboard-panel dashboard-panel-red">
             <span class="dashboard-panel-kicker">Professionista</span>
             <h3>Servizi e competenze</h3>
             <p>Porta formazione, servizi e valore professionale dentro mappe e percorsi.</p>
           </article>
-          <article class="dashboard-panel dashboard-panel-red">
-            <span class="dashboard-panel-kicker">Persona</span>
-            <h3>Mappe vissute</h3>
-            <p>Attraversa un percorso e costruisce nel tempo le proprie mappe del mondo.</p>
-          </article>
+       
         </div>
       </div>
 
       <div class="dashboard-actions">
-        <% if Current.session.user.profile.present? && Current.session.user.profile.creator? %>
-          <div class="request-creator-box request-creator-box-success">
-            <p class="request-price">Creator attivo</p>
-            <p>
-              L'accesso creator e' abilitato. Ora puoi creare branch, mappe e journey del tuo spazio.
-            </p>
-          </div>
-        <% elsif Current.session.user.profile.present? && !Current.session.user.profile.creator? && !Current.session.user.profile.creator_requested? %>
-          <div class="request-creator-box">
-            <p class="request-price">Piano creator: EUR 29</p>
-            <p>
-              L'accesso creator abilita la creazione di branch e mappe. Dopo la richiesta l'attivazione
-              avverra' con verifica e pagamento.
-            </p>
-            <%= button_to "Richiedi piano creator", request_creator_profile_path, method: :patch, class: "btn btn-primary btn-block" %>
-          </div>
-        <% elsif Current.session.user.profile.present? && Current.session.user.profile.creator_requested? %>
-          <div class="request-creator-box">
-            <p class="request-price">Richiesta creator inviata</p>
-            <p>
-              La richiesta e' stata registrata. Il piano creator verra' attivato dopo conferma e pagamento.
-            </p>
-          </div>
-        <% end %>
-
         <div class="hero-actions">
           <% if Current.session.user.profile.present? %>
             <%= link_to "Modifica profilo", edit_profile_path, class: "btn btn-primary" %>

@@ -9,11 +9,12 @@ Non e' uno script definitivo da lanciare tutto insieme.
 - `Profile` rappresenta l'identita' della persona dentro Flowpulse
 - `ProfileData` contiene i dati protetti del profilo
 - un `Profile` puo' creare `Lead` e avere `Contact`
-- la mappa contiene `JourneyTemplate`
-- i `JourneyTemplate` hanno una fase del ciclo di vita
-- in fase `validation` possono generare `JourneyInstance`
-- le `JourneyInstance` rappresentano le percorrenze reali
-- in fase `service` il template puo' avere un `Service` con configurazione operativa
+- la mappa contiene `Trail`
+- i `Trail` hanno una fase del ciclo di vita
+- quando un trail viene fissato come modello, riceve `template_published_at`
+- in fase `validation` possono generare `Journey`
+- i `Journey` rappresentano i viaggi reali della persona
+- in fase `active` il trail puo' avere un `Service` con configurazione operativa
 - i ticket appartengono all'esecuzione reale, non al template astratto
 
 ## 1. Core iniziale consigliato
@@ -30,28 +31,28 @@ bin/rails g scaffold Branch profile:references name:string slug:string kind:stri
 bin/rails g scaffold Domain branch:references host:string name:string language:string visibility:string
 bin/rails g scaffold Map branch:references name:string slug:string description:text visibility:string
 
-bin/rails g scaffold JourneyTemplate map:references name:string slug:string description:text phase:string visibility:string start_x:integer start_y:integer end_x:integer end_y:integer
+bin/rails g scaffold Trail map:references template_trail:references name:string slug:string description:text phase:string trail_kind:string visibility:string template_published_at:datetime start_x:integer start_y:integer end_x:integer end_y:integer
 
-bin/rails g scaffold EventDate user:references journey_template:references name:string description:text event_type:string date_start:datetime date_end:datetime duration_minutes:integer position:integer x:integer y:integer
+bin/rails g scaffold EventDate user:references trail:references name:string description:text event_type:string date_start:datetime date_end:datetime duration_minutes:integer position:integer x:integer y:integer
 
-bin/rails g scaffold JourneyLink from_journey_template:references to_journey_template:references link_kind:string label:string
+bin/rails g scaffold TrailLink from_trail:references to_trail:references link_kind:string label:string
 
-bin/rails g scaffold Resource journey_template:references event_date:references title:string description:text resource_type:string content:text url:string position:integer
+bin/rails g scaffold Resource trail:references event_date:references title:string description:text resource_type:string content:text url:string position:integer
 ```
 
-## 2. Secondo blocco: esecuzione reale del journey
+## 2. Secondo blocco: viaggio reale della persona
 
 ```bash
-bin/rails g scaffold JourneyInstance journey_template:references user:references mode:string status:string started_at:datetime ended_at:datetime notes:text
-bin/rails g scaffold InstanceEvent journey_instance:references event_date:references title:string description:text date_start:datetime date_end:datetime duration_minutes:integer status:string
+bin/rails g scaffold Journey trail:references user:references mode:string status:string started_at:datetime ended_at:datetime notes:text
+bin/rails g scaffold JourneyEvent journey:references event_date:references title:string description:text date_start:datetime date_end:datetime duration_minutes:integer status:string
 ```
 
 ## 3. Terzo blocco: servizio operativo
 
 ```bash
-bin/rails g scaffold Service journey_template:references name:string description:text delivery_mode:string status:string price:decimal
+bin/rails g scaffold Service trail:references name:string description:text delivery_mode:string status:string price:decimal
 bin/rails g scaffold Role service:references name:string kind:string
-bin/rails g scaffold Ticket journey_instance:references instance_event:references user:references role:references status:string price:decimal
+bin/rails g scaffold Ticket journey:references journey_event:references user:references role:references status:string price:decimal
 ```
 
 ## 4. Significato dei modelli
@@ -71,26 +72,38 @@ bin/rails g scaffold Ticket journey_instance:references instance_event:reference
 ### Map
 
 - e' una mappa appartenente a un branch
-- contiene i journey template
+- contiene i trail
 
-### JourneyTemplate
+### Trail
 
-- e' il journey presente sulla mappa
+- e' il trail presente sulla mappa
 - e' la struttura principale del percorso
 - ha coordinate di inizio e di fine
 - puo' avere eventi collegati direttamente
-- puo' avere link verso altri journey template
+- puo' avere link verso altri trail
 
 Campo importante:
 
 - `phase`
   - `exploration`
   - `validation`
-  - `service`
+  - `active`
+
+- `trail_kind`
+  - `standard`
+  - `personalized`
+
+- `template_published_at`
+  - se presente, il trail e' stato fissato come template
+  - questa data e' piu' utile di un semplice boolean per capire qual e' la versione stabile
+
+- `template_trail_id`
+  - se presente, il trail deriva da un altro trail template
+  - in questo caso il trail e' una derivazione o istanza del modello di partenza
 
 ### EventDate
 
-- e' l'unita' operativa reale prevista dentro un journey template
+- e' l'unita' operativa reale prevista dentro un trail
 - in fase di esplorazione puo' essere collegato direttamente al template
 - puo' rappresentare una lezione, un quiz, una consulenza, una prova o un altro evento
 
@@ -100,14 +113,14 @@ Campi utili:
 - `position`
 - opzionalmente `x`, `y` se un giorno si decide di mappare anche i singoli eventi
 
-### JourneyLink
+### TrailLink
 
-- collega la fine di un journey template con l'inizio di un altro
+- collega la fine di un trail con l'inizio di un altro
 - serve per costruire il grafo dei percorsi
 
 ### Resource
 
-- contiene il materiale collegato a un evento o a un journey template
+- contiene il materiale collegato a un evento o a un trail
 - sostituisce il vecchio nome `Post`
 
 Puo' rappresentare:
@@ -118,10 +131,11 @@ Puo' rappresentare:
 - materiale lezione
 - traccia consulenza
 
-### JourneyInstance
+### Journey
 
-- rappresenta una percorrenza reale di un journey template
-- serve soprattutto quando il template e' in fase `validation`
+- rappresenta il viaggio reale della persona
+- puo' attraversare uno o piu' trail
+- serve soprattutto quando un trail e' in fase `validation`
 
 Campo importante:
 
@@ -129,14 +143,14 @@ Campo importante:
   - `autonomy`
   - `guided`
 
-### InstanceEvent
+### JourneyEvent
 
-- rappresenta l'evento reale generato durante una journey instance
+- rappresenta l'evento reale generato durante un journey
 - permette di non sporcare il template con i dati di esecuzione
 
 ### Service
 
-- entra quando un journey template e' in fase `service`
+- entra quando un trail e' in fase `active`
 - contiene la configurazione operativa del percorso
 
 Contiene o prepara:
@@ -204,21 +218,22 @@ Logica attuale:
 
 ### Fase exploration
 
-- il journey e' ancora in costruzione
-- si possono aggiungere direttamente `EventDate` al `JourneyTemplate`
+- il trail e' ancora in costruzione
+- si possono aggiungere direttamente `EventDate` al `Trail`
 - non serve ancora una struttura pesante di esecuzione
 
 ### Fase validation
 
-- il journey e' abbastanza stabile da essere percorso
-- qui si possono creare `JourneyInstance`
-- le `JourneyInstance` possono essere:
+- il trail e' abbastanza stabile da essere testato
+- qui si possono creare `Journey`
+- i `Journey` possono essere:
   - `autonomy`
   - `guided`
+- qui si puo' anche fissare una versione con `template_published_at`
 
 ### Fase service
 
-- il journey diventa servizio operativo
+- il trail diventa servizio operativo
 - qui entra il modello `Service`
 - ruoli, prezzi, ticket e logiche di erogazione si spostano sul servizio
 
@@ -241,12 +256,12 @@ Prima di generare davvero questi modelli va comunque chiarito meglio:
 6. branch
 7. domain
 8. map
-9. journey_template
+9. trail
 10. event_date
-11. journey_link
+11. trail_link
 12. resource
-13. journey_instance
-14. instance_event
+13. journey
+14. journey_event
 15. service
 16. role
 17. ticket

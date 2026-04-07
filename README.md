@@ -68,8 +68,10 @@ Key files:
 - [`doc/valore_servizi_professionisti.md`](doc/valore_servizi_professionisti.md)
 - [`doc/journey_service_offer_professional.md`](doc/journey_service_offer_professional.md)
 - [`doc/professional_operativita.md`](doc/professional_operativita.md)
-- [`doc/planning_develop_step_0002.md`](doc/planning_develop_step_0002.md)
-- [`doc/planning_develop_step_0003.md`](doc/planning_develop_step_0003.md)
+- [`doc/steps/README.md`](doc/steps/README.md)
+- [`doc/steps/todo/planning_develop_step_0003.md`](doc/steps/todo/planning_develop_step_0003.md)
+- [`doc/steps/done/planning_develop_step_0002.md`](doc/steps/done/planning_develop_step_0002.md)
+- [`doc/steps/todonext/`](doc/steps/todonext/)
 
 ## Status
 

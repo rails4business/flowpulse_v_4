@@ -44,7 +44,7 @@ Costruisce:
 
 - mappe comuni
 - branch
-- journey template
+- trail template
 - servizi
 
 Puo' essere una persona singola, un professionista o un soggetto che organizza un ecosistema.
@@ -57,7 +57,7 @@ Puo':
 
 - avere una formazione istituzionale riconosciuta
 - avere anche formazione interna di brand
-- aderire a mappe, journey e servizi
+- aderire a mappe, trail e servizi
 - aggiungere un proprio valore professionale all'erogazione
 
 ### 3. Persona

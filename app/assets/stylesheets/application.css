@@ -238,6 +238,28 @@ body.flowpulse-body {
   margin-bottom: 22px;
 }
 
+.workspace-switcher {
+  margin-bottom: 22px;
+}
+
+.workspace-switcher-form {
+  margin: 0;
+}
+
+.workspace-switcher-select {
+  width: 100%;
+  min-height: 40px;
+  padding: 0 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  color: white;
+  font: inherit;
+  font-size: 0.86rem;
+  font-weight: 700;
+  appearance: none;
+}
+
 .app-sidebar-brand h2 {
   margin: 0;
   font-size: 1.1rem;
@@ -309,6 +331,31 @@ body.flowpulse-body {
 
 .sidebar-group form {
   margin: 0;
+}
+
+.sidebar-accordion {
+  gap: 0;
+}
+
+.sidebar-accordion-summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 0;
+  color: rgba(255, 255, 255, 0.52);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.sidebar-accordion-summary::-webkit-details-marker {
+  display: none;
+}
+
+.sidebar-accordion-body {
+  display: grid;
+  gap: 6px;
+  margin-top: 8px;
 }
 
 .sidebar-button {
@@ -598,6 +645,38 @@ body.flowpulse-body {
   font-weight: 700;
 }
 
+.dashboard-status-strong {
+  display: inline-flex;
+}
+
+.dashboard-status-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
+.dashboard-status-pill-success {
+  background: #edf6ec;
+  border: 1px solid rgba(99, 122, 58, 0.18);
+  color: #365427;
+}
+
+.dashboard-status-pill-waiting {
+  background: #f5efe3;
+  border: 1px solid rgba(176, 134, 67, 0.18);
+  color: #7d5a18;
+}
+
+.dashboard-status-pill-price {
+  background: #eef2f7;
+  border: 1px solid rgba(68, 98, 129, 0.18);
+  color: #30485f;
+}
+
 .dashboard-section {
   margin: 22px 0;
 }
@@ -653,6 +732,12 @@ body.flowpulse-body {
 
 .dashboard-panel p {
   margin: 0;
+}
+
+.dashboard-panel-status {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
 }
 
 .dashboard-tabs {

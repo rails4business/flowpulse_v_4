@@ -21,10 +21,12 @@
 
           <div class="user-dropdown">
             <% if Current.session.user.profile.present? %>
+              <%= link_to "Home", root_path %>
               <%= link_to "Dashboard", dashboard_path %>
               <%= link_to "Profilo", edit_profile_path(anchor: "profile-main") %>
               <%= link_to "Impostazioni", edit_profile_path(anchor: "profile-settings") %>
             <% else %>
+              <%= link_to "Home", root_path %>
               <%= link_to "Completa profilo", new_profile_path %>
             <% end %>
 
@@ -42,7 +44,7 @@
     <div class="sub-nav-links">
       <a href="#visione">Visione</a>
       <a href="#soggetti">Soggetti</a>
-      <a href="#journey-about">Journey</a>
+      <a href="#journey-about">Trail</a>
       <a href="#ambiti">Ambiti</a>
     </div>
   </nav>
@@ -133,7 +135,7 @@
   <section class="section-grid" id="soggetti">
     <article class="info-card">
       <h2>Creator</h2>
-      <p>Crea un mondo proprio fatto di branch, mappe comuni, journey template e servizi.</p>
+      <p>Crea un mondo proprio fatto di branch, mappe comuni, trail template e servizi.</p>
     </article>
     <article class="info-card">
       <h2>Professionista</h2>
@@ -147,7 +149,7 @@
 
   <section class="split-section" id="journey-about">
     <article class="wide-card">
-      <p class="eyebrow">Journey</p>
+      <p class="eyebrow">Trail</p>
       <h2>Tre passaggi perche' un percorso diventi vivo.</h2>
       <div class="dashboard-grid">
         <article class="dashboard-panel dashboard-panel-blue">
@@ -162,7 +164,7 @@
           <span class="dashboard-panel-kicker">Validation</span>
           <h3>Validare</h3>
           <p>
-            Il journey viene testato, corretto e compreso meglio, finche' i suoi passaggi iniziano a mostrare una coerenza reale.
+            Il trail viene testato, corretto e compreso meglio, finche' i suoi passaggi iniziano a mostrare una coerenza reale.
           </p>
         </article>
 
@@ -180,12 +182,12 @@
       <p class="eyebrow">Valore</p>
       <h2>L'esperienza nasce dall'incontro tra percorso e guida.</h2>
       <p>
-        Alcuni journey diventano abbastanza chiari da funzionare come percorsi standard. Altri restano o diventano
+        Alcuni trail diventano abbastanza chiari da funzionare come percorsi standard. Altri restano o diventano
         personalizzati, perche' si costruiscono attorno a un bisogno, a una persona o a un contesto specifico.
       </p>
       <p>
         In entrambi i casi esiste un valore del percorso: dato dalla sua struttura, dalla sua efficacia e dalla sua validazione.
-        Questo e' il valore del journey creato, esplorato e reso leggibile dal creator.
+        Questo e' il valore del trail creato, esplorato e reso leggibile dal creator.
       </p>
       <p>
         Ma l'esperienza finale puo' crescere ancora quando entra in gioco un professionista che accompagna,
@@ -193,7 +195,7 @@
         aggiungono un secondo livello di valore.
       </p>
       <p class="small-note">
-        Per questo Flowpulse distingue tra valore del journey e valore di chi lo eroga:
+        Per questo Flowpulse distingue tra valore del trail e valore di chi lo eroga:
         l'esperienza puo' nascere dall'incontro tra valore del percorso creator e valore del professionista che lo guida.
       </p>
     </article>

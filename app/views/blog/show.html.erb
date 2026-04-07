@@ -21,10 +21,12 @@
 
           <div class="user-dropdown">
             <% if Current.session.user.profile.present? %>
+              <%= link_to "Home", root_path %>
               <%= link_to "Dashboard", dashboard_path %>
               <%= link_to "Profilo", edit_profile_path(anchor: "profile-main") %>
               <%= link_to "Impostazioni", edit_profile_path(anchor: "profile-settings") %>
             <% else %>
+              <%= link_to "Home", root_path %>
               <%= link_to "Completa profilo", new_profile_path %>
             <% end %>
 

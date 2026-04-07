@@ -1,17 +1,17 @@
-# Journey, Service, Offer, Professional
+# Trail, Service, Offer, Professional
 
 ## Obiettivo
 
 Fissare una struttura di dominio che distingua chiaramente:
 
-- valore del percorso
+- valore del trail
 - valore del servizio
 - valore del professionista
 - valore finale dell'offerta
 
-## 1. Journey
+## 1. Trail
 
-Il `Journey` resta il percorso.
+Il `Trail` resta il percorso.
 
 Ha gia' queste caratteristiche:
 
@@ -20,26 +20,42 @@ Ha gia' queste caratteristiche:
   - `validation`
   - `service`
 
-- `journey_kind`
+- `trail_kind`
   - `standard`
   - `personalized`
 
-Il `Journey` porta con se' il valore intrinseco del percorso:
+- `template_published_at`
+  - quando presente, il trail e' stato fissato come template stabile
+
+- `template_trail_id`
+  - quando presente, il trail deriva da un trail template gia' fissato
+
+Quindi non serve per forza separare da subito:
+
+- `TrailTemplate`
+- `TrailInstance`
+
+Per ora puo' bastare un solo modello `Trail`, con:
+
+- data di fissazione del template
+- riferimento opzionale al trail template di origine
+
+Il `Trail` porta con se' il valore intrinseco del percorso:
 
 - contenuto
 - struttura
 - tappe
 - esplorazione
 - validazione
-- efficacia del journey
+- efficacia del trail
 
-Questo puo' essere pensato come `journey_value`.
+Questo puo' essere pensato come `trail_value`.
 
 ## 2. Service
 
-Il `Service` raccoglie il modo di erogazione del journey.
+Il `Service` raccoglie il modo di erogazione del trail.
 
-Va associato a un `Journey` e tiene dentro:
+Va associato a un `Trail` e tiene dentro:
 
 - `delivery_mode`
 - ruoli
@@ -96,7 +112,7 @@ Per questo il nome migliore, per ora, e':
 
 `ServiceOffer` rappresenta il punto in cui:
 
-- un `Journey` entra nella logica di servizio
+- un `Trail` entra nella logica di servizio
 - un `Service` definisce la modalita' di erogazione
 - un `Professional` puo' aggiungere il proprio valore
 - il tutto diventa proposta concreta
@@ -115,7 +131,7 @@ Campi concettuali possibili:
 
 La lettura concettuale corretta e':
 
-- `journey_value`
+- `trail_value`
   valore del contenuto e dell'efficacia del percorso
 
 - `service_value`
@@ -129,11 +145,11 @@ La lettura concettuale corretta e':
 
 Quindi:
 
-- `offer_value = journey_value + service_value + professional_value`
+- `offer_value = trail_value + service_value + professional_value`
 
 oppure, in alcuni casi:
 
-- il `journey_value` resta implicito nel servizio
+- il `trail_value` resta implicito nel servizio
 - il prezzo finale viene letto soprattutto come `service_value + professional_value`
 
 ## Distinzione importante
@@ -157,7 +173,7 @@ Serve distinguere:
 
 Serve una pagina che riassuma:
 
-- `Journey`
+- `Trail`
 - `Service`
 - `ServiceOffer`
 - differenza tra `standard` e `personalized`
