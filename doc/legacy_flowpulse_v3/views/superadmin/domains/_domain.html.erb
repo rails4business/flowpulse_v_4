@@ -1,0 +1,50 @@
+<div id="<%= dom_id domain %>" class="w-full sm:w-auto my-5 space-y-5">
+  <div>
+    <strong class="block font-medium mb-1">Host:</strong>
+    <%= domain.host %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Language:</strong>
+    <%= domain.language %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Title:</strong>
+    <%= domain.title %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Description:</strong>
+    <%= domain.description %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Favicon url:</strong>
+    <%= domain.favicon_url %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Square logo url:</strong>
+    <%= domain.square_logo_url %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Horizontal logo url:</strong>
+    <%= domain.horizontal_logo_url %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Provider:</strong>
+    <%= domain.provider %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Ruoli operativi:</strong>
+    <% if domain.operative_roles.present? %>
+      <ul class="list-disc ml-5 text-sm text-slate-700 space-y-0.5">
+        <% domain.operative_roles.each do |area| %>
+          <li><%= area %></li>
+        <% end %>
+      </ul>
+    <% else %>
+      <p class="text-sm text-slate-500">Nessun ruolo impostato.</p>
+    <% end %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Taxbranch:</strong>
+    <%= link_to domain.taxbranch_id, superadmin_taxbranch_path(domain.taxbranch) %>
+  </div>
+</div>

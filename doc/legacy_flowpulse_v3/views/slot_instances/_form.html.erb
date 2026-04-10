@@ -1,0 +1,42 @@
+<%= form_with(model: slot_instance, class: "contents") do |form| %>
+  <% if slot_instance.errors.any? %>
+    <div id="error_explanation" class="bg-red-50 text-red-500 px-3 py-2 font-medium rounded-md mt-3">
+      <h2><%= pluralize(slot_instance.errors.count, "error") %> prohibited this slot_instance from being saved:</h2>
+
+      <ul class="list-disc ml-6">
+        <% slot_instance.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="my-5">
+    <%= form.label :slot_template_id %>
+    <%= form.text_field :slot_template_id, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": slot_instance.errors[:slot_template_id].none?, "border-red-400 focus:outline-red-600": slot_instance.errors[:slot_template_id].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :date_start %>
+    <%= form.datetime_field :date_start, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": slot_instance.errors[:date_start].none?, "border-red-400 focus:outline-red-600": slot_instance.errors[:date_start].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :date_end %>
+    <%= form.datetime_field :date_end, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": slot_instance.errors[:date_end].none?, "border-red-400 focus:outline-red-600": slot_instance.errors[:date_end].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :status %>
+    <%= form.number_field :status, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": slot_instance.errors[:status].none?, "border-red-400 focus:outline-red-600": slot_instance.errors[:status].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :notes %>
+    <%= form.textarea :notes, rows: 4, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": slot_instance.errors[:notes].none?, "border-red-400 focus:outline-red-600": slot_instance.errors[:notes].any?}] %>
+  </div>
+
+  <div class="inline">
+    <%= form.submit class: "w-full sm:w-auto rounded-md px-3.5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white inline-block font-medium cursor-pointer" %>
+  </div>
+<% end %>

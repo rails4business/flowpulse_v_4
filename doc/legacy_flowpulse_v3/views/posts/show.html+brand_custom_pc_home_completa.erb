@@ -1,0 +1,669 @@
+<% content_for :head do %>
+   <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+   
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: "#0ea5e9",
+              "background-light": "#ffffff",
+              "background-dark": "#0f172a",
+            },
+            fontFamily: {
+              display: ["Inter", "sans-serif"],
+            },
+            borderRadius: {
+              DEFAULT: "0.5rem",
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      .clip-diagonal {
+        clip-path: polygon(100% 0, 0 0, 100% 100%);
+      }
+    </style>
+    <style>
+      body {
+        min-height: max(884px, 100dvh);
+      }
+      .menu-item {
+        line-height: 1;
+        display: flex;
+        align-items: center;
+      }
+      .menu-item .material-icons {
+        line-height: 1;
+        display: inline-flex;
+      }
+    </style>
+<% end %>
+<nav class="sticky top-0 z-50 w-full border-b border-gray-200 dark:border-gray-800 bg-white/90 dark:bg-[#101a22]/90 backdrop-blur-md">
+  <div class="mx-auto w-full max-w-[960px] px-6 md:py-3 flex items-center justify-between text-sm font-semibold">
+    <a class="text-[#0d151c] dark:text-gray-300 hover:text-primary md:hidden" href="#home">
+      <img src="https://ik.imagekit.io/posturacorretta/logo_pc_scontornato.png?updatedAt=1747975596766" alt="PosturaCorretta" class="block h-8 w-auto" />
+    </a>
+    <div class="hidden md:flex items-center gap-6 ml-10">
+      <a class="text-[#0d151c] dark:text-gray-300 hover:text-primary" href="#home">Home</a>
+      <a class="text-[#0d151c] dark:text-gray-300 hover:text-primary" href="#corsi">Corsi Postura</a>
+      <a class="text-[#0d151c] dark:text-gray-300 hover:text-primary" href="#percorso">Percorso Salute</a>
+      <a class="text-[#0d151c] dark:text-gray-300 hover:text-primary" href="accademia">Accademia</a>
+      <div class="relative group pb-2 -mb-2">
+        <a class="text-[#0d151c] dark:text-gray-300 hover:text-primary inline-flex items-center gap-1" href="#esplora">
+          Esplora
+          <span class="material-symbols-outlined text-[16px] opacity-70">expand_more</span>
+        </a>
+        <div class="absolute left-0 top-full mt-0 w-56 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#101a22] shadow-lg p-3 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto flex flex-col gap-2 text-sm z-20 transition-opacity">
+          <a class="text-[#0d151c] dark:text-gray-300 hover:text-primary" href="accademia">Collabora</a>
+          <a class="text-[#0d151c] dark:text-gray-300 hover:text-primary" href="#blog">Blog</a>
+          <a class="text-[#0d151c] dark:text-gray-300 hover:text-primary" href="#eventi">Eventi</a>
+          <a class="text-[#0d151c] dark:text-gray-300 hover:text-primary" href="#progetto">Progetto</a>
+          <a class="text-[#0d151c] dark:text-gray-300 hover:text-primary" href="#mappa">Mappa percorso</a>
+          <a href="#trova_professionista" class="bg-primary hover:bg-blue-600 text-white px-4 h-10 rounded-full text-sm font-bold transition-all shadow-md hover:shadow-lg flex items-center gap-2">
+            <span class="material-symbols-outlined text-[18px]">search</span>
+            Trova un professionista
+          </a>
+        </div>
+      </div>
+    </div>
+    <div class="hidden md:flex items-center gap-3">
+      <% if Current.user.present? %>
+        <%= link_to "Dashboard",
+                    dashboard_home_path,
+                    class: "inline-flex items-center rounded-full border border-primary/40 px-4 py-2 text-primary hover:bg-primary/10 transition-colors" %>
+      <% else %>
+        <%= link_to "Accedi",
+                    new_session_path,
+                    class: "text-[#0d151c] dark:text-gray-300 hover:text-primary" %>
+        <%= link_to "Registrati",
+                    new_registration_path,
+                    class: "inline-flex items-center rounded-full border border-primary/40 px-4 py-2 text-primary hover:bg-primary/10 transition-colors" %>
+      <% end %>
+    </div>
+    <details class="md:hidden relative">
+      <summary class="list-none p-2 text-gray-600 dark:text-gray-300 cursor-pointer" aria-label="Apri menu">
+        <span class="material-symbols-outlined">menu</span>
+      </summary>
+      <div class="absolute right-0 mt-3 w-48 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#101a22] shadow-lg p-3 flex flex-col gap-2 text-sm">
+        <a class="text-[#0d151c] dark:text-gray-300 hover:text-primary" href="#home">Home</a>
+        <!--a class="text-[#0d151c] dark:text-gray-300 hover:text-primary" href="#blog">Blog</a>
+        <a class="text-[#0d151c] dark:text-gray-300 hover:text-primary" href="#eventi">Eventi</a>
+        <a class="text-[#0d151c] dark:text-gray-300 hover:text-primary" href="#progetto">Progetto</a>
+        <a class="text-[#0d151c] dark:text-gray-300 hover:text-primary" href="#mappa">Mappa percorso</a>
+        <a href="#trova_professionista" class="hidden md:flex bg-primary hover:bg-blue-600 text-white px-4 h-10 ml-2 rounded-full text-sm font-bold transition-all shadow-md hover:shadow-lg items-center gap-2">
+      <span class="material-symbols-outlined text-[18px]">search</span>
+      <span>Trova un professionista</span>
+      </a-->
+        <% if Current.user.present? %>
+          <a class="text-primary hover:text-primary/80" href="<%= dashboard_home_path %>">Dashboard</a>
+        <% else %>
+          <a class="text-[#0d151c] dark:text-gray-300 hover:text-primary" href="<%= new_session_path %>">Accedi</a>
+          <a class="text-primary hover:text-primary/80" href="<%= new_registration_path %>">Registrati</a>
+        <% end %>
+      </div>
+       
+    </details>
+  </div>
+</nav>
+<section
+    class="font-display bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen flex flex-col overflow-x-hidden transition-colors duration-300"
+  >
+    <div class="absolute top-0 right-0 z-30 pointer-events-none">
+      <div
+        class="w-32 h-32 md:w-48 md:h-48 bg-primary clip-diagonal opacity-90"
+      ></div>
+    </div>
+    <main
+      class="flex-grow flex flex-col relative z-10 px-6 pt-10 pb-16 max-w-2xl md:max-w-3xl lg:max-w-4xl mx-auto w-full md:pr-64 lg:pr-80"
+    >
+      <div class="mb-10 flex items-center translate-y-2">
+        <img
+          src="https://ik.imagekit.io/posturacorretta/logo_pc_scontornato.png?updatedAt=1747975596766"
+          alt="PosturaCorretta"
+          class="hidden md:block h-10 md:h-14 lg:h-16 w-auto"
+        />
+      </div>
+      <section
+        class="mb-10 rounded-2xl bg-white/70 dark:bg-slate-900/60 p-6 md:p-0 md:bg-transparent md:dark:bg-transparent"
+      >
+        <h2
+          class="text-xl md:text-2xl font-bold leading-tight mb-4 text-slate-900 dark:text-white"
+        >
+          Il corpo come punto di partenza
+        </h2>
+        <p
+          class="text-base md:text-lg text-slate-600 dark:text-slate-400 font-light leading-relaxed md:max-w-[70%]"
+        >
+          Ogni corpo ha una storia da raccontare. Scopri la tua con l’aiuto
+          delle metodiche posturali.
+        </p>
+      </section>
+      <nav
+        class="flex flex-col gap-y-5 mb-12 md:max-w-sm rounded-2xl bg-white/60 dark:bg-slate-900/50 p-6 md:p-0 md:bg-transparent md:dark:bg-transparent"
+      >
+
+        <% @post.taxbranch.children.each do  |tax| %>
+        <a
+          class="text-3xl font-bold text-primary hover:opacity-80 transition-opacity flex w-full items-center justify-between group leading-none"
+          href="#"
+        >
+          <span class="leading-none"> <%= tax.slug_label %> </span>
+          <span
+            class="material-icons opacity-0 group-hover:opacity-100 transition-opacity text-xl leading-none"
+            >chevron_right</span
+          >
+        </a>
+        <% end %>
+       
+      
+        <a
+          class="text-3xl font-bold text-primary hover:opacity-80 transition-opacity flex w-full items-center justify-between group leading-none"
+          href="#blog"
+        >
+          <span class="leading-none">Esplora</span>
+          <span
+            class="material-icons opacity-0 group-hover:opacity-100 transition-opacity text-xl leading-none"
+            >chevron_right</span
+          >
+        </a>
+      </nav>
+      <!---div class="flex items-center gap-4 pt-4">
+        <div class="flex -space-x-3">
+          <img
+            alt="User avatar smiling"
+            loading="lazy"
+            class="w-10 h-10 rounded-full border-2 border-white dark:border-[#101a22]"
+            src="https://lh3.googleusercontent.com/aida-public/AB6AXuD9XV7gJ4ey9_tnSgrqPZmFsuhenIf7C2jW66bhrXWlDzxidyhFAIq1yquwDJ5-lgGFAZVELve3yPgDOcmnW54-Cc9R7QHPvOo8EipIZQMufHBC5v4ommkkWzLgj8WuVz6coAubEFDzG11bo6SqK4oBLFnWXFhu3p9ef4zt_tJaMeHmuAPYUpVVc5Q7pfa3RdVMVCERrC04J44M2cRJwP92sTByz-rfcKv81zMrUPLaMaxbva1JyBVP63gZFPgYFioiKvQaiaFx5QM"
+          />
+          <img
+            alt="User avatar serious"
+            loading="lazy"
+            class="w-10 h-10 rounded-full border-2 border-white dark:border-[#101a22]"
+            src="https://lh3.googleusercontent.com/aida-public/AB6AXuDkwVdJR-u3qcNL_OazcbUXkCtVegVtDTHI8Z4xTujFj1HZmPpNQZ7c6y1su2oHueRoufJSz6bsxh7q-KcRZGXtBHVc2bZ6BDQgjs4oO1mkvLQqn4nq7T_3Sw3q74YRNw45AgxvVCEiy7R8rvpeGm57O0ZLgpgHPm6txWdx6MgwIbs7xmTRmmeYrxniB9U8fnW9QJXiohCXrIhM0IgsKgIenKa_OhIAWI4BLA7jfUTEZ359dqBZ8I06xT6J7X6BOv7Q-rK31Z7Z4ds"
+          />
+          <img
+            alt="User avatar looking"
+            loading="lazy"
+            class="w-10 h-10 rounded-full border-2 border-white dark:border-[#101a22]"
+            src="https://lh3.googleusercontent.com/aida-public/AB6AXuBP-XWKWvh0_GHGSXRRN_tqA7UiPEFjpaw6mMbw5So_HiKUTS2-l_lvzZuSsrj9jtA3MFeLYiYxUxswZ24KPhccBLNI846XmyG3ncDYs_It2wKjQ5MgHeOvEekS1G5BsqprINRqNxlIEGQeW_OOjd1v81s3x8hiaGwspUVGDT-jQ90S9tbUqX9qZ3Sxs41hOlztgl8Og2qRlpoVjY2VUj6fdd9kW6tldFYptQ2DDiBjvMfrFw6BCzhbEHN-hSOmz2yOUJTF98ml3A4"
+          />
+        </div>
+        <p class="text-sm font-medium text-[#60778a] dark:text-gray-400">
+          Scelto da
+          <span class="text-[#111518] dark:text-white font-bold">500+</span>
+          professionisti e da
+          <span class="text-[#111518] dark:text-white font-bold">500+</span>
+          utenti
+        </p>
+      </div-->
+      <div
+        class="absolute bottom-0 right-0 w-[80%] md:w-[55%] lg:w-[50%] z-[-1] opacity-90 pointer-events-none"
+      >
+        <img
+          alt="PosturaCorretta Home"
+          class="w-full h-auto grayscale-[15%] dark:mix-blend-lighten"
+          src="https://ik.imagekit.io/posturacorretta/posturacorretta_home.png?updatedAt=1749759675777"
+        />
+      </div>
+    </main>
+   
+    <button
+      class="fixed bottom-24 right-6 w-12 h-12 bg-slate-100 dark:bg-slate-800 rounded-full shadow-lg flex items-center justify-center z-50 text-slate-800 dark:text-white"
+      onclick="document.documentElement.classList.toggle('dark')"
+    >
+      <span class="material-icons">dark_mode</span>
+    </button>
+  </section>
+  <script>
+    document.getElementById("current-year").textContent =
+      new Date().getFullYear();
+  </script>
+<!---hero--->
+
+<section class="py-20 bg-blue-50 dark:bg-gray-900" id="blog">
+<div class="section-wrap flex justify-center">
+<div class="flex flex-col max-w-[960px] flex-1">
+<div class="flex justify-between items-end mb-10">
+<div>
+<h2 class="text-3xl md:text-4xl font-black text-[#111518] dark:text-white mb-2">📇 Dal Blog</h2>
+<p class="text-gray-600 dark:text-gray-400">Qui trovi le novità e gli articoli e i video posturacorretta.</p>
+</div>
+<a class="hidden md:flex items-center text-primary font-bold hover:underline keychainify-checked" href="#">
+                        Vedi tutti gli articoli <span class="material-symbols-outlined ml-1">arrow_forward</span>
+</a>
+</div>
+
+<!---blog articoli inizio-->
+<div class="w-full">
+          <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <div class="@container bg-white flex flex-col rounded-xl bg-surface-light dark:bg-surface-dark shadow-[0_2px_12px_rgba(0,0,0,0.05)] dark:shadow-none dark:border dark:border-gray-800 overflow-hidden transition-all hover:-translate-y-1 hover:shadow-lg">
+              <div class="relative aspect-video w-full bg-cover bg-center" data-alt="Group yoga session in a lush green park with sunlight filtering through trees" style="
+                  background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuB0bG4ChHrUUWtq-apN0zW8hVuXF7UHusmZCkxVq8FhqyPJWJCuojxezLQ5x0UmgU4nsITWJ_aytgsYPJPI4Lpv-E7jU0AVh96AnaPjLdggGT07IBii5wx26dDzKDqjvVLRy458EwYrtd2GCCLjD-UyDqvzyTzSGxfi--JRtEbi420huYlHTJgN4glzUd-D61S8FBWTvED-lXPU3Xa8amDJ5z6LktT7feH3z6Vu2OOO_2ztTDtft8iuGpqov1JDw5GIkob3sJT456U');
+                "> 
+                <span class="absolute bottom-2 left-4  bg-white/90 backdrop-blur text-black text-xs font-bold  px-3 py-1 rounded-full">15 Giugno</span>
+
+                </div>
+                
+              <div class="flex flex-1 flex-col justify-between p-5">
+                <div>
+                  <div class="mb-4 flex items-start justify-between">
+                    <div class="flex items-center gap-3">
+                      <div class="flex size-10 shrink-0 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 text-text-secondary">
+                        <span class="material-symbols-outlined text-[20px]">person</span>
+                      </div>
+                      <div class="flex flex-col">
+                        <span class="text-sm font-bold leading-tight text-text-main dark:text-white">Dr. Marco Rossi</span>
+                        <span class="text-xs font-medium text-text-secondary">Fisioterapista</span>
+                      </div>
+                    </div>
+                    <span class="mt-1 shrink-0 rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-bold text-primary dark:bg-primary/20">
+                      Articolo
+                    </span>
+                  </div>
+                  <h3 class="mb-2 text-xl font-bold leading-tight text-text-main dark:text-white">
+                    Respirazione e Natura: Un legame profondo
+                  </h3>
+                  <p class="mb-4 text-sm leading-normal text-text-main/70 dark:text-gray-300">
+                    Scopri come riconnettersi con la natura può migliorare
+                    significativamente la tua respirazione diaframmatica.
+                  </p>
+                </div>
+                <button class="mt-auto flex h-10 w-full items-center justify-center rounded-full bg-primary/10 dark:bg-primary/20 text-sm font-bold text-primary dark:text-primary transition-colors hover:bg-primary hover:text-white">
+                  Leggi
+                </button>
+              </div>
+            </div>
+            <div class="@container bg-white flex flex-col rounded-xl bg-surface-light dark:bg-surface-dark shadow-[0_2px_12px_rgba(0,0,0,0.05)] dark:shadow-none dark:border dark:border-gray-800 overflow-hidden transition-all hover:-translate-y-1 hover:shadow-lg">
+              <div class="relative aspect-video w-full bg-cover bg-center" data-alt="Person stretching arms on a mountain top overlooking a valley" style="
+                  background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuD_enWDXN8My9N73h5Fb8ze4ty6vfendwCyFzB_8HmHn2-Qg6sbhB5r7-8vzA6ZCRvg8ZBx3bWFuRJwDiDnC85y3fy15y_hhltZVOf9vQl6YEPoAGwF_951XNMa14qV2lDo_zrzSoCaFxCAw8ISPZhaGFqj045T0GeodCa6X6BFm67-e1FzKKW0YwBg-W1WBfK9onlbdZKxN3e9hD6LA6blhIiYYihrLCP-cPOGS3e2nbjZCOHYoVlmDv5S-hroSDjtAS-poNw5-74');
+                ">
+               <span class="absolute bottom-2 left-4  bg-white/90 backdrop-blur text-black text-xs font-bold  px-3 py-1 rounded-full">15 Giugno</span>
+  
+              </div>
+              <div class="flex flex-1 flex-col justify-between p-5">
+                <div>
+                  <div class="mb-4 flex items-start justify-between">
+                    <div class="flex items-center gap-3">
+                      <div class="flex size-10 shrink-0 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 text-text-secondary">
+                        <span class="material-symbols-outlined text-[20px]">person</span>
+                      </div>
+                      <div class="flex flex-col">
+                        <span class="text-sm font-bold leading-tight text-text-main dark:text-white">Giulia Bianchi</span>
+                        <span class="text-xs font-medium text-text-secondary">Posturologa</span>
+                      </div>
+                    </div>
+                    <span class="mt-1 shrink-0 rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-bold text-primary dark:bg-primary/20">
+                      Video
+                    </span>
+                  </div>
+                  <h3 class="mb-2 text-xl font-bold leading-tight text-text-main dark:text-white">
+                    Guida alla Postura Corretta
+                  </h3>
+                  <p class="mb-4 text-sm leading-normal text-text-main/70 dark:text-gray-300">
+                    Una serie di esercizi dedicati alla salute della schiena e
+                    all'allineamento corporeo da fare ovunque.
+                  </p>
+                </div>
+                <button class="mt-auto flex h-10 w-full items-center justify-center rounded-full bg-primary/10 dark:bg-primary/20 text-sm font-bold text-primary dark:text-primary transition-colors hover:bg-primary hover:text-white">
+                  Leggi
+                </button>
+              </div>
+            </div>
+            <div class="@container bg-white flex flex-col rounded-xl bg-surface-light dark:bg-surface-dark shadow-[0_2px_12px_rgba(0,0,0,0.05)] dark:shadow-none dark:border dark:border-gray-800 overflow-hidden transition-all hover:-translate-y-1 hover:shadow-lg">
+              <div class="relative aspect-video w-full bg-cover bg-center" data-alt="Hikers walking on a trail with backpacks in the Dolomites" style="
+                  background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBUNBGTA5sDFFOWKYlHWI8EMc_WY5WXPNwmJ3N8q4dHDk5T1cuWQgSYQaGyJZtPhrvuLSUY7s670r9UbGfmQSplwojpXhzLgLTmpEvoE42Io23D_7r3e6smk27enHIbH5tmejHP-57h1xodVs3bUhlXtZhfZkJ48ITZv6dA-XLlVuMYNt3nhkEZgM17qj3hIDlhF1a8DJu7we2fM7_IQLxnkbrTb2xmH7PtPHgOiZqBnrr4uIPi04fZ1vYd6zrpUo_kt23ISGsKGA4');
+                ">
+                 <span class="absolute bottom-2 left-4  bg-white/90 backdrop-blur text-black text-xs font-bold  px-3 py-1 rounded-full">15 Giugno</span>
+</div>
+              <div class="flex flex-1 flex-col justify-between p-5">
+                <div>
+                  <div class="mb-4 flex items-start justify-between">
+                    <div class="flex items-center gap-3">
+                      <div class="flex size-10 shrink-0 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 text-text-secondary">
+                        <span class="material-symbols-outlined text-[20px]">person</span>
+                      </div>
+                      <div class="flex flex-col">
+                        <span class="text-sm font-bold leading-tight text-text-main dark:text-white">Luca Verdi</span>
+                        <span class="text-xs font-medium text-text-secondary">Guida Alpina</span>
+                      </div>
+                    </div>
+                    <span class="mt-1 shrink-0 rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-bold text-primary dark:bg-primary/20">
+                      Fisiologia
+                    </span>
+                  </div>
+                  <h3 class="mb-2 text-xl font-bold leading-tight text-text-main dark:text-white">
+                    Camminata Consapevole
+                  </h3>
+                  <p class="mb-4 text-sm leading-normal text-text-main/70 dark:text-gray-300">
+                    Impara le tecniche di camminata biomeccanica per ridurre
+                    l'affaticamento articolare durante i trekking.
+                  </p>
+                </div>
+                <button class="mt-auto flex h-10 w-full items-center justify-center rounded-full bg-primary/10 dark:bg-primary/20 text-sm font-bold text-primary dark:text-primary transition-colors hover:bg-primary hover:text-white">
+                  Leggi
+                </button>
+              </div>
+            </div>
+           
+            
+           
+          </div>
+          <div class="mt-12 flex justify-center">
+            <button class="flex h-12 min-w-[200px] items-center justify-center rounded-full border border-gray-200 bg-white px-6 text-sm font-bold text-text-main transition-colors hover:border-primary hover:text-primary dark:border-gray-700 dark:bg-surface-dark dark:text-white">
+              Vedi tutti gli articoli
+            </button>
+          </div>
+        </div>
+<!-- fine-->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+  
+
+  <!---blog -->
+  
+<!----fine-->
+
+</div>
+</div>
+</section>
+
+<!-- Events & Territory Section -->
+<!-- Events Section: Il Giardino del Corpo -->
+<section class="py-20 bg-green-50 dark:bg-gray-900" id="eventi">
+<div class="section-wrap flex justify-center">
+<div class="flex flex-col max-w-[960px] flex-1">
+<div class="flex flex-col items-center text-center md:items-start md:text-left gap-4">
+
+<h2 class="text-3xl md:text-4xl font-black text-[#111518] dark:text-white">🗓️ Eventi</h2>
+<p class="text-gray-600 dark:text-gray-300 max-w-2xl text-lg">
+                            Porta la postura nel territorio con eventi, workshop e ritiri immersi nella natura per riconnetterti con l'ambiente circostante.
+                        </p>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-6">
+<!-- Event Card 1 -->
+<div class="group bg-white dark:bg-gray-800 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-shadow duration-300 border border-gray-100 dark:border-gray-700">
+<div class="h-48 bg-gray-200 overflow-hidden relative">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Yoga session in a sunny park with green trees" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCUn2dTaUOHGrzRhW1NTRzEGHdg2SMA3TWNm4-VEQ3bnNCeDP5S0Zl6UpnFIHgK5preIGe15xnfHgFPInKay6MHENC_s8WUyWqZSbqiO3HVCXqAe2ZCRsCkHOuSSGzzpeue2IeohJwBWKxaaoxnK6jkvTF5-75rAbCr0Um22iFhVW2rgv511P6jP_3RMT798eEJcQNKD0oqSkxPY27NVjf3u15MAoiPIshO-9Y4TLgFFoXmhgSFHfsMkXP-AuLGblkdg6do64RuKSE"/>
+<div class="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wide text-green-700">
+                                    Workshop
+                                </div>
+</div>
+<div class="p-6 flex flex-col gap-4">
+<div class="flex justify-between items-center text-sm text-gray-500">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-base">calendar_month</span> 15 Ottobre</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-base">location_on</span> Milano, Parco Sempione</span>
+</div>
+<h3 class="text-xl font-bold text-[#111518] dark:text-white leading-tight">Respiro e Allineamento all'aperto</h3>
+<p class="text-gray-600 dark:text-gray-400 text-sm line-clamp-2">Un pomeriggio dedicato alle tecniche di respirazione diaframmatica integrate con la correzione posturale.</p>
+<button class="mt-2 w-full py-2.5 rounded-xl border border-green-600 text-green-600 hover:bg-green-600 hover:text-white font-bold text-sm transition-all">
+                                    Prenota Posto
+                                </button>
+</div>
+</div>
+<!-- Event Card 2 -->
+<div class="group bg-white dark:bg-gray-800 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-shadow duration-300 border border-gray-100 dark:border-gray-700">
+<div class="h-48 bg-gray-200 overflow-hidden relative">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Group of people stretching in a peaceful forest setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAhLBnoWnmATP4TDXq9zF0HbhM0SOAEjiochrzl-KmcFZzfMQy9ApOflUq1PJ4Fad8D-xFrKsZxrr0jGXQrZG2xnYg7HdxpvmyWQ0fpZU0JBL0slPTkUyR4lC9Z88x33um3m3iyQbXLp8ZXW7z0oquU-kt44v9hcEymCKibvUorkwf6KPwzcKyz1-tMclTKnDjnVgCNqwLdoGuEQqa3z4xddz4bA7Ox9G7_LoRlBpGb1cauiT8MGUJJ4N8E9Ob7z1mV5ERhR3uU_-c"/>
+<div class="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wide text-purple-700">
+                                    Ritiro
+                                </div>
+</div>
+<div class="p-6 flex flex-col gap-4">
+<div class="flex justify-between items-center text-sm text-gray-500">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-base">calendar_month</span> 12-14 Novembre</span>
+<span class="flex items-center gap-1" data-location="Toscana"><span class="material-symbols-outlined text-base">location_on</span> Toscana</span>
+</div>
+<h3 class="text-xl font-bold text-[#111518] dark:text-white leading-tight">Weekend "Roots &amp; Spine"</h3>
+<p class="text-gray-600 dark:text-gray-400 text-sm line-clamp-2">Tre giorni immersivi per riscoprire le radici del movimento naturale attraverso l'esplorazione e la pratica.</p>
+<button class="mt-2 w-full py-2.5 rounded-xl border border-gray-300 text-gray-700 hover:border-purple-600 hover:text-purple-600 dark:text-white dark:hover:text-purple-400 font-bold text-sm transition-all">
+                                    Scopri Programma
+                                </button>
+</div>
+</div>
+<!-- Event Card 3 -->
+<div class="group bg-white dark:bg-gray-800 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-shadow duration-300 border border-gray-100 dark:border-gray-700">
+<div class="h-48 bg-gray-200 overflow-hidden relative">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Healthy organic food served at a wellness event" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDbBWfFSHlTsssEDpJd36VHcgehfQ2bjy2OVP1JBkemBEQFvkcVqTrixVMxflWK7FA10E-KpeFuhxbIchtEO8tk4y2Fn36JIWHCXFmMl91KS9CQ03EkI0-DZgZ_RRJaGROmoqDtPHkZ9GhWJL2qqf2D0ZQ9uP7Efu9rVpfOaPzFHMNi0Jfo9ofhscUL62vQfPhl2hH3HXlIFT1SlzlaEf91M4ruqauUsTkvBKhrYtOWESwsd4d-6VQldJ-KQYWabqTGtHrgspl8SZ4"/>
+<div class="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wide text-orange-700">
+                                    Seminario
+                                </div>
+</div>
+<div class="p-6 flex flex-col gap-4">
+<div class="flex justify-between items-center text-sm text-gray-500">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-base">calendar_month</span> 05 Dicembre</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-base">videocam</span> Online</span>
+</div>
+<h3 class="text-xl font-bold text-[#111518] dark:text-white leading-tight">Nutrizione e Infiammazione</h3>
+<p class="text-gray-600 dark:text-gray-400 text-sm line-clamp-2">Come l'alimentazione influenza la salute delle articolazioni e la postura cronica. Con la Dott.ssa Bianchi.</p>
+<button class="mt-2 w-full py-2.5 rounded-xl border border-gray-300 text-gray-700 hover:border-orange-500 hover:text-orange-500 dark:text-white dark:hover:text-orange-400 font-bold text-sm transition-all">
+                                    Iscriviti Gratis
+                                </button>
+</div>
+</div>
+</div>
+<div class="mt-12 flex justify-center">
+  <button class="flex h-12 min-w-[200px] items-center justify-center rounded-full border border-gray-200 bg-white px-6 text-sm font-bold text-text-main transition-colors hover:border-primary hover:text-primary dark:border-gray-700 dark:bg-surface-dark dark:text-white">
+    Vedi tutti gli eventi
+  </button>
+</div>
+</div>
+</div>
+</section>
+
+
+<section class="bg-gray-50 pt-32 " id="progetto" >
+<div class="section-wrap flex justify-center">
+<div class="flex flex-col max-w-[960px] flex-1">
+<div class="flex flex-col items-center text-center md:items-start md:text-left gap-4">
+  
+  <h2 class="text-3xl md:text-4xl font-black text-[#111518] dark:text-white">📈 Rubrica: Le tappe del progetto!</h2>
+  <p class="text-gray-600 dark:text-gray-300 max-w-2xl text-lg">
+    Qui trovi aggiornamenti, roadmap e stato di avanzamento dei progetti.
+  </p>
+  </div>
+
+   <div class="max-w-[960px] py-20 mx-auto w-full mb-10" >
+  
+ <%= render 'card_project' %>
+ </div>
+</div>
+</section>
+
+<section class="pt-32 " >
+
+  <div class="max-w-[960px] py-20 mx-auto w-full mb-10" id="mappa">
+    
+    <div class="bg-[#0d151c] text-white rounded-[2rem] p-8 md:p-16 overflow-hidden relative">
+      <!-- Background decorative shapes -->
+      <div class="absolute top-0 right-0 w-[400px] h-[400px] bg-blue-500/20 blur-[100px] rounded-full translate-x-1/2 -translate-y-1/2"></div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center relative z-10">
+        <div class="order-2 md:order-1">
+        <span class="text-primary font-bold tracking-widest text-xs uppercase mb-2 block">
+            Mappa percorso
+          </span>
+
+          <h2 class="text-2xl md:text-3xl font-bold mb-6">
+            Sostieni posturacorretta.<br class="hidden md:block" />
+             e la tua salute.
+          </h2>
+
+          <p class="text-gray-300 text-lg mb-8 leading-relaxed">
+            PosturaCorretta è un percorso strutturato, costruito nel tempo,
+            che oggi sta prendendo forma anche come piattaforma.
+            <br class="hidden md:block" />
+            Per orientarti nel progetto puoi esplorare i contenuti online,
+            oppure partire dal libro <strong>“Il Corpo, un mondo da scoprire”</strong>:
+            una guida in fase di pubblicazione che raccoglie la visione,
+            spiega il percorso e offre la mappa completa del progetto,
+            per portare la postura nella vita di tutti i giorni.
+          </p>
+
+          <div class="flex flex-col sm:flex-row gap-4">
+            <a href="/progetto" class="keychainify-checked">
+              <button class="bg-white text-[#0d151c] px-8 py-3 rounded-full font-bold hover:bg-gray-200 transition-colors">
+                Mappa percorso 
+              </button>
+            </a>
+
+            <a href="/libro" class="keychainify-checked">
+              <button class="bg-transparent border border-white/30 text-white px-8 py-3 rounded-full font-bold hover:bg-white/10 transition-colors">
+                Scopri il libro
+              </button>
+            </a>
+          </div>
+        </div>
+
+        <div class="order-1 md:order-2 flex justify-center items-center">
+          <!-- Book Mockup Placeholder -->
+          <div class="relative w-[240px] h-[340px]  bg-blue-700  rounded-r-2xl rounded-l-sm shadow-2xl transform rotate-y-12 rotate-3 hover:rotate-0 transition-all duration-500 flex items-center justify-center border-l-4 border-white/10">
+            <div class="text-center p-6">
+              <span class="material-symbols-outlined text-white/50 text-4xl mb-4">menu_book</span>
+              <h3 class="text-white font-serif text-2xl font-bold leading-tight mb-2">
+                Il Corpo,<br />un mondo da scoprire
+              </h3>
+              <p class="text-white/70 text-xs uppercase tracking-widest mt-8">
+                Guida del percorso + Mappa del progetto
+              </p>
+            </div>
+
+            <!-- Page effect -->
+            <div class="absolute right-0 top-0 h-full w-[10px] bg-gradient-to-l from-black/20 to-transparent"></div>
+          </div>
+        </div>
+        
+      </div>
+      
+    </div>
+  <div class="my-8">
+      
+      </div>
+  </div>
+</section>
+
+
+
+
+
+<!-- Footer -->
+<footer class="bg-white dark:bg-[#0d151c] border-t border-gray-200 dark:border-gray-800 pt-16 pb-8">
+<div class="max-w-[1280px] mx-auto px-4 md:px-10">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
+<div class="col-span-1 md:col-span-1">
+<div class="flex items-center mb-4">
+  <img
+    src="https://ik.imagekit.io/posturacorretta/logo_pc_scontornato.png?updatedAt=1747975596766"
+    alt="PosturaCorretta"
+    class="h-8 w-auto"
+  />
+</div>
+<p class="text-sm text-gray-500 dark:text-gray-400 mb-6">
+                        La postura come porta d'accesso per il cambiamento e la salute integrata.
+                    </p>
+</div>
+<div>
+<h4 class="font-bold text-[#0d151c] dark:text-white mb-4">Esplora</h4>
+<ul class="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+<li><a class="hover:text-primary" href="#corsi">Corsi</a></li>
+<li><a class="hover:text-primary" href="#percorso">Il Percorso</a></li>
+<li><a class="hover:text-primary" href="#oltre">Oltre la Postura</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-bold text-[#0d151c] dark:text-white mb-4">Professionisti</h4>
+<ul class="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+<li><a class="hover:text-primary" href="#">Collabora con noi</a></li>
+<li><a class="hover:text-primary" href="#">Area riservata</a></li>
+<li><a class="hover:text-primary" href="#">Flowpulse</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-bold text-[#0d151c] dark:text-white mb-4">Contatti</h4>
+<ul class="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+<li><a class="hover:text-primary" href="#">Supporto</a></li>
+<li><a class="hover:text-primary" href="#">info@posturacorretta.it</a></li>
+</ul>
+
+<div class="flex gap-4 mt-6">
+  <div class="flex space-x-4">
+          <a
+            class="hover:opacity-80 transition-opacity"
+            href="https://www.facebook.com/www.posturacorretta.org/"
+            target="_blank"
+            rel="noopener"
+          >
+            <svg
+              class="h-5 w-5 fill-current"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                d="M22.675 0h-21.35C.597 0 0 .597 0 1.326v21.348C0 23.403.597 24 1.326 24h11.495v-9.294H9.692V11.01h3.129V8.309c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.795.143v3.24l-1.918.001c-1.504 0-1.796.715-1.796 1.763v2.31h3.587l-.467 3.696h-3.12V24h6.116C23.403 24 24 23.403 24 22.674V1.326C24 .597 23.403 0 22.675 0z"
+              />
+            </svg>
+          </a>
+          <a
+            class="hover:opacity-80 transition-opacity"
+            href="https://www.instagram.com/posturacorretta"
+            target="_blank"
+            rel="noopener"
+          >
+            <svg
+              class="h-5 w-5 fill-current"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                d="M12 2.163c3.204 0 3.584.012 4.85.07 1.366.062 2.633.343 3.608 1.318.975.975 1.256 2.242 1.318 3.608.058 1.266.07 1.646.07 4.84 0 3.204-.012 3.584-.07 4.85-.062 1.366-.343 2.633-1.318 3.608-.975.975-2.242 1.256-3.608 1.318-1.266.058-1.646.07-4.85.07-3.194 0-3.574-.012-4.84-.07-1.366-.062-2.633-.343-3.608-1.318-.975-.975-1.256-2.242-1.318-3.608-.058-1.266-.07-1.646-.07-4.85 0-3.194.012-3.574.07-4.84.062-1.366.343-2.633 1.318-3.608.975-.975 2.242-1.256 3.608-1.318 1.266-.058 1.646-.07 4.84-.07zm0 3.675a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zm0 10.162a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-10.845a1.44 1.44 0 1 1-2.88 0 1.44 1.44 0 0 1 2.88 0z"
+              />
+            </svg>
+          </a>
+          <a
+            class="hover:opacity-80 transition-opacity"
+            href="https://www.youtube.com/posturacorretta"
+            target="_blank"
+            rel="noopener"
+          >
+            <svg
+              class="h-5 w-5 fill-current"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                d="M23.498 6.186a2.997 2.997 0 0 0-2.112-2.122C19.496 3.5 12 3.5 12 3.5s-7.496 0-9.386.564A2.997 2.997 0 0 0 .502 6.186C0 8.086 0 12 0 12s0 3.914.502 5.814a2.997 2.997 0 0 0 2.112 2.122C4.504 20.5 12 20.5 12 20.5s7.496 0 9.386-.564a2.997 2.997 0 0 0 2.112-2.122C24 15.914 24 12 24 12s0-3.914-.502-5.814zM9.75 15.568V8.432L15.818 12 9.75 15.568z"
+              />
+            </svg>
+          </a>
+        </div>
+<!--a class="text-gray-400 hover:text-primary" href="#"><span class="material-symbols-outlined">public</span></a>
+<a class="text-gray-400 hover:text-primary" href="#"><span class="material-symbols-outlined">share</span></a-->
+</div>
+</div>
+</div>
+<div class="border-t border-gray-100 dark:border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center text-xs text-gray-500 dark:text-gray-500">
+<p>© 2023 PosturaCorretta. Tutti i diritti riservati.</p>
+
+<div class="flex gap-6 mt-4 md:mt-0">
+<a class="hover:text-gray-800 dark:hover:text-gray-300" href="#">Privacy Policy</a>
+<a class="hover:text-gray-800 dark:hover:text-gray-300" href="#">Cookie Policy</a>
+<a class="hover:text-gray-800 dark:hover:text-gray-300" href="#">Termini e Condizioni</a>
+</div>
+
+</div>
+</div>
+</footer>

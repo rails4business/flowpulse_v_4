@@ -1,0 +1,750 @@
+<% content_for :title, "📊 Dashboard Post" %>
+
+
+
+<% content_for :aside do %>
+  <%= render "dashboard/aside_menu"  %>
+<% end %>
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Eventize – Crea e vendi eventi</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root { --brand: 38 92% 50%; }
+    body { font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; }
+    .card { @apply bg-white shadow-sm rounded-2xl border border-slate-200; }
+    .badge { @apply inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium; }
+    
+    /* Toast notifications */
+    .toast {
+      position: fixed; bottom: 1rem; right: 1rem; z-index: 50;
+      padding: 1rem 1.5rem; border-radius: 0.75rem; font-size: 0.875rem;
+      animation: slideIn 0.3s ease-out;
+    }
+    .toast.success { @apply bg-emerald-50 text-emerald-800 border border-emerald-200; }
+    .toast.error { @apply bg-rose-50 text-rose-800 border border-rose-200; }
+    @keyframes slideIn { from { transform: translateX(400px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    
+    /* Commitment indicator */
+    .commitment-indicator { @apply flex gap-2 mb-6; }
+    .commitment { @apply h-2 flex-1 rounded-full bg-slate-200 transition-all; }
+    .commitment.active { @apply bg-[hsl(var(--brand))]; }
+    
+    /* Input styling */
+    input, textarea, select {
+      @apply border border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[hsl(var(--brand))] focus:ring-opacity-20 focus:border-[hsl(var(--brand))];
+    }
+    
+    /* Better button states */
+    button { transition: all 0.2s; }
+    button:disabled { @apply opacity-50 cursor-not-allowed; }
+  </style>
+</head>
+<body class="bg-slate-50">
+  <header class="sticky top-0 z-30 bg-white/80 backdrop-blur border-b border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <div class="h-8 w-8 rounded-xl bg-[hsl(var(--brand))]"></div>
+        <h1 class="text-xl font-bold text-slate-800">Eventize</h1>
+      </div>
+      <div class="flex items-center gap-2">
+        <button id="btnExportJSON" class="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm hover:bg-slate-50" aria-label="Esporta evento in JSON">Esporta</button>
+        <button id="btnImportJSON" class="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm hover:bg-slate-50" aria-label="Importa evento da JSON">Importa</button>
+        <input id="importFile" type="file" accept="application/json" class="hidden" aria-hidden="true" />
+        <button id="btnSave" class="rounded-lg bg-[hsl(var(--brand))] text-white px-3 py-1.5 text-sm font-semibold hover:opacity-90" aria-label="Salva bozza">Salva</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto p-4 md:p-6">
+    <div class="grid md:grid-cols-3 gap-6">
+      <!-- Form Builder -->
+      <div class="md:col-span-2">
+        <div class="commitment-indicator" role="progressbar" aria-valuenow="1" aria-valuemin="1" aria-valuemax="6">
+          <div class="commitment active" id="commitment1"></div>
+          <div class="commitment" id="commitment2"></div>
+          <div class="commitment" id="commitment3"></div>
+          <div class="commitment" id="commitment4"></div>
+          <div class="commitment" id="commitment5"></div>
+          <div class="commitment" id="commitment6"></div>
+        </div>
+
+        <!-- Section 1: Basic Info -->
+        <section id="sec1" class="card p-4 md:p-6 space-y-4">
+          <h2 class="text-lg font-semibold mb-4">📋 Dettagli evento</h2>
+          
+          <label class="block">
+            <span class="text-sm font-medium text-slate-700">Titolo *</span>
+            <input id="title" type="text" placeholder="Es. PosturaCorretta Live" maxlength="100" required aria-describedby="title-hint" />
+            <span id="title-hint" class="text-xs text-slate-500 mt-1 block">Max 100 caratteri</span>
+          </label>
+
+          <label class="block">
+            <span class="text-sm font-medium text-slate-700">Sottotitolo</span>
+            <input id="subtitle" type="text" placeholder="Es. Workshop pratico" maxlength="80" />
+          </label>
+
+          <label class="block">
+            <span class="text-sm font-medium text-slate-700">Descrizione</span>
+            <textarea id="description" rows="4" placeholder="Racconta di cosa si tratta…" maxlength="500"></textarea>
+            <span class="text-xs text-slate-500 mt-1 block"><span id="descCount">0</span>/500 caratteri</span>
+          </label>
+
+          <label class="block">
+            <span class="text-sm font-medium text-slate-700">Copertina (URL immagine)</span>
+            <input id="coverUrl" type="url" placeholder="https://example.com/image.jpg" />
+          </label>
+
+          <label class="block">
+            <span class="text-sm font-medium text-slate-700">Prezzo base (€)</span>
+            <input id="basePrice" type="number" min="0" commitment="0.01" placeholder="0.00" />
+          </label>
+
+          <label class="block">
+            <span class="text-sm font-medium text-slate-700">Capienza massima</span>
+            <input id="capacity" type="number" min="1" placeholder="Es. 100" />
+          </label>
+
+          <label class="block">
+            <span class="text-sm font-medium text-slate-700">Modalità</span>
+            <select id="mode">
+              <option value="online">🌐 Online</option>
+              <option value="offline">📍 In presenza</option>
+              <option value="hybrid">🔄 Ibrido</option>
+            </select>
+          </label>
+
+          <label class="block">
+            <span class="text-sm font-medium text-slate-700">Luogo/Indirizzo</span>
+            <input id="venue" type="text" placeholder="Es. Garda Hotel, Montichiari" />
+          </label>
+
+          <button id="btnNext1" class="w-full mt-6 rounded-lg bg-[hsl(var(--brand))] text-white px-4 py-2.5 font-semibold hover:opacity-90">Avanti →</button>
+        </section>
+
+        <!-- Section 2: Dates -->
+        <section id="sec2" class="card p-4 md:p-6 space-y-4 hidden">
+          <h2 class="text-lg font-semibold mb-4">📅 Date & Orari</h2>
+          <p class="text-sm text-slate-600">Aggiungi tutte le date e fasce orarie del tuo evento.</p>
+          <div id="datesList" class="space-y-3"></div>
+          <button id="addDate" class="w-full rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 px-4 py-2.5 text-sm font-medium hover:bg-slate-100">+ Aggiungi data</button>
+          <div class="flex gap-2">
+            <button id="btnBack1" class="flex-1 rounded-lg border border-slate-300 bg-white px-4 py-2.5 font-semibold hover:bg-slate-50">← Indietro</button>
+            <button id="btnNext2" class="flex-1 rounded-lg bg-[hsl(var(--brand))] text-white px-4 py-2.5 font-semibold hover:opacity-90">Avanti →</button>
+          </div>
+        </section>
+
+        <!-- Section 3: Roles & Tickets -->
+        <section id="sec3" class="card p-4 md:p-6 space-y-6 hidden">
+          <div>
+            <h2 class="text-lg font-semibold mb-4">👥 Ruoli da coprire</h2>
+            <div id="rolesList" class="space-y-3 mb-3"></div>
+            <button id="addRole" class="w-full rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 px-4 py-2.5 text-sm font-medium hover:bg-slate-100">+ Aggiungi ruolo</button>
+          </div>
+
+          <hr class="border-slate-200" />
+
+          <div>
+            <h2 class="text-lg font-semibold mb-4">🎫 Tipi di biglietto</h2>
+            <div id="ticketsList" class="space-y-3 mb-3"></div>
+            <button id="addTicket" class="w-full rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 px-4 py-2.5 text-sm font-medium hover:bg-slate-100">+ Aggiungi biglietto</button>
+          </div>
+
+          <div class="flex gap-2">
+            <button id="btnBack2" class="flex-1 rounded-lg border border-slate-300 bg-white px-4 py-2.5 font-semibold hover:bg-slate-50">← Indietro</button>
+            <button id="btnNext3" class="flex-1 rounded-lg bg-[hsl(var(--brand))] text-white px-4 py-2.5 font-semibold hover:opacity-90">Avanti →</button>
+          </div>
+        </section>
+
+        <!-- Section 4: Sessions -->
+        <section id="sec4" class="card p-4 md:p-6 space-y-4 hidden">
+          <h2 class="text-lg font-semibold mb-4">🎤 Programma (interventi)</h2>
+          <p class="text-sm text-slate-600">Aggiungi i talk/interventi con orario, relatore e link ai dettagli.</p>
+          <div id="sessionsList" class="space-y-3"></div>
+          <button id="addSession" class="w-full rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 px-4 py-2.5 text-sm font-medium hover:bg-slate-100">+ Aggiungi intervento</button>
+          <div class="flex gap-2">
+            <button id="btnBack3" class="flex-1 rounded-lg border border-slate-300 bg-white px-4 py-2.5 font-semibold hover:bg-slate-50">← Indietro</button>
+            <button id="btnNext4" class="flex-1 rounded-lg bg-[hsl(var(--brand))] text-white px-4 py-2.5 font-semibold hover:opacity-90">Avanti →</button>
+          </div>
+        </section>
+
+        <!-- Section 5: Invites -->
+        <section id="sec5" class="card p-4 md:p-6 space-y-4 hidden">
+          <h2 class="text-lg font-semibold mb-4">📧 Inviti</h2>
+          <p class="text-sm text-slate-600">Aggiungi le email dei collaboratori e partecipanti da invitare.</p>
+          <div id="invitesList" class="space-y-3"></div>
+          <button id="addInvite" class="w-full rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 px-4 py-2.5 text-sm font-medium hover:bg-slate-100">+ Aggiungi email</button>
+          <div class="flex gap-2">
+            <button id="btnBack4" class="flex-1 rounded-lg border border-slate-300 bg-white px-4 py-2.5 font-semibold hover:bg-slate-50">← Indietro</button>
+            <button id="btnNext5" class="flex-1 rounded-lg bg-[hsl(var(--brand))] text-white px-4 py-2.5 font-semibold hover:opacity-90">Avanti →</button>
+          </div>
+        </section>
+
+        <!-- Section 6: Summary -->
+        <section id="sec6" class="card p-4 md:p-6 space-y-4 hidden">
+          <h2 class="text-lg font-semibold mb-4">✅ Riepilogo</h2>
+          <p class="text-sm text-slate-600 mb-4">Controlla i dati prima di salvare.</p>
+          <div id="summary" class="bg-slate-50 rounded-lg p-4 text-sm space-y-2 max-h-96 overflow-y-auto"></div>
+          <div class="flex gap-2">
+            <button id="btnBack5" class="flex-1 rounded-lg border border-slate-300 bg-white px-4 py-2.5 font-semibold hover:bg-slate-50">← Indietro</button>
+            <button id="btnFinal" class="flex-1 rounded-lg bg-emerald-600 text-white px-4 py-2.5 font-semibold hover:opacity-90">✓ Salva evento</button>
+          </div>
+          <button id="btnClear" class="w-full rounded-lg border border-rose-300 bg-rose-50 text-rose-700 px-4 py-2.5 text-sm font-medium hover:bg-rose-100">Svuota tutto</button>
+        </section>
+      </div>
+
+      <!-- Preview Panel -->
+      <aside class="md:col-span-1">
+        <div class="sticky top-20">
+          <div class="card overflow-hidden">
+            <div id="cover" class="h-40 bg-gradient-to-br from-slate-200 to-slate-100 relative">
+              <img id="coverImg" class="absolute inset-0 h-full w-full object-cover hidden" alt="Copertina evento" />
+              <div class="absolute inset-0 bg-black/20"></div>
+              <div class="absolute bottom-3 left-3 right-3">
+                <div id="previewDateBadges" class="flex flex-wrap gap-1 mb-2"></div>
+                <h1 id="previewTitle" class="text-white text-lg font-bold drop-shadow line-clamp-2">Titolo evento</h1>
+                <p id="previewSubtitle" class="text-white/90 text-xs drop-shadow line-clamp-1">Sottotitolo</p>
+              </div>
+            </div>
+            <div class="p-4 space-y-3">
+              <div class="flex flex-wrap gap-1">
+                <span id="previewMode" class="badge border-slate-300 text-slate-700 text-xs">Online</span>
+                <span id="previewPrice" class="badge border-emerald-300 text-emerald-700 text-xs font-bold">€0.00</span>
+              </div>
+              <p id="previewDescription" class="text-slate-700 text-xs line-clamp-3"></p>
+              
+              <div class="pt-2 border-t">
+                <p class="text-xs font-semibold text-slate-700 mb-2">📋 Riepilogo</p>
+                <ul class="text-xs text-slate-600 space-y-1">
+                  <li>📅 <span id="countDates">0</span> data/e</li>
+                  <li>👥 <span id="countRoles">0</span> ruolo/i</li>
+                  <li>🎫 <span id="countTickets">0</span> tipo/i biglietto</li>
+                  <li>🎤 <span id="countSessions">0</span> intervento/i</li>
+                  <li>📧 <span id="countInvites">0</span> invito/i</li>
+                </ul>
+              </div>
+
+              <button id="btnPreviewBuy" class="w-full rounded-lg bg-[hsl(var(--brand))] text-white px-4 py-2 font-semibold text-xs hover:opacity-90">Acquista Biglietto</button>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <!-- Toast Container -->
+  <div id="toastContainer"></div>
+
+  <!-- Templates -->
+  <template id="tplDate">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-2 items-end bg-slate-50 p-3 rounded-lg">
+      <label class="block">
+        <span class="text-xs font-medium text-slate-700">Data</span>
+        <input type="date" class="date mt-1 w-full" required />
+      </label>
+      <label class="block">
+        <span class="text-xs font-medium text-slate-700">Inizio</span>
+        <input type="time" class="start mt-1 w-full" />
+      </label>
+      <label class="block">
+        <span class="text-xs font-medium text-slate-700">Fine</span>
+        <input type="time" class="end mt-1 w-full" />
+      </label>
+      <div class="flex gap-2">
+        <label class="flex-1">
+          <span class="text-xs font-medium text-slate-700">Nota</span>
+          <input type="text" class="note mt-1 w-full" placeholder="Es. Mattina" />
+        </label>
+        <button type="button" class="removeRow mt-6 rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs hover:bg-slate-100" aria-label="Rimuovi data">🗑</button>
+      </div>
+    </div>
+  </template>
+
+  <template id="tplRole">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-2 items-end bg-slate-50 p-3 rounded-lg">
+      <label class="block">
+        <span class="text-xs font-medium text-slate-700">Ruolo</span>
+        <input type="text" class="role mt-1 w-full" placeholder="Es. Videomaker" required />
+      </label>
+      <label class="block">
+        <span class="text-xs font-medium text-slate-700">Quantità</span>
+        <input type="number" min="1" class="qty mt-1 w-full" placeholder="1" value="1" />
+      </label>
+      <label class="block md:col-span-2">
+        <span class="text-xs font-medium text-slate-700">Descrizione</span>
+        <div class="flex gap-2 mt-1">
+          <input type="text" class="desc flex-1" placeholder="Cosa fa il ruolo" />
+          <button type="button" class="removeRow rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs hover:bg-slate-100" aria-label="Rimuovi ruolo">🗑</button>
+        </div>
+      </label>
+    </div>
+  </template>
+
+  <template id="tplTicket">
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-2 items-end bg-slate-50 p-3 rounded-lg">
+      <label class="block">
+        <span class="text-xs font-medium text-slate-700">Nome</span>
+        <input type="text" class="tName mt-1 w-full" placeholder="Standard" required />
+      </label>
+      <label class="block">
+        <span class="text-xs font-medium text-slate-700">Prezzo (€)</span>
+        <input type="number" min="0" commitment="0.01" class="tPrice mt-1 w-full" placeholder="0.00" />
+      </label>
+      <label class="block">
+        <span class="text-xs font-medium text-slate-700">Quantità</span>
+        <input type="number" min="0" class="tQty mt-1 w-full" placeholder="100" />
+      </label>
+      <label class="block">
+        <span class="text-xs font-medium text-slate-700">Note</span>
+        <input type="text" class="tNote mt-1 w-full" placeholder="Early bird" />
+      </label>
+      <button type="button" class="removeRow rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs hover:bg-slate-100" aria-label="Rimuovi biglietto">🗑</button>
+    </div>
+  </template>
+
+  <template id="tplSession">
+    <div class="grid grid-cols-1 md:grid-cols-6 gap-2 items-end bg-slate-50 p-3 rounded-lg">
+      <label class="block">
+        <span class="text-xs font-medium text-slate-700">Ora</span>
+        <input type="time" class="sTime mt-1 w-full" />
+      </label>
+      <label class="block md:col-span-2">
+        <span class="text-xs font-medium text-slate-700">Titolo</span>
+        <input type="text" class="sTitle mt-1 w-full" placeholder="Es. Igiene Posturale" required />
+      </label>
+      <label class="block">
+        <span class="text-xs font-medium text-slate-700">Relatore</span>
+        <input type="text" class="sSpeaker mt-1 w-full" placeholder="Nome e cognome" />
+      </label>
+      <label class="block md:col-span-2">
+        <span class="text-xs font-medium text-slate-700">Link dettagli</span>
+        <div class="flex gap-2 mt-1">
+          <input type="url" class="sLink flex-1" placeholder="https://blog…" />
+          <button type="button" class="removeRow rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs hover:bg-slate-100" aria-label="Rimuovi intervento">🗑</button>
+        </div>
+      </label>
+      <label class="block md:col-span-6">
+        <span class="text-xs font-medium text-slate-700">Immagine (URL)</span>
+        <input type="url" class="sImage mt-1 w-full" placeholder="https://…" />
+      </label>
+    </div>
+  </template>
+
+  <template id="tplInvite">
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-2 items-end bg-slate-50 p-3 rounded-lg">
+      <label class="block md:col-span-3">
+        <span class="text-xs font-medium text-slate-700">Email</span>
+        <input type="email" class="email mt-1 w-full" placeholder="nome@dominio.it" required />
+      </label>
+      <label class="block">
+        <span class="text-xs font-medium text-slate-700">Ruolo</span>
+        <div class="flex gap-2 mt-1">
+          <input type="text" class="iRole flex-1" placeholder="Partecipante/Relatore" />
+          <button type="button" class="removeRow rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs hover:bg-slate-100" aria-label="Rimuovi email">🗑</button>
+        </div>
+      </label>
+    </div>
+  </template>
+
+  <script>
+    const $ = (s, el=document) => el.querySelector(s);
+    const $$ = (s, el=document) => Array.from(el.querySelectorAll(s));
+
+    const state = {
+      title: "", subtitle: "", description: "", coverUrl: "", basePrice: 0,
+      capacity: "", mode: "online", venue: "", dates: [], roles: [], tickets: [], sessions: [], invites: []
+    };
+
+    let currentCommitment = 1;
+    const totalCommitments = 6;
+
+    // Toast notifications
+    function showToast(msg, type = 'success') {
+      const container = $('#toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.textContent = msg;
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
+
+    // Commitment navigation
+    function goToCommitment(commitment) {
+      if (commitment < 1 || commitment > totalCommitments) return;
+      
+      for (let i = 1; i <= totalCommitments; i++) {
+        const sec = $(`#sec${i}`);
+        const commitmentEl = $(`#commitment${i}`);
+        if (i === commitment) {
+          sec.classList.remove('hidden');
+          commitmentEl.classList.add('active');
+        } else {
+          sec.classList.add('hidden');
+          commitmentEl.classList.remove('active');
+        }
+      }
+      
+      currentCommitment = commitment;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      $('[role="progressbar"]').setAttribute('aria-valuenow', commitment);
+    }
+
+    // Simple field bindings
+    const inputs = { title: $('#title'), subtitle: $('#subtitle'), description: $('#description'),
+      coverUrl: $('#coverUrl'), basePrice: $('#basePrice'), capacity: $('#capacity'),
+      mode: $('#mode'), venue: $('#venue') };
+
+    Object.entries(inputs).forEach(([id, el]) => {
+      el.addEventListener('input', (e) => {
+        state[id] = e.target.value;
+        render();
+      });
+    });
+
+    // Description counter
+    $('#description').addEventListener('input', (e) => {
+      $('#descCount').textContent = e.target.value.length;
+    });
+
+    // Reusable row adder - generalized
+    function addRow(listEl, tplId, objFactory, arr, bindFn) {
+      const tpl = $(`#${tplId}`);
+      const node = tpl.content.firstElementChild.cloneNode(true);
+      listEl.appendChild(node);
+      
+      const idx = arr.length;
+      const obj = objFactory();
+      arr.push(obj);
+      
+      bindFn(node, obj);
+      render();
+      
+      $('.removeRow', node).addEventListener('click', () => {
+        const i = Array.from(listEl.children).indexOf(node);
+        arr.splice(i, 1);
+        node.remove();
+        render();
+      });
+    }
+
+    // Bind rows with data
+    function bindRowInputs(node, obj, fields) {
+      fields.forEach(({cls, key}) => {
+        const el = $(`.${cls}`, node);
+        if (el) {
+          el.value = obj[key] || '';
+          el.addEventListener('input', (e) => {
+            obj[key] = e.target.value;
+            render();
+          });
+        }
+      });
+    }
+
+    // Row adders
+    $('#addDate').addEventListener('click', () => addRow(
+      $('#datesList'), 'tplDate',
+      () => ({ date: '', start: '', end: '', note: '' }),
+      state.dates,
+      (node, obj) => bindRowInputs(node, obj, [
+        {cls: 'date', key: 'date'}, {cls: 'start', key: 'start'},
+        {cls: 'end', key: 'end'}, {cls: 'note', key: 'note'}
+      ])
+    ));
+
+    $('#addRole').addEventListener('click', () => addRow(
+      $('#rolesList'), 'tplRole',
+      () => ({ role: '', qty: 1, desc: '' }),
+      state.roles,
+      (node, obj) => bindRowInputs(node, obj, [
+        {cls: 'role', key: 'role'}, {cls: 'qty', key: 'qty'}, {cls: 'desc', key: 'desc'}
+      ])
+    ));
+
+    $('#addTicket').addEventListener('click', () => addRow(
+      $('#ticketsList'), 'tplTicket',
+      () => ({ name: '', price: 0, qty: 0, note: '' }),
+      state.tickets,
+      (node, obj) => bindRowInputs(node, obj, [
+        {cls: 'tName', key: 'name'}, {cls: 'tPrice', key: 'price'},
+        {cls: 'tQty', key: 'qty'}, {cls: 'tNote', key: 'note'}
+      ])
+    ));
+
+    $('#addSession').addEventListener('click', () => addRow(
+      $('#sessionsList'), 'tplSession',
+      () => ({ time: '', title: '', speaker: '', link: '', image: '' }),
+      state.sessions,
+      (node, obj) => bindRowInputs(node, obj, [
+        {cls: 'sTime', key: 'time'}, {cls: 'sTitle', key: 'title'},
+        {cls: 'sSpeaker', key: 'speaker'}, {cls: 'sLink', key: 'link'}, {cls: 'sImage', key: 'image'}
+      ])
+    ));
+
+    $('#addInvite').addEventListener('click', () => addRow(
+      $('#invitesList'), 'tplInvite',
+      () => ({ email: '', role: '' }),
+      state.invites,
+      (node, obj) => bindRowInputs(node, obj, [
+        {cls: 'email', key: 'email'}, {cls: 'iRole', key: 'role'}
+      ])
+    ));
+
+    // Preview rendering
+    function render() {
+      // Basic fields
+      $('#previewTitle').textContent = state.title || 'Titolo evento';
+      $('#previewSubtitle').textContent = state.subtitle || 'Sottotitolo';
+      $('#previewDescription').textContent = state.description || '';
+
+      if (state.coverUrl) {
+        $('#coverImg').src = state.coverUrl;
+        $('#coverImg').classList.remove('hidden');
+      } else {
+        $('#coverImg').classList.add('hidden');
+      }
+
+      $('#previewMode').textContent = state.mode === 'online' ? '🌐 Online' : state.mode === 'offline' ? '📍 In presenza' : '🔄 Ibrido';
+      $('#previewPrice').textContent = `€${Number(state.basePrice || 0).toFixed(2)}`;
+
+      // Date badges
+      $('#previewDateBadges').innerHTML = '';
+      state.dates
+        .filter(d => d.date)
+        .sort((a,b) => (a.date+a.start).localeCompare(b.date+b.start))
+        .slice(0, 3)
+        .forEach(d => {
+          const span = document.createElement('span');
+          span.className = 'badge border-white/60 text-white bg-white/10 text-xs';
+          span.textContent = `${d.date}${d.start ? ' ' + d.start : ''}`;
+          $('#previewDateBadges').appendChild(span);
+        });
+
+      // Counts
+      $('#countDates').textContent = state.dates.filter(d => d.date).length;
+      $('#countRoles').textContent = state.roles.length;
+      $('#countTickets').textContent = state.tickets.length;
+      $('#countSessions').textContent = state.sessions.length;
+      $('#countInvites').textContent = state.invites.length;
+
+      localStorage.setItem('eventize_draft_v1', JSON.stringify(state));
+    }
+
+    // Commitment navigation buttons
+    $('#btnNext1').addEventListener('click', () => goToCommitment(2));
+    $('#btnBack1').addEventListener('click', () => goToCommitment(1));
+    $('#btnNext2').addEventListener('click', () => goToCommitment(3));
+    $('#btnBack2').addEventListener('click', () => goToCommitment(2));
+    $('#btnNext3').addEventListener('click', () => goToCommitment(4));
+    $('#btnBack3').addEventListener('click', () => goToCommitmentitmentitment(3));
+    $('#btnNext4').addEventListener('click', () => goToCommitment(5));
+    $('#btnBack4').addEventListener('click', () => goToCommitment(4));
+    $('#btnNext5').addEventListener('click', () => { updateSummary(); goToCommitment(6); });
+    $('#btnBack5').addEventListener('click', () => goToCommitment(5));
+
+    // Summary
+    function updateSummary() {
+      const summary = $('#summary');
+      summary.innerHTML = `
+        <div><strong>Titolo:</strong> ${state.title || 'N/A'}</div>
+        <div><strong>Sottotitolo:</strong> ${state.subtitle || 'N/A'}</div>
+        <div><strong>Modalità:</strong> ${state.mode}</div>
+        <div><strong>Prezzo base:</strong> €${Number(state.basePrice || 0).toFixed(2)}</div>
+        <div><strong>Capienza:</strong> ${state.capacity || 'N/A'}</div>
+        <div><strong>Date:</strong> ${state.dates.filter(d => d.date).length} evento/i</div>
+        <div><strong>Ruoli:</strong> ${state.roles.length}</div>
+        <div><strong>Biglietti:</strong> ${state.tickets.length}</div>
+        <div><strong>Interventi:</strong> ${state.sessions.length}</div>
+        <div><strong>Inviti:</strong> ${state.invites.length}</div>
+      `;
+    }
+
+    // Save/Export/Import
+    $('#btnSave').addEventListener('click', () => {
+      localStorage.setItem('eventize_draft_v1', JSON.stringify(state));
+      showToast('✓ Bozza salvata localmente', 'success');
+    });
+
+    $('#btnFinal').addEventListener('click', () => {
+      localStorage.setItem('eventize_draft_v1', JSON.stringify(state));
+      showToast('✓ Evento salvato! 🎉', 'success');
+      setTimeout(() => goToCommitment(1), 1000);
+    });
+
+    $('#btnExportJSON').addEventListener('click', () => {
+      try {
+        const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        const safeTitle = (state.title || 'eventize').toLowerCase().replace(/[^a-z0-9]+/g,'-');
+        a.href = url;
+        a.download = `${safeTitle}.json`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+        showToast('✓ JSON esportato', 'success');
+      } catch (err) {
+        showToast('✗ Errore durante l\'esportazione', 'error');
+      }
+    });
+
+    $('#btnImportJSON').addEventListener('click', () => $('#importFile').click());
+
+    $('#importFile').addEventListener('change', (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const data = JSON.parse(reader.result);
+          
+          // Validate structure
+          if (!data.title) throw new Error('Titolo mancante');
+
+          Object.assign(state, {
+            title: data.title || '',
+            subtitle: data.subtitle || '',
+            description: data.description || '',
+            coverUrl: data.coverUrl || '',
+            basePrice: data.basePrice || 0,
+            capacity: data.capacity || '',
+            mode: data.mode || 'online',
+            venue: data.venue || '',
+            dates: Array.isArray(data.dates) ? data.dates : [],
+            roles: Array.isArray(data.roles) ? data.roles : [],
+            tickets: Array.isArray(data.tickets) ? data.tickets : [],
+            sessions: Array.isArray(data.sessions) ? data.sessions : [],
+            invites: Array.isArray(data.invites) ? data.invites : []
+          });
+
+          // Rebuild UI for lists
+          const listTypes = [
+            {list: 'dates', tpl: 'tplDate', fields: ['date', 'start', 'end', 'note']},
+            {list: 'roles', tpl: 'tplRole', fields: ['role', 'qty', 'desc']},
+            {list: 'tickets', tpl: 'tplTicket', fields: ['name', 'price', 'qty', 'note']},
+            {list: 'sessions', tpl: 'tplSession', fields: ['time', 'title', 'speaker', 'link', 'image']},
+            {list: 'invites', tpl: 'tplInvite', fields: ['email', 'role']}
+          ];
+
+          listTypes.forEach(({list, tpl, fields}) => {
+            const listEl = $(`#${list}List`);
+            listEl.innerHTML = '';
+            state[list].forEach(item => {
+              const node = $(`#${tpl}`).content.firstElementChild.cloneNode(true);
+              listEl.appendChild(node);
+              fields.forEach(field => {
+                const selector = '.'+field.replace(/([A-Z])/g, c => ''+c.toLowerCase());
+                const el = $(selector, node);
+                if (el && item[field] !== undefined) {
+                  el.value = item[field];
+                }
+              });
+              $('.removeRow', node).addEventListener('click', () => {
+                const i = Array.from(listEl.children).indexOf(node);
+                state[list].splice(i, 1);
+                node.remove();
+                render();
+              });
+            });
+          });
+
+          // Update simple inputs
+          inputs.title.value = state.title;
+          inputs.subtitle.value = state.subtitle;
+          inputs.description.value = state.description;
+          inputs.coverUrl.value = state.coverUrl;
+          inputs.basePrice.value = state.basePrice;
+          inputs.capacity.value = state.capacity;
+          inputs.mode.value = state.mode;
+          inputs.venue.value = state.venue;
+
+          render();
+          goToCommitment(1);
+          showToast('✓ Evento importato con successo', 'success');
+        } catch (err) {
+          showToast(`✗ Errore: ${err.message || 'File non valido'}`, 'error');
+        }
+      };
+      reader.readAsText(file);
+    });
+
+    $('#btnClear').addEventListener('click', () => {
+      if (!confirm('Sicuro di voler svuotare tutto? Non potrai annullare.')) return;
+      
+      Object.keys(state).forEach(k => {
+        state[k] = Array.isArray(state[k]) ? [] : '';
+      });
+      state.basePrice = 0;
+      state.mode = 'online';
+
+      Object.values(inputs).forEach(i => { if (i) i.value = ''; });
+      inputs.mode.value = 'online';
+
+      ['dates', 'roles', 'tickets', 'sessions', 'invites'].forEach(list => {
+        $(`#${list}List`).innerHTML = '';
+      });
+
+      render();
+      goToCommitment(1);
+      showToast('✓ Tutto svuotato', 'success');
+    });
+
+    $('#btnPreviewBuy').addEventListener('click', () => {
+      showToast('Demo: nessun pagamento reale. Esporta il JSON per integrare i pagamenti.', 'success');
+    });
+
+    // Rebind list inputs on import
+    function rebindLists() {
+      ['dates', 'roles', 'tickets', 'sessions', 'invites'].forEach(list => {
+        const listEl = $(`#${list}List`);
+        $('.removeRow', listEl).forEach((btn, idx) => {
+          btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const row = btn.closest('div');
+            const i = Array.from(listEl.children).indexOf(row);
+            state[list].splice(i, 1);
+            row.remove();
+            render();
+          });
+        });
+      });
+    }
+
+    // Init
+    function init() {
+      const saved = localStorage.getItem('eventize_draft_v1');
+      if (saved) {
+        try {
+          const data = JSON.parse(saved);
+          $('#importFile').value = '';
+          const ev = new Event('change');
+          Object.assign($('#importFile'), {files: new DataTransfer().items});
+          
+          Object.assign(state, data);
+          inputs.title.value = state.title;
+          inputs.subtitle.value = state.subtitle;
+          inputs.description.value = state.description;
+          inputs.coverUrl.value = state.coverUrl;
+          inputs.basePrice.value = state.basePrice;
+          inputs.capacity.value = state.capacity;
+          inputs.mode.value = state.mode;
+          inputs.venue.value = state.venue;
+        } catch (e) {}
+      }
+      
+      render();
+      goToCommitment(1);
+    }
+
+    init();
+  </script>
+</body>
+</html>

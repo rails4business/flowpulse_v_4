@@ -1,0 +1,104 @@
+<% content_for :title, "Profili" %>
+
+<section class="dashboard-shell">
+  <div class="app-layout">
+    <%= render "shared/app_sidebar" %>
+
+    <div class="dashboard-card admin-page">
+      <p class="eyebrow">Superadmin</p>
+      <h1>Profili</h1>
+      <p>
+        Qui puoi vedere tutti i profili con il loro ruolo corrente, le richieste aperte e le scadenze attive.
+      </p>
+
+      <div class="status-stack">
+        <div class="status-card">
+          <span class="dashboard-label">Profili totali</span>
+          <strong><%= @profiles.count %></strong>
+        </div>
+
+        <div class="status-card">
+          <span class="dashboard-label">Viaggiatori</span>
+          <strong><%= @profiles.count(&:traveler_only?) %></strong>
+        </div>
+
+        <div class="status-card">
+          <span class="dashboard-label">Creator attivi</span>
+          <strong><%= @profiles.count(&:creator?) %></strong>
+        </div>
+
+        <div class="status-card">
+          <span class="dashboard-label">Professional attivi</span>
+          <strong><%= @profiles.count(&:professional?) %></strong>
+        </div>
+      </div>
+
+      <div class="admin-section">
+        <h2>Elenco profili</h2>
+
+        <div class="admin-compact-list">
+          <% @profiles.each do |profile| %>
+            <article class="admin-compact-item">
+              <div class="admin-compact-main admin-compact-main-inline">
+                <strong><%= profile.display_name %></strong>
+                <span>@<%= profile.slug %></span>
+              </div>
+              <div class="admin-compact-col">
+                <span><%= profile.user.email_address %></span>
+              </div>
+              <div class="admin-compact-col">
+                <span><%= profile.access_role_label %></span>
+                <% if profile.creator? %>
+                  <span>Creator fino al <%= profile.creator_active_until_label %></span>
+                <% elsif profile.creator_requested? %>
+                  <span><%= profile.creator_requested_compact_label.present? ? "Creator richiesto il #{profile.creator_requested_compact_label}" : "Richiesta creator aperta" %></span>
+                <% end %>
+                <% if profile.professional? %>
+                  <span>Professional fino al <%= profile.professional_active_until_label %></span>
+                <% elsif profile.professional_requested? %>
+                  <span><%= profile.professional_requested_compact_label.present? ? "Professional richiesto il #{profile.professional_requested_compact_label}" : "Richiesta professional aperta" %></span>
+                <% end %>
+              </div>
+              <div class="admin-compact-col">
+                <% if profile.creator? %>
+                  <span class="admin-inline-badge admin-inline-badge-creator">Creator</span>
+                <% elsif profile.creator_requested? %>
+                  <span class="admin-inline-badge admin-inline-badge-creator">Creator</span>
+                <% end %>
+                <% if profile.professional? %>
+                  <span class="admin-inline-badge admin-inline-badge-professional">Professional</span>
+                <% elsif profile.professional_requested? %>
+                  <span class="admin-inline-badge admin-inline-badge-professional">Professional</span>
+                <% end %>
+                <% if profile.traveler_only? %>
+                  <span class="admin-inline-badge">Viaggiatore</span>
+                <% end %>
+              </div>
+              <div class="admin-compact-actions">
+                <% unless profile.creator? %>
+                  <%= button_to "Attiva creator", toggle_creator_profile_path(profile, enabled: true), method: :patch, class: "btn btn-primary" %>
+                <% else %>
+                  <%= button_to "Disabilita",
+                        toggle_creator_profile_path(profile, enabled: false),
+                        method: :patch,
+                        class: "btn btn-secondary btn-admin-muted",
+                        form: { data: { turbo_confirm: "Sei sicuro di voler disabilitare creator per questo profilo?" } } %>
+                <% end %>
+
+                <% unless profile.professional? %>
+                  <%= button_to "Attiva professional", toggle_professional_profile_path(profile, enabled: true), method: :patch, class: "btn btn-primary" %>
+                <% else %>
+                  <%= button_to "Disabilita",
+                        toggle_professional_profile_path(profile, enabled: false),
+                        method: :patch,
+                        class: "btn btn-secondary btn-admin-muted",
+                        form: { data: { turbo_confirm: "Sei sicuro di voler disabilitare professional per questo profilo?" } } %>
+                <% end %>
+              </div>
+            </article>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

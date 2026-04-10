@@ -1,0 +1,267 @@
+<%= form_with(
+      model: [:superadmin, service],
+      url: (defined?(@taxbranch) && @taxbranch.present?) ? superadmin_taxbranch_services_path(@taxbranch) : nil,
+      class: "contents"
+    ) do |form| %>
+  <% if service.errors.any? %>
+    <div id="error_explanation" class="bg-red-50 text-red-500 px-3 py-2 font-medium rounded-md mt-3">
+      <h2><%= pluralize(service.errors.count, "error") %> prohibited this service from being saved:</h2>
+
+      <ul class="list-disc ml-6">
+        <% service.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="my-5">
+    <%= form.label :name %>
+    <%= form.text_field :name, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": service.errors[:name].none?, "border-red-400 focus:outline-red-600": service.errors[:name].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :slug %>
+    <%= form.text_field :slug,
+          class: [
+            "block shadow-sm rounded-md border px-3 py-2 mt-2 w-full",
+            {
+              "border-gray-400 focus:outline-blue-600": service.errors[:slug].none?,
+              "border-red-400 focus:outline-red-600": service.errors[:slug].any?
+            }
+          ] %>
+    <p class="text-xs text-slate-500 mt-1">
+      Lascia vuoto per generare automaticamente lo slug a partire dal nome.
+    </p>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :description %>
+    <%= form.textarea :description, rows: 4, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": service.errors[:description].none?, "border-red-400 focus:outline-red-600": service.errors[:description].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :content_md, "Contenuto (Markdown)" %>
+    <%= form.textarea :content_md,
+          rows: 6,
+          placeholder: "Testo in markdown...",
+          class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full font-mono text-sm", {"border-gray-400 focus:outline-blue-600": service.errors[:content_md].none?, "border-red-400 focus:outline-red-600": service.errors[:content_md].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :image_url, "Image URL" %>
+    <%= form.url_field :image_url,
+          placeholder: "https://...",
+          class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": service.errors[:image_url].none?, "border-red-400 focus:outline-red-600": service.errors[:image_url].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :included_in_service_id, "Included in service" %>
+    <%= form.select :included_in_service_id,
+          options_from_collection_for_select(Service.order(:name), :id, :name, service.included_in_service_id),
+          { include_blank: "None" },
+          class: "block shadow-sm rounded-md border border-gray-400 px-3 py-2 mt-2 w-full focus:outline-blue-600" %>
+    <p class="text-xs text-slate-500 mt-1">
+      Questo service viene incluso in un altro (es. Extra Capitoli incluso in Libro Completo).
+    </p>
+  </div>
+
+  <div class="grid gap-4 my-5 md:grid-cols-2">
+    <div>
+      <%= form.label :enrollable_from_phase, "Enrollable da fase" %>
+      <%= form.select :enrollable_from_phase,
+            Service::PHASES.keys.map { |p| [p.to_s.humanize, p] },
+            { include_blank: "Sempre" },
+            class: "block shadow-sm rounded-md border border-gray-400 px-3 py-2 mt-2 w-full focus:outline-blue-600" %>
+    </div>
+    <div>
+      <%= form.label :enrollable_until_phase, "Enrollable fino a fase" %>
+      <%= form.select :enrollable_until_phase,
+            Service::PHASES.keys.map { |p| [p.to_s.humanize, p] },
+            { include_blank: "Nessun limite" },
+            class: "block shadow-sm rounded-md border border-gray-400 px-3 py-2 mt-2 w-full focus:outline-blue-600" %>
+    </div>
+  </div>
+
+  <div class="my-5 rounded-md border border-slate-200 bg-slate-50 p-3 text-xs text-slate-600">
+    <p class="font-semibold text-slate-700">Ruoli del service</p>
+    <p class="mt-1">
+      I ruoli base vivono nel dominio; questi campi definiscono come il service li applica
+      (accesso, esito, produzione, erogazione e verifica).
+    </p>
+  </div>
+  <% roles_domain = service.taxbranch&.header_domain || @taxbranch&.header_domain %>
+  <% domain_roles = Array(roles_domain&.operative_roles).filter_map { |role| role.to_s.strip.presence }.uniq %>
+
+  <div class="my-5">
+    <%= form.label :allowed_roles, "Ruoli ammessi (selezione multipla)" %>
+    <% if domain_roles.present? %>
+      <%= form.select :allowed_roles,
+            options_for_select(domain_roles, Array(service.allowed_roles)),
+            {},
+            multiple: true,
+            size: [domain_roles.size, 8].min,
+            class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full bg-white", {"border-gray-400 focus:outline-blue-600": service.errors[:allowed_roles].none?, "border-red-400 focus:outline-red-600": service.errors[:allowed_roles].any?}] %>
+    <% else %>
+      <%= form.text_area :allowed_roles,
+            value: service.allowed_roles_text,
+            rows: 3,
+            placeholder: "Es.\nUtente\nProfessionista",
+            class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": service.errors[:allowed_roles].none?, "border-red-400 focus:outline-red-600": service.errors[:allowed_roles].any?}] %>
+    <% end %>
+    <p class="mt-1 text-xs text-slate-500">
+      Chi puo iscriversi o partecipare al service.
+    </p>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :output_roles, "Ruoli rilasciati (selezione multipla)" %>
+    <% if domain_roles.present? %>
+      <%= form.select :output_roles,
+            options_for_select(domain_roles, Array(service.output_roles)),
+            {},
+            multiple: true,
+            size: [domain_roles.size, 8].min,
+            class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full bg-white", {"border-gray-400 focus:outline-blue-600": service.errors[:output_roles].none?, "border-red-400 focus:outline-red-600": service.errors[:output_roles].any?}] %>
+    <% else %>
+      <%= form.text_area :output_roles,
+            value: service.output_roles_text,
+            rows: 3,
+            placeholder: "Es.\nTutor\nInsegnante",
+            class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": service.errors[:output_roles].none?, "border-red-400 focus:outline-red-600": service.errors[:output_roles].any?}] %>
+    <% end %>
+    <p class="mt-1 text-xs text-slate-500">
+      Ruolo/titolo che il service rilascia come esito/certificazione.
+    </p>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :builders_roles, "Ruoli costruttori (selezione multipla)" %>
+    <% if domain_roles.present? %>
+      <%= form.select :builders_roles,
+            options_for_select(domain_roles, Array(service.builders_roles)),
+            {},
+            multiple: true,
+            size: [domain_roles.size, 8].min,
+            class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full bg-white", {"border-gray-400 focus:outline-blue-600": service.errors[:builders_roles].none?, "border-red-400 focus:outline-red-600": service.errors[:builders_roles].any?}] %>
+    <% else %>
+      <%= form.text_area :builders_roles,
+            value: service.builders_roles_text,
+            rows: 3,
+            placeholder: "Es.\nContent creator\nEditor",
+            class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": service.errors[:builders_roles].none?, "border-red-400 focus:outline-red-600": service.errors[:builders_roles].any?}] %>
+    <% end %>
+    <p class="mt-1 text-xs text-slate-500">
+      Ruoli che progettano e costruiscono contenuti/processo del service.
+    </p>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :drivers_roles, "Ruoli erogatori (selezione multipla)" %>
+    <% if domain_roles.present? %>
+      <%= form.select :drivers_roles,
+            options_for_select(domain_roles, Array(service.drivers_roles)),
+            {},
+            multiple: true,
+            size: [domain_roles.size, 8].min,
+            class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full bg-white", {"border-gray-400 focus:outline-blue-600": service.errors[:drivers_roles].none?, "border-red-400 focus:outline-red-600": service.errors[:drivers_roles].any?}] %>
+    <% else %>
+      <%= form.text_area :drivers_roles,
+            value: service.drivers_roles_text,
+            rows: 3,
+            placeholder: "Es.\nTutor\nInsegnante",
+            class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": service.errors[:drivers_roles].none?, "border-red-400 focus:outline-red-600": service.errors[:drivers_roles].any?}] %>
+    <% end %>
+    <p class="mt-1 text-xs text-slate-500">
+      Ruoli che erogano il service sul campo.
+    </p>
+  </div>
+
+  <div class="grid gap-4 my-5 md:grid-cols-3">
+    <div class="flex items-center gap-2">
+      <%= form.check_box :auto_certificate,
+            class: "h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" %>
+      <%= form.label :auto_certificate, "Certifica automaticamente", class: "text-sm text-slate-700" %>
+    </div>
+    <div class="flex items-center gap-2">
+      <%= form.check_box :require_booking_verification,
+            class: "h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" %>
+      <%= form.label :require_booking_verification, "Richiede verifica booking", class: "text-sm text-slate-700" %>
+    </div>
+    <div class="flex items-center gap-2">
+      <%= form.check_box :require_enrollment_verification,
+            class: "h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" %>
+      <%= form.label :require_enrollment_verification, "Richiede verifica finale", class: "text-sm text-slate-700" %>
+    </div>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :verifier_roles, "Ruoli verificatori (selezione multipla)" %>
+    <% if domain_roles.present? %>
+      <%= form.select :verifier_roles,
+            options_for_select(domain_roles, Array(service.verifier_roles)),
+            {},
+            multiple: true,
+            size: [domain_roles.size, 8].min,
+            class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full bg-white", {"border-gray-400 focus:outline-blue-600": service.errors[:verifier_roles].none?, "border-red-400 focus:outline-red-600": service.errors[:verifier_roles].any?}] %>
+    <% else %>
+      <%= form.text_area :verifier_roles,
+            value: service.verifier_roles_text,
+            rows: 3,
+            placeholder: "Es.\nTutor\nInsegnante",
+            class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": service.errors[:verifier_roles].none?, "border-red-400 focus:outline-red-600": service.errors[:verifier_roles].any?}] %>
+    <% end %>
+    <p class="mt-1 text-xs text-slate-500">
+      Ruoli autorizzati a validare booking/esiti/certificazioni quando non automatici.
+    </p>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :n_eventdates_planned %>
+    <%= form.number_field :n_eventdates_planned, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": service.errors[:n_eventdates_planned].none?, "border-red-400 focus:outline-red-600": service.errors[:n_eventdates_planned].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :price_enrollment_euro %>
+    <%= form.text_field :price_enrollment_euro, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": service.errors[:price_enrollment_euro].none?, "border-red-400 focus:outline-red-600": service.errors[:price_enrollment_euro].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :price_ticket_dash %>
+    <%= form.text_field :price_ticket_dash, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": service.errors[:price_ticket_dash].none?, "border-red-400 focus:outline-red-600": service.errors[:price_ticket_dash].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :min_tickets %>
+    <%= form.number_field :min_tickets, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": service.errors[:min_tickets].none?, "border-red-400 focus:outline-red-600": service.errors[:min_tickets].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :max_tickets %>
+    <%= form.number_field :max_tickets, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": service.errors[:max_tickets].none?, "border-red-400 focus:outline-red-600": service.errors[:max_tickets].any?}] %>
+  </div>
+
+  <div class="my-5 flex items-center gap-2">
+    <%= form.label :open_by_journey %>
+    <%= form.checkbox :open_by_journey, class: ["block shadow-sm rounded-md border order-first h-5 w-5", {"border-gray-400 focus:outline-blue-600": service.errors[:open_by_journey].none?, "border-red-400 focus:outline-red-600": service.errors[:open_by_journey].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :taxbranch_id %>
+    <%= form.text_field :taxbranch_id, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": service.errors[:taxbranch_id].none?, "border-red-400 focus:outline-red-600": service.errors[:taxbranch_id].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :lead_id %>
+    <%= form.text_field :lead_id, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": service.errors[:lead_id].none?, "border-red-400 focus:outline-red-600": service.errors[:lead_id].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :meta %>
+    <%= form.text_field :meta, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": service.errors[:meta].none?, "border-red-400 focus:outline-red-600": service.errors[:meta].any?}] %>
+  </div>
+
+  <div class="inline">
+    <%= form.submit class: "w-full sm:w-auto rounded-md px-3.5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white inline-block font-medium cursor-pointer" %>
+  </div>
+<% end %>

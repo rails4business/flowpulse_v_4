@@ -1,0 +1,392 @@
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+<%
+  percorso_root = Taxbranch.find_by(slug: "academy_path/postura-e-fisiologia")
+  percorso_children =
+    if percorso_root
+      scope = percorso_root.children.ordered
+      scope = scope.reorder(position: :desc) if percorso_root.order_des?
+      scope.select { |child| child.post&.persisted? }
+    else
+      []
+    end
+  percorso_intro = percorso_children.find do |child|
+    title = child.post&.title.to_s.downcase
+    title.include?("inizia il percorso") || child.slug.to_s.include?("inizia-il-percorso")
+  end
+  percorso_modules = percorso_children.reject { |child| child == percorso_intro }
+%>
+<header
+  class="sticky top-0 z-50 bg-white/90 dark:bg-background-dark/90 border-b border-solid border-[#f2f0f4] dark:border-slate-800"
+>
+  <div
+    class="max-w-[1200px] mx-auto px-10 py-4 flex items-center justify-between gap-6"
+  >
+    <div class="flex items-center gap-8">
+    <%= link_to root_path do %>
+        <img
+          src="https://ik.imagekit.io/posturacorretta/logo_pc_scontornato.png?updatedAt=1747975596766"
+          alt="PosturaCorretta"
+          class="h-8 w-auto"
+        />
+      <% end %>
+    </div>
+    <div class="hidden md:flex flex-1 justify-center items-center gap-8">
+      <details class="relative inline-flex items-center justify-center" data-nav-dropdown>
+        <summary
+          class="list-none inline-flex items-center gap-1 text-sm font-medium text-slate-500 hover:text-primary transition-colors cursor-pointer"
+          aria-label="Apri menu percorso"
+        >
+          <span class="material-symbols-outlined text-[18px] leading-none">route</span>
+          Accademia
+          <span class="material-symbols-outlined text-[18px] leading-none">expand_more</span>
+        </summary>
+        <div class="absolute z-50 mt-2 w-[560px] rounded-xl border border-[#f2f0f4] bg-white shadow-lg p-3"
+             style="top: 100%; left: 50%; transform: translateX(-50%);">
+          
+         <%= link_to root_path(anchor: "orientamento-iscrizione-accademia"),
+                     class: "mx-2 mb-3 block rounded-lg border border-slate-100 px-3 py-2 text-[11px] font-bold uppercase tracking-wide text-slate-500 hover:text-primary transition-colors",
+                     data: { close_dropdown: true } do %>
+          Orientamento e iscrizione all'Accademia
+         <% end %>
+          <details class="mx-2 mb-3 rounded-lg border border-blue-200 bg-blue-50/70" data-nav-accordion open>
+            <summary class="list-none cursor-pointer px-3 py-2 text-[11px] font-bold uppercase tracking-wide text-blue-800 flex items-center justify-between">
+             Postura e fisiologia
+              <span class="material-symbols-outlined text-[16px] leading-none">expand_more</span>
+            </summary>
+            <div class="grid grid-cols-2 gap-3 mt-2 px-2 pb-2">
+              <section class="rounded-lg border border-slate-100 bg-white p-2 shadow-sm">
+                <p class="px-2 py-1 text-sm font-extrabold uppercase tracking-wide text-slate-700">Percorso educativo</p>
+                <% if percorso_intro.present? %>
+                  <%= link_to "Inizia il percorso", post_path(percorso_intro.post), class: "block px-2 py-2 text-sm font-semibold text-primary hover:text-primary/80" %>
+                <% end %>
+                <%= link_to "Vedi tutto il percorso", root_path(anchor: "percorso"), class: "block px-2 py-2 text-sm font-semibold text-slate-700 hover:text-primary", data: { close_dropdown: true } %>
+                <% if percorso_modules.any? %>
+                  <div class="my-1 h-px bg-slate-100"></div>
+                  <% percorso_modules.each do |child| %>
+                    <%= link_to(child.post.title.presence || child.slug_label, post_path(child.post), class: "block px-2 py-1.5 text-sm font-medium text-left hover:text-primary") %>
+                  <% end %>
+                <% elsif percorso_intro.blank? %>
+                  <span class="block px-2 py-2 text-sm text-slate-400">Nessun modulo disponibile</span>
+                <% end %>
+              </section>
+              <section class="rounded-lg border border-slate-100 bg-white p-2 shadow-sm">
+                <p class="px-2 py-1 text-sm font-extrabold uppercase tracking-wide text-slate-700">Rete professionale</p>
+                <%= link_to "Insegnanti", rete_professionale_path(section: "insegnanti", tab: "insegnanti"), class: "block px-2 py-1.5 text-sm font-medium text-left hover:text-primary", data: { close_dropdown: true } %>
+                <%= link_to "Centri", rete_professionale_path(section: "centri", tab: "insegnanti"), class: "block px-2 py-1.5 text-sm font-medium text-left hover:text-primary", data: { close_dropdown: true } %>
+                <%= link_to "Metodiche", rete_professionale_path(section: "metodiche", tab: "insegnanti"), class: "block px-2 py-1.5 text-sm font-medium text-left hover:text-primary", data: { close_dropdown: true } %>
+                <%= link_to rete_professionale_path(section: "dicono", tab: "insegnanti"), class: "block px-2 py-1.5 text-sm font-medium text-left hover:text-primary", data: { close_dropdown: true } do %>
+                  Dicono di noi
+                <% end %>
+              </section>
+            </div>
+          </details>
+         
+
+           <%= link_to coming_soon_path(feature: "Percorso Salute: Linee guida ", source: "Nav desktop > Accademia"),
+                         class: "mx-2 mb-3 block rounded-lg border border-cyan-200 bg-cyan-50 px-3 py-2 text-[11px] font-bold uppercase tracking-wide text-cyan-800 hover:bg-cyan-100 transition-colors",
+                         data: { close_dropdown: true } do %>
+          Percorso Salute: Linee guida
+          <% end %>
+
+             
+        
+           <%= link_to coming_soon_path(feature: "Stile di vita", source: "Nav desktop > Accademia"),
+                       class: "mx-2 mb-3 block rounded-lg border border-violet-200 bg-violet-50 px-3 py-2 text-[11px] font-bold uppercase tracking-wide text-violet-800 hover:bg-violet-100 transition-colors",
+                       data: { close_dropdown: true } do %>
+         Stile di vita
+          <% end %>
+        </div>
+      </details>
+      <details class="relative inline-flex items-center justify-center" data-nav-dropdown>
+        <summary
+          class="list-none inline-flex items-center gap-1 text-sm font-medium text-slate-500 hover:text-primary transition-colors cursor-pointer"
+          aria-label="Apri menu risorse"
+        >
+          <span class="material-symbols-outlined text-[18px] leading-none">library_books</span>
+          Risorse
+          <span class="material-symbols-outlined text-[18px] leading-none">expand_more</span>
+        </summary>
+        <div class="absolute z-50 mt-2 w-64 rounded-xl border border-[#f2f0f4] bg-white shadow-lg p-2"
+             style="top: 100%; left: 50%; transform: translateX(-50%);">
+          <div class="my-1 rounded-lg border border-slate-100">
+            <%= link_to rete_professionale_path(section: "insegnanti", tab: "insegnanti"), class: "flex items-center gap-2 px-3 py-2 text-sm font-medium text-left hover:text-primary" do %>
+              <span class="material-symbols-outlined text-[16px] leading-none">groups</span>
+              Rete professionale
+            <% end %>
+          </div>
+          <%= link_to "Contenuti", posturacorretta_contenuti_path, class: "block px-3 py-2 text-sm font-medium text-left hover:text-primary" %>
+          <%= link_to "Corsi online", posturacorretta_corsi_online_path, class: "block px-3 py-2 text-sm font-medium text-left hover:text-primary" %>
+          <%= link_to "Eventi", posturacorretta_eventi_path, class: "block px-3 py-2 text-sm font-medium text-left hover:text-primary" %>
+          <%= link_to "Manifesto", posturacorretta_manifesto_path, class: "block px-3 py-2 text-sm font-medium text-left hover:text-primary" %>
+          <%= link_to "Libri", books_path, class: "block px-3 py-2 text-sm font-medium text-left hover:text-primary" %>
+          <div class="my-1 h-px bg-slate-100"></div>
+          <%= link_to coming_soon_path(feature: "Percorso salute", wa_message: "Ciao! Sono interessato al Percorso salute. Possiamo parlarne?"),
+                      class: "flex items-center gap-2 px-3 py-2 text-sm font-medium text-left hover:text-primary" do %>
+            <span class="material-symbols-outlined text-[16px] leading-none">monitor_heart</span>
+            Percorso salute
+          <% end %>
+        </div>
+      </details>
+      <%= link_to root_path(anchor: "progetto"),
+                  class: "inline-flex items-center gap-1 text-sm font-medium text-slate-500 hover:text-primary transition-colors" do %>
+        <span class="material-symbols-outlined text-[18px] leading-none">rocket_launch</span>
+        Progetto
+      <% end %>
+      <!--a
+        class="text-sm font-medium hover:text-primary transition-colors"
+        href="#progetto"
+        >🔎 &nbsp; Professionisti e centri</a
+      -->
+    </div>
+    <div class="hidden md:flex items-center gap-3">
+      <% if Current.user.present? %>
+        <%= link_to dashboard_home_path do %>
+          <div
+            class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-7 border border-[#e7edf3]"
+            style="
+              background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuA2LXURXbE3_UxsTFxRYAnn3JHwvdxCjtrsE9cnM4fOM7RYPSwxJmYQdF4JdCKHFk7yEaaZaEZ-zhrko0djKgMKoRE5_hyLTKjX9wMnfXf2oI6J3pHtPS9cHds-5cRTCM7qxcz7nvr3Gg_InsulvJloG1sn7u9p9TOx8XoC7rC1vm5w7yLPTGoLLEKHsQzOmphuw2jxiis1kyB19G-7veU7KBNLToUtKcj0D_euTGmHqDyYrDfvtbxIZVJWCcqt-s0A3sGfl0v1ZGA');
+            "
+          ></div>
+        <% end %>
+      <% else %>
+        <%= link_to "Accedi",
+                    new_session_path,
+                    class: "text-sm font-semibold text-[#0d151c] dark:text-gray-300 hover:text-primary transition-colors" %>
+        <%= link_to "Registrati",
+                    new_registration_path,
+                    class: "inline-flex items-center rounded-full border border-primary/40 px-4 py-2 text-sm font-semibold text-primary hover:bg-primary/10 transition-colors" %>
+      <% end %>
+    </div>
+    <div class="md:hidden flex items-center">
+      <details class="relative" data-nav-mobile-menu>
+        <summary
+          class="list-none flex items-center justify-center size-9 rounded-full border border-[#f2f0f4] bg-white/90 dark:bg-slate-900/80 dark:border-slate-700 text-slate-700 dark:text-slate-200"
+          aria-label="Apri menu"
+        >
+          <span class="material-symbols-outlined text-lg">menu</span>
+        </summary>
+        <div class="fixed inset-0 z-[70] bg-white dark:bg-slate-900 overflow-y-auto overscroll-contain" style="-webkit-overflow-scrolling: touch;">
+          <div class="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 dark:border-slate-700 bg-white/95 dark:bg-slate-900/95 backdrop-blur px-4 py-3">
+            <span class="text-sm font-semibold text-slate-700 dark:text-slate-100">Menu</span>
+            <button type="button" class="inline-flex items-center justify-center size-9 rounded-full border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-100" data-close-mobile-menu aria-label="Chiudi menu">
+              <span class="material-symbols-outlined text-[20px] leading-none">close</span>
+            </button>
+          </div>
+          <div class="px-4 py-4 space-y-2">
+            <details class="rounded-xl border border-slate-200 dark:border-slate-700" data-nav-accordion>
+              <summary class="list-none cursor-pointer px-3 py-3 text-sm font-semibold text-slate-700 dark:text-slate-100 flex items-center justify-between">
+                <span class="inline-flex items-center gap-2">
+                  <span class="material-symbols-outlined text-[18px] leading-none">route</span>
+                  Accademia
+                </span>
+                <span class="material-symbols-outlined text-[18px] leading-none">expand_more</span>
+              </summary>
+              <div class="px-3 pb-3">
+                <%= link_to root_path(anchor: "orientamento-iscrizione-accademia"),
+                            class: "mb-2 block rounded-lg border border-slate-100 px-3 py-2 text-[11px] font-bold uppercase tracking-wide text-slate-500 hover:text-primary transition-colors",
+                            data: { close_dropdown: true } do %>
+                  Orientamento e iscrizione all'Accademia
+                <% end %>
+                <details class="mb-2 rounded-lg border border-blue-200 bg-blue-50/70" data-nav-accordion>
+                  <summary class="list-none cursor-pointer px-3 py-2 text-[11px] font-bold uppercase tracking-wide text-blue-800 flex items-center justify-between">
+                    Postura e fisiologia
+                    <span class="material-symbols-outlined text-[16px] leading-none">expand_more</span>
+                  </summary>
+                  <div class="grid grid-cols-1 gap-3 px-2 pb-2">
+                    <section class="rounded-lg border border-slate-100 bg-white p-2 shadow-sm">
+                      <p class="px-2 py-1 text-sm font-extrabold uppercase tracking-wide text-slate-700">Percorso educativo</p>
+                      <% if percorso_intro.present? %>
+                        <%= link_to "Inizia il percorso", post_path(percorso_intro.post), class: "block px-2 py-2 text-sm font-semibold text-primary hover:text-primary/80" %>
+                      <% end %>
+                      <%= link_to "Vedi tutto il percorso", root_path(anchor: "percorso"), class: "block px-2 py-2 text-sm font-semibold text-slate-700 hover:text-primary", data: { close_dropdown: true } %>
+                      <% if percorso_modules.any? %>
+                        <div class="my-1 h-px bg-slate-100"></div>
+                        <% percorso_modules.each do |child| %>
+                          <%= link_to(child.post.title.presence || child.slug_label, post_path(child.post), class: "block px-2 py-1.5 text-sm font-medium text-left hover:text-primary") %>
+                        <% end %>
+                      <% elsif percorso_intro.blank? %>
+                        <span class="block px-2 py-2 text-sm text-slate-400">Nessun modulo disponibile</span>
+                      <% end %>
+                    </section>
+                    <section class="rounded-lg border border-slate-100 bg-white p-2 shadow-sm">
+                      <p class="px-2 py-1 text-sm font-extrabold uppercase tracking-wide text-slate-700">Rete professionale</p>
+                      <%= link_to "Insegnanti", rete_professionale_path(section: "insegnanti", tab: "insegnanti"), class: "block px-2 py-1.5 text-sm font-medium text-left hover:text-primary", data: { close_dropdown: true } %>
+                      <%= link_to "Centri", rete_professionale_path(section: "centri", tab: "insegnanti"), class: "block px-2 py-1.5 text-sm font-medium text-left hover:text-primary", data: { close_dropdown: true } %>
+                      <%= link_to "Metodiche", rete_professionale_path(section: "metodiche", tab: "insegnanti"), class: "block px-2 py-1.5 text-sm font-medium text-left hover:text-primary", data: { close_dropdown: true } %>
+                      <%= link_to rete_professionale_path(section: "dicono", tab: "insegnanti"), class: "block px-2 py-1.5 text-sm font-medium text-left hover:text-primary", data: { close_dropdown: true } do %>
+                        Dicono di noi
+                      <% end %>
+                    </section>
+                  </div>
+                </details>
+           
+                   <%= link_to coming_soon_path(feature: " Percorso Salute: Linee guida", source: "Nav mobile > Accademia"),
+                            class: "mb-2 block rounded-lg border border-cyan-200 bg-cyan-50 px-3 py-2 text-[11px] font-bold uppercase tracking-wide text-cyan-800 hover:bg-cyan-100 transition-colors",
+                            data: { close_dropdown: true } do %>
+                  Percorso Salute: Linee guida
+                <% end %>
+                  
+              
+                <%= link_to coming_soon_path(feature: "Stile di vita", source: "Nav mobile > Accademia"),
+                            class: "block rounded-lg border border-violet-200 bg-violet-50 px-3 py-2 text-[11px] font-bold uppercase tracking-wide text-violet-800 hover:bg-violet-100 transition-colors",
+                            data: { close_dropdown: true } do %>
+                  Stile di vita
+                <% end %>
+              </div>
+            </details>
+
+            <details class="rounded-xl border border-slate-200 dark:border-slate-700" data-nav-accordion>
+              <summary class="list-none cursor-pointer px-3 py-3 text-sm font-semibold text-slate-700 dark:text-slate-100 flex items-center justify-between">
+                <span class="inline-flex items-center gap-2">
+                  <span class="material-symbols-outlined text-[18px] leading-none">library_books</span>
+                  Risorse
+                </span>
+                <span class="material-symbols-outlined text-[18px] leading-none">expand_more</span>
+              </summary>
+              <div class="px-3 pb-3">
+                <div class="mb-2 rounded-lg border border-slate-100">
+                  <%= link_to rete_professionale_path(section: "insegnanti", tab: "insegnanti"), class: "flex items-center gap-2 px-2 py-2 text-sm font-medium hover:text-primary" do %>
+                    <span class="material-symbols-outlined text-[16px] leading-none">groups</span>
+                    Rete professionale
+                  <% end %>
+                </div>
+                <%= link_to "Contenuti", posturacorretta_contenuti_path, class: "block px-2 py-2 text-sm font-medium hover:text-primary" %>
+                <%= link_to "Corsi online", posturacorretta_corsi_online_path, class: "block px-2 py-2 text-sm font-medium hover:text-primary" %>
+                <%= link_to "Eventi", posturacorretta_eventi_path, class: "block px-2 py-2 text-sm font-medium hover:text-primary" %>
+                <%= link_to "Manifesto", posturacorretta_manifesto_path, class: "block px-2 py-2 text-sm font-medium hover:text-primary" %>
+                <%= link_to "Libri", books_path, class: "block px-2 py-2 text-sm font-medium hover:text-primary" %>
+                <div class="my-1 h-px bg-slate-100"></div>
+                <%= link_to coming_soon_path(feature: "Percorso salute", wa_message: "Ciao! Sono interessato al Percorso salute. Possiamo parlarne?"), class: "flex items-center gap-2 px-2 py-2 text-sm font-medium hover:text-primary" do %>
+                  <span class="material-symbols-outlined text-[16px] leading-none">monitor_heart</span>
+                  Percorso salute
+                <% end %>
+              </div>
+            </details>
+
+            <%= link_to root_path(anchor: "progetto"), class: "flex items-center gap-2 rounded-xl border border-slate-200 dark:border-slate-700 px-3 py-3 text-sm font-semibold text-slate-700 dark:text-slate-100 hover:text-primary" do %>
+              <span class="material-symbols-outlined text-[18px] leading-none">rocket_launch</span>
+              Progetto
+            <% end %>
+
+            <div class="h-px bg-slate-100 dark:bg-slate-800 my-2"></div>
+            <% if Current.user.present? %>
+              <%= link_to dashboard_home_path, class: "flex items-center justify-center gap-2 rounded-xl bg-primary px-3 py-2.5 text-sm font-bold text-white shadow-sm hover:brightness-110" do %>
+                <span class="material-symbols-outlined text-[18px] leading-none">dashboard</span>
+                Dashboard
+              <% end %>
+            <% else %>
+              <%= link_to "Accedi", new_session_path, class: "block px-3 py-2 text-sm font-semibold hover:text-primary" %>
+              <%= link_to "Registrati", new_registration_path, class: "block px-3 py-2 text-sm font-semibold text-primary" %>
+            <% end %>
+          </div>
+        </div>
+      </details>
+    </div>
+  </div>
+</header>
+<script>
+  (function () {
+    const nav = document.querySelector("header");
+    if (!nav) return;
+
+    const dropdowns = nav.querySelectorAll("details[data-nav-dropdown]");
+
+    // Keep only one desktop dropdown open at a time.
+    dropdowns.forEach((dropdown) => {
+      dropdown.addEventListener("toggle", () => {
+        if (!dropdown.open) return;
+        dropdowns.forEach((other) => {
+          if (other !== dropdown) other.open = false;
+        });
+      });
+    });
+
+    // Close dropdowns on outside click.
+    document.addEventListener("click", (event) => {
+      dropdowns.forEach((dropdown) => {
+        if (!dropdown.open) return;
+        if (!dropdown.contains(event.target)) dropdown.open = false;
+      });
+    });
+
+    const mobileMenu = nav.querySelector("details[data-nav-mobile-menu]");
+    const lockBodyScroll = () => {
+      document.body.style.overflow = "hidden";
+    };
+
+    const unlockBodyScroll = () => {
+      document.body.style.overflow = "";
+    };
+
+    if (mobileMenu) {
+      mobileMenu.addEventListener("toggle", () => {
+        if (mobileMenu.open) {
+          lockBodyScroll();
+          const panel = mobileMenu.querySelector("div.fixed.inset-0");
+          if (panel) {
+            panel.style.position = "fixed";
+            panel.style.inset = "0";
+          }
+        } else {
+          unlockBodyScroll();
+        }
+      });
+    }
+
+    const closeMobileMenuSafely = () => {
+      if (!mobileMenu) return;
+      if (mobileMenu.open) mobileMenu.open = false;
+      unlockBodyScroll();
+    };
+
+    // Close dropdowns on Escape.
+    document.addEventListener("keydown", (event) => {
+      if (event.key !== "Escape") return;
+      dropdowns.forEach((dropdown) => {
+        dropdown.open = false;
+      });
+      if (mobileMenu) mobileMenu.open = false;
+    });
+
+    // Close menu details when clicking any dropdown link (desktop + mobile).
+    nav.querySelectorAll("details[data-nav-dropdown] a, details[data-nav-mobile-menu] a").forEach((link) => {
+      link.addEventListener("click", () => {
+        const rootDropdown = link.closest("details[data-nav-dropdown], details[data-nav-mobile-menu]");
+        if (rootDropdown) rootDropdown.open = false;
+      });
+    });
+
+    // Explicit close button for the full-screen mobile menu.
+    nav.querySelectorAll("[data-close-mobile-menu]").forEach((button) => {
+      button.addEventListener("click", () => {
+        if (mobileMenu) mobileMenu.open = false;
+      });
+    });
+
+    // On back/swipe navigation, ensure full-screen mobile menu is closed.
+    window.addEventListener("hashchange", () => {
+      closeMobileMenuSafely();
+    });
+    window.addEventListener("popstate", () => {
+      closeMobileMenuSafely();
+    });
+
+    // If viewport switches to desktop, ensure mobile overlay/body-lock are fully reset.
+    window.addEventListener("resize", () => {
+      if (window.matchMedia("(min-width: 768px)").matches) {
+        closeMobileMenuSafely();
+      }
+    });
+
+    // Turbo/back-forward cache safety: never keep mobile overlay/body-lock between visits.
+    document.addEventListener("turbo:before-cache", closeMobileMenuSafely);
+    window.addEventListener("pageshow", () => {
+      if (window.matchMedia("(min-width: 768px)").matches) closeMobileMenuSafely();
+    });
+
+    // Initial guard on render (desktop should never keep mobile state).
+    if (window.matchMedia("(min-width: 768px)").matches) {
+      closeMobileMenuSafely();
+    }
+  })();
+</script>

@@ -1,0 +1,95 @@
+<%= form_with(model: [:superadmin, taxbranch], class: "space-y-4") do |f| %>
+  <% if taxbranch.errors.any? %>
+    <div class="border border-red-300 bg-red-50 text-red-700 p-3 rounded">
+      <p class="font-semibold mb-1">⚠️ Errori nel form:</p>
+      <ul class="list-disc pl-5">
+        <% taxbranch.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+     <% if taxbranch.parent_id.present? %>
+    <%= f.hidden_field :parent_id, value: taxbranch.parent_id %>
+  <% end %>
+   <div>
+      <%= f.label :lead_id, "Lead id", class: "block text-sm font-medium text-gray-700 mb-1" %>
+      <%= f.text_field :lead_id, class: "w-full border rounded px-3 py-2" %>
+    </div>
+
+    <div>
+      <%= f.label :position, "Posizione", class: "block text-sm font-medium text-gray-700 mb-1" %>
+      <%= f.number_field :position, class: "w-full border rounded px-3 py-2" %>
+    </div>
+
+    <div>
+      <%= f.label :phase, "Fase", class: "block text-sm font-medium text-gray-700 mb-1" %>
+      <%= f.select :phase,
+            Taxbranch.phases.keys.map { |p| [p.humanize, p] },
+            { include_blank: "—" },
+            class: "w-full border rounded px-3 py-2" %>
+    </div>
+    
+   
+  </div>
+  
+ 
+   
+   
+  <div>
+    <%= f.label :notes, "Note interne", class: "block text-sm font-medium text-gray-700 mb-1" %>
+    <%= f.text_area :notes, rows: 3, class: "w-full border rounded px-3 py-2" %>
+  </div>
+
+  <div>
+    <%= f.label :generaimpresa_md, "GeneraImpresa (MD interno)", class: "block text-sm font-medium text-gray-700 mb-1" %>
+    <%= f.text_area :generaimpresa_md, rows: 8, class: "w-full border rounded px-3 py-2" %>
+    <p class="mt-1 text-xs text-gray-500">Documento interno di progettazione (non pubblico).</p>
+  </div>
+  <div data-controller="taxbranch-slug">
+  <div class="mb-4">
+    <%= f.label :name, "Nome" %>
+    <%= f.text_field :name, class: "w-full border rounded px-3 py-2",
+          data: { "taxbranch-slug-target": "name", action: "input->taxbranch-slug#update" } %>
+  </div>
+
+  
+
+
+
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <div>
+      <%= f.label :slug_category, "Categoria slug" %>
+      <%= f.select :slug_category, Taxbranch.category_options, { include_blank: "—" },
+            class: "w-full border rounded px-3 py-2",
+            data: { "taxbranch-slug-target": "category", action: "change->taxbranch-slug#update" } %>
+    </div>
+
+    <div>
+      <%= f.label :slug_label, "Etichetta" %>
+      <%= f.text_field :slug_label, class: "w-full border rounded px-3 py-2",
+            data: { "taxbranch-slug-target": "label", action: "input->taxbranch-slug#update" } %>
+    </div>
+
+    <div>
+      <%= f.label :slug, "Slug (auto)", class: "block" %>
+      <%= f.text_field :slug, class: "w-full border rounded px-3 py-2",
+            placeholder: "generato da categoria+etichetta o nome",
+            data: { "taxbranch-slug-target": "slug" } %>
+      <!-- Se lo vuoi solo preview, aggiungi readonly: true -->
+    </div>
+  </div>
+   
+  </div>
+  
+
+  
+  <%= f.hidden_field :ancestry, value: taxbranch.ancestry %>
+
+  <div class="flex justify-end">
+    <%= f.submit "💾 Salva", class: "bg-blue-600 text-white font-medium px-4 py-2 rounded hover:bg-blue-700" %>
+  </div>
+<% end %>

@@ -1,0 +1,74 @@
+<div class="space-y-6">
+  <section class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+    <h2 class="text-xl font-semibold text-slate-900">Dettagli principali</h2>
+    <dl class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+      <div>
+        <dt class="text-xs font-semibold uppercase tracking-wide text-slate-400">Periodo</dt>
+        <dd class="mt-1 text-sm text-slate-800"><%= eventdate_period(eventdate) %></dd>
+      </div>
+      <div>
+        <dt class="text-xs font-semibold uppercase tracking-wide text-slate-400">Status diario</dt>
+        <dd class="mt-1 text-sm text-slate-800"><%= eventdate.status %></dd>
+      </div>
+      <div>
+        <dt class="text-xs font-semibold uppercase tracking-wide text-slate-400">Location</dt>
+        <dd class="mt-1 text-sm text-slate-800"><%= eventdate.location.presence || "Non specificata" %></dd>
+      </div>
+      <div>
+        <dt class="text-xs font-semibold uppercase tracking-wide text-slate-400">Taxbranch</dt>
+        <dd class="mt-1 text-sm text-slate-800"><%= eventdate_taxbranch_label(eventdate) %></dd>
+      </div>
+      <div>
+        <dt class="text-xs font-semibold uppercase tracking-wide text-slate-400">Lead</dt>
+        <dd class="mt-1 text-sm text-slate-800"><%= eventdate.lead&.full_name.presence || "-" %></dd>
+      </div>
+      <div>
+        <dt class="text-xs font-semibold uppercase tracking-wide text-slate-400">Journey</dt>
+        <dd class="mt-1 text-sm text-slate-800">
+          <% if eventdate.journey.present? %>
+            <%= link_to eventdate.journey.title, journey_path(eventdate.journey), class: "text-blue-600 hover:underline" %>
+          <% else %>
+            -
+          <% end %>
+        </dd>
+      </div>
+      <div>
+        <dt class="text-xs font-semibold uppercase tracking-wide text-slate-400">Ciclo</dt>
+        <dd class="mt-1 text-sm text-slate-800"><%= eventdate.cycle.presence || "-" %></dd>
+      </div>
+      <div>
+        <dt class="text-xs font-semibold uppercase tracking-wide text-slate-400">Meta</dt>
+    <dd class="mt-1 text-sm text-slate-800"><%= eventdate.meta.presence || "-" %></dd>
+  </div>
+  <div>
+    <dt class="text-xs uppercase tracking-wide text-slate-500">Ruolo journey</dt>
+    <dd class="mt-1 text-sm text-slate-800"><%= eventdate.journey_role.presence || "-" %></dd>
+  </div>
+    </dl>
+  </section>
+
+  <% if eventdate.description.present? %>
+    <section class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+      <h2 class="text-xl font-semibold text-slate-900">Descrizione</h2>
+      <p class="mt-3 text-sm text-slate-700"><%= simple_format(eventdate.description) %></p>
+    </section>
+  <% end %>
+
+  <section class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+    <h2 class="text-xl font-semibold text-slate-900">Specifiche evento</h2>
+    <div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
+      <div class="rounded-xl border border-slate-100 bg-slate-50 p-4">
+        <p class="text-xs uppercase tracking-wide text-slate-500">Tipo</p>
+        <p class="mt-1 text-sm font-semibold text-slate-800"><%= eventdate.event_type %></p>
+      </div>
+      <div class="rounded-xl border border-slate-100 bg-slate-50 p-4">
+        <p class="text-xs uppercase tracking-wide text-slate-500">Modalità</p>
+        <p class="mt-1 text-sm font-semibold text-slate-800"><%= eventdate.mode %></p>
+      </div>
+      <div class="rounded-xl border border-slate-100 bg-slate-50 p-4">
+        <p class="text-xs uppercase tracking-wide text-slate-500">Visibilità</p>
+        <p class="mt-1 text-sm font-semibold text-slate-800"><%= eventdate.visibility %></p>
+      </div>
+    </div>
+  </section>
+</div>

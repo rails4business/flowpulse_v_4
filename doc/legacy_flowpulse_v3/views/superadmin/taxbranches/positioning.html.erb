@@ -1,0 +1,224 @@
+<% content_for :title, "Positioning — #{@taxbranch.slug_label}" %>
+
+<% content_for :nav do %>
+  <%= render "shared/taxbranch_nav", taxbranch: @taxbranch %>
+<% end %>
+<!-- Tabs azioni -->
+<div class="border-b border-slate-200 mb-4">
+  <nav class="-mb-px flex space-x-6" aria-label="Tabs">
+    <%= link_to "📄 Show",
+      superadmin_taxbranch_path(@taxbranch),
+      class: class_names(
+        "whitespace-nowrap border-b-2 px-3 py-2 text-sm font-medium",
+        current_page?(superadmin_taxbranch_path(@taxbranch)) ?
+          "border-blue-500 text-blue-600" :
+          "border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-700"
+      ) %>
+
+    <%= link_to "🌐 Mappa di posizionamento",
+      positioning_superadmin_taxbranch_path(@taxbranch),
+      class: class_names(
+        "whitespace-nowrap border-b-2 px-3 py-2 text-sm font-medium",
+        current_page?(positioning_superadmin_taxbranch_path(@taxbranch)) ?
+          "border-blue-500 text-blue-600" :
+          "border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-700"
+      ) %>
+
+   <%= link_to "＋ Aggiungi concetto",
+  superadmin_taxbranch_tag_positionings_path(@taxbranch),
+  class: class_names(
+    "whitespace-nowrap border-b-2 px-3 py-2 text-sm font-medium",
+    current_page?(superadmin_taxbranch_tag_positionings_path(@taxbranch)) ?
+      "border-emerald-500 text-emerald-700" :
+      "border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-700"
+  ) %>
+
+  </nav>
+</div>
+
+<!-- Breadcrumb + Title + Actions -->
+<div class="mb-4 flex items-start justify-between gap-3">
+  <div class="flex-1 min-w-0">
+    <nav class="text-sm text-slate-600">
+      <% if Current.domain&.taxbranch %>
+        <%#= taxbranch_breadcrumb(@taxbranch_node, starting_node: Current.domain.taxbranch) %>
+      <% else %>
+        <%#= taxbranch_breadcrumb(@taxbranch_node) %>
+      <% end %>
+    </nav>
+    <h1 class="text-xl font-bold mt-1">
+      <%#= taxbranch_label(@taxbranch) %>
+    </h1>
+
+    <div class="flex items-center gap-2 mt-2">
+      <%= link_to "✏️ Modifica", edit_superadmin_taxbranch_path(@taxbranch),
+          class: "text-sm text-blue-700 hover:underline" %>
+      <%= link_to "＋ Figlio", new_superadmin_taxbranch_path(parent_id: @taxbranch.id),
+          class: "text-sm text-green-700 hover:underline" %>
+      <%= button_to "🗑️ Elimina",
+          superadmin_taxbranch_path(@taxbranch),
+          method: :delete,
+          form: { data: { turbo_confirm: "Eliminare “#{@taxbranch.slug_label}” e le sue sottocategorie?" } },
+          class: "text-sm text-red-700 hover:underline" %>
+    </div>
+  </div>
+
+  
+  </div>
+</div>
+
+
+
+<!-- Link back -->
+<div class="mt-6">
+  <%= link_to "⬅️ Torna su",
+              (@taxbranch.parent ? superadmin_taxbranch_path(@taxbranch.parent) : superadmin_taxbranches_path),
+              class: "text-gray-600 hover:underline" %>
+</div>
+
+<!-- Divider -->
+<hr class="my-8">
+
+<!-- Positioning Cloud -->
+<div class="max-w-6xl mx-auto py-6">
+  <h2 class="text-2xl font-bold mb-2">Positioning: <%= @taxbranch.slug_label %></h2>
+  <p class="text-slate-600 mb-6">Visualizza la rete dei concetti collegati: problemi, target, parole chiave, messaggi e servizi.</p>
+
+  <!-- filtri -->
+  <div class="flex flex-wrap gap-2 mb-4">
+    <button data-cat="all" class="px-3 py-1 rounded-full bg-slate-900 text-white text-sm">Tutti</button>
+    <button data-cat="problema" class="px-3 py-1 rounded-full bg-rose-100 text-rose-800 text-sm">Problemi</button>
+    <button data-cat="target" class="px-3 py-1 rounded-full bg-amber-100 text-amber-800 text-sm">Target</button>
+    <button data-cat="keyword" class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-sm">Parole chiave</button>
+    <button data-cat="messaggio" class="px-3 py-1 rounded-full bg-indigo-100 text-indigo-800 text-sm">Messaggi</button>
+    <button data-cat="servizio" class="px-3 py-1 rounded-full bg-sky-100 text-sky-800 text-sm">Servizi</button>
+  </div>
+
+  <!-- cloud -->
+  <div id="cloudWrap" class="bg-white rounded-2xl shadow p-4">
+    <canvas id="wordCloud"></canvas>
+  </div>
+
+  <!-- liste sotto -->
+  <div class="grid md:grid-cols-2 gap-6 mt-8">
+    <% ["problema", "target", "keyword", "servizio"].each do |cat| %>
+      <section>
+        <h3 class="text-xl font-semibold mb-2 capitalize"><%= cat %>s</h3>
+        <ul id="list-<%= cat %>" class="list-disc ml-5 text-slate-600"></ul>
+      </section>
+    <% end %>
+  </div>
+</div>
+
+<!-- JS data injection -->
+<script>
+  const items = <%= raw @items.to_json %>;
+</script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-chart-wordcloud"></script>
+<script>
+  function normalizeWeights(arr, minFont=12, maxFont=64) {
+    const counts = arr.map(a => a.count);
+    const min = Math.min(...counts);
+    const max = Math.max(...counts);
+    const scale = (v) => {
+      if (max === min) return (minFont + maxFont) / 2;
+      const t = (v - min) / (max - min);
+      return Math.round(minFont + t * (maxFont - minFont));
+    };
+    return arr.map(a => ({ ...a, weight: scale(a.count) }));
+  }
+
+  const catColor = {
+    problema:  "#ef4444",
+    target:    "#d97706",
+    keyword:   "#10b981",
+    messaggio: "#6366f1",
+    servizio:  "#0ea5e9"
+  };
+
+  let currentCat = "all";
+  let chart;
+
+  function buildDataset(dataArr) {
+    const labels = dataArr.map(d => d.text);
+    const data   = dataArr.map(d => d.weight);
+    return {
+      labels,
+      datasets: [{
+        label: 'Positioning',
+        data,
+        color: (ctx) => {
+          const i = ctx.dataIndex;
+          const cat = dataArr[i]?.cat;
+          return catColor[cat] || "#334155";
+        }
+      }]
+    };
+  }
+
+  function renderCloud() {
+    const filtered = (currentCat === "all") ? items : items.filter(i => i.cat === currentCat);
+    const withWeights = normalizeWeights(filtered);
+    const data = buildDataset(withWeights);
+
+    const wrap = document.getElementById('cloudWrap');
+    const canvas = document.getElementById('wordCloud');
+    const w = wrap.clientWidth;
+    canvas.width = w;
+    canvas.height = Math.max(320, Math.round(w * 0.55));
+
+    if (chart) chart.destroy();
+    chart = new Chart(canvas.getContext('2d'), {
+      type: 'wordCloud',
+      data,
+      options: {
+        responsive: false,
+        plugins: { legend: { display: false } },
+        layoutPadding: 8,
+        elements: {
+          word: {
+            padding: 3,
+            rotate: 0,
+            drawOutOfBound: false,
+            spiral: 'rectangular',
+            fontFamily: "'Inter', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial"
+          }
+        },
+        onClick: (evt, elements) => {
+          const idx = elements?.[0]?.index;
+          if (idx == null) return;
+          const word = data.labels[idx];
+          alert(`Concetto selezionato: ${word}`);
+        },
+        devicePixelRatio: window.devicePixelRatio || 1
+      }
+    });
+
+    ["problema","target","keyword","servizio"].forEach(cat => {
+      const ul = document.getElementById(`list-${cat}`);
+      if (!ul) return;
+      ul.innerHTML = items
+        .filter(i => i.cat === cat)
+        .sort((a,b) => b.count - a.count)
+        .map(i => `<li>${i.text} <span class="text-slate-400">(${i.count})</span></li>`)
+        .join("");
+    });
+  }
+
+  document.querySelectorAll('button[data-cat]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      currentCat = btn.dataset.cat;
+      document.querySelectorAll('button[data-cat]').forEach(b => b.classList.remove('ring','ring-slate-300'));
+      btn.classList.add('ring','ring-slate-300');
+      renderCloud();
+    });
+  });
+
+  window.addEventListener('resize', () => {
+    clearTimeout(window.__wcT);
+    window.__wcT = setTimeout(renderCloud, 120);
+  });
+
+  renderCloud();
+</script>

@@ -9,7 +9,8 @@ class DashboardsController < ApplicationController
     mode = params[:mode].to_s
     allowed = available_workspace_modes.map { |workspace| workspace[:key] }
 
-    session[:workspace_mode] = allowed.include?(mode) ? mode : available_workspace_modes.first&.dig(:key)
-    redirect_back fallback_location: dashboard_path
+    selected_mode = allowed.include?(mode) ? mode : available_workspace_modes.first&.dig(:key)
+    session[:workspace_mode] = selected_mode
+    redirect_to workspace_landing_path(selected_mode)
   end
 end

@@ -1,0 +1,121 @@
+<% content_for :title, "Impegno · #{@journey.title}" %>
+
+<div class="max-w-6xl mx-auto p-6 space-y-6">
+  <!-- Header -->
+  <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+    <nav class="text-xs text-slate-500 mb-3">
+      <%= link_to "Journeys", journeys_path, class: "hover:text-slate-900" %>
+      <span class="mx-1">/</span>
+      <%= link_to @journey.title, journey_path(@journey), class: "hover:text-slate-900" %>
+      <span class="mx-1">/</span>
+      <span class="text-slate-900">Impegno</span>
+    </nav>
+    <h1 class="text-3xl font-bold text-slate-900">Impegno Journey</h1>
+    <p class="text-sm text-slate-500 mt-1">
+      Panoramica impegni e costi per <strong><%= @journey.title %></strong>.
+    </p>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="grid gap-6 md:grid-cols-3">
+    <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+      <p class="text-xs uppercase tracking-wide text-slate-500 mb-2">Totale Costi</p>
+      <p class="text-2xl font-bold text-slate-900"><%= number_to_currency(@total_euro, unit: "€") %></p>
+      <p class="text-xs text-slate-500 mt-1"><%= @commitments.count %> impegni</p>
+    </div>
+
+    <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+      <p class="text-xs uppercase tracking-wide text-slate-500 mb-2">Totale Dash</p>
+      <p class="text-2xl font-bold text-slate-900"><%= @total_dash.to_f.round(4) %> Đ</p>
+      <p class="text-xs text-slate-500 mt-1">≈ <%= number_to_currency(@total_dash.to_f * 20, unit: "€") %></p>
+    </div>
+
+    <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+      <p class="text-xs uppercase tracking-wide text-slate-500 mb-2">Tempo Totale</p>
+      <p class="text-2xl font-bold text-slate-900"><%= (@total_minutes.to_f / 60).round(1) %> h</p>
+      <p class="text-xs text-slate-500 mt-1"><%= @total_minutes %> minuti</p>
+    </div>
+  </div>
+
+  <!-- Commitments Table -->
+  <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+    <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
+      <h2 class="text-lg font-semibold text-slate-900">Lista Impegni</h2>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm text-left">
+        <thead class="text-xs text-slate-500 uppercase bg-slate-50 border-b border-slate-200">
+          <tr>
+            <th class="px-4 py-3 font-medium">Data</th>
+            <th class="px-4 py-3 font-medium">Descrizione</th>
+            <th class="px-4 py-3 font-medium">Ruolo</th>
+            <th class="px-4 py-3 font-medium text-right">Durata</th>
+            <th class="px-4 py-3 font-medium text-right">Costo €</th>
+            <th class="px-4 py-3 font-medium text-right">Dash</th>
+            <th class="px-4 py-3 font-medium text-center">Azioni</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          <% if @commitments.any? %>
+            <% @commitments.each do |commitment| %>
+              <tr class="hover:bg-slate-50/50 transition-colors">
+                <td class="px-4 py-3 text-slate-500 whitespace-nowrap">
+                  <% if commitment.eventdate&.date_start.present? %>
+                    <%= l(commitment.eventdate.date_start, format: "%d %b %Y") %>
+                  <% else %>
+                    —
+                  <% end %>
+                </td>
+                <td class="px-4 py-3 font-medium text-slate-900">
+                  <%= commitment.eventdate&.description || "—" %>
+                </td>
+                <td class="px-4 py-3 text-slate-600">
+                  <%= commitment.role_name.presence || commitment.commitment_kind&.humanize || "—" %>
+                </td>
+                <td class="px-4 py-3 text-right text-slate-600">
+                  <% if commitment.duration_minutes.to_i > 0 %>
+                    <%= commitment.duration_minutes %> min
+                  <% else %>
+                    —
+                  <% end %>
+                </td>
+                <td class="px-4 py-3 text-right font-medium text-slate-900">
+                  <% if commitment.compensation_euro.to_f > 0 %>
+                    <%= number_to_currency(commitment.compensation_euro, unit: "€") %>
+                  <% else %>
+                    —
+                  <% end %>
+                </td>
+                <td class="px-4 py-3 text-right font-mono text-blue-600">
+                  <% if commitment.compensation_dash.to_f > 0 %>
+                    <%= commitment.compensation_dash %> Đ
+                  <% else %>
+                    —
+                  <% end %>
+                </td>
+                <td class="px-4 py-3 text-center">
+                  <%= link_to edit_eventdate_commitment_path(commitment.eventdate, commitment),
+                              data: { turbo_frame: "modal" },
+                              class: "text-slate-400 hover:text-blue-600 transition-colors" do %>
+                    <span class="material-symbols-outlined text-[18px]">edit</span>
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
+          <% else %>
+            <tr>
+              <td colspan="7" class="px-4 py-12 text-center">
+                <div class="flex flex-col items-center gap-3">
+                  <span class="material-symbols-outlined text-slate-300 text-[48px]">assignment</span>
+                  <p class="text-slate-500 font-medium">Nessun impegno registrato</p>
+                  <p class="text-slate-400 text-sm">Gli impegni associati a questo journey appariranno qui</p>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

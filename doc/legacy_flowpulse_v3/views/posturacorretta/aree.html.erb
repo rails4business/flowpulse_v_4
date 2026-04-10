@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Aree della Salute – Pentagono</title>
+
+    <style>
+      :root {
+        --bg: #0b1a2e;
+        --text: #ffffff;
+
+        --rosso: #dc2626;
+        --giallo: #f59e0b;
+        --viola: #2e1065;
+        --azzurro: #38bdf8;
+        --verde: #22c55e;
+        --blu-scuro: #0f172a;
+      }
+
+      body {
+        margin: 0;
+        display: grid;
+        place-items: center;
+        background:
+          radial-gradient(
+            900px 600px at 50% 25%,
+            rgba(56, 189, 248, 0.35),
+            transparent 60%
+          ),
+          radial-gradient(
+            1200px 800px at 50% 70%,
+            rgba(14, 165, 233, 0.2),
+            transparent 65%
+          ),
+          var(--bg);
+        font-family:
+          system-ui,
+          -apple-system,
+          Segoe UI,
+          Roboto,
+          sans-serif;
+        color: var(--text);
+        padding: 32px 16px 40px;
+        min-height: 100vh;
+      }
+
+      .page {
+        display: grid;
+        place-items: center;
+        gap: 18px;
+        width: 100%;
+      }
+
+      .top-nav {
+        width: min(1000px, 96vw);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+      }
+      .tabs {
+        display: inline-flex;
+        gap: 8px;
+        padding: 6px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.12);
+        border: 1px solid rgba(255, 255, 255, 0.28);
+      }
+      .tab-link {
+        padding: 8px 14px;
+        border-radius: 999px;
+        text-decoration: none;
+        font-weight: 700;
+        color: #fff;
+      }
+      .tab-link.active {
+        background: rgba(255, 255, 255, 0.25);
+      }
+
+      .back-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 10px 18px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.12);
+        color: #ffffff;
+        border: 1px solid rgba(255, 255, 255, 0.35);
+        text-decoration: none;
+        font-weight: 600;
+        letter-spacing: 0.2px;
+        transition:
+          background 150ms ease,
+          transform 150ms ease;
+      }
+
+      .back-link:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: translateY(-1px);
+      }
+
+      svg {
+        width: min(1000px, 96vw);
+        height: auto;
+      }
+
+      /* STRUTTURA */
+      .pentagon {
+        stroke: rgba(255, 255, 255, 0.9);
+        stroke-width: 5;
+        fill: none;
+      }
+
+      .ray {
+        stroke: rgba(255, 255, 255, 0.75);
+        stroke-width: 4;
+      }
+
+      .node circle {
+        stroke: rgba(255, 255, 255, 0.95);
+        stroke-width: 5;
+        filter: drop-shadow(0 16px 32px rgba(0, 0, 0, 0.55));
+      }
+
+      text {
+        fill: white;
+        text-anchor: middle;
+        dominant-baseline: middle;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+      }
+
+      .label-main {
+        font-size: 18px;
+      }
+      .label-small {
+        font-size: 14px;
+        opacity: 0.9;
+      }
+
+      .clickable {
+        cursor: pointer;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="page">
+      <div class="top-nav">
+        <a class="back-link" href="<%= posturacorretta_mappa_path %>" aria-label="Torna alla mappa">← Mappa</a>
+        <div class="tabs" aria-label="Navigazione Aree Ambiti Medicina dei semplici">
+          <a class="tab-link active" href="<%= posturacorretta_aree_path %>">Aree</a>
+          <a class="tab-link" href="<%= posturacorretta_ambiti_path %>">Ambiti</a>
+          <a class="tab-link" href="<%= posturacorretta_medicina_path %>">Medicina dei semplici</a>
+        </div>
+      </div>
+      <svg viewBox="0 0 1000 720">
+          <!-- PENTAGONO -->
+          <path
+            class="pentagon"
+            d="M 500 110
+       L 740 300
+       L 650 580
+       L 350 580
+       L 260 300 Z"
+          />
+
+          <!-- RAGGI -->
+          <line class="ray" x1="500" y1="110" x2="500" y2="360" />
+          <line class="ray" x1="740" y1="300" x2="500" y2="360" />
+          <line class="ray" x1="650" y1="580" x2="500" y2="360" />
+          <line class="ray" x1="350" y1="580" x2="500" y2="360" />
+          <line class="ray" x1="260" y1="300" x2="500" y2="360" />
+
+          <!-- NODI -->
+          <g class="node">
+            <circle cx="500" cy="110" r="85" fill="var(--giallo)" />
+            <text x="500" y="100" class="label-main">Nutrire</text>
+            <text x="500" y="125" class="label-small">il corpo</text>
+          </g>
+
+          <g class="node">
+            <circle cx="740" cy="300" r="85" fill="var(--azzurro)" />
+            <text x="740" y="285" class="label-main">Recupero</text>
+            <text x="740" y="310" class="label-small">terapie manuali</text>
+          </g>
+
+          <g class="node">
+            <circle cx="650" cy="580" r="85" fill="var(--viola)" />
+            <text x="650" y="565" class="label-main">Movimento</text>
+            <text x="650" y="590" class="label-small">allenamento</text>
+          </g>
+
+          <g class="node">
+            <circle cx="350" cy="580" r="85" fill="var(--verde)" />
+            <text x="350" y="565" class="label-main">Aspetti</text>
+            <text x="350" y="590" class="label-small">Emotivi mentali</text>
+            <text x="350" y="610" class="label-small">energetici</text>
+          </g>
+
+          <g id="nodePiante" class="node clickable" aria-label="Vai a Quadrato Medicina dei Semplici">
+            <circle cx="260" cy="300" r="85" fill="var(--rosso)" />
+            <text x="260" y="285" class="label-main">Piante</text>
+            <text x="260" y="310" class="label-small">
+              integratori • farmaci
+            </text>
+          </g>
+
+          <!-- CENTRO -->
+          <g class="node">
+            <circle cx="500" cy="360" r="110" fill="var(--blu-scuro)" />
+            <text x="500" y="325" class="label-main">Fisiologia</text>
+            <text x="500" y="355" class="label-small">
+              Come funziona il corpo
+            </text>
+            <text x="500" y="375" class="label-small">Coscienza corporea</text>
+            <text x="500" y="395" class="label-small">Metodiche Posturali</text>
+            <text x="500" y="415" class="label-small">Chi può aiutarti</text>
+          </g>
+      </svg>
+    </div>
+
+    <script>
+      (() => {
+        const nodePiante = document.getElementById("nodePiante");
+        const mapSvg = document.querySelector("svg");
+        nodePiante?.addEventListener("click", (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          window.location.href = "<%= posturacorretta_medicina_path %>";
+        });
+
+        // Fallback robusto: click sul cerchio rosso anche se il target è il testo.
+        mapSvg?.addEventListener("click", (event) => {
+          const ctm = mapSvg.getScreenCTM();
+          if (!ctm) return;
+          const pt = mapSvg.createSVGPoint();
+          pt.x = event.clientX;
+          pt.y = event.clientY;
+          const p = pt.matrixTransform(ctm.inverse());
+          const inPiante = Math.hypot(p.x - 260, p.y - 300) <= 85;
+          if (!inPiante) return;
+          event.preventDefault();
+          event.stopPropagation();
+          window.location.href = "<%= posturacorretta_medicina_path %>";
+        });
+      })();
+    </script>
+  </body>
+</html>

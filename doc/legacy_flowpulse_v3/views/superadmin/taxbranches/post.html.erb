@@ -1,0 +1,37 @@
+<% content_for :nav do %>
+  <%= render "shared/taxbranch_nav", taxbranch: @taxbranch %>
+<% end %>
+
+<div class="mb-6">
+  <div class="flex items-center justify-between gap-3">
+    <h1 class="text-2xl font-bold text-slate-900">Post associato</h1>
+    <% if params[:edit] == "true" %>
+      <%= link_to "Chiudi modifica",
+                  post_superadmin_taxbranch_path(@taxbranch),
+                  class: "inline-flex items-center rounded-md border border-slate-300 px-3 py-1.5 text-sm font-semibold text-slate-700 hover:bg-slate-50" %>
+    <% else %>
+      <%= link_to "Modifica",
+                  post_superadmin_taxbranch_path(@taxbranch, edit: true),
+                  class: "inline-flex items-center rounded-md bg-slate-900 px-3 py-1.5 text-sm font-semibold text-white hover:bg-slate-800" %>
+    <% end %>
+  </div>
+  <p class="mt-1 text-sm text-slate-600">
+    Taxbranch: <strong><%= @taxbranch.display_label %></strong>
+  </p>
+</div>
+
+<div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm" id="post-form">
+  <% if @post.present? %>
+    <p class="text-xs text-slate-500 mb-3">Post id: <%= @post.id %></p>
+  <% else %>
+    <p class="text-xs text-slate-500 mb-3">
+      Nessun post associato. Compila il form per crearne uno.
+    </p>
+  <% end %>
+
+  <% if params[:edit] == "true" %>
+    <%= render "posts/form", post: @post, taxbranch: @taxbranch %>
+  <% else %>
+    <%= render "posts/show", post: @post, taxbranch: @taxbranch, admin: true %>
+  <% end %>
+</div>

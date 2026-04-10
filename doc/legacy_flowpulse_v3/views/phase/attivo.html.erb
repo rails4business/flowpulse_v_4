@@ -1,0 +1,9 @@
+<% content_for :title, "Fase: Attivo" %>
+
+<div class="max-w-3xl mx-auto px-4 py-10 space-y-4">
+  <%= render "tabs" %>
+  <h1 class="text-3xl font-bold text-slate-900">Attivo</h1>
+  <p class="text-slate-600">Il progetto e attivo e fruibile.</p>
+  <p class="text-sm text-slate-500">Taxbranch: <%= @taxbranch.display_label %></p>
+  <%= render "journey_list", phase_key: @phase_key %>
+</div>

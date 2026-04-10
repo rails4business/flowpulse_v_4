@@ -1,0 +1,68 @@
+<div id="<%= dom_id certificate %>" class="w-full sm:w-auto my-5 space-y-5">
+  <% inferred_domain = certificate.inferred_domain %>
+  <% if inferred_domain.present? || certificate.domain_membership_id.present? %>
+    <div>
+      <strong class="block font-medium mb-1">Domain context:</strong>
+      <p class="text-sm text-slate-700">
+        Domain:
+        <% if inferred_domain.present? %>
+          <%= inferred_domain.host %>
+          (ID <%= inferred_domain.id %>)
+        <% else %>
+          —
+        <% end %>
+      </p>
+      <p class="text-sm text-slate-700">
+        Domain membership ID: <%= certificate.domain_membership_id || "—" %>
+      </p>
+    </div>
+  <% end %>
+  <div>
+    <strong class="block font-medium mb-1">Lead:</strong>
+    <%= certificate.lead_id %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Datacontact:</strong>
+    <%= certificate.datacontact_id %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Enrollment:</strong>
+    <%= certificate.enrollment_id %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Service:</strong>
+    <%= certificate.service_id %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Journey:</strong>
+    <%= certificate.journey_id %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Taxbranch:</strong>
+    <%= certificate.taxbranch_id %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Role name:</strong>
+    <%= certificate.role_name %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Status:</strong>
+    <%= certificate.status %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Issued at:</strong>
+    <%= certificate.issued_at %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Expires at:</strong>
+    <%= certificate.expires_at %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Issued by enrollment:</strong>
+    <%= certificate.issued_by_enrollment_id %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Meta:</strong>
+    <%= certificate.meta %>
+  </div>
+</div>

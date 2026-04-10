@@ -1,0 +1,72 @@
+<% content_for :title, "Commitments" %>
+
+<div class="w-full">
+  <% if notice.present? %>
+    <p class="py-2 px-3 bg-green-50 mb-5 text-green-500 font-medium rounded-md inline-block" id="notice"><%= notice %></p>
+  <% end %>
+
+  <div class="flex justify-between items-center">
+    <h1 class="font-bold text-4xl">Commitments</h1>
+    <%= link_to "New commitment", new_commitment_path, class: "rounded-md px-3.5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white block font-medium" %>
+  </div>
+
+  <% if @commitments.any? %>
+    <div class="mt-6 overflow-x-auto rounded-lg border border-slate-200 bg-white shadow-sm">
+      <table class="min-w-full divide-y divide-slate-200 text-sm">
+        <thead class="bg-slate-50 text-slate-600">
+          <tr>
+            <th class="px-4 py-3 text-left font-semibold">Commitment</th>
+            <th class="px-4 py-3 text-left font-semibold">Evento</th>
+            <th class="px-4 py-3 text-left font-semibold">Tipo</th>
+            <th class="px-4 py-3 text-left font-semibold">Area</th>
+            <th class="px-4 py-3 text-left font-semibold">Durata</th>
+            <th class="px-4 py-3 text-left font-semibold">Posizione</th>
+            <th class="px-4 py-3 text-left font-semibold">Priorita</th>
+            <th class="px-4 py-3 text-right font-semibold">Azioni</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          <% @commitments.each do |commitment| %>
+            <% eventdate = commitment.eventdate %>
+            <tr class="hover:bg-slate-50">
+              <td class="px-4 py-3">
+                <p class="font-semibold text-slate-900">
+                  <%= commitment.role_name.presence || "Commitment ##{commitment.id}" %>
+                </p>
+              </td>
+              <td class="px-4 py-3 text-slate-600">
+                <% if eventdate %>
+                  <%= link_to eventdate_label(eventdate),
+                        eventdate_path(eventdate),
+                        class: "text-blue-600 hover:underline" %>
+                <% else %>
+                  —
+                <% end %>
+              </td>
+              <td class="px-4 py-3">
+                <span class="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700">
+                  <%= commitment.commitment_kind.humanize %>
+                </span>
+              </td>
+              <td class="px-4 py-3 text-slate-600"><%= commitment.area.presence || "—" %></td>
+              <td class="px-4 py-3 text-slate-600"><%= commitment.duration_minutes.present? ? "#{commitment.duration_minutes} min" : "—" %></td>
+              <td class="px-4 py-3 text-slate-600"><%= commitment.position || "—" %></td>
+              <td class="px-4 py-3 text-slate-600">
+                <span>U: <%= commitment.urgency || "—" %></span>
+                <span class="ml-2">I: <%= commitment.importance || "—" %></span>
+                <span class="ml-2">E: <%= commitment.energy || "—" %></span>
+              </td>
+              <td class="px-4 py-3 text-right whitespace-nowrap">
+                <%= link_to "Show", commitment, class: "inline-flex items-center rounded-md px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100" %>
+                <%= link_to "Edit", edit_commitment_path(commitment), class: "inline-flex items-center rounded-md px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100" %>
+                <%= button_to "Destroy", commitment, method: :delete, class: "inline-flex items-center rounded-md px-3 py-1.5 text-xs font-semibold text-white bg-red-600 hover:bg-red-500", data: { turbo_confirm: "Are you sure?" } %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <p class="text-center my-10">No commitments found.</p>
+  <% end %>
+</div>

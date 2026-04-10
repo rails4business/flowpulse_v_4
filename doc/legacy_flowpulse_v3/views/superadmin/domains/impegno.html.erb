@@ -1,0 +1,210 @@
+<% content_for :title, "1impegno · #{@domain.title.presence || @domain.host}" %>
+
+<div class="space-y-6">
+
+
+  <% current_tab = params[:tab].presence || "tempo" %>
+  <% total_euro = @commitments.sum(:compensation_euro) %>
+  <% total_dash = @commitments.sum(:compensation_dash) %>
+  <% income_euro = (@bookings.sum(:price_euro) || 0) + (@enrollments.sum(:price_euro) || 0) %>
+  <% income_dash = (@bookings.sum(:price_dash) || 0) + (@enrollments.sum(:price_dash) || 0) %>
+  <% net_euro = (income_euro || 0) - (total_euro || 0) %>
+  <% net_dash = (income_dash || 0) - (total_dash || 0) %>
+  <div class="rounded-2xl border border-[#283039] bg-[#101922] p-6 shadow-sm">
+    <div class="flex flex-wrap items-center justify-between gap-4">
+      <h2 class="text-lg font-semibold text-white">Impegno</h2>
+      <div class="flex flex-wrap gap-2 text-xs font-semibold">
+        <% tabs = {
+          "soldi" => "Soldi",
+          "attenzione" => "Attenzione",
+          "energia" => "Energia",
+          "tempo" => "Tempo",
+          "profilo" => "Profilo"
+        } %>
+        <% tabs.each do |key, label| %>
+          <%= link_to label,
+                      impegno_superadmin_domain_path(@domain, tab: key),
+                      class: class_names(
+                        "rounded-full px-3 py-1 border",
+                        current_tab == key ? "border-primary text-primary bg-primary/10" : "border-[#283039] text-[#9dabb9] hover:text-white"
+                      ) %>
+        <% end %>
+      </div>
+    </div>
+
+    <% if current_tab == "soldi" %>
+      <div class="mt-6 flex flex-wrap items-center justify-between gap-4">
+        <div class="flex flex-wrap items-center gap-4 text-sm">
+          <div class="rounded-lg border border-[#283039] bg-[#0b1220] px-4 py-2">
+            <p class="text-xs text-[#9dabb9]">Entrate €</p>
+            <p class="text-lg font-semibold text-white"><%= number_to_currency(income_euro || 0, unit: "€") %></p>
+          </div>
+          <div class="rounded-lg border border-[#283039] bg-[#0b1220] px-4 py-2">
+            <p class="text-xs text-[#9dabb9]">Totale €</p>
+            <p class="text-lg font-semibold text-white"><%= number_to_currency(total_euro || 0, unit: "€") %></p>
+          </div>
+          <div class="rounded-lg border border-[#283039] bg-[#0b1220] px-4 py-2">
+            <p class="text-xs text-[#9dabb9]">Entrate Dash</p>
+            <p class="text-lg font-semibold text-white"><%= income_dash || 0 %></p>
+          </div>
+          <div class="rounded-lg border border-[#283039] bg-[#0b1220] px-4 py-2">
+            <p class="text-xs text-[#9dabb9]">Totale Dash</p>
+            <p class="text-lg font-semibold text-white"><%= total_dash || 0 %></p>
+          </div>
+          <div class="rounded-lg border border-[#283039] bg-[#0b1220] px-4 py-2">
+            <p class="text-xs text-[#9dabb9]">Netto €</p>
+            <p class="text-lg font-semibold text-white"><%= number_to_currency(net_euro || 0, unit: "€") %></p>
+          </div>
+          <div class="rounded-lg border border-[#283039] bg-[#0b1220] px-4 py-2">
+            <p class="text-xs text-[#9dabb9]">Netto Dash</p>
+            <p class="text-lg font-semibold text-white"><%= net_dash || 0 %></p>
+          </div>
+        </div>
+        <%= button_to create_expense_check_superadmin_domain_path(@domain),
+                      method: :post,
+                      class: "inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-blue-600" do %>
+          <span class="material-symbols-outlined text-[18px]">add</span>
+          Nuova spesa
+        <% end %>
+      </div>
+
+      <div class="mt-6 rounded-2xl border border-[#283039] bg-[#101922] p-4">
+        <h3 class="text-sm font-semibold text-white mb-3">Spese e compensi</h3>
+        <% expenses = @commitments.where.not(compensation_euro: nil).or(@commitments.where.not(compensation_dash: nil)) %>
+        <% if expenses.any? %>
+          <div class="divide-y divide-[#283039] text-sm">
+            <% expenses.each do |commitment| %>
+              <div class="py-3 flex flex-wrap items-center justify-between gap-4">
+                <div>
+                  <p class="font-medium text-white">
+                    <%= commitment.role_name.presence || "Commitment ##{commitment.id}" %>
+                  </p>
+                  <p class="text-[#9dabb9] text-xs">
+                    <%= commitment.eventdate&.description || "Spesa" %>
+                    <% if commitment.eventdate&.date_start.present? %>
+                      · <%= l(commitment.eventdate.date_start, format: "%d/%m/%Y") %>
+                    <% end %>
+                  </p>
+                </div>
+                <div class="text-xs text-[#9dabb9] text-right">
+                  <% if commitment.compensation_euro.present? %>
+                    <div class="text-white font-semibold"><%= number_to_currency(commitment.compensation_euro, unit: "€") %></div>
+                  <% end %>
+                  <% if commitment.compensation_dash.present? %>
+                    <div>Dash: <%= commitment.compensation_dash %></div>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <p class="text-sm text-[#9dabb9]">Nessuna spesa inserita.</p>
+        <% end %>
+      </div>
+
+      <% if params[:expense_modal].present? && @expense_eventdate.present? %>
+        <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+          <div class="w-full max-w-lg rounded-2xl border border-[#283039] bg-[#101922] p-6 shadow-2xl">
+            <div class="flex items-start justify-between gap-4">
+              <div>
+                <h3 class="text-lg font-semibold text-white">Nuova spesa</h3>
+                <p class="text-sm text-[#9dabb9] mt-1">
+                  Eventdate: <%= @expense_eventdate.description %>
+                </p>
+              </div>
+              <%= link_to "Chiudi",
+                          impegno_superadmin_domain_path(@domain, tab: "soldi"),
+                          class: "text-[#9dabb9] hover:text-white text-sm" %>
+            </div>
+
+            <%= form_with model: Commitment.new,
+                          url: eventdate_commitments_path(@expense_eventdate),
+                          class: "mt-4 space-y-3 text-sm" do |form| %>
+              <%= form.hidden_field :eventdate_id, value: @expense_eventdate.id %>
+              <div>
+                <%= form.label :role_name, "Voce", class: "block text-xs text-[#9dabb9] mb-1" %>
+                <%= form.text_field :role_name,
+                                    class: "w-full rounded-lg border border-[#283039] bg-[#0f172a] px-3 py-2 text-white" %>
+              </div>
+              <div class="grid gap-3 sm:grid-cols-2">
+                <div>
+                  <%= form.label :compensation_euro, "Importo €", class: "block text-xs text-[#9dabb9] mb-1" %>
+                  <%= form.number_field :compensation_euro,
+                                        step: 0.01,
+                                        class: "w-full rounded-lg border border-[#283039] bg-[#0f172a] px-3 py-2 text-white" %>
+                </div>
+                <div>
+                  <%= form.label :compensation_dash, "Importo Dash", class: "block text-xs text-[#9dabb9] mb-1" %>
+                  <%= form.number_field :compensation_dash,
+                                        step: 0.01,
+                                        class: "w-full rounded-lg border border-[#283039] bg-[#0f172a] px-3 py-2 text-white" %>
+                </div>
+              </div>
+              <div>
+                <%= form.label :notes, "Note", class: "block text-xs text-[#9dabb9] mb-1" %>
+                <%= form.text_area :notes,
+                                   rows: 3,
+                                   class: "w-full rounded-lg border border-[#283039] bg-[#0f172a] px-3 py-2 text-white" %>
+              </div>
+              <div class="flex items-center justify-end gap-3 pt-2">
+                <%= link_to "Annulla",
+                            impegno_superadmin_domain_path(@domain, tab: "soldi"),
+                            class: "rounded-lg border border-[#283039] px-4 py-2 text-xs font-semibold text-white hover:border-primary" %>
+                <%= form.submit "Salva",
+                                class: "inline-flex items-center rounded-lg bg-primary px-4 py-2 text-xs font-semibold text-white" %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    <% elsif current_tab == "tempo" %>
+      <h3 class="text-sm font-semibold text-white mt-6">Eventdates del dominio</h3>
+      <% if @eventdates.any? %>
+        <div class="mt-4 divide-y divide-[#283039] text-sm">
+          <% @eventdates.each do |eventdate| %>
+            <div class="py-3 flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <p class="font-medium text-white">
+                  <%= eventdate.description.presence || "Senza descrizione" %>
+                </p>
+                <p class="text-[#9dabb9] text-xs">
+                  <% if eventdate.date_start.present? %>
+                    <%= l(eventdate.date_start, format: "%d/%m/%Y %H:%M") %>
+                  <% elsif eventdate.date_end.present? %>
+                    <%= l(eventdate.date_end, format: "%d/%m/%Y %H:%M") %>
+                  <% else %>
+                    Data non disponibile
+                  <% end %>
+                  <% if eventdate.date_end.present? && eventdate.date_start.present? %>
+                    · <%= l(eventdate.date_end, format: "%d/%m/%Y %H:%M") %>
+                  <% end %>
+                </p>
+                <p class="text-[#9dabb9] text-xs mt-1">
+                  Journey: <%= eventdate.journey&.title || "—" %>
+                  · Ruolo: <%= eventdate.journey_role.presence || "—" %>
+                  · Tipo: <%= eventdate.event_type %>
+                </p>
+              </div>
+              <div class="flex items-center gap-2 text-xs">
+                <%= link_to "Apri",
+                            eventdate_path(eventdate),
+                            class: "inline-flex items-center rounded-lg border border-[#283039] px-3 py-1 text-[#9dabb9] hover:text-white" %>
+                <% if eventdate.bookings.any? %>
+                  <%= link_to "Bookings",
+                              bookings_path(eventdate_id: eventdate.id),
+                              class: "inline-flex items-center rounded-lg border border-[#283039] px-3 py-1 text-[#9dabb9] hover:text-white" %>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="mt-3 text-sm text-[#9dabb9]">Nessun eventdate trovato.</p>
+      <% end %>
+    <% else %>
+      <div class="mt-6 rounded-xl border border-dashed border-[#283039] p-4 text-sm text-[#9dabb9]">
+        Sezione <strong class="text-white"><%= tabs[current_tab] %></strong> in costruzione.
+      </div>
+    <% end %>
+  </div>
+</div>

@@ -1,0 +1,887 @@
+<% content_for :head do %>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#2a8aea",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#111921",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .timeline-line::before {
+            content: '';
+            position: absolute;
+            left: 19px;
+            top: 40px;
+            bottom: 0;
+            width: 2px;
+            background-color: #e7edf3;
+        }
+    </style>
+<% end %>
+
+<main class="min-h-screen bg-background-light dark:bg-background-dark font-display text-[#0e141b] transition-colors duration-200 flex flex-col -mx-4 -mt-12 pt-12">
+<% domain_switch_items = @lead_domains.select { |d| d.host.present? } %>
+<%
+  home_host = request.host.to_s
+  gated_home = home_host.include?("localhost") || home_host.include?("posturacorretta")
+  show_only_academy_access = gated_home && @domain_membership.blank?
+%>
+<!-- Top Navigation Bar
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#e7edf3] bg-white dark:bg-background-dark dark:border-slate-800 px-10 py-3 sticky top-0 z-50">
+<div class="flex items-center gap-4 text-[#0e141b] dark:text-white">
+<div class="size-6 text-primary">
+<svg fill="currentColor" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path d="M24 45.8096C19.6865 45.8096 15.4698 44.5305 11.8832 42.134C8.29667 39.7376 5.50128 36.3314 3.85056 32.3462C2.19985 28.361 1.76794 23.9758 2.60947 19.7452C3.451 15.5145 5.52816 11.6284 8.57829 8.5783C11.6284 5.52817 15.5145 3.45101 19.7452 2.60948C23.9758 1.76795 28.361 2.19986 32.3462 3.85057C36.3314 5.50129 39.7376 8.29668 42.134 11.8833C44.5305 15.4698 45.8096 19.6865 45.8096 24L24 24L24 45.8096Z"></path>
+</svg>
+</div>
+<h2 class="text-lg font-bold leading-tight tracking-[-0.015em]">posturacorretta.org</h2>
+</div>
+<div class="flex flex-1 justify-end gap-8">
+<nav class="flex items-center gap-9 dark:text-slate-300">
+<a class="text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">Dashboard</a>
+<a class="text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">Esercizi</a>
+<a class="text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">Prodotti</a>
+<a class="text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">Supporto</a>
+</nav>
+<div class="flex gap-2">
+<button class="flex size-10 items-center justify-center rounded-lg bg-[#e7edf3] dark:bg-slate-800 text-[#0e141b] dark:text-white">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="flex size-10 items-center justify-center rounded-lg bg-[#e7edf3] dark:bg-slate-800 text-[#0e141b] dark:text-white">
+<span class="material-symbols-outlined">person</span>
+</button>
+</div>
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border-2 border-primary" data-alt="User avatar of Alex" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBIFDCEKbMZ6WhSHW0SSfFw6Y8kjY-_Os94qU1n_pEjKJUREOQCMPeuPS81B7PaIhC6jnRrKbpi9EjIxdv9GD_-6U1oWzOZ_5wJJRte9AdRA5AUSYLRXtpoJRC64kn8GyC41x2O1V0ERiljtQzTLXmKZDiCEZLPRezoI5qwZ8v7gCP5WboOQyIQcbpCWabheYRDfqDkp6xP3R798guOBwbk0HCh5etucUqdcFYtUkmcSiiO4O9GPXTeLnKycOYRTQk3EeQdbjghchg");'></div>
+</div>
+</header>
+-->
+<% if show_only_academy_access %>
+  <div class="max-w-[920px] w-full mx-auto px-6 py-12 flex-1">
+    <div class="rounded-2xl border border-blue-200 bg-white p-6 md:p-8 shadow-sm">
+      <div class="flex items-center justify-between gap-3">
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-wide text-blue-700">Accademia</p>
+          <h2 class="mt-1 text-2xl font-black text-slate-900">Accedi all'accademia</h2>
+          <p class="mt-2 text-sm text-slate-600">
+            Attiva la membership per vedere dashboard completa, diario salute, bookings, enrollments e step academy.
+          </p>
+        </div>
+        <span class="material-symbols-outlined text-blue-500 text-3xl">school</span>
+      </div>
+      <%= button_to "Accedi all'accademia",
+                    create_dashboard_domain_membership_path,
+                    method: :post,
+                    class: "mt-5 inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:brightness-110" %>
+    </div>
+  </div>
+<% else %>
+<div class="max-w-[1440px] w-full mx-auto px-4 md:px-10 py-6 md:py-8 flex-1">
+<div class="mb-4 lg:hidden">
+  <button id="dashboard-left-toggle"
+          type="button"
+          aria-expanded="false"
+          class="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-700">
+    <span class="material-symbols-outlined text-[18px]">tune</span>
+    Apri pannello
+  </button>
+</div>
+<div class="grid grid-cols-12 gap-8">
+<!-- Left Section: Persuasive Onboarding -->
+<section id="dashboard-left-panel" class="hidden col-span-12 lg:col-span-3 lg:flex flex-col gap-6 px-4 py-4 bg-white dark:bg-slate-900/40 rounded-xl border border-[#e7edf3] dark:border-slate-800">
+    <div class="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-3">
+      <% domain_label = @current_domain&.title.presence || @current_domain&.host || "Dashboard" %>
+      <% primary_logo = @current_domain&.horizontal_logo_url.presence || @current_domain&.square_logo_url.presence || @current_domain&.favicon_url.presence %>
+      <% square_logo = @current_domain&.square_logo_url.presence || @current_domain&.favicon_url.presence %>
+      <% if primary_logo.present? %>
+        <img src="<%= primary_logo %>"
+             alt="<%= domain_label %>"
+             class="h-8 w-auto max-w-full object-contain"
+             data-fallback-square="<%= square_logo %>"
+             onerror="if(this.dataset.fallbackUsed==='1'){this.classList.add('hidden'); var t=this.nextElementSibling; if(t){t.classList.remove('hidden');} return;} var fb=this.dataset.fallbackSquare; if(fb&&fb!==this.src){this.dataset.fallbackUsed='1'; this.src=fb;} else {this.classList.add('hidden'); var t=this.nextElementSibling; if(t){t.classList.remove('hidden');}}" />
+        <p class="hidden text-sm font-semibold text-slate-700 dark:text-slate-200"><%= domain_label %></p>
+      <% else %>
+        <p class="text-sm font-semibold text-slate-700 dark:text-slate-200"><%= domain_label %></p>
+      <% end %>
+    </div>
+    <div>
+      <% show_dev_domain_switch = Rails.env.development? && request.host.to_s.include?("localhost") %>
+      <% if show_dev_domain_switch && domain_switch_items.size > 1 %>
+        <label for="domain-switch-left" class="mt-2 mb-1 block text-xs text-slate-500">Scegli dominio</label>
+        <select id="domain-switch-left"
+                class="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm"
+                onchange="if (this.value) window.location.href = this.value;">
+          <% domain_switch_items.each do |domain| %>
+            <% target_url = dashboard_home_url(host: domain.host, protocol: request.protocol, port: request.port) %>
+            <option value="<%= target_url %>" <%= "selected" if @current_domain&.id == domain.id %>>
+              <%= domain.title.presence || domain.host %>
+            </option>
+          <% end %>
+        </select>
+        <p class="mt-1 text-[10px] text-slate-400">Solo sviluppo locale</p>
+      <% elsif @current_domain.blank? %>
+        <p class="mt-2 text-sm text-slate-500">Nessun dominio associato.</p>
+      <% end %>
+
+    </div>
+
+    <div class="pt-1">
+      <select id="dashboard-tab-switch"
+              class="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm"
+              onchange="if (this.value) window.location.href = this.value;">
+        <option value="<%= dashboard_home_path(tab: 'academy') %>" <%= "selected" if @tab == "academy" %>>Academy</option>
+        <option value="<%= dashboard_home_path(tab: 'activity') %>" <%= "selected" if @tab == "activity" %> <%= "disabled" unless @dashboard_tab_unlocks["activity"] %>>Activity<%= @dashboard_tab_unlocks["activity"] ? "" : " (bloccato)" %></option>
+        <option value="<%= dashboard_home_path(tab: 'diario_salute') %>" <%= "selected" if @tab == "diario_salute" %> <%= "disabled" unless @dashboard_tab_unlocks["diario_salute"] %>>Diario salute<%= @dashboard_tab_unlocks["diario_salute"] ? "" : " (bloccato)" %></option>
+        <option value="<%= dashboard_home_path(tab: 'corsi') %>" <%= "selected" if @tab == "corsi" %> <%= "disabled" unless @dashboard_tab_unlocks["corsi"] %>>Corsi<%= @dashboard_tab_unlocks["corsi"] ? "" : " (bloccato)" %></option>
+        <option value="<%= dashboard_home_path(tab: 'bookings') %>" <%= "selected" if @tab == "bookings" %> <%= "disabled" unless @dashboard_tab_unlocks["bookings"] %>>Bookings<%= @dashboard_tab_unlocks["bookings"] ? "" : " (bloccato)" %></option>
+        <option value="<%= dashboard_home_path(tab: 'enrollments') %>" <%= "selected" if @tab == "enrollments" %> <%= "disabled" unless @dashboard_tab_unlocks["enrollments"] %>>Enrollments<%= @dashboard_tab_unlocks["enrollments"] ? "" : " (bloccato)" %></option>
+      </select>
+      <% tab_steps = %w[academy activity diario_salute corsi bookings enrollments] %>
+      <% tab_index = tab_steps.index(@tab).to_i %>
+      <% tab_progress_percent = ((tab_index + 1).to_f / tab_steps.size * 100).round %>
+      <div class="mt-2">
+        <div class="h-1.5 w-full rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
+          <div class="h-1.5 rounded-full bg-primary transition-all duration-300" style="width: <%= tab_progress_percent %>%"></div>
+        </div>
+        <div class="mt-1 flex items-center justify-between gap-2 text-[11px] text-slate-500">
+          <span><span class="font-semibold"><%= @tab.humanize %></span> · <%= tab_index + 1 %>/<%= tab_steps.size %></span>
+          <% if @current_domain.present? && @domain_membership.present? %>
+            <% active_role = @domain_membership.domain_active_role.presence || "member" %>
+            <% role_options = Array(@domain_role_options).presence || [active_role] %>
+            <% superadmin_mode = Current.user&.superadmin? && Current.user&.superadmin_mode_active? %>
+            <span class="inline-flex items-center gap-1">
+              <span>Ruolo</span>
+              <% if role_options.size > 1 %>
+                <details class="group">
+                  <summary class="list-none cursor-pointer inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary">
+                    <span><%= domain_role_label(active_role) %></span>
+                    <span class="material-symbols-outlined text-[14px] transition-transform group-open:rotate-180">expand_more</span>
+                  </summary>
+                  <div class="mt-2 w-full max-w-[220px] rounded-lg border border-slate-200 bg-white p-2 shadow-sm">
+                    <%= form_with url: update_dashboard_domain_active_role_path, method: :patch, local: true, class: "space-y-1", data: { turbo: false } do %>
+                      <%= hidden_field_tag :tab, @tab %>
+                      <% role_options.each do |role_name| %>
+                        <button type="submit"
+                                name="domain_active_role"
+                                value="<%= role_name %>"
+                                class="w-full text-left rounded-md px-2 py-1 text-xs font-medium <%= role_name == active_role ? 'bg-primary/10 text-primary' : 'text-slate-700 hover:bg-slate-50' %>">
+                          <%= domain_role_label(role_name) %>
+                        </button>
+                      <% end %>
+                    <% end %>
+                  </div>
+                </details>
+              <% else %>
+                <span class="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary">
+                  <%= domain_role_label(active_role) %>
+                </span>
+              <% end %>
+              <% if superadmin_mode && active_role.to_s != "superadmin" %>
+                <span class="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-700">
+                  superadmin mode
+                </span>
+              <% end %>
+            </span>
+          <% end %>
+        </div>
+      </div>
+
+      <% if @current_domain.present? && @domain_membership.blank? %>
+        <div class="mt-2">
+          <% domain_name = @current_domain.title.presence || @current_domain.host %>
+          <p class="text-xs text-slate-500">
+            Nessuna membership attiva su <span class="font-semibold"><%= domain_name %></span>.
+          </p>
+          <%= button_to "Inizia con #{domain_name}",
+                        create_dashboard_domain_membership_path,
+                        method: :post,
+                        class: "mt-2 inline-flex items-center rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-white hover:brightness-110" %>
+        </div>
+      <% end %>
+    </div>
+
+    
+</section>
+<!-- Center Section: Timeline/History -->
+<section class="col-span-12 lg:col-span-9 flex flex-col gap-6">
+  <% if @latest_questionnaire_activity.present? %>
+    <div class="rounded-xl border border-emerald-200 bg-emerald-50/60 px-4 py-3">
+      <div class="flex items-center justify-between gap-3">
+        <div>
+          <p class="text-[11px] uppercase tracking-wide text-emerald-700 font-semibold">Ultimo questionario</p>
+          <p class="text-sm font-bold text-emerald-900">
+            <%= @latest_questionnaire_activity.source_ref.presence || @latest_questionnaire_activity.taxbranch&.slug_label || "Questionario" %>
+          </p>
+          <p class="text-xs text-emerald-800 mt-1">
+            Livello: <span class="font-semibold"><%= @latest_questionnaire_activity.level_code.presence || "n/d" %></span>
+            · Punteggio: <span class="font-semibold"><%= @latest_questionnaire_activity.score_total || 0 %>/<%= @latest_questionnaire_activity.score_max || 0 %></span>
+          </p>
+        </div>
+        <span class="text-xs text-emerald-800">
+          <%= l(@latest_questionnaire_activity.occurred_at, format: :short) rescue @latest_questionnaire_activity.occurred_at %>
+        </span>
+      </div>
+    </div>
+  <% end %>
+
+  <% if @tab == "academy" %>
+    <% if @academy_todo_enabled %>
+      <div class="px-1">
+        <% if @academy_root_taxbranch&.post.present? %>
+          <div class="mb-2">
+            <%= link_to "Apri Accademia",
+                        post_path(@academy_root_taxbranch.post),
+                        class: "inline-flex items-center rounded-lg border border-primary/30 px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary/5" %>
+          </div>
+        <% end %>
+
+        <% if @academy_requires_membership %>
+          <div class="mt-3 rounded-xl border border-blue-200 bg-blue-50/70 px-3 py-2 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+            <p class="text-xs text-blue-800 font-semibold">Per attivare i tuoi step personali, accedi all'accademia.</p>
+            <%= button_to "Accedi all'accademia",
+                          create_dashboard_domain_membership_path,
+                          method: :post,
+                          class: "inline-flex items-center justify-center rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-white hover:brightness-110" %>
+          </div>
+        <% end %>
+
+        <div class="mt-2 space-y-6">
+          <% if @academy_active_root_category == "academy_inscription" && @academy_visible_root_step.present? %>
+            <% inscription_children = Array(@academy_visible_root_step[:children]) %>
+            <% inscription_total = inscription_children.size %>
+            <% inscription_done = inscription_children.count { |child| child[:status_key] == :completed } %>
+            <% inscription_total = 1 if inscription_total <= 0 %>
+            <% inscription_percent = ((inscription_done.to_f / inscription_total) * 100).round %>
+            <% inscription_current_idx = inscription_children.index { |child| child[:taxbranch]&.id == @academy_current_action_step&.dig(:taxbranch)&.id } %>
+            <% inscription_current_step = inscription_current_idx.present? ? inscription_current_idx + 1 : 1 %>
+            <section class="space-y-2">
+              <div class="<%= 'opacity-70' if @academy_requires_membership %>">
+                <h3 class="text-base md:text-2xl font-bold text-slate-900"><%= @academy_visible_root_step[:title] %></h3>
+                <div class="mt-1 h-2 rounded-full border border-sky-200 bg-white overflow-hidden">
+                  <div class="h-2 rounded-full bg-sky-400 transition-all duration-300" style="width: <%= inscription_percent %>%"></div>
+                </div>
+                <div class="mt-1 flex items-center justify-between gap-3 text-[11px] text-slate-500">
+                  <span>Step <%= inscription_current_step %> di <%= inscription_total %></span>
+                  <span><%= inscription_done %>/<%= inscription_total %> completati</span>
+                </div>
+              </div>
+            </section>
+          <% elsif @academy_active_root_category == "academy_path" && @academy_path_modules.present? %>
+            <section class="space-y-3">
+              <div class="flex items-center justify-between gap-3">
+                <h3 class="text-sm font-extrabold uppercase tracking-wide text-slate-600">Moduli del percorso</h3>
+                <span class="text-xs text-slate-500">Date e lezioni</span>
+              </div>
+              <div class="space-y-3 <%= 'opacity-70' if @academy_requires_membership %>">
+                <% @academy_path_modules.each do |module_node| %>
+                  <%= render "dashboard/academy_module", item: module_node, requires_membership: @academy_requires_membership %>
+                <% end %>
+              </div>
+            </section>
+          <% end %>
+
+          <% if @academy_current_action_step.present? %>
+            <% current_step = @academy_current_action_step %>
+            <% activity_date = current_step[:activity_occurred_at].presence || current_step[:next_at] %>
+            <% current_step_status_ui = case current_step[:status_key]
+                                        when :completed
+                                          "Completato"
+                                        when :todo
+                                          "Da iniziare"
+                                        else
+                                          "In corso"
+                                        end %>
+            <% next_unlock_step = nil %>
+            <% if @academy_active_root_category == "academy_inscription" && inscription_children.present? %>
+              <% current_idx = inscription_children.index { |child| child[:taxbranch]&.id == current_step[:taxbranch]&.id } %>
+              <% next_unlock_step = current_idx.present? ? inscription_children[current_idx + 1] : nil %>
+            <% end %>
+            <% action_url = nil %>
+            <% action_method = nil %>
+            <% if !@academy_requires_membership && current_step[:link_post].present? %>
+              <% action_url = ensure_post_activities_path(current_step[:link_post], in_dashboard: 1, tab: "academy") %>
+              <% action_method = :post %>
+            <% elsif !@academy_requires_membership && current_step[:taxbranch].present? %>
+              <% action_url = taxbranch_activities_path(current_step[:taxbranch]) %>
+              <% action_method = :post %>
+            <% end %>
+            <section class="space-y-2">
+              <div class="flex items-center justify-between gap-3">
+                <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Step in corso</p>
+              </div>
+              <div class="<%= 'opacity-70' if @academy_requires_membership %> rounded-xl border-2 border-primary/30 ring-2 ring-primary/15 bg-white px-3 py-3 shadow-sm">
+                <div class="flex items-start justify-between gap-3">
+                  <div class="min-w-0">
+                    <p class="text-sm font-bold text-slate-900 truncate"><%= current_step[:title] %></p>
+                    <% if @academy_active_root_category == "academy_inscription" %>
+                      <p class="mt-1 text-[11px] text-slate-600">
+                        Sei allo step <span class="font-semibold"><%= inscription_current_step %></span> di <span class="font-semibold"><%= inscription_total %></span>
+                      </p>
+                    <% end %>
+                    <% if next_unlock_step.present? %>
+                      <p class="mt-1 text-[11px] text-slate-500 truncate">
+                        Completando questo sblocchi: <span class="font-semibold text-slate-700"><%= next_unlock_step[:title] %></span>
+                      </p>
+                    <% end %>
+                  </div>
+                  <div class="flex items-center gap-2 shrink-0">
+                    <% if activity_date.present? %>
+                      <span class="text-[11px] text-slate-600"><%= I18n.l(activity_date, format: "%d/%m %H:%M", locale: :it) %></span>
+                    <% end %>
+                    <span class="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-700">
+                      <%= current_step_status_ui %>
+                    </span>
+                  </div>
+                </div>
+                <div class="mt-3">
+                  <% if action_url.present? && !@academy_requires_membership %>
+                    <%= link_to action_url, data: { turbo_method: action_method }, class: "inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-white hover:brightness-110 shadow-sm shadow-primary/30" do %>
+                      <span class="material-symbols-outlined text-[16px]">play_arrow</span>
+                      Continua ora
+                    <% end %>
+                  <% else %>
+                    <button type="button" disabled class="inline-flex items-center gap-1.5 rounded-lg bg-slate-300 px-3 py-1.5 text-xs font-semibold text-white cursor-not-allowed">
+                      <span class="material-symbols-outlined text-[16px]">lock</span>
+                      Continua ora
+                    </button>
+                  <% end %>
+                  <p class="mt-1 text-[10px] text-slate-500">Tempo stimato: pochi minuti.</p>
+                </div>
+              </div>
+            </section>
+          <% end %>
+
+          <% if @academy_inscription_completed_steps.present? || @academy_completed_root_steps.present? %>
+            <section class="space-y-2">
+              <% completed_count = @academy_inscription_completed_steps.size + @academy_completed_root_steps.size %>
+              <div class="flex items-center justify-between gap-3">
+                <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Step completati</p>
+                <span class="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
+                  <%= completed_count %>
+                </span>
+              </div>
+              <div class="<%= 'opacity-70' if @academy_requires_membership %>">
+                <% @academy_inscription_completed_steps.each do |step| %>
+                  <% read_activity_id = step[:completed_activity_id].presence || step[:latest_activity_id] %>
+                  <% show_activity_url = if read_activity_id.present? && step[:link_post].present?
+                                           post_activity_path(step[:link_post], read_activity_id)
+                                         end %>
+                  <% read_url = show_activity_url.presence || (if read_activity_id.present? && step[:link_post].present?
+                                                                dashboard_home_path(tab: @tab, open_activity_modal: 1, activity_id: read_activity_id, post_id: step[:link_post].slug, readonly: 1)
+                                                              end) %>
+                  <% retry_url = if step[:link_post].present? && !@academy_requires_membership
+                                   ensure_post_activities_path(step[:link_post], in_dashboard: 1, tab: "academy")
+                                 end %>
+                  <% completed_at = step[:activity_occurred_at].presence || step[:next_at] %>
+                  <div class="rounded-lg border border-emerald-200 bg-emerald-50/40 px-3 py-1.5">
+                    <div class="flex items-center justify-between gap-2">
+                      <p class="min-w-0 text-sm font-medium text-slate-800 truncate flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-[14px] text-emerald-600">check_circle</span>
+                        <%= step[:title] %>
+                      </p>
+                      <div class="flex items-center gap-1.5 shrink-0 whitespace-nowrap">
+                        <% if completed_at.present? %>
+                          <span class="text-[11px] text-slate-600"><%= I18n.l(completed_at, format: "%d/%m %H:%M", locale: :it) %></span>
+                        <% end %>
+                        <% if read_url.present? %>
+                          <%= link_to "Mostra", read_url, class: "text-[11px] font-semibold text-slate-700 hover:underline" %>
+                        <% end %>
+                        <% if show_activity_url.present? && show_activity_url != read_url %>
+                          <%= link_to "Apri", show_activity_url, class: "text-[11px] font-semibold text-slate-700 hover:underline" %>
+                        <% end %>
+                        <% if retry_url.present? %>
+                          <%= link_to "Ripeti", retry_url, data: { turbo_method: :post }, class: "text-[11px] font-semibold text-primary hover:underline" %>
+                        <% end %>
+                      </div>
+                    </div>
+                  </div>
+                <% end %>
+                <% @academy_completed_root_steps.each do |step| %>
+                  <% next if @academy_visible_root_step&.dig(:taxbranch)&.id == step[:taxbranch]&.id %>
+                  <div class="p-3">
+                    <%= render "dashboard/academy_item",
+                               item: step,
+                               requires_membership: @academy_requires_membership,
+                               depth: 0 %>
+                  </div>
+                <% end %>
+              </div>
+            </section>
+          <% end %>
+        </div>
+      </div>
+    <% else %>
+      <div class="rounded-xl border border-[#e7edf3] dark:border-slate-800 bg-white dark:bg-slate-900/40 p-6 text-sm text-slate-500">
+        Nessuno step academy disponibile per questo profilo.
+      </div>
+    <% end %>
+  <% elsif @tab == "activity" %>
+    <div class="rounded-2xl border border-[#e7edf3] dark:border-slate-800 bg-white dark:bg-slate-900/40 p-4 md:p-5">
+      <div class="flex items-center justify-between">
+        <h3 class="text-base font-bold text-[#0e141b] dark:text-white">Activity</h3>
+        <span class="text-xs text-slate-500">Timeline personale</span>
+      </div>
+      <% if @activity_feed_items.present? %>
+        <div class="mt-3 space-y-3">
+          <% @activity_feed_items.each do |item| %>
+            <% activity = item[:activity] %>
+            <% post = item[:post] %>
+            <% taxbranch = item[:taxbranch] %>
+            <% booking = item[:booking] %>
+            <% enrollment = item[:enrollment] %>
+            <% eventdate = item[:eventdate] %>
+            <% show_activity_url = post.present? ? post_activity_path(post, activity) : nil %>
+            <% read_url = show_activity_url.presence || (if post.present?
+                                                          dashboard_home_path(tab: "activity", open_activity_modal: 1, activity_id: activity.id, post_id: post.slug, readonly: 1)
+                                                        end) %>
+            <% retry_url = if post.present? && activity.status.to_s == "archived"
+                             ensure_post_activities_path(post, in_dashboard: 1, tab: "activity")
+                           end %>
+            <% related_links = [] %>
+            <% can_open_superadmin = Current.user.respond_to?(:superadmin?) && Current.user.superadmin? %>
+            <% related_links << { label: "Taxbranch", url: superadmin_taxbranch_path(taxbranch) } if taxbranch.present? && can_open_superadmin %>
+            <% related_links << { label: "Post", url: post_path(post) } if post.present? %>
+            <% related_links << { label: "Booking", url: booking_path(booking) } if booking.present? %>
+            <% related_links << { label: "Enrollment", url: enrollment_path(enrollment) } if enrollment.present? %>
+            <% related_links << { label: "Event", url: eventdate_path(eventdate) } if eventdate.present? %>
+            <%= render "dashboard/activity_card",
+                       item: item,
+                       read_url: read_url,
+                       show_activity_url: show_activity_url,
+                       retry_url: retry_url,
+                       related_links: related_links %>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="mt-3 text-sm text-slate-500">Nessuna activity disponibile al momento.</p>
+      <% end %>
+    </div>
+  <% elsif @tab == "diario_salute" %>
+    <div class="rounded-2xl border border-[#e7edf3] dark:border-slate-800 bg-white dark:bg-slate-900/40 p-4 md:p-5">
+      <div class="flex items-center justify-between">
+        <h3 class="text-base font-bold text-[#0e141b] dark:text-white">Diario salute</h3>
+        <span class="text-xs text-slate-500"><%= I18n.l(@selected_date, format: "%d %b %Y", locale: :it) %></span>
+      </div>
+      <p class="mt-1 text-xs text-slate-500">Eventi del giorno: <span class="font-semibold"><%= @day_events.size %></span></p>
+      <div class="mt-3 space-y-2">
+        <% if @day_events.any? %>
+          <% @day_events.each do |ev| %>
+            <div class="rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50/70 dark:bg-slate-900/20 p-3">
+              <p class="text-sm font-semibold text-slate-800 dark:text-slate-200"><%= ev.description %></p>
+              <p class="text-xs text-slate-500 mt-1">
+                <%= ev.date_start.present? ? I18n.l(ev.date_start, format: "%H:%M", locale: :it) : "Orario non definito" %>
+                <% if ev.taxbranch.present? %>
+                  · <%= ev.taxbranch.slug_label %>
+                <% end %>
+              </p>
+            </div>
+          <% end %>
+        <% else %>
+          <p class="text-sm text-slate-500">Nessun evento registrato per la giornata selezionata.</p>
+        <% end %>
+      </div>
+    </div>
+  <% elsif @tab == "corsi" %>
+    <div class="rounded-2xl border border-[#e7edf3] dark:border-slate-800 bg-white dark:bg-slate-900/40 p-4 md:p-5">
+      <h3 class="text-base font-bold text-[#0e141b] dark:text-white">Corsi</h3>
+      <p class="mt-1 text-xs text-slate-500">Percorsi rapidi consigliati per iniziare.</p>
+      <div class="mt-3 rounded-xl border border-[#e7edf3] dark:border-slate-700 bg-slate-50/60 dark:bg-slate-900/20 p-5 shadow-sm">
+        <div class="flex items-center justify-between gap-3">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Corso consigliato</p>
+            <h4 class="mt-1 text-base font-bold text-slate-900 dark:text-slate-100">60 Movimenti alla scrivania</h4>
+            <p class="mt-1 text-xs text-slate-500">Durata stimata: 15 min</p>
+          </div>
+          <span class="material-symbols-outlined text-primary">play_circle</span>
+        </div>
+        <a href="https://www.youtube.com/watch?v=Zvm8MhkXuEQ&list=PLpL2gK--L98tP4ujUR79z19QO43cBkv9J"
+           class="mt-3 inline-flex items-center justify-center w-full h-10 px-4 rounded-lg bg-primary text-white text-sm font-bold hover:brightness-110 transition-all">
+          Inizia
+        </a>
+      </div>
+    </div>
+  <% else %>
+    <div class="relative flex flex-col gap-8 timeline-line">
+      <% if @tab == "bookings" %>
+      <% if @bookings.any? %>
+        <% @bookings.each do |booking| %>
+          <% ev = booking.eventdate %>
+          <div class="relative flex gap-4">
+            <div class="z-10 flex size-10 shrink-0 items-center justify-center rounded-full bg-primary text-white">
+              <span class="material-symbols-outlined text-sm">event</span>
+            </div>
+            <div class="flex flex-1 flex-col gap-2 rounded-xl border border-[#e7edf3] dark:border-slate-800 bg-white dark:bg-slate-900/40 p-5 shadow-sm">
+              <div class="flex items-start justify-between">
+                <div>
+                  <span class="text-xs font-semibold text-primary uppercase tracking-wider">
+                    <%= ev&.date_start ? I18n.l(ev.date_start, format: "%d %b %Y", locale: :it) : "Senza data" %>
+                  </span>
+                  <h3 class="text-base font-bold text-[#0e141b] dark:text-white">
+                    <%= booking.service&.name || booking.commitment&.role_name || "Booking ##{booking.id}" %>
+                  </h3>
+                </div>
+                <span class="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-xs font-bold text-primary">
+                  <%= booking.status.humanize %>
+                </span>
+              </div>
+              <% if ev&.description.present? %>
+                <p class="text-sm text-[#4e6a8d] dark:text-slate-400"><%= ev.description %></p>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      <% else %>
+        <div class="rounded-xl border border-[#e7edf3] dark:border-slate-800 bg-white dark:bg-slate-900/40 p-6 text-sm text-slate-500">
+          Nessun booking ancora.
+        </div>
+      <% end %>
+      <% else %>
+      <% if @enrollments.any? %>
+        <% @enrollments.each do |enrollment| %>
+          <div class="relative flex gap-4">
+            <div class="z-10 flex size-10 shrink-0 items-center justify-center rounded-full bg-[#e7edf3] dark:bg-slate-800 text-primary">
+              <span class="material-symbols-outlined text-sm">check_circle</span>
+            </div>
+            <div class="flex flex-1 flex-col gap-2 rounded-xl border border-[#e7edf3] dark:border-slate-800 bg-white dark:bg-slate-900/40 p-5 shadow-sm">
+              <div class="flex items-start justify-between">
+                <div>
+                  <span class="text-xs font-semibold text-[#4e6a8d] dark:text-slate-500 uppercase tracking-wider">
+                    <%= enrollment.updated_at ? I18n.l(enrollment.updated_at, format: "%d %b %Y", locale: :it) : "—" %>
+                  </span>
+                  <h3 class="text-base font-bold text-[#0e141b] dark:text-white">
+                    <%= enrollment.service&.name || enrollment.journey&.title || "Enrollment ##{enrollment.id}" %>
+                  </h3>
+                </div>
+                <span class="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-600">
+                  <%= enrollment.status.humanize %>
+                </span>
+              </div>
+              <p class="text-sm text-[#4e6a8d] dark:text-slate-400">
+                <%= enrollment.request_kind.humanize %> · <%= enrollment.mode.humanize %>
+              </p>
+            </div>
+          </div>
+        <% end %>
+      <% else %>
+        <div class="rounded-xl border border-[#e7edf3] dark:border-slate-800 bg-white dark:bg-slate-900/40 p-6 text-sm text-slate-500">
+          Nessun enrollment ancora.
+        </div>
+      <% end %>
+      <% end %>
+    </div>
+  <% end %>
+</section>
+</div>
+</div>
+<% end %>
+
+<% if @open_activity_modal && @modal_activity.present? && @modal_post.present? %>
+  <div id="dashboard-activity-modal" class="fixed inset-0 z-[120] flex items-start md:items-center justify-center overflow-y-auto bg-slate-900/60 p-3 md:p-6">
+    <div class="my-2 md:my-0 flex w-full max-w-3xl max-h-[calc(100vh-1rem)] md:max-h-[92vh] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
+      <% if @modal_is_questionnaire %>
+        <div class="p-4 h-full min-h-0">
+          <% if @modal_questionnaire_mode %>
+            <% question = @modal_questionnaire_current_question %>
+            <% question_code = @modal_questionnaire_current_code %>
+            <% current_answer = @modal_questionnaire_current_answer %>
+            <% question_position = (question["position"] || question[:position]).presence || @modal_questionnaire_step %>
+            <% question_title = (question["movement"] || question[:movement]).presence || (question["title"] || question[:title]).presence || question_code %>
+            <%
+              question_video_url = (question["video_url"] || question[:video_url]).to_s.strip
+              question_video_url = nil if question_video_url.blank?
+              question_video_start = (question["video_start"] || question[:video_start]).to_i
+              question_video_start = 0 if question_video_start.negative?
+              question_note = (question["note"] || question[:note]).to_s.strip
+              question_note = nil if question_note.blank?
+              question_video_link = if question_video_url.present? && question_video_start.positive?
+                separator = question_video_url.include?("?") ? "&" : "?"
+                "#{question_video_url}#{separator}t=#{question_video_start}s"
+              else
+                question_video_url
+              end
+              mm = (question_video_start / 60).to_i
+              ss = (question_video_start % 60).to_i
+              question_video_label = format("%02d:%02d", mm, ss)
+            %>
+            <%
+              question_images = Array(question["images"] || question[:images]).dup
+              single_image = question["image"] || question[:image] || question["image_url"] || question[:image_url]
+              question_images << single_image if single_image.present?
+              question_images = question_images.filter_map do |raw_path|
+                value = raw_path.to_s.strip
+                next if value.blank?
+                if value.start_with?("http://", "https://", "/")
+                  value
+                else
+                  image_path(value)
+                end
+              end.uniq
+            %>
+            <% options = Array(question["options"] || question[:options]) %>
+            <% on_completion_screen = @modal_questionnaire_completion_screen == true %>
+            <% modal_scoring = @modal_post.taxbranch&.scoring_config || {} %>
+            <% modal_level_info = questionnaire_level_info(level_code: @modal_activity.level_code, score_total: @modal_activity.score_total, scoring: modal_scoring) %>
+            <% step_params = { tab: @tab, open_activity_modal: 1, activity_id: @modal_activity.id, post_id: @modal_post.slug } %>
+            <section class="flex h-full min-h-0 flex-col">
+              <div class="sticky top-0 z-10 bg-white pb-2">
+              <div class="flex items-center justify-between gap-3">
+                <div class="flex items-center gap-3">
+                  <h4 class="text-sm md:text-base font-bold text-slate-900">Questionario<%= @modal_read_only ? " · sola lettura" : "" %></h4>
+                  <span class="text-xs font-semibold text-slate-600"><%= on_completion_screen ? "Completato" : "Domanda #{@modal_questionnaire_step} di #{@modal_questionnaire_count}" %></span>
+                </div>
+                <%= link_to "Chiudi",
+                            dashboard_home_path(tab: @tab),
+                            class: "inline-flex items-center rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50" %>
+              </div>
+              <div class="mt-2 h-2 w-full rounded-full bg-slate-200">
+                <div class="h-2 rounded-full bg-primary transition-all duration-300" style="width: <%= @modal_questionnaire_progress_percent %>%"></div>
+              </div>
+              </div>
+
+              <%= form_with url: dashboard_home_path(step_params), method: :get, local: true, class: "mt-2 flex min-h-0 flex-1 flex-col" do %>
+                <%= token_tag %>
+                <%= hidden_field_tag :tab, @tab %>
+                <%= hidden_field_tag :open_activity_modal, 1 %>
+                <%= hidden_field_tag :activity_id, @modal_activity.id %>
+                <%= hidden_field_tag :post_id, @modal_post.slug %>
+                <%= hidden_field_tag :q, @modal_questionnaire_step, id: "modal-question-step" %>
+                <% @modal_questionnaire_answers.each do |code, value| %>
+                  <% next if question_code.present? && code.to_s == question_code.to_s %>
+                  <%= hidden_field_tag "answers[#{code}]", value %>
+                <% end %>
+
+                <% if @modal_read_only && modal_level_info.present? %>
+                  <div class="mb-2 rounded-xl border px-3 py-2 <%= modal_level_info[:badge_class] %>">
+                    <div class="flex items-center justify-between gap-2">
+                      <p class="text-xs font-semibold uppercase tracking-wide">Risultato Test</p>
+                      <span class="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold <%= modal_level_info[:chip_class] %>">
+                        <%= (@modal_activity.level_code.presence || modal_level_info[:code]).to_s.upcase %>
+                      </span>
+                    </div>
+                    <p class="mt-1 text-sm font-bold"><%= "#{modal_level_info[:emoji]} #{modal_level_info[:label]}" %></p>
+                    <p class="text-xs font-semibold">Punteggio: <%= @modal_activity.score_total || 0 %>/<%= @modal_activity.score_max || 0 %></p>
+                    <% if modal_level_info[:interpretation].present? %>
+                      <p class="mt-1 text-xs"><%= modal_level_info[:interpretation] %></p>
+                    <% end %>
+                    <% if modal_level_info[:recommendation].present? %>
+                      <p class="text-xs"><%= modal_level_info[:recommendation] %></p>
+                    <% end %>
+                  </div>
+                <% end %>
+
+                <article class="min-h-0 flex-1 overflow-y-auto rounded-xl border border-slate-200 bg-slate-50/70 p-4">
+                  <% if on_completion_screen %>
+                    <p class="text-sm font-bold text-slate-900">Ottimo, hai completato il questionario.</p>
+                    <p class="mt-1 text-sm text-slate-600">Per proseguire nel percorso, clicca su <strong>Prosegui</strong>.</p>
+                  <% else %>
+                    <p class="text-[11px] uppercase tracking-wide text-slate-500">Domanda <%= question_position %></p>
+                    <h5 class="mt-1 text-sm font-semibold text-slate-900"><%= question_title %></h5>
+                    <% if question_note.present? %>
+                      <p class="mt-2 rounded-md border border-amber-200 bg-amber-50 px-2 py-1 text-xs font-medium text-amber-800"><%= question_note %></p>
+                    <% end %>
+                    <% if question_video_link.present? %>
+                      <div class="mt-2">
+                        <%= link_to "Guarda video (da #{question_video_label})",
+                                    question_video_link,
+                                    target: "_blank",
+                                    rel: "noopener",
+                                    class: "inline-flex items-center rounded-md border border-primary/30 bg-primary/5 px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary/10" %>
+                      </div>
+                    <% end %>
+                    <% if question_images.any? && options.blank? %>
+                      <div class="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                        <% question_images.each_with_index do |img_src, idx| %>
+                          <% score_from_name = img_src.to_s.match(/score-(\d+)/)&.captures&.first %>
+                          <% score_value = score_from_name.presence || idx.to_s %>
+                          <figure class="rounded-lg border border-slate-300 bg-white p-1">
+                            <%= image_tag img_src,
+                                          alt: "Immagine supporto domanda",
+                                          class: "w-full object-contain max-h-44 grayscale contrast-125" %>
+                            <figcaption class="mt-1 text-center text-[11px] font-semibold text-slate-600">
+                              Score <%= score_value %>
+                            </figcaption>
+                          </figure>
+                        <% end %>
+                      </div>
+                    <% end %>
+
+                    <% next_step_number = @modal_questionnaire_step < (@modal_questionnaire_count + 1) ? (@modal_questionnaire_step + 1) : nil %>
+                    <% if options.any? %>
+                      <fieldset class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                      <% options.each_with_index do |opt, opt_idx| %>
+                        <% option_value = (opt.is_a?(Hash) && opt.key?("value")) ? opt["value"] : opt[:value] %>
+                        <% option_label = (opt.is_a?(Hash) && opt.key?("label")) ? opt["label"] : opt[:label] %>
+                        <% option_value = option_value.to_s %>
+                        <% option_label = option_label.to_s.presence || option_value %>
+                        <% option_is_score = option_value.match?(/\A\d+(\.\d+)?\z/) %>
+                        <% option_image_raw = (opt.is_a?(Hash) && (opt["image"].presence || opt["image_url"].presence || opt[:image].presence || opt[:image_url].presence)) %>
+                        <% option_image = option_image_raw.to_s.strip.presence %>
+                        <% if option_image.present? %>
+                          <% option_image = option_image.start_with?("http://", "https://", "/") ? option_image : image_path(option_image) %>
+                        <% else %>
+                          <% option_image = question_images.find { |src| src.to_s.match?(/score-#{Regexp.escape(option_value)}(?:[^0-9]|$)/) } %>
+                        <% end %>
+                        <% next if option_value.blank? && option_label.blank? %>
+                        <% option_id = "modal_q_#{@modal_questionnaire_step}_#{opt_idx}" %>
+                        <label for="<%= option_id %>" class="rounded-lg border border-slate-200 bg-white p-2 text-sm text-slate-700 hover:border-blue-300">
+                          <% if option_image.present? %>
+                            <%= image_tag option_image,
+                                          alt: "Score #{option_value}",
+                                          class: "mb-2 w-full rounded-md border border-slate-200 bg-white object-contain max-h-36 grayscale contrast-125" %>
+                          <% end %>
+                          <div class="flex items-center gap-2">
+                          <%= radio_button_tag "answers[#{question_code}]",
+                                               option_value,
+                                               current_answer == option_value,
+                                               id: option_id,
+                                               class: "h-4 w-4 border-slate-300 text-blue-600",
+                                               required: !@modal_read_only,
+                                               disabled: @modal_read_only,
+                                               data: { auto_advance: "1", next_step: next_step_number },
+                                               onchange: (@modal_read_only ? nil : "var f=this.form; if(!f){return;} var s=f.querySelector('#modal-question-step'); var n=this.dataset.nextStep; if(s&&n){s.value=n;} if(f.requestSubmit){f.requestSubmit();}else{f.submit();}") %>
+                          <span class="leading-tight">
+                            <% if option_is_score %>
+                              <span class="block text-xs font-bold text-slate-500">Score <%= option_value %></span>
+                            <% end %>
+                            <span class="block font-semibold"><%= option_label %></span>
+                          </span>
+                          </div>
+                        </label>
+                      <% end %>
+                      </fieldset>
+                    <% else %>
+                      <div class="mt-3">
+                        <%= text_field_tag "answers[#{question_code}]",
+                                           current_answer,
+                                           required: !@modal_read_only,
+                                           disabled: @modal_read_only,
+                                           class: "w-full rounded-md border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+                      </div>
+                    <% end %>
+                  <% end %>
+                </article>
+
+                <div class="sticky bottom-0 z-10 mt-3 flex items-center justify-between border-t border-slate-200 bg-white pt-3">
+                  <% if on_completion_screen %>
+                    <%= button_tag "Torna alle risposte",
+                                   type: :submit,
+                                   formnovalidate: true,
+                                   onclick: "var f=this.form; var s=f&&f.querySelector('#modal-question-step'); if(s){s.value='#{@modal_questionnaire_count}';}",
+                                   class: "inline-flex items-center rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50" %>
+                  <% elsif @modal_questionnaire_step > 1 %>
+                    <%= button_tag "Indietro",
+                                   type: :submit,
+                                   formnovalidate: true,
+                                   onclick: "var f=this.form; var s=f&&f.querySelector('#modal-question-step'); if(s){s.value='#{@modal_questionnaire_step - 1}';}",
+                                   class: "inline-flex items-center rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50" %>
+                  <% else %>
+                    <span></span>
+                  <% end %>
+
+                  <% if @modal_read_only %>
+                    <div class="flex items-center gap-2">
+                      <% if @modal_questionnaire_step < @modal_questionnaire_count %>
+                        <%= button_tag "Avanti",
+                                       type: :submit,
+                                       formnovalidate: true,
+                                       onclick: "var f=this.form; var s=f&&f.querySelector('#modal-question-step'); if(s){s.value='#{@modal_questionnaire_step + 1}';}",
+                                       class: "inline-flex items-center rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50" %>
+                      <% end %>
+                      <% if @modal_post.present? %>
+                        <%= link_to "Modifica",
+                                    ensure_post_activities_path(@modal_post, in_dashboard: 1, tab: @tab),
+                                    data: { turbo_method: :post },
+                                    class: "inline-flex items-center rounded-md border border-primary/30 bg-primary/5 px-3 py-2 text-sm font-medium text-primary hover:bg-primary/10" %>
+                      <% end %>
+                    </div>
+                  <% elsif on_completion_screen %>
+                    <%= button_tag "Prosegui",
+                                   type: :submit,
+                                   onclick: "var f=this.form;if(!f){return false;}f.action='#{submit_questionnaire_post_path(@modal_post, q: @modal_questionnaire_step, in_dashboard: 1, tab: @tab, activity_id: @modal_activity.id)}';f.method='post';if(f.requestSubmit){f.requestSubmit();}else{f.submit();}return false;",
+                                   class: "inline-flex items-center rounded-md bg-emerald-600 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-700" %>
+                  <% elsif @modal_questionnaire_step <= @modal_questionnaire_count %>
+                    <%= button_tag "Avanti",
+                                   type: :submit,
+                                   onclick: "var f=this.form; var s=f&&f.querySelector('#modal-question-step'); if(s){s.value='#{@modal_questionnaire_step + 1}';}",
+                                   data: { next_btn: "1" },
+                                   class: "inline-flex items-center rounded-md bg-primary px-3 py-2 text-sm font-medium text-white hover:brightness-110" %>
+                  <% end %>
+                </div>
+              <% end %>
+            </section>
+          <% else %>
+            <div class="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+              Nessuna domanda disponibile per questo questionario.
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <div class="flex items-center justify-between gap-3 border-b border-slate-100 px-4 py-3">
+          <div>
+            <p class="text-[10px] uppercase tracking-[0.2em] text-slate-400 font-bold">Activity</p>
+            <h3 class="text-sm md:text-base font-black text-slate-900"><%= @modal_post.title.presence || @modal_post.taxbranch&.slug_label %></h3>
+          </div>
+          <%= link_to "Chiudi",
+                      dashboard_home_path(tab: @tab),
+                      class: "inline-flex items-center rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50" %>
+        </div>
+        <div class="p-4">
+          <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+            <p class="text-sm text-slate-700">Contenuto collegato all'attivita.</p>
+            <div class="mt-3 flex items-center gap-2">
+              <%= link_to "Apri contenuto", post_path(@modal_post), class: "inline-flex items-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:brightness-110" %>
+              <%= link_to "Apri activity", post_activity_path(@modal_post, @modal_activity), class: "inline-flex items-center rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50" %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+<% end %>
+<!-- Simple Footer for branding -->
+<footer class="w-full px-10 py-5 flex flex-col items-center border-t border-[#e7edf3] dark:border-slate-800 mt-6">
+<p class="text-[#4e6a8d] text-sm">© <%= DateTime.now.year %> posturacorretta.org - La tua salute, la nostra missione.</p>
+</footer>
+</main>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    var toggleBtn = document.getElementById("dashboard-left-toggle");
+    var panel = document.getElementById("dashboard-left-panel");
+    if (!toggleBtn || !panel) return;
+
+    toggleBtn.addEventListener("click", function () {
+      var isHidden = panel.classList.contains("hidden");
+      panel.classList.toggle("hidden", !isHidden);
+      toggleBtn.setAttribute("aria-expanded", isHidden ? "true" : "false");
+      toggleBtn.innerHTML = isHidden
+        ? '<span class="material-symbols-outlined text-[18px]">close</span>Chiudi pannello'
+        : '<span class="material-symbols-outlined text-[18px]">tune</span>Apri pannello';
+    });
+  });
+</script>
+
+
+
+<%#= render "home_dash_prov" %>

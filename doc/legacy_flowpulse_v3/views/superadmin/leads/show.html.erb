@@ -1,0 +1,39 @@
+<% content_for :title, "Showing lead" %>
+
+<div class="md:w-2/3 w-full">
+  <% if notice.present? %>
+    <p class="py-2 px-3 bg-green-50 mb-5 text-green-500 font-medium rounded-md inline-block" id="notice"><%= notice %></p>
+  <% end %>
+
+  <h1 class="font-bold text-4xl">Showing lead</h1>
+
+  <%= render @lead %>
+
+  <%= render @lead %>
+
+  <div class="mt-6 flex flex-col sm:flex-row flex-wrap gap-3">
+    <%= link_to "Mapservices",
+                generaimpresa_superadmin_lead_path(@lead),
+                class: "inline-flex items-center justify-center rounded-md bg-slate-900 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-slate-800" %>
+    <%= link_to "Rails4B",
+                rails4b_superadmin_lead_path(@lead),
+                class: "inline-flex items-center justify-center rounded-md bg-white px-4 py-2 text-sm font-semibold text-slate-800 border border-slate-200 shadow-sm hover:bg-slate-50" %>
+    <%= link_to "1impegno",
+                impegno_superadmin_lead_path(@lead),
+                class: "inline-flex items-center justify-center rounded-md bg-white px-4 py-2 text-sm font-semibold text-slate-800 border border-slate-200 shadow-sm hover:bg-slate-50" %>
+  </div>
+
+<%= link_to "Edit this lead",
+            edit_superadmin_lead_path(@lead),
+            class: "w-full sm:w-auto text-center rounded-md px-3.5 py-2.5 bg-gray-100 hover:bg-gray-50 inline-block font-medium" %>
+
+<%= link_to "Back to leads",
+            superadmin_leads_path,
+            class: "w-full sm:w-auto text-center mt-2 sm:mt-0 sm:ml-2 rounded-md px-3.5 py-2.5 bg-gray-100 hover:bg-gray-50 inline-block font-medium" %>
+
+<%= button_to "Destroy this lead",
+              superadmin_lead_path(@lead),
+              method: :delete,
+              form: { data: { turbo_confirm: "Eliminare questo lead?" } },
+              class: "mt-2 sm:mt-0 rounded-md px-3.5 py-2.5 bg-red-600 text-white hover:bg-red-500 font-medium" %>
+</div>

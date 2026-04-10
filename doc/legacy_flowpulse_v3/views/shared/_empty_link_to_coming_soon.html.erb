@@ -1,0 +1,35 @@
+<script>
+  (function () {
+    const basePath = "<%= coming_soon_path %>";
+
+    const isTechnicalTrigger = (link) => {
+      if (!link) return true;
+      if (link.hasAttribute("data-allow-empty-href")) return true;
+      if (link.hasAttribute("data-modal-open")) return true;
+      if (link.hasAttribute("data-modal-close")) return true;
+      if (link.hasAttribute("onclick")) return true;
+      return false;
+    };
+
+    document.addEventListener("click", (event) => {
+      const link = event.target.closest("a[href='#']");
+      if (!link) return;
+      if (isTechnicalTrigger(link)) return;
+
+      event.preventDefault();
+
+      const featureText = (link.dataset.feature || link.textContent || "").trim().replace(/\s+/g, " ");
+      const feature = featureText.length > 0 ? featureText : "Sezione";
+      const source = window.location.pathname;
+      const waMessage = `Ciao! Sono interessato a "${feature}" (da: ${source}). Quando sara disponibile?`;
+
+      const params = new URLSearchParams({
+        feature: feature,
+        source: source,
+        wa_message: waMessage
+      });
+
+      window.location.href = `${basePath}?${params.toString()}`;
+    });
+  })();
+</script>

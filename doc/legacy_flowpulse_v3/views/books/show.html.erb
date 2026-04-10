@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= @chapter_title %></title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background: radial-gradient(circle at top, #f8f5f2 0%, #efe7df 40%, #e7ded6 100%);
+      font-family: "Playfair Display", ui-serif, Georgia, serif;
+    }
+    .book-shell {
+      perspective: 1600px;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+    }
+    .book {
+      position: relative;
+      /* Mobile: auto height, proper width */
+      width: 100%;
+      max-width: 1100px;
+      height: auto;
+      transform-style: preserve-3d;
+      margin: 0 auto;
+    }
+    .page {
+      position: relative; /* Mobile: relative flow */
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      background: #fdfaf6;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+    
+    /* Spine shadow - hidden on mobile by default or adjusted */
+    .page::before {
+      display: none;
+    }
+
+    .page-left {
+      background: #f4eee7;
+      border-bottom: 1px solid #e2d8cd;
+      padding-bottom: 2rem;
+    }
+    .page-right {
+      background: #fffaf5;
+    }
+    .paper-texture {
+      position: absolute;
+      inset: 0;
+      background: url("https://www.transparenttextures.com/patterns/cream-paper.png");
+      opacity: 0.25;
+      mix-blend-mode: multiply;
+      pointer-events: none;
+      z-index: 1;
+    }
+    .content {
+      position: relative;
+      z-index: 3;
+      padding: 1.5rem; /* Smaller padding on mobile */
+    }
+    
+    /* DESKTOP STYLES (Book Spread) */
+    @media (min-width: 768px) {
+      .book {
+        width: min(1100px, 92vw);
+        height: min(720px, 82vh);
+      }
+      .page {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        flex-direction: row;
+        box-shadow: 0 24px 60px rgba(0,0,0,0.18);
+        overflow: hidden; /* Fixed size parent */
+      }
+      .page::before {
+        display: block;
+        content: "";
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 50%;
+        width: 2px;
+        background: linear-gradient(to bottom, rgba(0,0,0,0.15), rgba(0,0,0,0.05), rgba(0,0,0,0.15));
+        transform: translateX(-1px);
+        z-index: 2;
+        pointer-events: none;
+      }
+      .page-left {
+        border-right: 1px solid #e2d8cd;
+        border-bottom: none;
+        padding-bottom: 0;
+        overflow-y: auto; /* Allow scrolling if title content is long */
+      }
+      .page-right {
+        overflow-y: auto; /* Crucial: Allow content scrolling on desktop */
+      }
+      .content {
+        padding: 2.25rem;
+      }
+      
+      /* Hide scrollbars for cleaner look but allow scroll */
+      .page-left::-webkit-scrollbar, 
+      .page-right::-webkit-scrollbar {
+        width: 6px;
+      }
+      .page-left::-webkit-scrollbar-thumb,
+      .page-right::-webkit-scrollbar-thumb {
+        background-color: rgba(0,0,0,0.1);
+        border-radius: 3px;
+      }
+    }
+
+    .prose {
+      font-size: 0.95rem;
+      line-height: 1.55;
+    }
+    .prose p {
+      margin-bottom: 1rem;
+      text-indent: 1rem;
+    }
+    .nav-link {
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif;
+      font-size: 0.85rem;
+      letter-spacing: 0.08em;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+    <div class="w-full px-6 md:px-10 py-6 flex items-center justify-between">
+    <div class="flex items-center gap-4">
+      <a class="nav-link text-slate-600 hover:text-slate-900" href="<%= book_path(book_slug: @book.slug) %>">← Indice</a>
+      <!--a class="nav-link text-slate-600 hover:text-slate-900" href="<%= book_presale_path(book_slug: @book.slug) %>">Vai a Prevendita</a-->
+      <% if Current.user&.superadmin? && Current.user.superadmin_mode_active? %>
+        <span class="text-[0.65rem] uppercase tracking-[0.3em] text-slate-500 border border-slate-300/70 px-2 py-1 rounded">Admin Mode</span>
+      <% end %>
+    </div>
+    <a class="flex items-center gap-3 text-xs uppercase tracking-[0.3em] text-slate-500 hover:text-slate-700" href="https://posturacorretta.it">
+      <img src="https://ik.imagekit.io/posturacorretta/logo_pc.png?updatedAt=1747835132622" alt="PosturaCorretta Logo" class="w-32 h-auto opacity-80 rounded-lg">
+    </a>
+  </div>
+
+  <main class="flex-1 flex items-center justify-center pb-8">
+    <div class="book-shell">
+      <div class="book">
+        <div class="page">
+          <div class="page-left relative">
+            <div class="paper-texture"></div>
+            <div class="content">
+              <p class="text-xs uppercase tracking-[0.4em] text-slate-400 font-sans mb-6">Capitolo</p>
+              <h1 class="text-3xl italic text-slate-800 leading-tight"><%= @chapter_title %></h1>
+              <% if @chapter_description.present? %>
+                <p class="mt-6 text-slate-500 font-sans text-sm leading-relaxed"><%= @chapter_description %></p>
+              <% end %>
+              <div class="mt-10 space-y-2 text-sm font-sans text-slate-500">
+                <% if @prev_chapter %>
+                  <a class="block hover:text-slate-900" href="<%= book_chapter_path(book_slug: @book.slug, id: @prev_chapter[:slug]) %>">← <%= @prev_chapter[:title] %></a>
+                <% end %>
+                <% if @next_chapter %>
+                  <a class="block hover:text-slate-900" href="<%= book_chapter_path(book_slug: @book.slug, id: @next_chapter[:slug]) %>"><%= @next_chapter[:title] %> →</a>
+                <% end %>
+              </div>
+            </div>
+          </div>
+          <div class="page-right relative">
+            <div class="paper-texture"></div>
+            <div class="content prose prose-slate max-w-none text-justify leading-relaxed">
+              <%= markdown(@chapter_markdown) %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

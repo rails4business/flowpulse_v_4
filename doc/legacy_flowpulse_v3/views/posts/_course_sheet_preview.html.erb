@@ -1,0 +1,50 @@
+<% sheet_label = local_assigns[:label].presence || sheet_node.slug_label.presence || sheet_node.display_label %>
+<% sheet_branch = sheet_node.link_child || sheet_node %>
+<% sheet_post   = sheet_branch.post %>
+<% sheet_desc   = local_assigns[:description].presence || sheet_post&.description || sheet_branch.notes %>
+<% sheet_url    = sheet_post ? post_entry_link(sheet_post, taxbranch: sheet_branch) : nil %>
+<% lead         = local_assigns[:lead] %>
+<% completed_scope = lead && sheet_branch ? Eventdate.where(lead: lead, taxbranch: sheet_branch) : Eventdate.none %>
+<% completed = completed_scope.exists? %>
+
+<article class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm flex flex-col gap-3 md:flex-row md:items-center md:justify-between w-full">
+  <div class="flex-1">
+    <div class="flex items-center gap-2 text-xs font-semibold">
+      <span class="text-blue-700 text-xl"><%= sheet_label %></span>
+      <%# if local_assigns[:context_badge].present? %>
+        <!--span class="inline-flex items-center px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
+          <%#= local_assigns[:context_badge] %>
+        </span-->
+      <%# end %>
+    </div>
+    <% if sheet_desc.present? %>
+      <p class="text-sm text-slate-600 leading-snug mt-1"><%= sheet_desc %></p>
+    <% end %>
+    <% if local_assigns[:meta].present? %>
+      <p class="text-xs text-slate-400 mt-1"><%= local_assigns[:meta] %></p>
+    <% end %>
+  </div>
+  <div class="flex items-center gap-3 shrink-0">
+    <% if sheet_url %>
+      <% modal_url = sheet_url.include?("?") ? "#{sheet_url}&modal=1" : "#{sheet_url}?modal=1" %>
+      <% button_text =
+          if completed
+            "Rivedi scheda ✓"
+          else
+            "Esegui scheda"
+          end %>
+      <% button_classes =
+          if completed
+            "px-4 py-2 rounded-full bg-emerald-100 text-emerald-700 text-sm font-semibold hover:bg-emerald-200 border border-emerald-200"
+          else
+            "px-4 py-2 rounded-full bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700"
+          end %>
+      <%= link_to button_text,
+                  modal_url,
+                  class: button_classes,
+                  data: { turbo_frame: "sheet_modal" } %>
+    <% else %>
+      <span class="text-xs text-slate-400">Collega una scheda.</span>
+    <% end %>
+  </div>
+</article>

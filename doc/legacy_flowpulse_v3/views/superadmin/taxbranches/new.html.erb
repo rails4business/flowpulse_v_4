@@ -1,0 +1,20 @@
+<h1 class="text-2xl font-bold mb-4">
+  <% if @taxbranch.parent %>
+    Nuova sottocategoria di 
+    <%= link_to @taxbranch.parent.slug, superadmin_taxbranch_path(@taxbranch.parent), class: "text-blue-600 hover:underline" %>
+  <% else %>
+    Nuova categoria principale
+  <% end %>
+</h1>
+
+<p class="text-slate-600 mb-6">
+  Compila i campi per creare una nuova voce nella tassonomia.
+</p>
+
+<%= render "form", taxbranch: @taxbranch %>
+
+<div class="mt-6">
+  <%= link_to "⬅️ Torna indietro", 
+        (@taxbranch.parent ? superadmin_taxbranch_path(@taxbranch.parent) : superadmin_taxbranches_path), 
+        class: "text-gray-600 hover:underline" %>
+</div>

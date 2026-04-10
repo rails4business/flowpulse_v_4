@@ -1,0 +1,25 @@
+<div class="mt-1 rounded-md border border-<%= tone %>-500/10 bg-[#0b1220] px-3 py-2 text-[10px] text-<%= tone %>-200/60">
+  <div class="flex flex-wrap items-center gap-2">
+    <% if eventdate.journey_role.present? %>
+      <span class="rounded-full border border-<%= tone %>-500/20 px-2 py-0.5">
+        <%= eventdate.journey_role %>
+      </span>
+    <% end %>
+    <% if eventdate.time_duration.present? %>
+      <span>
+        Durata: <strong class="text-<%= tone %>-100"><%= eventdate.time_duration %></strong>
+        <%= eventdate.unit_duration.present? ? eventdate.unit_duration.humanize.downcase : "min" %>
+      </span>
+    <% end %>
+    <% if eventdate.date_start.present? || eventdate.date_end.present? %>
+      <span>
+        <%= eventdate.date_start.present? ? l(eventdate.date_start, format: "%d %b %H:%M") : "—" %>
+        <% if eventdate.date_end.present? %>
+          → <%= l(eventdate.date_end, format: "%d %b %H:%M") %>
+        <% end %>
+      </span>
+    <% else %>
+      <span>Data non impostata</span>
+    <% end %>
+  </div>
+</div>

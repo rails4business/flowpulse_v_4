@@ -1,0 +1,12 @@
+<!-- Ciao Flowpulse
+<%#= link_to "Accedi", new_session_path, class: "btn" %>-->
+<%# folder = "posturacorretta" %>
+<% template = request.host %>
+<% begin %>
+  <%= render "pages/home/#{template}" %>
+  <% rescue ActionView::MissingTemplate %>
+  <%= render "pages/home/flowpulse" %>
+<% end %>
+
+
+

@@ -1,0 +1,60 @@
+<section class="pt-16" id="accademia">
+  <div class="mx-auto max-w-[1200px] px-6">
+    <div class="mx-auto max-w-2xl text-center space-y-3">
+      <h2 class="text-3xl md:text-4xl font-bold">Accademia</h2>
+      <p class="text-sm md:text-base text-slate-600 dark:text-slate-400">
+        Indice delle aree principali dell'Accademia.
+      </p>
+    </div>
+
+    <div class="mt-8">
+      <div class="relative overflow-hidden rounded-3xl border border-slate-100 bg-white p-3 md:p-4 shadow-xl shadow-slate-200/50 dark:border-slate-800 dark:bg-slate-900/60">
+        <div class="absolute top-0 left-0 h-1 w-full bg-gradient-to-r from-blue-500 via-indigo-500 to-primary"></div>
+
+        <%= link_to root_path(anchor: "orientamento-iscrizione-accademia"), class: "flex items-start justify-between gap-3 rounded-2xl px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors" do %>
+          <div>
+            <h3 class="text-sm font-bold uppercase tracking-wide text-slate-700 dark:text-slate-200">Orientamento e iscrizione all'accademia</h3>
+            <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">Accesso, profilazione e primi passi per iniziare il percorso.</p>
+          </div>
+          <span class="material-symbols-outlined text-[18px] leading-none text-slate-500 mt-0.5">chevron_right</span>
+        <% end %>
+
+        <div class="h-px bg-slate-100 dark:bg-slate-800"></div>
+
+        <%= link_to root_path(anchor: "percorso"), class: "flex items-start justify-between gap-3 rounded-2xl px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors" do %>
+          <div>
+            <h3 class="text-sm font-bold uppercase tracking-wide text-slate-700 dark:text-slate-200">Postura e fisiologia</h3>
+            <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">Apri il percorso completo.</p>
+          </div>
+          <span class="material-symbols-outlined text-[18px] leading-none text-slate-500 mt-0.5">chevron_right</span>
+        <% end %>
+
+
+        <div class="h-px bg-slate-100 dark:bg-slate-800"></div>
+          <%= link_to coming_soon_path(feature: "Percorso Salute: Linee guida", source: "Accademia > Percorso Salute: Linee guida"),
+                    class: "flex items-start justify-between gap-3 rounded-2xl px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors" do %>
+          <div>
+            <h3 class="text-sm font-bold uppercase tracking-wide text-slate-700 dark:text-slate-200">Percorso Salute: Linee guida</h3>
+            <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">Criteri e orientamento per integrare educazione, benessere e salute.</p>
+          </div>
+          <span class="text-[10px] font-bold uppercase tracking-wide text-slate-400 mt-1">In arrivo</span>
+        <% end %>
+
+
+      
+
+        <div class="h-px bg-slate-100 dark:bg-slate-800"></div>
+
+
+        <%= link_to coming_soon_path(feature: "Stile di vita", source: "Accademia > Stile di vita"),
+                    class: "flex items-start justify-between gap-3 rounded-2xl px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors" do %>
+          <div>
+            <h3 class="text-sm font-bold uppercase tracking-wide text-slate-700 dark:text-slate-200">Stile di vita</h3>
+            <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">Approfondimenti pratici per applicare il percorso nella quotidianita.</p>
+          </div>
+          <span class="text-[10px] font-bold uppercase tracking-wide text-slate-400 mt-1">In arrivo</span>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</section>

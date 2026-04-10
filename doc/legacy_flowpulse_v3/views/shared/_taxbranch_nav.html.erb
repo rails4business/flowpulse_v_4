@@ -1,0 +1,34 @@
+<% if taxbranch.present? %>
+  <nav class="-mb-px flex flex-wrap gap-x-6 gap-y-3 border-b border-slate-200" aria-label="Tabs">
+    <% tabs = [
+      ["📄 Taxbranch", superadmin_taxbranch_path(taxbranch)],
+      ["Post", post_superadmin_taxbranch_path(taxbranch)],
+      ["GeneraImpresa", generaimpresa_superadmin_taxbranch_path(taxbranch)],
+      ["Journey", journeys_superadmin_taxbranch_path(taxbranch)],
+      ["Services", superadmin_taxbranch_services_path(taxbranch)],
+      ["🌐 Tag", positioning_superadmin_taxbranch_path(taxbranch)],
+      ["Import/Export", export_import_superadmin_taxbranch_path(taxbranch)],
+      ["Phase", taxbranch_phase_index_path(taxbranch)]
+    ] %>
+    <% domain = taxbranch.domains.first %>
+    <% unless domain %>
+      <% if taxbranch.respond_to?(:self_and_ancestors) %>
+        <% domain = taxbranch.self_and_ancestors.includes(:domains).map(&:domains).flatten.first %>
+      <% end %>
+    <% end %>
+    <% if domain %>
+      <% tabs << ["Domain", superadmin_domain_path(domain)] %>
+    <% end %>
+
+    <% tabs.each do |label, path| %>
+      <%= link_to label, path,
+        class: class_names(
+          "whitespace-nowrap border-b-2 pb-3 text-sm font-medium",
+          current_page?(path) ?
+            "border-blue-500 text-blue-600" :
+            "border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-700"
+        )
+      %>
+    <% end %>
+  </nav>
+<% end %>

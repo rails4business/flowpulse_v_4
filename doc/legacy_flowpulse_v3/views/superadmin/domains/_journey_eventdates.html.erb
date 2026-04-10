@@ -1,0 +1,168 @@
+<div class="mt-5 border-t border-[#283039] pt-4">
+  <div class="flex items-center justify-between">
+    <h4 class="text-sm font-semibold text-white">Eventdates</h4>
+    <button
+      type="button"
+      class="inline-flex items-center rounded-lg border border-[#283039] px-3 py-1 text-xs font-semibold text-[#9dabb9] hover:text-white"
+      data-eventdate-modal-open
+    >
+      Aggiungi
+    </button>
+  </div>
+
+  <% eventdates = journey.ordered_eventdates.limit(6) %>
+  <% if eventdates.any? %>
+    <div class="mt-3 space-y-2 text-xs text-[#c5ced8]">
+      <% eventdates.each do |eventdate| %>
+        <% booking_count = eventdate.bookings.count %>
+        <div class="flex flex-col gap-2 rounded-lg border border-[#283039] bg-[#101922] px-3 py-2">
+          <div class="flex items-start justify-between gap-3">
+            <div class="flex flex-col">
+              <span class="text-white"><%= eventdate.description.presence || "Senza descrizione" %></span>
+              <span class="text-[#9dabb9]">
+                <% if eventdate.date_start.present? %>
+                  <%= l(eventdate.date_start, format: "%d %b %H:%M") %>
+                <% elsif eventdate.date_end.present? %>
+                  <%= l(eventdate.date_end, format: "%d %b %H:%M") %>
+                <% else %>
+                  Data da definire
+                <% end %>
+                <% if eventdate.date_end.present? && eventdate.date_start.present? %>
+                  · <%= l(eventdate.date_end, format: "%d %b %H:%M") %>
+                <% end %>
+              </span>
+            </div>
+            <span class="text-[#9dabb9]"><%= eventdate.status %></span>
+          </div>
+          <div class="flex flex-wrap items-center gap-2 text-[11px] text-[#9dabb9]">
+            <span>Ruolo: <%= eventdate.journey_role.presence || "—" %></span>
+            <span>Tipo: <%= eventdate.event_type %></span>
+            <span>Kind: <%= eventdate.kind_event %></span>
+            <span>Prenotazioni: <%= booking_count %></span>
+          </div>
+          <div class="flex flex-wrap items-center gap-2 text-[11px]">
+            <%= link_to "Apri eventdate",
+                        eventdate_path(eventdate),
+                        class: "text-emerald-300 hover:underline" %>
+            <% if booking_count.positive? %>
+              <%= link_to "Apri bookings",
+                          bookings_path(eventdate_id: eventdate.id),
+                          class: "text-sky-300 hover:underline" %>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <p class="mt-3 text-xs text-[#9dabb9]">Nessun eventdate collegato.</p>
+  <% end %>
+</div>
+
+<div
+  class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 p-4"
+  data-eventdate-modal
+  role="dialog"
+  aria-modal="true"
+>
+  <div class="w-full max-w-lg rounded-2xl border border-[#283039] bg-[#101922] p-6 shadow-2xl">
+    <div class="flex items-start justify-between gap-4">
+      <h3 class="text-lg font-semibold text-white">Nuovo eventdate</h3>
+      <button class="text-[#9dabb9] hover:text-white" type="button" data-eventdate-modal-close>
+        Chiudi
+      </button>
+    </div>
+    <p class="text-sm text-[#9dabb9] mt-1">
+      Pianifica un evento per questo journey.
+    </p>
+
+    <%= form_with model: Eventdate.new, url: eventdates_path, class: "mt-4 space-y-3 text-sm" do |form| %>
+      <%= form.hidden_field :journey_id, value: journey.id %>
+      <%= form.hidden_field :lead_id, value: Current.user&.lead&.id %>
+
+      <div>
+        <%= form.label :description, "Descrizione", class: "block text-xs text-[#9dabb9] mb-1" %>
+        <%= form.text_area :description,
+              rows: 3,
+              required: true,
+              class: "w-full rounded-lg border border-[#283039] bg-[#0f172a] px-3 py-2 text-white" %>
+      </div>
+
+      <div class="grid gap-3 sm:grid-cols-2">
+        <div>
+          <%= form.label :date_start, "Data inizio", class: "block text-xs text-[#9dabb9] mb-1" %>
+          <%= form.datetime_local_field :date_start, class: "w-full rounded-lg border border-[#283039] bg-[#0f172a] px-3 py-2 text-white" %>
+        </div>
+        <div>
+          <%= form.label :date_end, "Data fine", class: "block text-xs text-[#9dabb9] mb-1" %>
+          <%= form.datetime_local_field :date_end, class: "w-full rounded-lg border border-[#283039] bg-[#0f172a] px-3 py-2 text-white" %>
+        </div>
+      </div>
+
+      <% kind_labels = { "session" => "Sessione", "meeting" => "Riunione", "online_call" => "Chiamata online", "recording" => "Registrazione" } %>
+      <div class="grid gap-3 sm:grid-cols-2">
+        <div>
+          <%= form.label :event_type, "Tipo evento", class: "block text-xs text-[#9dabb9] mb-1" %>
+          <%= form.select :event_type,
+                Eventdate.event_types.keys.map { |t| [t.humanize, t] },
+                {},
+                class: "w-full rounded-lg border border-[#283039] bg-[#0f172a] px-3 py-2 text-white" %>
+        </div>
+        <div>
+          <%= form.label :kind_event, "Kind", class: "block text-xs text-[#9dabb9] mb-1" %>
+          <%= form.select :kind_event,
+                Eventdate.kind_events.keys.map { |t| [kind_labels.fetch(t, t.humanize), t] },
+                { include_blank: "—" },
+                class: "w-full rounded-lg border border-[#283039] bg-[#0f172a] px-3 py-2 text-white" %>
+        </div>
+      </div>
+
+      <div>
+        <%= form.label :journey_role, "Ruolo Journey", class: "block text-xs text-[#9dabb9] mb-1" %>
+        <% roles = Array(journey.journey_roles) %>
+        <%= form.select :journey_role,
+              options_for_select(roles),
+              { include_blank: roles.any? ? "—" : "Nessun ruolo definito" },
+              class: "w-full rounded-lg border border-[#283039] bg-[#0f172a] px-3 py-2 text-white",
+              disabled: roles.empty? %>
+        <% if roles.empty? %>
+          <p class="mt-2 text-[11px] text-[#9dabb9]">
+            Aggiungi i ruoli nel journey per selezionarli qui.
+          </p>
+        <% end %>
+      </div>
+
+      <div class="flex items-center justify-end gap-3 pt-2">
+        <button
+          type="button"
+          class="rounded-lg border border-[#283039] px-4 py-2 text-xs font-semibold text-white hover:border-primary"
+          data-eventdate-modal-close
+        >
+          Annulla
+        </button>
+        <%= form.submit "Salva",
+              class: "inline-flex items-center rounded-lg bg-primary px-4 py-2 text-xs font-semibold text-white" %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<script>
+  (() => {
+    const modal = document.querySelector("[data-eventdate-modal]");
+    const openBtn = document.querySelector("[data-eventdate-modal-open]");
+    const closeBtns = document.querySelectorAll("[data-eventdate-modal-close]");
+    if (!modal || !openBtn || closeBtns.length === 0) return;
+
+    const openModal = () => {
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+    };
+    const closeModal = () => {
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+    };
+
+    openBtn.addEventListener("click", openModal);
+    closeBtns.forEach((btn) => btn.addEventListener("click", closeModal));
+  })();
+</script>

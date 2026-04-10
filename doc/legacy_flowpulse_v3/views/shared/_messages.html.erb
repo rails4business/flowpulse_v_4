@@ -1,0 +1,36 @@
+<% if flash.any? %>
+  <div class="fixed inset-x-0 top-16 z-[200] px-3 sm:px-6 pointer-events-none" data-turbo-temporary>
+    <div class="mx-auto flex w-full max-w-3xl flex-col gap-2">
+      <% flash.each_with_index do |(key, message), idx| %>
+        <% color_classes = case key.to_sym
+           when :notice then "bg-green-50 text-green-800 border-green-200"
+           when :alert  then "bg-amber-50 text-amber-900 border-amber-200"
+           when :error  then "bg-red-50 text-red-800 border-red-200"
+           else              "bg-blue-50 text-blue-800 border-blue-200"
+           end %>
+        <% rid = "flash-row-#{idx}" %>
+
+        <div id="<%= rid %>" class="pointer-events-auto flex items-center justify-between rounded-xl border px-4 py-3 shadow-lg <%= color_classes %>">
+          <div class="flex min-w-0 items-center gap-2">
+            <% if key.to_sym == :notice %>
+              <span>✅</span>
+            <% elsif key.to_sym == :alert %>
+              <span>⚠️</span>
+            <% elsif key.to_sym == :error %>
+              <span>❌</span>
+            <% else %>
+              <span>ℹ️</span>
+            <% end %>
+            <span class="font-medium break-words"><%= sanitize(message, tags: %w[a], attributes: %w[href]) %></span>
+          </div>
+          <button type="button"
+                  class="ml-3 shrink-0 text-sm opacity-70 hover:opacity-100"
+                  data-dismiss-target="#<%= rid %>"
+                  aria-label="Chiudi">
+            ✖
+          </button>
+        </div>
+      <% end %>
+    </div>
+  </div>
+<% end %>

@@ -1,0 +1,144 @@
+<!-- app/views/shared/_navbar.html.erb -->
+<nav class="bg-white border-b border-slate-200 shadow-sm">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between h-16 items-center">
+
+      <!-- Logo / Titolo -->
+      
+      <div class="flex items-center space-x-3">
+        <% if Current.domain&.square_logo_url.present?  %>
+          <%= link_to root_path do %>
+            <img src="<%= Current.domain.square_logo_url %>" alt="Logo"
+                 class="h-10 w-10 object-contain   inline-block md:hidden ">
+                     <img src="<%= Current.domain.horizontal_logo_url %>" alt="Logo lungo"
+                 class="h-10 object-contain hidden md:flex ">
+          
+          <% end %>
+        <% else %>
+          <%= link_to root_path,
+                      class: "font-bold text-lg text-slate-800 hover:text-slate-900" do %>
+            <%= Current.domain&.title.presence || "PosturaCorretta" %>
+          <% end %>
+        <% end %>
+      </div>
+    
+
+      <!-- Link principali dinamici centrali-->
+      <% domain_root = Current.domain&.taxbranch %>
+
+<!-- Mobile: dropdown Flowbite -->
+<div class="sm:hidden relative">
+  <button id="mobileNavDropdownButton"
+          data-dropdown-toggle="mobileNavDropdown"
+          type="button"
+          class="inline-flex items-center px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-white rounded-lg  hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2">
+    <span>Menu</span>
+    <svg class="w-4 h-4 ml-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+      <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M1 1l4 4 4-4"/>
+    </svg>
+  </button>
+
+  <div id="mobileNavDropdown"
+       class="z-50 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44">
+    <ul class="py-2 text-sm text-gray-700" aria-labelledby="mobileNavDropdownButton">
+      <% if domain_root.present? %>
+        <% nav_links = domain_root.children.home_nav.order(:position) %>
+        <% nav_links.each do |branch| %>
+          <li> 
+            <% link_label = branch.slug_label.presence || branch.display_label %>
+            <% if branch.link_child_taxbranch_id.nil? %>
+              <% if branch.post.present? %>
+                <%= link_to link_label.capitalize,
+                            post_entry_link(branch.post, taxbranch: branch),
+                            class: "block px-4 py-2 hover:bg-gray-100" %>
+              <% else %>
+                <span class="block px-4 py-2 text-gray-400"><%= link_label.capitalize %></span>
+              <% end %>
+            <% else %>
+              <% nav_child_branch = Taxbranch.find(branch.link_child_taxbranch_id)  %>
+              <% if nav_child_branch.status == "published" && nav_child_branch.visibility == "public_node" && nav_child_branch.post.present? %>
+                <%= link_to link_label.capitalize,
+                            post_entry_link(nav_child_branch.post, taxbranch: nav_child_branch),
+                            class: "block px-4 py-2 hover:bg-gray-100" %>
+              <% else %>
+                <span class="block px-4 py-2 text-gray-400"><%= link_label.capitalize %></span>
+              <% end %>
+            <% end %>
+          
+          </li>
+        <% end %>
+      <% else %>
+        <li>
+          <%= link_to "Home",
+                      root_path,
+                      class: "block px-4 py-2 hover:bg-gray-100" %>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+</div>
+
+<!-- Desktop: link orizzontali -->
+<div class="hidden sm:flex space-x-6">
+  <% if domain_root.present? %>
+    <% nav_links = domain_root.children.home_nav.order(:position) %>
+    <% nav_links.each do |branch| %>
+     <% link_label = branch.slug_label.presence || branch.display_label %>
+     <% if branch.link_child_taxbranch_id.nil? %>
+      <% if branch.post.present? %>
+        <%= link_to link_label.capitalize,
+                    post_entry_link(branch.post, taxbranch: branch),
+                    class: "text-slate-700 hover:text-slate-900 font-medium" %>
+      <% else %>
+        <span class="text-slate-400 font-medium"><%= link_label.capitalize %></span>
+      <% end %>
+    <% else %>
+      <% nav_child_branch = Taxbranch.find(branch.link_child_taxbranch_id)  %>
+      <% if nav_child_branch.status == "published" && nav_child_branch.visibility == "public_node" && nav_child_branch.post.present? %>
+        <%= link_to link_label.capitalize,
+                    post_entry_link(nav_child_branch.post, taxbranch: nav_child_branch),
+                    class: "text-slate-700 hover:text-slate-900 font-medium" %>
+      <% else %>
+        <span class="text-slate-400 font-medium"><%= link_label.capitalize %></span>
+      <% end %>
+    <% end %>
+    <% end %>
+  <% else %>
+    <!-- fallback -->
+    <%= link_to "Home", root_path, class: "text-slate-700 hover:text-slate-900 font-medium" %>
+  <% end %>
+</div>
+
+
+      <!-- Area utente -->
+      <div class="flex items-center space-x-4">
+        <%#  authenticated? %> 
+        <%#= Current.user.id  %>
+        <%#= Current.taxbranch.id %>
+        <%#= Current.domain.id %>
+
+        <% if authenticated? %>
+          
+            
+         
+          
+          <%= link_to "Dashboard",
+                      dashboard_home_path,
+                      class: "text-slate-700 hover:text-slate-900 font-medium" %>
+     <% if Current.user.superadmin == true %>
+        
+          <%#= button_to "Logout",
+                        main_app.session_path,
+                        method: :delete,
+                        class: "text-sm text-slate-500 hover:text-slate-700" %>
+                         <% end %>
+        <% else %>
+          <%= link_to "Accedi",
+                      main_app.new_session_path,
+                      class: "px-3 py-2 text-sm rounded-md bg-slate-900 text-white hover:bg-slate-800" %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</nav>

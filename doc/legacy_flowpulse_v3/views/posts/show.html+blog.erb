@@ -1,0 +1,79 @@
+<%# Blog Creators — Index degli articoli dai children del taxbranch %>
+
+<% content_for :title, @post.title.presence || "Blog" %>
+
+<%= render 'shared/nav_partial_post' %>
+
+<body class="min-h-full bg-white text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100">
+  <!-- Wrapper centrale -->
+  <div class="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-10">
+
+    <!-- Header -->
+    <!--header class="mb-10">
+      <div class="flex items-center gap-4">
+        
+        <div>
+          <h1 class="text-3xl font-semibold"><%= @post.title %></h1>
+          <p class="text-md text-slate-600 dark:text-slate-400"> <%= @post.description %></p>
+        </div>
+      </div>
+
+      <nav class="mt-4 text-sm">
+        <ul class="flex flex-wrap items-center gap-x-4 gap-y-2 text-slate-700 dark:text-slate-300">
+          <li><a href="/newsletter" class="hover:underline">Subscribe</a> 📮</li>
+          <li class="opacity-40">·</li>
+          <li><a href="/rss.xml" class="hover:underline">Feed</a> 📡</li>
+          <li class="opacity-40">·</li>
+          <li><a href="https://bsky.app/profile/tuo.handle" rel="me" class="hover:underline">Bluesky</a> 🦋</li>
+          <li class="opacity-40">·</li>
+          <li><a href="https://mastodon.social/@tuo" rel="me" class="hover:underline">Mastodon</a> 🐘</li>
+        </ul>
+      </nav>
+    </header-->
+
+    <!-- Main: lista articoli -->
+    <main class="space-y-10">
+      <!--
+        Ripeti <article> in loop.
+        Sostituisci href, date, titolo ed excerpt dal tuo backend (Rails, Jekyll, ecc.).
+      -->
+    <% @post.taxbranch.children.sort_by { |t| t.published_at || Time.at(0) }.reverse_each do |taxbranch| %>
+      <% published_at = taxbranch.published_at %>
+      <% if taxbranch.published? && taxbranch.public_node? && published_at.present? && published_at <= Time.zone.now %>
+
+        
+     
+      
+      <article class="border-t border-slate-200 pt-6 first:border-t-0 first:pt-0 dark:border-slate-800">
+        <time datetime="2025-11-01" class="block text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
+             <%= published_at.strftime("%d %b %Y") %>
+        </time>
+        <h2 class="mt-1 text-xl font-semibold leading-snug">
+          <%= link_to taxbranch.post, class:"hover:underline decoration-2 underline-offset-2" do %>
+       
+             <%= taxbranch.post&.title %>
+          <% end %>
+        </h2>
+        <p class="mt-2 text-slate-700 dark:text-slate-300">
+          <%= taxbranch.post&.description %>
+        </p>
+      </article>
+       <% end %>
+      <% end %>
+
+      
+
+      <!-- …altri <article> -->
+    </main>
+
+    <!-- Footer -->
+    <footer class="mt-12 border-t border-slate-200 pt-6 text-xs text-slate-500 dark:border-slate-800 dark:text-slate-400">
+      © <span id="year">2025</span> • <a href="/" class="hover:underline"><%= @post.title %></a>
+    </footer>
+  </div>
+
+  <!-- (opzionale) aggiorna anno senza dipendenze -->
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>

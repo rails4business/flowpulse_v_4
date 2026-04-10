@@ -1,0 +1,110 @@
+<% content_for :title, "Rails4b · #{@taxbranch.display_label}" %>
+
+<section class="space-y-6 text-white">
+  <div class="rounded-2xl border border-[#283039] bg-[#101922] p-6 shadow-sm">
+    <div class="flex flex-wrap items-center justify-between gap-4">
+      <div>
+        <h1 class="text-3xl font-bold text-white">Rails4b</h1>
+        <p class="text-sm text-[#9dabb9] mt-1">
+          Journeys per taxbranch e servizi collegati.
+        </p>
+      </div>
+      <div class="flex items-center gap-2">
+        <%= link_to "Crea Journey",
+                    new_journey_path(taxbranch_id: @taxbranch.id),
+                    class: "inline-flex items-center rounded-lg border border-[#283039] px-3 py-2 text-sm font-semibold text-white hover:border-primary" %>
+        <% if @service.present? %>
+          <%= link_to "Apri su Service",
+                      rails4b_superadmin_service_path(@service, tab: params[:tab].presence || "builders"),
+                      class: "inline-flex items-center rounded-lg border border-[#283039] px-3 py-2 text-sm font-semibold text-white hover:border-primary" %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <div class="rounded-2xl border border-[#283039] bg-[#101922] p-4 shadow-sm space-y-3">
+    <div class="flex flex-wrap gap-3">
+      <%= link_to "Tutti",
+                  rails4b_superadmin_taxbranch_path(@taxbranch, direction: "all", type: @type_filter, mode: @mode_filter),
+                  class: "px-3 py-2 text-sm font-semibold rounded-lg border transition-colors #{(@direction == 'all') ? 'border-primary text-primary bg-primary/10' : 'border-transparent text-[#9dabb9] hover:text-white hover:border-[#3a4652]'}" %>
+      <%= link_to "Partono",
+                  rails4b_superadmin_taxbranch_path(@taxbranch, direction: "outgoing", type: @type_filter, mode: @mode_filter),
+                  class: "px-3 py-2 text-sm font-semibold rounded-lg border transition-colors #{(@direction == 'outgoing') ? 'border-primary text-primary bg-primary/10' : 'border-transparent text-[#9dabb9] hover:text-white hover:border-[#3a4652]'}" %>
+      <%= link_to "Arrivano",
+                  rails4b_superadmin_taxbranch_path(@taxbranch, direction: "incoming", type: @type_filter, mode: @mode_filter),
+                  class: "px-3 py-2 text-sm font-semibold rounded-lg border transition-colors #{(@direction == 'incoming') ? 'border-primary text-primary bg-primary/10' : 'border-transparent text-[#9dabb9] hover:text-white hover:border-[#3a4652]'}" %>
+    </div>
+
+    <div class="flex flex-wrap gap-3">
+      <%= link_to "Tutti i tipi",
+                  rails4b_superadmin_taxbranch_path(@taxbranch, direction: @direction, type: "all", mode: @mode_filter),
+                  class: "px-3 py-2 text-sm font-semibold rounded-lg border transition-colors #{(@type_filter == 'all') ? 'border-primary text-primary bg-primary/10' : 'border-transparent text-[#9dabb9] hover:text-white hover:border-[#3a4652]'}" %>
+      <%= link_to "Service ↔ Service",
+                  rails4b_superadmin_taxbranch_path(@taxbranch, direction: @direction, type: "railservice", mode: @mode_filter),
+                  class: "px-3 py-2 text-sm font-semibold rounded-lg border transition-colors #{(@type_filter == 'railservice') ? 'border-primary text-primary bg-primary/10' : 'border-transparent text-[#9dabb9] hover:text-white hover:border-[#3a4652]'}" %>
+      <%= link_to "Service → Taxbranch",
+                  rails4b_superadmin_taxbranch_path(@taxbranch, direction: @direction, type: "function", mode: @mode_filter),
+                  class: "px-3 py-2 text-sm font-semibold rounded-lg border transition-colors #{(@type_filter == 'function') ? 'border-primary text-primary bg-primary/10' : 'border-transparent text-[#9dabb9] hover:text-white hover:border-[#3a4652]'}" %>
+      <%= link_to "Taxbranch ↔ Taxbranch",
+                  rails4b_superadmin_taxbranch_path(@taxbranch, direction: @direction, type: "pure", mode: @mode_filter),
+                  class: "px-3 py-2 text-sm font-semibold rounded-lg border transition-colors #{(@type_filter == 'pure') ? 'border-primary text-primary bg-primary/10' : 'border-transparent text-[#9dabb9] hover:text-white hover:border-[#3a4652]'}" %>
+    </div>
+
+    <div class="flex flex-wrap gap-3">
+      <%= link_to "Tutti",
+                  rails4b_superadmin_taxbranch_path(@taxbranch, direction: @direction, type: @type_filter, mode: "all"),
+                  class: "px-3 py-2 text-sm font-semibold rounded-lg border transition-colors #{(@mode_filter == 'all') ? 'border-primary text-primary bg-primary/10' : 'border-transparent text-[#9dabb9] hover:text-white hover:border-[#3a4652]'}" %>
+      <%= link_to "Builders",
+                  rails4b_superadmin_taxbranch_path(@taxbranch, direction: @direction, type: @type_filter, mode: "builders"),
+                  class: "px-3 py-2 text-sm font-semibold rounded-lg border transition-colors #{(@mode_filter == 'builders') ? 'border-primary text-primary bg-primary/10' : 'border-transparent text-[#9dabb9] hover:text-white hover:border-[#3a4652]'}" %>
+      <%= link_to "Drivers",
+                  rails4b_superadmin_taxbranch_path(@taxbranch, direction: @direction, type: @type_filter, mode: "drivers"),
+                  class: "px-3 py-2 text-sm font-semibold rounded-lg border transition-colors #{(@mode_filter == 'drivers') ? 'border-primary text-primary bg-primary/10' : 'border-transparent text-[#9dabb9] hover:text-white hover:border-[#3a4652]'}" %>
+    </div>
+  </div>
+
+  <% sections = [
+       ["Service ↔ Service", :railservice, "Journey tra due taxbranch collegati a service"],
+       ["Service → Taxbranch", :function, "Journey da service verso taxbranch senza service"],
+       ["Taxbranch ↔ Taxbranch", :pure, "Journey tra due taxbranch senza service"]
+     ] %>
+
+  <div class="grid gap-4 lg:grid-cols-2">
+    <% sections.each do |title, key, desc| %>
+      <% next if @type_filter != "all" && @type_filter != key.to_s %>
+      <div class="rounded-2xl border border-[#283039] bg-[#101922] p-4">
+        <div class="mb-3">
+          <h2 class="text-sm font-semibold text-white"><%= title %></h2>
+          <p class="text-xs text-[#9dabb9]"><%= desc %></p>
+        </div>
+        <% list = @journeys_by_type[key] %>
+        <% if list.any? %>
+          <ul class="space-y-2">
+            <% list.each do |journey| %>
+              <li class="flex items-center justify-between rounded-lg border border-[#283039] px-3 py-2">
+                <div class="flex flex-col gap-1">
+                  <span class="text-sm font-medium text-white">
+                    <%= journey.title.presence || "Journey ##{journey.id}" %>
+                  </span>
+                  <div class="flex flex-wrap gap-2">
+                    <span class="rounded-full bg-[#0c121a] px-2 py-0.5 text-[11px] font-semibold text-[#9dabb9]">
+                      <%= journey.taxbranch_id == @taxbranch.id ? "Partono" : "Arrivano" %>
+                    </span>
+                    <% if journey.service_id.present? %>
+                      <span class="rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-semibold text-amber-700">
+                        service_id
+                      </span>
+                    <% end %>
+                  </div>
+                </div>
+                <%= link_to "Apri", journey_path(journey), class: "text-xs font-semibold text-primary hover:underline" %>
+              </li>
+            <% end %>
+          </ul>
+        <% else %>
+          <p class="text-sm text-[#9dabb9]">Nessun journey in questa categoria.</p>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</section>

@@ -1,0 +1,74 @@
+<div id="<%= dom_id journey %>" class="w-full sm:w-auto my-5 space-y-5">
+  <div>
+    <strong class="block font-medium mb-1">Title:</strong>
+    <%= journey.title %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Taxbranch:</strong>
+    <%= journey.taxbranch_id %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Service:</strong>
+    <%= journey.service_id %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Lead:</strong>
+    <%= journey.lead_id %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Importance:</strong>
+    <%= journey.importance %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Urgency:</strong>
+    <%= journey.urgency %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Energy:</strong>
+    <%= journey.energy %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Progress:</strong>
+    <%= journey.progress %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Notes:</strong>
+    <%= journey.notes %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Price estimate euro:</strong>
+    <%= journey.price_estimate_euro %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Price estimate dash:</strong>
+    <%= journey.price_estimate_dash %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Meta:</strong>
+    <%= journey.meta %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Kind:</strong>
+    <%= journey.kind %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Journey type:</strong>
+    <%= journey.journey_type %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Journey roles:</strong>
+    <%= Array(journey.journey_roles).join(", ").presence || "—" %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Journey journey:</strong>
+    <%= journey.template_journey_id %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Start at:</strong>
+    <%= journey.start_at %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">End at:</strong>
+    <%= journey.end_at %>
+  </div>
+</div>

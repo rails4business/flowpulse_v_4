@@ -27,24 +27,99 @@ bin/rails g scaffold ProfileData profile:references first_name:string last_name:
 bin/rails g scaffold Lead profile:references name:string email:string phone:string note:text status:string
 bin/rails g scaffold Contact profile:references lead:references target_profile_id:bigint label:string status:string note:text
 
-bin/rails g scaffold Branch profile:references name:string slug:string kind:string visibility:string description:text
-bin/rails g scaffold Domain branch:references host:string name:string language:string visibility:string
-bin/rails g scaffold Map branch:references name:string slug:string description:text visibility:string
+bin/rails g scaffold Port profile:references name:string slug:string port_kind:integer visibility:integer description:text x:integer y:integer meta:jsonb published_at:datetime
+bin/rails g scaffold SeaRoute profile:references from_port:references to_port:references name:string slug:string visibility:integer description:text meta:jsonb published_at:datetime
+bin/rails g scaffold Domain port:references host:string name:string language:string visibility:string
+bin/rails g scaffold Map port:references name:string slug:string description:text visibility:string
 
 bin/rails g scaffold Trail map:references template_trail:references name:string slug:string description:text phase:string trail_kind:string visibility:string template_published_at:datetime start_x:integer start_y:integer end_x:integer end_y:integer
 
-bin/rails g scaffold EventDate user:references trail:references name:string description:text event_type:string date_start:datetime date_end:datetime duration_minutes:integer position:integer x:integer y:integer
+bin/rails g scaffold Event trail:references name:string description:text event_type:string date_start:datetime date_end:datetime duration_minutes:integer position:integer x:integer y:integer
+bin/rails g scaffold Activity user:references event:references ticket:references title:string description:text role_name:string status:string notes:text happened_at:datetime
 
 bin/rails g scaffold TrailLink from_trail:references to_trail:references link_kind:string label:string
 
 bin/rails g scaffold Resource trail:references event_date:references title:string description:text resource_type:string content:text url:string position:integer
 ```
 
+## 1.b Primo step reale su SeaRoute
+
+Prima del core completo, il primo modello reale puo' essere `Searoute`.
+
+Comando minimo proposto:
+
+```bash
+bin/rails generate model Searoute \
+  profile:references \
+  link_child_searoute:references \
+  name:string \
+  slug:string \
+  searoute_kind:integer \
+  position:integer \
+  visibility:integer \
+  description:text \
+  meta:jsonb \
+  published_at:datetime \
+  ancestry:string
+```
+
+Distinzione gia' fissata in `searoute_kind`:
+
+- `brand`
+- `folder`
+- `list`
+- `map`
+
+`searoute_kind` va salvato come `integer` nel database e letto come `enum` nel model.
+
+Enum iniziale proposto:
+
+```ruby
+enum :searoute_kind, {
+  brand: 0,
+  folder: 1,
+  list: 2,
+  map: 3
+}
+```
+
+Significato iniziale:
+
+- `brand`
+  - identita' o mondo principale
+
+- `folder`
+  - contenitore organizzativo
+
+- `list`
+  - raccolta lineare, tipo blog, articoli, book o un solo trail
+
+- `map`
+  - territorio con trail collegati
+
+Per questo primo step:
+
+- si implementa solo l'albero delle sea routes
+- `ancestry` abilita il nested tree
+- `link_child_searoute_id` permette a una sea route di funzionare anche come ponte verso un figlio collegato
+- la pagina di riferimento e':
+  - `public/flowpulse_v_4/1_flowpulse_albero_indice_mappe.html`
+- `Domain`, `Trail`, `Journey`, `Event`, `Activity` e servizi restano fuori da questo primo rilascio
+
+Nota di dominio:
+
+- `ancestry`
+  - definisce la gerarchia principale
+
+- `link_child_searoute_id`
+  - definisce un collegamento secondario verso un figlio
+  - serve quando una sea route non e' solo contenitore ma anche nodo ponte tra un punto dell'albero e un altro tratto del territorio
+
 ## 2. Secondo blocco: viaggio reale della persona
 
 ```bash
 bin/rails g scaffold Journey trail:references user:references mode:string status:string started_at:datetime ended_at:datetime notes:text
-bin/rails g scaffold JourneyEvent journey:references event_date:references title:string description:text date_start:datetime date_end:datetime duration_minutes:integer status:string
+bin/rails g scaffold JourneyEvent journey:references event:references title:string description:text date_start:datetime date_end:datetime duration_minutes:integer status:string
 ```
 
 ## 3. Terzo blocco: servizio operativo
@@ -57,21 +132,23 @@ bin/rails g scaffold Ticket journey:references journey_event:references user:ref
 
 ## 4. Significato dei modelli
 
-### Branch
+### Searoute
 
 - appartiene a un profilo
 - puo' rappresentare un brand
 - puo' rappresentare una cartella di brand
+- puo' rappresentare una list o una map
 - puo' essere pubblico o privato
+- organizza la struttura navigabile del creator
 
 ### Domain
 
-- collega un dominio a un branch
+- collega un dominio a una searoute
 - in futuro serve per capire quale home mostrare
 
 ### Map
 
-- e' una mappa appartenente a un branch
+- e' una mappa appartenente a una searoute
 - contiene i trail
 
 ### Trail
@@ -101,17 +178,23 @@ Campo importante:
   - se presente, il trail deriva da un altro trail template
   - in questo caso il trail e' una derivazione o istanza del modello di partenza
 
-### EventDate
+### Event
 
-- e' l'unita' operativa reale prevista dentro un trail
-- in fase di esplorazione puo' essere collegato direttamente al template
-- puo' rappresentare una lezione, un quiz, una consulenza, una prova o un altro evento
+- e' il contenitore condiviso previsto dentro un trail o journey
+- puo' rappresentare una lezione, un quiz, una consulenza, una prova o un altro evento comune
+- puo' avere ruoli, commitments e servizi collegati
 
 Campi utili:
 
 - `event_type`
 - `position`
-- opzionalmente `x`, `y` se un giorno si decide di mappare anche i singoli eventi
+- opzionalmente `x`, `y`
+
+### Activity
+
+- e' la partecipazione concreta e personale di una persona a un `Event`
+- puo' contenere ruolo, note, resoconto e stato individuale
+- serve quando il diario personale non coincide con l'evento condiviso
 
 ### TrailLink
 

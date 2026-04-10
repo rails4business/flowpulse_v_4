@@ -1,0 +1,66 @@
+<% eventdate = @commitment.eventdate %>
+<% content_for :title, "Commitment · #{eventdate&.description || @commitment.role_name}" %>
+
+<div class="max-w-4xl mx-auto px-4 py-8 space-y-8">
+  <% if notice.present? %>
+    <p class="py-2 px-3 bg-green-50 mb-2 text-green-600 font-medium rounded-md inline-block" id="notice"><%= notice %></p>
+  <% end %>
+
+  <section class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+    <div class="flex flex-col gap-2">
+      <h1 class="text-3xl font-bold text-slate-900"><%= @commitment.role_name.presence || "Commitment ##{@commitment.id}" %></h1>
+      <p class="text-sm text-slate-500">Durata: <%= @commitment.duration_minutes || "-" %> min · Posizione: <%= @commitment.position || "-" %></p>
+      <% if eventdate %>
+        <p class="text-sm text-slate-600">
+          Evento collegato:
+          <%= link_to eventdate_label(eventdate), eventdate_path(eventdate), class: "text-blue-600 hover:underline" %>
+        </p>
+      <% end %>
+    </div>
+
+    <div class="mt-6 grid gap-4 md:grid-cols-2">
+      <div class="rounded-xl border border-slate-100 bg-slate-50 p-4">
+        <p class="text-xs uppercase tracking-wide text-slate-500">Tipo</p>
+        <p class="mt-1 text-sm font-semibold text-slate-900"><%= @commitment.commitment_kind.humanize %></p>
+      </div>
+      <div class="rounded-xl border border-slate-100 bg-slate-50 p-4">
+        <p class="text-xs uppercase tracking-wide text-slate-500">Taxbranch</p>
+        <p class="mt-1 text-sm font-semibold text-slate-900"><%= @commitment.taxbranch&.display_label || "-" %></p>
+      </div>
+      <div class="rounded-xl border border-slate-100 bg-slate-50 p-4">
+        <p class="text-xs uppercase tracking-wide text-slate-500">Area</p>
+        <p class="mt-1 text-sm font-semibold text-slate-900"><%= @commitment.area.presence || "-" %></p>
+      </div>
+      <div class="rounded-xl border border-slate-100 bg-slate-50 p-4 space-y-1">
+        <p class="text-xs uppercase tracking-wide text-slate-500">Metriche</p>
+        <p class="text-sm text-slate-700">Urgency: <%= @commitment.urgency || "-" %></p>
+        <p class="text-sm text-slate-700">Importance: <%= @commitment.importance || "-" %></p>
+        <p class="text-sm text-slate-700">Energy: <%= @commitment.energy || "-" %></p>
+      </div>
+    </div>
+
+    <div class="mt-6 grid gap-4 md:grid-cols-2">
+      <div>
+        <p class="text-xs uppercase tracking-wide text-slate-500">Compenso Euro</p>
+        <p class="mt-1 text-sm font-semibold text-slate-900"><%= @commitment.compensation_euro.presence || "-" %></p>
+      </div>
+      <div>
+        <p class="text-xs uppercase tracking-wide text-slate-500">Compenso Dash</p>
+        <p class="mt-1 text-sm font-semibold text-slate-900"><%= @commitment.compensation_dash.presence || "-" %></p>
+      </div>
+      <div class="md:col-span-2">
+        <p class="text-xs uppercase tracking-wide text-slate-500">Note</p>
+        <p class="mt-1 text-sm text-slate-700"><%= @commitment.notes.presence || "Nessuna nota" %></p>
+      </div>
+    </div>
+  </section>
+
+  <div class="flex flex-wrap gap-3">
+    <%= link_to "✏️ Modifica", edit_commitment_path(@commitment), class: "inline-flex items-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50" %>
+    <% if eventdate %>
+      <%= link_to "⬅️ Torna all'evento", eventdate_path(eventdate), class: "inline-flex items-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50" %>
+    <% end %>
+    <%= link_to "Lista commitment", commitments_path, class: "inline-flex items-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50" %>
+    <%= button_to "Elimina", @commitment, method: :delete, form_class: "inline", class: "inline-flex items-center rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500", data: { turbo_confirm: "Confermi l'eliminazione?" } %>
+  </div>
+</div>

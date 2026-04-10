@@ -1,0 +1,184 @@
+<% content_for :title, @service.name.presence || "Service ##{@service.id}" %>
+
+<div class="space-y-6">
+  <% if notice.present? %>
+    <p class="py-2 px-3 bg-green-50 text-green-600 font-medium rounded-md inline-block" id="notice"><%= notice %></p>
+  <% end %>
+
+  <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
+    <div class="flex flex-col gap-1">
+      <h1 class="text-3xl font-bold text-slate-900"><%= @service.name.presence || "Servizio senza nome" %></h1>
+      <p class="text-sm text-slate-500"><%= @service.description.presence || "Nessuna descrizione" %></p>
+      <p class="text-xs text-slate-500">
+        Slug:
+        <code class="bg-slate-100 px-2 py-0.5 rounded"><%= @service.slug %></code>
+      </p>
+      <div class="flex flex-wrap gap-2 text-xs">
+        <span class="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 font-semibold text-slate-700">
+          Journey collegati: <%= @service.journeys.count %>
+        </span>
+        <span class="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 font-semibold text-slate-700">
+          Eventi pianificati: <%#= @service.eventdates.count %>
+        </span>
+      </div>
+    </div>
+
+    <% if @service.content_md.present? %>
+      <div class="rounded-xl border border-slate-100 bg-slate-50 p-4">
+        <p class="text-xs uppercase tracking-wide text-slate-500 mb-2">Contenuto</p>
+        <div class="prose-lite text-sm text-slate-700">
+          <%= markdown(@service.content_md) %>
+        </div>
+      </div>
+    <% end %>
+
+    <div class="grid gap-4 md:grid-cols-2">
+      <div class="rounded-xl border border-slate-100 bg-slate-50 p-4">
+        <p class="text-xs uppercase tracking-wide text-slate-500">Taxbranch</p>
+        <% if @service.taxbranch.present? %>
+          <p class="mt-2 text-sm font-semibold">
+            <%= link_to @service.taxbranch.display_label,
+                        superadmin_taxbranch_path(@service.taxbranch),
+                        class: "text-blue-600 hover:underline" %>
+          </p>
+          <% if (domain = @service.taxbranch.header_domain).present? %>
+            <p class="text-xs text-slate-500">Dominio: <%= domain.title.presence || domain.host %></p>
+          <% end %>
+        <% else %>
+          <p class="mt-2 text-sm text-slate-500">Nessun taxbranch associato.</p>
+        <% end %>
+      </div>
+      <div class="rounded-xl border border-slate-100 bg-slate-50 p-4">
+        <p class="text-xs uppercase tracking-wide text-slate-500">Fase di enroll</p>
+        <p class="mt-2 text-sm text-slate-700">
+          <% if @service.enrollable_from_phase.present? || @service.enrollable_until_phase.present? %>
+            <span class="font-semibold">
+              <%= @service.enrollable_from_phase&.humanize || "Sempre" %>
+            </span>
+            →
+            <span class="font-semibold">
+              <%= @service.enrollable_until_phase&.humanize || "Nessun limite" %>
+            </span>
+          <% else %>
+            Sempre disponibile
+          <% end %>
+        </p>
+      </div>
+      <div class="rounded-xl border border-slate-100 bg-slate-50 p-4">
+        <p class="text-xs uppercase tracking-wide text-slate-500">Ruoli coinvolti</p>
+        <p class="mt-1 text-xs text-slate-500">
+          I ruoli validi nascono dal dominio; qui definisci come il service li usa nelle varie fasi.
+        </p>
+        <div class="mt-2 space-y-2 text-sm">
+          <div>
+            <span class="font-semibold">Ammessi:</span>
+            <% if @service.allowed_roles.present? %>
+              <span class="text-slate-700"><%= @service.allowed_roles.join(", ") %></span>
+            <% else %>
+              <span class="text-slate-500">Accesso aperto</span>
+            <% end %>
+            <p class="text-xs text-slate-500">Chi puo iscriversi/entrare nel service.</p>
+          </div>
+          <div>
+            <span class="font-semibold">Rilasciati:</span>
+            <% if @service.output_roles.present? %>
+              <span class="text-slate-700"><%= @service.output_roles.join(", ") %></span>
+            <% else %>
+              <span class="text-slate-500">Non specificati</span>
+            <% end %>
+            <p class="text-xs text-slate-500">Ruoli/certificazioni ottenibili a completamento.</p>
+          </div>
+          <div>
+            <span class="font-semibold">Costruttori:</span>
+            <% if @service.builders_roles.present? %>
+              <span class="text-slate-700"><%= @service.builders_roles.join(", ") %></span>
+            <% else %>
+              <span class="text-slate-500">Non specificati</span>
+            <% end %>
+            <p class="text-xs text-slate-500">Ruoli che progettano e preparano contenuti/processo.</p>
+          </div>
+          <div>
+            <span class="font-semibold">Erogatori:</span>
+            <% if @service.drivers_roles.present? %>
+              <span class="text-slate-700"><%= @service.drivers_roles.join(", ") %></span>
+            <% else %>
+              <span class="text-slate-500">Non specificati</span>
+            <% end %>
+            <p class="text-xs text-slate-500">Ruoli che erogano il service sul campo.</p>
+          </div>
+          <div>
+            <span class="font-semibold">Verificatori:</span>
+            <% if @service.verifier_roles.present? %>
+              <span class="text-slate-700"><%= @service.verifier_roles.join(", ") %></span>
+            <% else %>
+              <span class="text-slate-500">Non specificati</span>
+            <% end %>
+            <p class="text-xs text-slate-500">Ruoli autorizzati a validare booking/esiti/certificazioni.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid gap-4 md:grid-cols-3">
+    <div class="rounded-xl border border-amber-200 bg-amber-50 p-4 shadow-sm">
+      <p class="text-xs uppercase tracking-wide text-amber-800">Costi officina</p>
+      <p class="mt-2 text-3xl font-bold text-amber-900"><%= number_to_currency(@production_cost_euro, unit: "€") %></p>
+      <p class="text-xs text-amber-800 mt-1">Tempo: <%= (@production_minutes.to_f / 60).round(1) %> h</p>
+    </div>
+    <div class="rounded-xl border border-emerald-200 bg-emerald-50 p-4 shadow-sm">
+      <p class="text-xs uppercase tracking-wide text-emerald-800">Ricavi iscrizioni</p>
+      <p class="mt-2 text-3xl font-bold text-emerald-900"><%= number_to_currency(@enrollment_revenue_euro, unit: "€") %></p>
+    </div>
+    <div class="rounded-xl border border-emerald-200 bg-emerald-50 p-4 shadow-sm">
+      <p class="text-xs uppercase tracking-wide text-emerald-800">Ricavi booking</p>
+      <p class="mt-2 text-3xl font-bold text-emerald-900"><%= number_to_currency(@booking_revenue_euro, unit: "€") %></p>
+      <p class="text-xs text-emerald-800 mt-1">Totale pubblico: <%= number_to_currency(@public_revenue_euro, unit: "€") %></p>
+    </div>
+  </div>
+
+  <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+    <p class="text-sm font-semibold text-slate-800 mb-3">Azioni rapide</p>
+    <div class="flex flex-col sm:flex-row flex-wrap gap-3">
+      <%= link_to "Nuovo servizio",
+                  (@service.taxbranch.present? ? new_superadmin_taxbranch_service_path(@service.taxbranch) : new_superadmin_service_path),
+                  class: "inline-flex items-center justify-center rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500" %>
+    
+      <%= link_to "Area Rails4B",
+                  rails4b_superadmin_service_path(@service),
+                  class: "inline-flex items-center justify-center rounded-md bg-slate-900 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-slate-800" %>
+      <%= link_to "Genera Impresa",
+                  generaimpresa_superadmin_service_path(@service),
+                  class: "inline-flex items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500" %>
+      <%= link_to "Modifica",
+                  edit_superadmin_service_path(@service),
+                  class: "inline-flex items-center justify-center rounded-md bg-white px-4 py-2 text-sm font-semibold text-slate-800 border border-slate-200 shadow-sm hover:bg-slate-50" %>
+      <%= link_to "Torna all'elenco",
+                  (@service.taxbranch.present? ? superadmin_taxbranch_services_path(@service.taxbranch) : superadmin_services_path),
+                  class: "inline-flex items-center justify-center rounded-md bg-white px-4 py-2 text-sm font-semibold text-slate-800 border border-slate-200 shadow-sm hover:bg-slate-50" %>
+      <% if @service.taxbranch.present? %>
+        <%= link_to "Torna al branch",
+                    superadmin_taxbranch_path(@service.taxbranch),
+                    class: "inline-flex items-center justify-center rounded-md bg-white px-4 py-2 text-sm font-semibold text-slate-800 border border-slate-200 shadow-sm hover:bg-slate-50" %>
+      <% end %>
+      <%= button_to "Elimina",
+                    [:superadmin, @service],
+                    method: :delete,
+                    form_class: "inline",
+                    class: "inline-flex items-center justify-center rounded-md bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500",
+                    data: { turbo_confirm: "Eliminare questo servizio?" } %>
+    </div>
+  </div>
+
+  <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+    <details open class="space-y-3">
+      <summary class="cursor-pointer text-sm font-semibold text-slate-800">Dettaglio tecnico</summary>
+      <%= render @service %>
+      <% if (public_post = @service.taxbranch&.post).present? %>
+        <%= link_to "Mostra",
+                    pricing_post_path(public_post),
+                    class: "inline-flex items-center justify-center rounded-md bg-emerald-100 px-4 py-2 text-sm font-semibold text-emerald-800 shadow-sm hover:bg-emerald-200" %>
+      <% end %>
+    </details>
+  </div>
+</div>

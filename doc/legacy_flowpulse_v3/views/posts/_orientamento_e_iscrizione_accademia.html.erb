@@ -1,0 +1,264 @@
+<section class="pt-12" id="orientamento-iscrizione-accademia">
+  <div class="mx-auto max-w-[1200px] px-6">
+    <div class="relative overflow-hidden rounded-3xl border border-slate-100 bg-white p-6 md:p-10 shadow-xl shadow-slate-200/50 dark:border-slate-800 dark:bg-slate-900/60">
+      <div class="absolute top-0 left-0 h-1 w-full bg-gradient-to-r from-blue-500 via-indigo-500 to-primary"></div>
+
+      <div class="max-w-3xl space-y-4">
+        <div class="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">
+          Iscrizione all'accademia
+        </div>
+        <h2 class="text-2xl md:text-3xl font-black tracking-tight text-slate-900 dark:text-slate-100">
+          Orientamento e Iscrizione Accademia
+        </h2>
+        <p class="text-sm md:text-base text-slate-600 dark:text-slate-400">
+          Sezione dedicata a orientamento iniziale, profilazione e accesso al percorso. Da qui l'utente capisce dove iniziare e come iscriversi.
+        </p>
+      </div>
+
+      <section class="mt-6">
+        <button id="openIntroLessonModalBtn" type="button" class="w-full text-left rounded-2xl border border-slate-200 bg-slate-50/70 p-4 hover:bg-white transition-colors dark:border-slate-700 dark:bg-slate-800/40">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <p class="text-xs font-bold uppercase tracking-wide text-slate-500">Lezione</p>
+              <h3 class="mt-1 text-sm font-semibold text-slate-700 dark:text-slate-200">Come si inizia?</h3>
+              <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">Come funziona il percorso, profilazione e diario salute.</p>
+            </div>
+            <span class="material-symbols-outlined text-slate-500">chevron_right</span>
+          </div>
+        </button>
+      </section>
+
+      <section id="introConsultingSection" class="mt-6 border-t border-slate-100 pt-5">
+        <button id="openIntroConsultingModalBtn" type="button" class="w-full text-left rounded-xl border border-slate-200 bg-white p-4 hover:bg-slate-50 transition-colors">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <h3 class="font-bold text-slate-800">Consulenza iniziale</h3>
+              <p class="mt-1 text-xs text-slate-500">Segui le informazioni oppure rivolgerti a un nostro tutor che ti aiuterà ad iscriverti all'accademia e al percorso postura e fisiologia.</p>
+            </div>
+            <span class="material-symbols-outlined text-slate-500">chevron_right</span>
+          </div>
+        </button>
+      </section>
+    </div>
+  </div>
+</section>
+
+<div id="introLessonModal" class="fixed inset-0 z-[70] hidden items-center justify-center bg-slate-900/60 p-4">
+  <div class="w-full max-w-2xl rounded-2xl border border-slate-200 bg-white shadow-2xl">
+    <div class="flex items-start justify-between gap-4 border-b border-slate-100 px-5 py-4">
+      <div>
+        <div class="text-[10px] uppercase tracking-[0.2em] text-slate-400 font-bold">Lezione</div>
+        <h4 class="mt-1 text-lg font-bold text-slate-900">Inizia il percorso</h4>
+        <p class="mt-1 text-sm text-slate-500">Orientamento e iscrizione all'accademia</p>
+      </div>
+      <button id="closeIntroLessonModalBtn" type="button" class="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-50">
+        Chiudi
+      </button>
+    </div>
+    <div class="px-5 py-4">
+      <ul class="space-y-2 text-sm text-slate-700">
+        <li class="flex items-start gap-2"><span class="material-symbols-outlined text-[16px] text-primary mt-0.5">check_circle</span><span>Come funziona il percorso</span></li>
+        <li class="flex items-start gap-2"><span class="material-symbols-outlined text-[16px] text-primary mt-0.5">check_circle</span><span>Profilazione iniziale</span></li>
+        <li class="flex items-start gap-2"><span class="material-symbols-outlined text-[16px] text-primary mt-0.5">check_circle</span><span>Il tuo stato di salute</span></li>
+        <li class="flex items-start gap-2"><span class="material-symbols-outlined text-[16px] text-primary mt-0.5">check_circle</span><span>Il diario della salute</span></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div id="introConsultingModal" class="fixed inset-0 z-[70] hidden items-center justify-center bg-slate-900/60 p-4">
+  <div class="w-full max-w-3xl rounded-2xl border border-slate-200 bg-white shadow-2xl">
+    <div class="flex items-start justify-between gap-4 border-b border-slate-100 px-5 py-4">
+      <div>
+        <div class="text-[10px] uppercase tracking-[0.2em] text-slate-400 font-bold">Orientamento</div>
+        <h4 class="mt-1 text-lg font-bold text-slate-900">Consulenza iniziale</h4>
+        <p class="mt-1 text-sm text-slate-500">Scegli il percorso e conferma i prossimi step.</p>
+      </div>
+      <button id="closeIntroConsultingModalBtn" type="button" class="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-50">
+        Chiudi
+      </button>
+    </div>
+    <div class="px-5 py-4 max-h-[70vh] overflow-y-auto">
+      <div class="mt-1 md:hidden">
+        <label for="pathProfileSelect" class="block text-xs font-semibold text-slate-600 mb-1">Scegli percorso</label>
+        <select id="pathProfileSelect" name="pathProfile" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800">
+          <option value="blu">Percorso Educativo</option>
+          <option value="verde">Percorso Benessere</option>
+          <option value="rosso">Percorso Sanitario / patologia</option>
+        </select>
+      </div>
+
+      <div id="pathProfileControls" class="mt-4 hidden md:grid grid-cols-1 md:grid-cols-3 gap-2">
+        <label class="flex items-start gap-3 p-3 rounded-xl border border-blue-200 bg-white cursor-pointer">
+          <input id="pathBlu" type="radio" name="pathProfile" value="blu" class="mt-1" />
+          <div>
+            <div class="font-semibold text-blue-700">Percorso Educativo</div>
+            <div class="text-xs text-slate-500">Parti con presentazione tutor. Approccio educativo guidato.</div>
+          </div>
+        </label>
+        <label class="flex items-start gap-3 p-3 rounded-xl border border-emerald-200 bg-white cursor-pointer">
+          <input id="pathVerde" type="radio" name="pathProfile" value="verde" class="mt-1" />
+          <div>
+            <div class="font-semibold text-emerald-700">Percorso Benessere</div>
+            <div class="text-xs text-slate-500">Parti con presentazione tutor. Valutazione professionista non obbligatoria.</div>
+          </div>
+        </label>
+        <label class="flex items-start gap-3 p-3 rounded-xl border border-red-200 bg-white cursor-pointer">
+          <input id="pathRosso" type="radio" name="pathProfile" value="rosso" class="mt-1" />
+          <div>
+            <div class="font-semibold text-red-700">Percorso Sanitario / patologia</div>
+            <div class="text-xs text-slate-500">Visita con professionista della salute obbligatoria.</div>
+          </div>
+        </label>
+      </div>
+
+      <div id="pathProfileAlert" class="mt-3 text-xs rounded-lg border px-3 py-2 hidden"></div>
+      <div id="pathProfileActions" class="mt-3 grid grid-cols-1 md:grid-cols-2 gap-2"></div>
+    </div>
+    <div class="border-t border-slate-100 px-5 py-3 flex justify-end">
+      <button id="introConsultingModalDoneBtn" type="button" class="rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white hover:bg-primary/90">
+        Chiudi consulenza
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function () {
+    const byId = (id) => document.getElementById(id);
+    const PATH_PROFILE_KEY = "pc_path_profile";
+    const VALID_PATHS = [ "blu", "verde", "rosso" ];
+
+    const loadPathProfile = () => {
+      try {
+        const value = localStorage.getItem(PATH_PROFILE_KEY);
+        return VALID_PATHS.includes(value) ? value : "blu";
+      } catch (_e) {
+        return "blu";
+      }
+    };
+
+    const savePathProfile = (value) => {
+      if (!VALID_PATHS.includes(value)) return;
+      try {
+        localStorage.setItem(PATH_PROFILE_KEY, value);
+      } catch (_e) {
+      }
+    };
+
+    const renderPathProfileActions = (path) => {
+      const box = byId("pathProfileActions");
+      if (!box) return;
+
+      const tutorCard = `
+        <div class="rounded-xl border border-slate-200 bg-white p-3">
+          <div class="text-[10px] uppercase tracking-wide text-slate-500">Step 1</div>
+          <div class="mt-1 font-semibold text-slate-800">Presentazione percorso con tutor</div>
+          <div class="text-xs text-slate-500 mt-1">Orientamento iniziale, chiarimenti sul percorso e supporto alle risposte.</div>
+          <div class="mt-2 text-xs font-bold text-emerald-700">Gratis</div>
+        </div>
+      `;
+
+      const proCard = `
+        <div class="rounded-xl border border-red-200 bg-red-50 p-3">
+          <div class="text-[10px] uppercase tracking-wide text-red-700">Step 2 (obbligatorio sanitario/patologia)</div>
+          <div class="mt-1 font-semibold text-red-800">Visita professionista della salute</div>
+          <div class="text-xs text-red-700 mt-1">Valutazione clinica iniziale necessaria per avviare il percorso in sicurezza.</div>
+          <div class="mt-2 text-xs font-bold text-red-700">30 minuti • 50€</div>
+        </div>
+      `;
+
+      box.innerHTML = path === "rosso" ? `${tutorCard}${proCard}` : tutorCard;
+    };
+
+    const renderPathProfileUI = () => {
+      const path = loadPathProfile();
+
+      if (byId("pathProfileSelect")) byId("pathProfileSelect").value = path;
+      if (byId("pathBlu")) byId("pathBlu").checked = path === "blu";
+      if (byId("pathVerde")) byId("pathVerde").checked = path === "verde";
+      if (byId("pathRosso")) byId("pathRosso").checked = path === "rosso";
+
+      const alert = byId("pathProfileAlert");
+      if (alert) {
+        if (path === "rosso") {
+          alert.className = "mt-3 text-xs rounded-lg border px-3 py-2 border-red-200 bg-red-50 text-red-700";
+          alert.textContent = "Percorso Sanitario/patologia attivo: presentazione del percorso gratis + visita professionista salute obbligatoria (50€ / 30 min).";
+        } else if (path === "verde") {
+          alert.className = "mt-3 text-xs rounded-lg border px-3 py-2 border-emerald-200 bg-emerald-50 text-emerald-700";
+          alert.textContent = "Percorso Benessere attivo: inizia con presentazione del percorso gratis.";
+        } else {
+          alert.className = "mt-3 text-xs rounded-lg border px-3 py-2 border-blue-200 bg-blue-50 text-blue-700";
+          alert.textContent = "Percorso Educativo attivo: inizia con presentazione del percorso gratis.";
+        }
+      }
+
+      renderPathProfileActions(path);
+    };
+
+    const openIntroLesson = () => {
+      const modal = byId("introLessonModal");
+      if (!modal) return;
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+    };
+    const closeIntroLesson = () => {
+      const modal = byId("introLessonModal");
+      if (!modal) return;
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+    };
+
+    const openConsulting = () => {
+      const modal = byId("introConsultingModal");
+      if (!modal) return;
+      renderPathProfileUI();
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+    };
+    const closeConsulting = () => {
+      const modal = byId("introConsultingModal");
+      if (!modal) return;
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+    };
+
+    byId("openIntroLessonModalBtn")?.addEventListener("click", openIntroLesson);
+    byId("closeIntroLessonModalBtn")?.addEventListener("click", closeIntroLesson);
+    byId("introLessonModal")?.addEventListener("click", (e) => {
+      if (e.target === byId("introLessonModal")) closeIntroLesson();
+    });
+
+    byId("openIntroConsultingModalBtn")?.addEventListener("click", openConsulting);
+    byId("closeIntroConsultingModalBtn")?.addEventListener("click", closeConsulting);
+    byId("introConsultingModalDoneBtn")?.addEventListener("click", closeConsulting);
+    byId("introConsultingModal")?.addEventListener("click", (e) => {
+      if (e.target === byId("introConsultingModal")) closeConsulting();
+    });
+
+    byId("pathProfileSelect")?.addEventListener("change", (e) => {
+      const value = e.target.value;
+      if (!VALID_PATHS.includes(value)) return;
+      savePathProfile(value);
+      renderPathProfileUI();
+    });
+
+    [ "pathBlu", "pathVerde", "pathRosso" ].forEach((id) => {
+      byId(id)?.addEventListener("change", (e) => {
+        if (!e.target.checked) return;
+        const value = e.target.value;
+        if (!VALID_PATHS.includes(value)) return;
+        savePathProfile(value);
+        renderPathProfileUI();
+      });
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key !== "Escape") return;
+      closeIntroLesson();
+      closeConsulting();
+    });
+
+    renderPathProfileUI();
+  })();
+</script>

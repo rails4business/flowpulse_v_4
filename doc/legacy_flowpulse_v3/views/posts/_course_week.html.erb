@@ -1,0 +1,40 @@
+<article class="rounded-2xl border border-slate-300 bg-white shadow-sm">
+  <div class="flex flex-col gap-3 border-b border-slate-200 p-4 md:flex-row md:items-center md:justify-between">
+    <div class="flex items-center gap-3">
+      <span class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 text-white font-semibold text-sm">
+        W<%= index + 1 %>
+      </span>
+      <div>
+        <p class="text-xs uppercase tracking-wide text-slate-400">
+          Settimana <%= index + 1 %>
+        </p>
+      </div>
+    </div>
+    <div class="flex-1 flex flex-col gap-2 md:items-end">
+      <span class="text-xs text-slate-400">ID: <%= week.id %></span>
+      <% sheet_branch = week.link_child || week %>
+      <% if sheet_branch.post.present? %>
+        <%= render partial: "posts/course_sheet_preview",
+                   locals: {
+                     sheet_node: sheet_branch,
+                     lead: lead,
+                     label: sheet_branch.slug_label.presence || sheet_branch.display_label || "Scheda settimana #{index + 1}",
+                     description: sheet_branch.post.description.presence || "Scheda panoramica della settimana",
+                     context_badge: "Week #{index + 1}"
+                   } %>
+      <% end %>
+    </div>
+  </div>
+
+  <% days = week.children.ordered %>
+  <% if days.any? %>
+    <div class="space-y-3 p-4 bg-slate-50">
+      <% days.each_with_index do |day, d_idx| %>
+        <%= render partial: "posts/course_day",
+                   locals: { day: day, lead: lead, index: d_idx } %>
+      <% end %>
+    </div>
+  <% else %>
+    <p class="text-sm text-slate-500 p-4">Nessun giorno pianificato per questa settimana.</p>
+  <% end %>
+</article>

@@ -1,0 +1,29 @@
+<section class="max-w-7xl mx-auto px-4 py-4 space-y-10">
+  <% ["salute", "lavoro", "formazione"].each do |cat| %>
+    <% brands = @brands_by_category[cat] || [] %>
+    <div>
+      <div class="rounded-xl p-4 bg-gradient-to-r from-<%= cat %>-50 via-white to-transparent border border-<%= cat %>-100 dark:from-<%= cat %>-900/10 dark:border-<%= cat %>-900/30">
+        <h2 class="text-2xl font-bold text-<%= cat %>-800 dark:text-<%= cat %>-300">Brand — <%= cat.capitalize %></h2>
+        <%# Subtitle per categoria (opzionale) %>
+      </div>
+
+      <% if brands.any? %>
+        <div class="mt-4 grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <% brands.each do |b| %>
+            <a href="<%= b[:url] %>" class="block card rounded-xl border border-gray-200 bg-white dark:bg-slate-900 overflow-hidden transition-all">
+              <% if b[:image_url].present? %>
+                <img src="<%= b[:image_url] %>" alt="<%= b[:title] %>" class="w-full aspect-[16/9] object-cover bg-gray-100" />
+              <% end %>
+              <div class="p-4 space-y-2">
+                <h3 class="font-semibold"><%= b[:title] %></h3>
+                <p class="text-sm text-gray-600 dark:text-slate-400"><%= b[:description] %></p>
+              </div>
+            </a>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="text-sm text-gray-600 dark:text-slate-400 mt-2">Nessun brand in questa sezione.</p>
+      <% end %>
+    </div>
+  <% end %>
+</section>

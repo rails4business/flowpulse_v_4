@@ -12,7 +12,7 @@
       <div class="dashboard-meta">
         <div class="dashboard-item">
           <span class="dashboard-label">Utente</span>
-          <strong><%= Current.session.user.email_address %></strong>
+          <p><strong><%= Current.session.user.email_address %></strong></p>
         </div>
 
         
@@ -20,59 +20,112 @@
         <% if Current.session.user.profile.present? %>
           <div class="dashboard-item">
             <span class="dashboard-label">Profilo</span>
-            <strong><%= Current.session.user.profile.display_name %></strong>
+            <p><strong><%= Current.session.user.profile.display_name %></strong></p>
           </div>
         <% end %>
         <% if Current.session.user.superadmin? %>
           <div class="dashboard-item">
             <span class="dashboard-label">Superadmin</span>
-            <strong>Abilitato</strong>
+            <p><strong>Abilitato</strong></p>
           </div>
         <% end %>
       </div>
 
       <div class="dashboard-section">
         <h2>Tre soggetti del sistema</h2>
-          <p>
-        Flowpulse tiene insieme tre soggetti: creator, professionisti e persone. Da qui il tuo spazio puo'
-        diventare mondo condiviso, servizio oppure percorso vissuto.
-      </p>
-      <br>
+        <p>
+          Flowpulse tiene insieme tre soggetti: creator, professionisti e persone. Da qui il tuo spazio puo'
+          diventare mondo condiviso, servizio oppure percorso vissuto.
+        </p>
         <div class="dashboard-grid">
-             <article class="dashboard-panel dashboard-panel-green">
-            <span class="dashboard-panel-kicker">Viaggiatore</span>
-            <h3>Inizia un viaggio</h3>
-            <p>Attraversa un percorso e costruisce nel tempo le proprie mappe del mondo.</p>
-          </article>
-          <article class="dashboard-panel dashboard-panel-blue">
-            <span class="dashboard-panel-kicker">Creator</span>
-            <h3>Crea e condividi i tuoi viaggi</h3>
-            <p>Crea branch, mappe comuni, trail template e servizi.</p>
+          <div class="dashboard-panel-stack">
+            <article class="dashboard-panel dashboard-panel-green">
+              <span class="dashboard-panel-kicker">Viaggiatore</span>
+              <p class="dashboard-panel-price">Spazio Gratuito</p>
+              <h3>Spazio viaggiatore</h3>
+              <p>Attraversa un percorso e costruisce nel tempo le proprie mappe del mondo.</p>
+            </article>
+            <div class="dashboard-panel-meta outside">
+              <div class="dashboard-state-tabs">
+                <span class="dashboard-state-tab is-active">Attivo</span>
+              </div>
+              <% if Current.session.user.profile.present? %>
+                <span class="dashboard-mini-badge">Dal <%= Current.session.user.profile.created_at_compact_label %></span>
+              <% end %>
+            </div>
+          </div>
 
-            <% if Current.session.user.profile.present? && Current.session.user.profile.creator? %>
-              <div class="dashboard-panel-status">
-                <span class="dashboard-status-pill dashboard-status-pill-success">Creator attivo</span>
-                <p>Il tuo spazio creator e' attivo. Ora puoi costruire mondi, mappe e trail del tuo ecosistema.</p>
+          <div class="dashboard-panel-stack">
+            <article class="dashboard-panel dashboard-panel-blue">
+              <span class="dashboard-panel-kicker">Creator</span>
+              <p class="dashboard-panel-price">€79 / anno</p>
+              <h3>Spazio creator</h3>
+              <p>Crea branch, mappe comuni, trail template e servizi.</p>
+
+              <% if Current.session.user.profile.present? && Current.session.user.profile.creator? %>
+                <div class="dashboard-panel-status">
+                  <p class="dashboard-panel-note">Ora puoi costruire mondi, mappe e trail del tuo ecosistema.</p>
+                </div>
+              <% elsif Current.session.user.profile.present? && Current.session.user.profile.creator_requested? %>
+                <div class="dashboard-panel-status">
+                  <p class="dashboard-panel-note">La richiesta e' stata registrata. L'attivazione creator avverra' dopo conferma e pagamento.</p>
+                </div>
+              <% elsif Current.session.user.profile.present? %>
+                <div class="dashboard-panel-status">
+                  <p class="dashboard-panel-note">L'accesso creator abilita la creazione di branch e mappe. Il prezzo include accesso annuale e spese di gestione dello spazio.</p>
+                  <%= button_to "Richiedi", request_creator_profile_path, method: :patch, class: "btn btn-primary btn-block" %>
+                </div>
+              <% end %>
+            </article>
+            <div class="dashboard-panel-meta outside">
+              <div class="dashboard-state-tabs">
+                <span class="dashboard-state-tab <%= "is-active" unless Current.session.user.profile&.creator? || Current.session.user.profile&.creator_requested? %>">Chiuso</span>
+                <span class="dashboard-state-tab dashboard-state-tab-waiting <%= "is-active" if Current.session.user.profile&.creator_requested? %>">Richiesto</span>
+                <span class="dashboard-state-tab dashboard-state-tab-success <%= "is-active" if Current.session.user.profile&.creator? %>">Attivo</span>
               </div>
-            <% elsif Current.session.user.profile.present? && Current.session.user.profile.creator_requested? %>
-              <div class="dashboard-panel-status">
-                <span class="dashboard-status-pill dashboard-status-pill-waiting">Richiesta inviata</span>
-                <p>La richiesta e' stata registrata. L'attivazione creator avverra' dopo conferma e pagamento.</p>
+              <% if Current.session.user.profile.present? && Current.session.user.profile.creator? %>
+                <span class="dashboard-mini-badge"><%= Current.session.user.profile.creator_active_range_compact_label %></span>
+              <% elsif Current.session.user.profile.present? && Current.session.user.profile.creator_requested? %>
+                <span class="dashboard-mini-badge">Richiesta aperta</span>
+              <% end %>
+            </div>
+          </div>
+
+          <div class="dashboard-panel-stack">
+            <article class="dashboard-panel dashboard-panel-red">
+              <span class="dashboard-panel-kicker">Professionista</span>
+              <p class="dashboard-panel-price">€149 / anno</p>
+              <h3>Spazio professional</h3>
+              <p>Porta formazione, servizi e valore professionale dentro mappe e percorsi.</p>
+
+              <% if Current.session.user.profile.present? && Current.session.user.profile.professional? %>
+                <div class="dashboard-panel-status">
+                  <p class="dashboard-panel-note">Ora puoi gestire servizi, formazione e proposte di percorso.</p>
+                </div>
+              <% elsif Current.session.user.profile.present? && Current.session.user.profile.professional_requested? %>
+                <div class="dashboard-panel-status">
+                  <p class="dashboard-panel-note">La richiesta e' stata registrata. L'attivazione professional avverra' dopo conferma e pagamento.</p>
+                </div>
+              <% elsif Current.session.user.profile.present? %>
+                <div class="dashboard-panel-status">
+                  <p class="dashboard-panel-note">L'accesso professional abilita listino, formazione e operativita'. Il prezzo include accesso annuale e spese di gestione.</p>
+                  <%= button_to "Richiedi", request_professional_profile_path, method: :patch, class: "btn btn-primary btn-block" %>
+                </div>
+              <% end %>
+            </article>
+            <div class="dashboard-panel-meta outside">
+              <div class="dashboard-state-tabs">
+                <span class="dashboard-state-tab <%= "is-active" unless Current.session.user.profile&.professional? || Current.session.user.profile&.professional_requested? %>">Chiuso</span>
+                <span class="dashboard-state-tab dashboard-state-tab-waiting <%= "is-active" if Current.session.user.profile&.professional_requested? %>">Richiesto</span>
+                <span class="dashboard-state-tab dashboard-state-tab-success <%= "is-active" if Current.session.user.profile&.professional? %>">Attivo</span>
               </div>
-            <% elsif Current.session.user.profile.present? %>
-              <div class="dashboard-panel-status">
-                <span class="dashboard-status-pill dashboard-status-pill-price">Piano creator EUR 29</span>
-                <p>L'accesso creator abilita la creazione di branch e mappe. Dopo la richiesta l'attivazione avverra' con verifica e pagamento.</p>
-                <%= button_to "Richiedi piano creator", request_creator_profile_path, method: :patch, class: "btn btn-primary btn-block" %>
-              </div>
-            <% end %>
-          </article>
-          <article class="dashboard-panel dashboard-panel-red">
-            <span class="dashboard-panel-kicker">Professionista</span>
-            <h3>Servizi e competenze</h3>
-            <p>Porta formazione, servizi e valore professionale dentro mappe e percorsi.</p>
-          </article>
-       
+              <% if Current.session.user.profile.present? && Current.session.user.profile.professional? %>
+                <span class="dashboard-mini-badge"><%= Current.session.user.profile.professional_active_range_compact_label %></span>
+              <% elsif Current.session.user.profile.present? && Current.session.user.profile.professional_requested? %>
+                <span class="dashboard-mini-badge">Richiesta aperta</span>
+              <% end %>
+            </div>
+          </div>
         </div>
       </div>
 

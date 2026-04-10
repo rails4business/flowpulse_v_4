@@ -1,0 +1,148 @@
+<% content_for :head do %>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    html{scroll-behavior:smooth}
+    .container{max-width:1200px}
+    :root{--pc-blue:#1f6feb;--pc-red:#dc2626;--pc-green:#059669}
+    .bg-pc-red{background-color:var(--pc-red)}.text-pc-red{color:var(--pc-red)}
+    .bg-pc-blue{background-color:var(--pc-blue)}.text-pc-blue{color:var(--pc-blue)}
+    .shadow-soft{box-shadow:0 10px 30px rgba(0,0,0,.08)}
+  </style>
+<% end %>
+
+<div class="bg-slate-50 text-slate-900 font-sans antialiased">
+  <!-- Navbar -->
+  <header class="bg-white/80 backdrop-blur sticky top-0 z-50 border-b border-slate-200">
+    <nav class="container mx-auto px-4 h-16 flex items-center justify-between">
+      <a href="#" class="flex items-center gap-3 font-bold text-pc-blue">
+        <%= image_tag 'posturacorretta/logo_pc.png', class:"h-8 rounded-xl" %>
+       
+      </a>
+      <div class="hidden md:flex items-center gap-6 text-sm">
+        <a href="#profilo-diario" class="hover:text-pc-blue">Profilo & Diario</a>
+        <a href="#corsi" class="hover:text-pc-blue">Corsi</a>
+        <a href="#oltre" class="hover:text-pc-blue">Oltre</a>
+        <a href="#iscriviti" class="inline-flex items-center rounded-full bg-pc-blue text-white px-4 py-2 font-semibold shadow-soft hover:shadow">Inizia ora</a>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Hero Intro -->
+  <section class="bg-gradient-to-r from-blue-600 to-blue-500 text-white py-16 px-4 text-center">
+    <h1 class="text-4xl md:text-5xl font-bold mb-4">Con le metodiche posturali <br >Riattiva i sistemi del corpo  </h1>
+    <!--p class="text-lg md:text-xl max-w-3xl mx-auto">
+     💎 Versione fluida e bilanciata (ideale come testo ufficiale o intro)
+<br>
+Lavorando con le metodiche posturali
+riattivi i sistemi del tuo corpo:
+cambia la tua postura,
+cambia il modo di osservare il mondo.
+PosturaCorretta è un percorso verso una nuova prospettiva
+da cui osservare e vivere la tua salute.
+<p class="text-lg md:text-xl max-w-3xl mx-auto">
+    
+🌿 Versione poetica e ispirazionale
+<br>
+Attraverso le metodiche posturali
+riattivi i sistemi vitali del corpo
+e qualcosa dentro di te si raddrizza.
+Cambia la postura, cambia lo sguardo,
+cambia il modo in cui vivi la salute.
+PosturaCorretta è il cammino verso una nuova prospettiva.
+ </p-->
+<p class="text-lg md:text-xl max-w-3xl mx-auto">
+    
+<!--⚙️ Versione per homepage o presentazione web-->
+
+ 
+Cambierà la tua postura, 
+<br>cambierà la prospettiva
+con cui osservi e vivi la salute. 
+<br>
+PosturaCorretta è il percorso che ti guida in questo cambiamento.   
+    </p>
+    <p class="mt-6 text-lg md:text-xl max-w-3xl mx-auto text-white/90 leading-relaxed">
+      Tendiamo oggi a vedere la patologia e il nostro stato come un problema. Noi pensiamo che la patologia e i problemi possano essere dei <strong>messaggeri</strong>.  Ecco che ti offriamo un percorso che nasce dalla <strong>fisioterapia</strong>, passa per le <strong>metodiche posturali</strong> e arriva <strong>oltre</strong>, per chi se la sente di intendere la patologia e le malattie non come un problema ma come la chiamata ad un viaggio!
+    </p>
+  </section>
+
+  <!-- Intro principale -->
+  <section class="max-w-3xl mx-auto px-4 py-12 space-y-6">
+    <p class="text-center text-lg mb-10 text-gray-700">
+      Entra <strong>PosturaCorretta</strong> troverai compagni di viaggio, professionisti che ti accompagniano nel tuo percorso di salute con strumenti, conoscenze integrate e consapevolezza.
+      Il canale YouTube (27k iscritti) nasce dal bisogno di <em>“Stop al Dolore”</em>, ma oggi si espande verso una visione più ampia:
+      <strong>postura, fisiologia, benessere e stile di vita</strong>.
+    </p>
+
+    <!-- PROFILO & DIARIO -->
+    <div id="profilo-diario">
+      <h2 class="text-3xl font-bold text-center mb-8 text-blue-700">Profilo & Diario</h2>
+      <div class="bg-white p-6 rounded-xl shadow-md border border-gray-100 mb-6">
+        <h3 class="text-xl font-semibold">Profilo</h3>
+        <p class="mt-2 text-gray-700">Imposta obiettivi, preferenze e livello di partenza. Collega i tuoi percorsi per un’esperienza personalizzata.</p>
+      </div>
+      <div class="bg-white p-6 rounded-xl shadow-md border border-gray-100">
+        <h3 class="text-xl font-semibold">Diario</h3>
+        <p class="mt-2 text-gray-700">Registra le lezioni completate, la scala del dolore giornaliero e le tue pratiche. Visualizza progressi e storico con lo stato di salute e i tuoi percorsi.</p>
+      </div>
+    </div>
+
+    <!-- CORSI -->
+    <div id="corsi" class="pt-12">
+      <h2 class="text-3xl font-bold text-center mb-8 text-blue-700">Corsi Ufficiali</h2>
+      <div class="space-y-6">
+        <div class="bg-white p-6 rounded-xl shadow-md border-l-4 border-red-500">
+          <h3 class="text-xl font-semibold">Stop al Dolore</h3>
+          <p class="mt-2 text-gray-700">Soluzioni di primo soccorso: automassaggio, esercizi immediati, gestione del dolore in attesa di supporto medico, un aiuto e linee guida per orientarti nelle fasi necessarie per uscire dalla fase acuta, durante la cura della patologia,  e gli ambiti della salute ti aiutiamo a capire a quali professionisti  </p>
+       
+        </div> 
+        <div class="bg-white p-6 rounded-xl shadow-md border-l-4 border-green-500">
+          <h3 class="text-xl font-semibold">Benessere Integrato</h3>
+          <p class="mt-2 text-gray-700">Le 5 aree della salute e le metodiche efficaci per prenderti cura di te in modo olistico.</p>
+        </div>
+        <div class="bg-white p-6 rounded-xl shadow-md border-l-4 border-blue-500">
+          <h3 class="text-xl font-semibold">Postura e Fisiologia</h3>
+          <p class="mt-2 text-gray-700">Scopri come funzionano i sistemi fisiologici e come mantenerli attivi con l’<strong>Igiene Posturale</strong>.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- OLTRE -->
+    <div id="oltre" class="pt-12">
+      <h2 class="text-3xl font-bold text-center mb-8 text-gray-700">Oltre la Postura</h2>
+      <div class="space-y-6">
+        <div class="bg-white p-6 rounded-xl shadow-md border-l-4 border-indigo-500">
+          <h4 class="text-lg font-semibold text-indigo-700">FlowPulse</h4>
+          <p class="mt-2 text-gray-700">Equilibrio tra salute, lavoro e formazione. Routine per uno stile di vita sostenibile.</p>
+        </div>
+        <div class="bg-white p-6 rounded-xl shadow-md border-l-4 border-amber-500">
+          <h4 class="text-lg font-semibold text-amber-700">Inside Adventure</h4>
+          <p class="mt-2 text-gray-700">Capacità cognitive e consapevolezza. Mappe e pratiche per la crescita personale.</p>
+        </div>
+        <div class="bg-white p-6 rounded-xl shadow-md border-l-4 border-lime-500">
+          <h4 class="text-lg font-semibold text-lime-700">Il Giardino del Corpo</h4>
+          <p class="mt-2 text-gray-700">Aspetti nascosti del mondo interiore, pratiche rigenerative e creatività.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA finale -->
+  <footer id="iscriviti" class="bg-gray-900 text-white py-12 text-center">
+    <p class="max-w-2xl mx-auto px-4 text-lg">
+      Segui <strong>PosturaCorretta</strong> su YouTube per iniziare il tuo percorso di salute con consapevolezza.
+    </p>
+    <div class="mt-6">
+      <a href="https://youtube.com/@posturacorretta" target="_blank" class="inline-flex items-center bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-full transition">
+        <i class="fab fa-youtube mr-2"></i> Vai al Canale YouTube
+      </a>
+    </div>
+    <p class="mt-6 text-xs text-white/60">© <span id="year"></span> PosturaCorretta · Tutti i diritti riservati</p>
+  </footer>
+</div>
+
+<script>
+  document.getElementById('year').textContent = new Date().getFullYear();
+</script>

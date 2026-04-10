@@ -1,0 +1,166 @@
+<% content_for :title, @post.title.presence || "Sessione posture" %>
+
+<% content_for :head do %>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+  <link href="https://fonts.googleapis.com" rel="preconnect" />
+  <link crossorigin href="https://fonts.gstatic.com" rel="preconnect" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+    rel="stylesheet"
+  />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            ink: "#121722",
+            sand: "#f6f2eb",
+            clay: "#eadfce",
+            accent: "#c56f4a"
+          },
+          fontFamily: {
+            display: ["Lexend", "sans-serif"],
+            sans: ["Lexend", "sans-serif"]
+          }
+        }
+      }
+    };
+  </script>
+<% end %>
+
+<%= render "shared/nav_partial_post" %>
+
+<%
+  posture_children = @children.ordered.select do |child|
+    child.public_node? &&
+      child.published? &&
+      (child.published_at.blank? || child.published_at <= Time.current) &&
+      child.post.present?
+  end
+%>
+
+<main class="min-h-screen bg-[linear-gradient(180deg,#faf7f1_0%,#ffffff_36%,#ffffff_100%)] text-ink">
+  <div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+    <section class="grid gap-8 overflow-hidden rounded-[2rem] bg-ink px-6 py-10 text-white shadow-[0_30px_80px_rgba(18,23,34,0.18)] lg:grid-cols-[1.3fr_0.7fr] lg:px-10 lg:py-14">
+      <div class="space-y-6">
+        <div class="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-white/80">
+          <span class="material-symbols-outlined text-[16px]">self_improvement</span>
+          Sessione posture
+        </div>
+
+        <h1 class="max-w-3xl text-4xl font-black leading-[1.02] tracking-[-0.04em] sm:text-5xl lg:text-6xl">
+          Di che postura hai bisogno?
+        </h1>
+
+        <p class="max-w-2xl text-base leading-7 text-white/78 sm:text-lg">
+          <%= @post.description.presence || "Una raccolta di posture pensata per farti orientare con calma: scegli il focus che senti piu vicino, entra nella scheda e scopri da dove partire." %>
+        </p>
+      </div>
+
+      <div class="rounded-[1.75rem] border border-white/10 bg-white/5 p-6 backdrop-blur">
+        <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-white/55">
+          Dentro questa raccolta
+        </p>
+        <div class="mt-5 grid gap-4 sm:grid-cols-3 lg:grid-cols-1">
+          <div>
+            <div class="text-3xl font-black"><%= posture_children.size %></div>
+            <p class="mt-1 text-sm text-white/72">Schede editoriali pronte da aprire</p>
+          </div>
+          <div>
+            <div class="text-3xl font-black">1</div>
+            <p class="mt-1 text-sm text-white/72">Hub da cui orientarti tra le posture</p>
+          </div>
+          <div>
+            <div class="text-3xl font-black">100%</div>
+            <p class="mt-1 text-sm text-white/72">Percorso esplorabile in autonomia</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="mt-8 flex items-center justify-between gap-4">
+      <div>
+        <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">
+          Raccolta
+        </p>
+        <h2 class="mt-2 text-2xl font-black tracking-[-0.03em] text-slate-900">
+          Scegli la postura che vuoi approfondire
+        </h2>
+      </div>
+
+      <% if @taxbranch.parent&.post.present? %>
+        <%= link_to post_entry_link(@taxbranch.parent.post, taxbranch: @taxbranch.parent),
+                    class: "inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-900 hover:text-slate-900" do %>
+          <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+          Torna alla sezione
+        <% end %>
+      <% end %>
+    </section>
+
+    <section class="mt-8">
+      <% if posture_children.any? %>
+        <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+          <% posture_children.each do |child| %>
+            <% child_post = child.post %>
+            <% child_media_url = post_media_url(child_post) %>
+            <% child_image_url = post_image_url(child_post) %>
+            <% child_preview_url = child_image_url.presence || youtube_thumb(child_media_url) || posture_fallback_image_url %>
+            <% entry_link = post_entry_link(child_post, taxbranch: child) %>
+
+            <article class="group overflow-hidden rounded-[1.5rem] border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-[0_24px_60px_rgba(15,23,42,0.14)]">
+              <%= link_to entry_link, class: "block" do %>
+                <div class="relative aspect-[4/3] overflow-hidden bg-slate-100">
+                  <% if child_preview_url.present? %>
+                    <img
+                      src="<%= child_preview_url %>"
+                      alt="<%= child_post.title.presence || child.slug_label %>"
+                      class="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"
+                      loading="lazy"
+                    >
+                  <% else %>
+                    <img
+                      src="<%= posture_fallback_image_url %>"
+                      alt="<%= child_post.title.presence || child.slug_label %>"
+                      class="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"
+                      loading="lazy"
+                    >
+                  <% end %>
+
+                  <% if child_media_url.present? %>
+                    <div class="absolute right-4 top-4 inline-flex items-center gap-1 rounded-full bg-black/65 px-3 py-1 text-xs font-semibold text-white backdrop-blur">
+                      <span class="material-symbols-outlined text-[16px]">play_arrow</span>
+                      Video
+                    </div>
+                  <% end %>
+                </div>
+
+                <div class="space-y-4 p-6">
+                  <div class="space-y-2">
+                    <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                      Postura
+                    </p>
+                    <h2 class="text-2xl font-bold tracking-[-0.02em] text-slate-900">
+                      <%= child_post.title.presence || child.slug_label.presence || "Postura" %>
+                    </h2>
+                    <p class="line-clamp-3 text-sm leading-6 text-slate-600">
+                      <%= truncate(strip_tags(child_post.description.to_s).presence || child.slug_label.to_s, length: 170) %>
+                    </p>
+                  </div>
+
+                  <div class="inline-flex items-center gap-2 text-sm font-semibold text-slate-900">
+                    Apri la postura
+                    <span class="material-symbols-outlined text-[18px] transition group-hover:translate-x-1">arrow_forward</span>
+                  </div>
+                </div>
+              <% end %>
+            </article>
+          <% end %>
+        </div>
+      <% else %>
+        <div class="rounded-[1.5rem] border border-slate-200 bg-white px-6 py-12 text-center text-slate-600 shadow-sm">
+          Le posture arriveranno qui appena i post figli saranno pubblicati.
+        </div>
+      <% end %>
+    </section>
+  </div>
+</main>

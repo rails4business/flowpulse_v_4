@@ -1,0 +1,78 @@
+<% content_for :title, @journey.title %>
+
+<div class="min-h-screen bg-slate-50">
+  <!-- Header -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-10">
+    <div class="max-w-5xl mx-auto px-6 py-6">
+      <h1 class="text-3xl font-bold text-slate-900">
+        <%= @journey.title %>
+      </h1>
+      <p class="text-slate-600 mt-1"><%= @journey.description %></p>
+    </div>
+  </header>
+
+  <!-- Carosello -->
+  <div class="max-w-5xl mx-auto px-6 py-10 space-y-8">
+
+    <% @journey.eventdates.order(date_start: :asc).each do |eventdate| %>
+      <section>
+        <h2 class="text-xl font-semibold text-slate-800 mb-3">
+          <%= l(eventdate.date_start, format: :long) rescue "Evento senza data" %>
+        </h2>
+
+        <!-- Scroll container -->
+        <div class="flex gap-6 overflow-x-auto pb-4 snap-x snap-mandatory">
+
+          <% eventdate.commitments.includes(taxbranch: :post).ordered.each do |commitment| %>
+            <% card = commitment.taxbranch %>
+            <% post = card&.post %>
+
+            <div class="min-w-[260px] bg-white rounded-xl border border-slate-200 shadow-sm snap-start shrink-0 hover:shadow-md transition">
+
+              <!-- Immagine -->
+              <% if post&.image_url.present? %>
+                <img
+                  src="<%= post.image_url %>"
+                  alt="<%= post.title %>"
+                  class="w-full h-40 object-cover rounded-t-xl"
+                >
+              <% else %>
+                <div class="w-full h-40 bg-slate-100 rounded-t-xl flex items-center justify-center text-slate-400 text-sm">
+                  Nessuna immagine
+                </div>
+              <% end %>
+
+              <!-- Contenuto card -->
+              <div class="p-4 space-y-2">
+
+                <p class="font-semibold text-slate-900">
+                  <%= post&.title || card&.slug_label || "Commitment ##{commitment.id}" %>
+                </p>
+
+                <% if post&.description.present? %>
+                  <p class="text-sm text-slate-600 line-clamp-3">
+                    <%= post.description %>
+                  </p>
+                <% end %>
+
+                <div class="flex items-center gap-2 text-xs text-slate-500">
+                  <span>⏱ <%= commitment.duration_minutes || "?" %> min</span>
+                  <% if commitment.role_name.present? %>
+                    <span>• 🎭 <%= commitment.role_name %></span>
+                  <% end %>
+                </div>
+
+                <!-- Link -->
+                <%= link_to "Apri", 
+                      journey_path(@journey, anchor: "commitment-#{commitment.id}"),
+                      class: "inline-block mt-3 text-sm text-slate-800 font-medium underline" %>
+              </div>
+            </div>
+          <% end %>
+
+        </div>
+      </section>
+    <% end %>
+
+  </div>
+</div>

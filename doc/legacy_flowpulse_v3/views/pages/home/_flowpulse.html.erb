@@ -1,0 +1,319 @@
+<div class="min-h-screen bg-gray-50 text-gray-900 dark:bg-slate-950 dark:text-slate-100">
+
+  <!-- NAVBAR -->
+  <nav class=" bg-white sticky top-0 z-50 bg-white/95 dark:bg-slate-950/95 backdrop-blur-sm border-b border-gray-200 dark:border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 py-2 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2">
+          <svg class="w-10 h-10" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="navGradBrand" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stop-color="#F5B800"></stop>
+              <stop offset="100%" stop-color="#111827"></stop>
+            </linearGradient>
+            <linearGradient id="navGradPulse" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stop-color="#10B981"></stop>
+              <stop offset="50%" stop-color="#F43F5E"></stop>
+              <stop offset="100%" stop-color="#6366F1"></stop>
+            </linearGradient>
+          </defs>
+          <rect x="2" y="2" width="36" height="36" rx="8" fill="none" stroke="url(#navGradBrand)" stroke-width="1.5"></rect>
+          <path d="M8 26 L14 26 L18 18 L22 29 L26 12 L30 26 L36 26" stroke="url(#navGradPulse)" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"></path>
+          <circle cx="14" cy="10" r="1.5" fill="#10B981"></circle>
+          <circle cx="22" cy="8" r="1.5" fill="#F43F5E"></circle>
+          <circle cx="30" cy="10" r="1.5" fill="#6366F1"></circle>
+        </svg>
+          <span class="font-bold text-lg">Flowpulse</span>
+        </div>
+       
+      </div>
+      <div class="hidden md:flex gap-8 items-center">
+        <a href="#pilastri" class="text-sm hover:text-blue-600 dark:hover:text-blue-400 transition">I 3 pilastri</a>
+        <a href="#services" class="text-sm hover:text-blue-600 dark:hover:text-blue-400 transition">Servizi</a>
+        <a href="#manifesto" class="text-sm hover:text-blue-600 dark:hover:text-blue-400 transition">Manifesto</a>
+              
+        <div class="flex items-center space-x-3">
+
+          <% if authenticated? %>
+            <span class="text-sm text-slate-600">
+              👋 Ciao, <%= Current.user.email_address %>
+            </span>
+          <%= link_to "Dashboard", dashboard_home_path, class: "px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition text-sm" %>
+      
+            <%#= button_to "Esci",
+                destroy_session_path,
+                method: :delete,
+                class: "text-slate-600 hover:text-slate-900 text-sm" %>
+
+          <% else %>
+            <%= link_to "Accedi",
+                new_session_path,
+                class: "px-3 py-1.5 text-sm rounded-lg border border-slate-300 hover:bg-slate-50 text-slate-700" %>
+
+            <%= link_to "Registrati",
+                signup_path,
+                class: "px-3 py-1.5 text-sm rounded-lg bg-blue-600 text-white hover:bg-blue-700" %>
+          <% end %>
+        </div>
+      </div>
+      <button class="md:hidden text-2xl">☰</button>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <header class="relative overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-br from-yellow-100 via-white to-transparent dark:from-yellow-900/10"></div>
+    <div class="relative max-w-7xl mx-auto px-4 py-16 md:py-24">
+      <div class="flex flex-col gap-6 md:gap-8 md:flex-row md:items-center">
+        <div class="md:w-2/3">
+          <span class="inline-block px-3 py-1 rounded-full text-sm font-medium bg-yellow-50 text-yellow-800 border border-yellow-200">Flowpulse Academy</span>
+          <h1 class="mt-4 text-4xl md:text-6xl font-extrabold tracking-tight leading-tight">Crea il tuo stile di vita</h1>
+          <p class="mt-4 text-lg text-gray-700 dark:text-slate-300 max-w-2xl leading-relaxed">
+            Ogni persona costruisce il proprio mondo attraverso energia, emozioni e pensieri. 
+            Le scelte che compiamo ogni giorno creano abitudini, ambienti e comunità. 
+            <strong>Flowpulse</strong> ti aiuta a creare tre spazi e instaurare le abitudini per un impatto su — 
+            <span class="text-emerald-700 dark:text-emerald-300 font-semibold">salute</span>, 
+            <span class="text-rose-700 dark:text-rose-300 font-semibold">lavoro</span>
+            e <span class="text-blue-700 dark:text-blue-300 font-semibold">formazione</span>.
+          </p>
+          <div class="mt-8 flex flex-col sm:flex-row gap-4">
+            <%= link_to "Accedi alla Dashboard", dashboard_home_path, class: "px-6 py-3 rounded-lg bg-gray-900 text-white hover:bg-black dark:bg-white dark:text-slate-900 dark:hover:bg-gray-100 transition font-medium text-center" %>
+            <a href="#pilastri" class="px-6 py-3 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 dark:bg-slate-900 dark:border-slate-700 dark:hover:bg-slate-800 transition font-medium text-center">Scopri di più</a>
+          </div>
+          <p class="mt-4 text-sm text-gray-600 dark:text-slate-400">
+            <a href="#manifesto" class="text-blue-600 dark:text-blue-300 font-semibold hover:underline">
+              Leggi il Manifesto completo →
+            </a>
+          </p>
+        </div>
+        <div class="md:w-1/3 hidden md:flex items-center justify-center">
+          <div class="relative w-64 h-64 bg-gradient-to-br from-yellow-200 to-blue-200 rounded-2xl opacity-30"></div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 3 PILASTRI -->
+  <section id="pilastri" class="max-w-7xl mx-auto px-4 py-16">
+    <div class="mb-12">
+      <h2 class="text-3xl font-bold mb-2">I 3 pilastri di Flowpulse</h2>
+      <p class="text-gray-600 dark:text-slate-400">Tre ambiti interconnessi per una crescita completa</p>
+    </div>
+    <div class="grid md:grid-cols-3 gap-6">
+      <div class="rounded-xl border border-emerald-200 dark:border-emerald-900/30 bg-gradient-to-br from-emerald-50 to-white dark:from-emerald-900/10 dark:to-slate-900 p-6 hover:shadow-lg transition">
+        <div class="w-12 h-12 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center mb-4">
+          <span class="text-2xl">💚</span>
+        </div>
+        <h3 class="font-bold text-lg mb-2">Salute</h3>
+        <p class="text-sm text-gray-600 dark:text-slate-400">Prevenzione, postura, movimento e gestione del dolore. Valutazioni e programmi guidati.</p>
+      </div>
+      <div class="rounded-xl border border-rose-200 dark:border-rose-900/30 bg-gradient-to-br from-rose-50 to-white dark:from-rose-900/10 dark:to-slate-900 p-6 hover:shadow-lg transition">
+        <div class="w-12 h-12 rounded-lg bg-rose-100 dark:bg-rose-900/30 flex items-center justify-center mb-4">
+          <span class="text-2xl">💼</span>
+        </div>
+        <h3 class="font-bold text-lg mb-2">Lavoro</h3>
+        <p class="text-sm text-gray-600 dark:text-slate-400">Organizzazione, processi, strumenti. Dalle routine personali ai flussi per l'impresa.</p>
+      </div>
+      <div class="rounded-xl border border-blue-200 dark:border-blue-900/30 bg-gradient-to-br from-blue-50 to-white dark:from-blue-900/10 dark:to-slate-900 p-6 hover:shadow-lg transition">
+        <div class="w-12 h-12 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mb-4">
+          <span class="text-2xl">📚</span>
+        </div>
+        <h3 class="font-bold text-lg mb-2">Formazione</h3>
+        <p class="text-sm text-gray-600 dark:text-slate-400">Percorsi e contenuti per evolvere abilità e consapevolezza, con docenti e auto‑apprendimento.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- BRAND PER PILASTRO -->
+  <% color_map = flowpulse_color_map %>
+  <section class="max-w-7xl mx-auto px-4 py-16 space-y-16">
+  <% ["salute", "lavoro", "formazione"].each do |cat| %>
+    <% brands = @brands_by_category[cat] || [] %>
+    <% color = color_map[cat][:base] %>
+
+    <div>
+      <div class="rounded-xl p-6 bg-gradient-to-r from-<%= color %>-50 via-white to-transparent border border-<%= color %>-100 dark:from-<%= color %>-900/10 dark:border-<%= color %>-900/30 mb-8">
+        <h2 class="text-2xl font-bold text-<%= color %>-800 dark:text-<%= color %>-300">Brand — <%= cat.capitalize %></h2>
+        <p class="text-sm text-<%= color %>-700/80 dark:text-<%= color %>-300/80 mt-2">
+          <%=
+            case cat
+            when "salute"
+              "Prevenzione, postura, movimento, gestione del dolore."
+            when "lavoro"
+              "Routine, priorità, strumenti e processi per lavorare meglio."
+            when "formazione"
+              "Percorsi guidati e auto‑apprendimento per crescere nel tempo."
+            end
+          %>
+        </p>
+      </div>
+
+      <% if brands.any? %>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <% brands.each do |b| %>
+            <a href="<%= b[:url] %>" class="group rounded-xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden transition-all hover:shadow-lg hover:border-<%= color %>-200 dark:hover:border-<%= color %>-800">
+              <% if b[:image_url].present? %>
+                <img src="<%= b[:image_url] %>" alt="<%= b[:title] %>" class="w-full aspect-[16/9] object-cover bg-gray-100 group-hover:scale-105 transition-transform" />
+              <% end %>
+              <div class="p-4 space-y-2">
+                <h3 class="font-semibold group-hover:text-<%= color %>-600 dark:group-hover:text-<%= color %>-400 transition"><%= b[:title] %></h3>
+                <p class="text-sm text-gray-600 dark:text-slate-400"><%= b[:description] %></p>
+              </div>
+            </a>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="text-sm text-gray-600 dark:text-slate-400">Nessun brand in questa sezione.</p>
+      <% end %>
+    </div>
+  <% end %>
+</section>
+
+  <!-- SERVIZI -->
+  <section id="services" class="max-w-7xl mx-auto px-4 py-16">
+    <div class="mb-12">
+      <h2 class="text-3xl font-bold mb-2">Servizi dell'accademia</h2>
+      <p class="text-gray-600 dark:text-slate-400">Strumenti trasversali: corsi, valutazioni e contenuti.</p>
+    </div>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <% @services.each do |s| %>
+        <article class="group rounded-xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden transition-all hover:shadow-lg">
+          <% if s[:image_url].present? %>
+            <img src="<%= s[:image_url] %>" alt="<%= s[:title] %>" class="w-full aspect-[16/9] object-cover bg-gray-100 group-hover:scale-105 transition-transform" />
+          <% end %>
+          <div class="p-4 space-y-2">
+            <h3 class="font-semibold group-hover:text-blue-600 dark:group-hover:text-blue-400 transition"><%= s[:title] %></h3>
+            <p class="text-sm text-gray-600 dark:text-slate-400"><%= s[:description] %></p>
+          </div>
+        </article>
+      <% end %>
+    </div>
+  </section>
+
+  <!-- MANIFESTO -->
+  <section id="manifesto" class="max-w-7xl mx-auto px-4 py-16">
+    <div class="rounded-2xl bg-gradient-to-br from-blue-600 to-blue-800 dark:from-blue-900 dark:to-blue-950 p-12 text-white">
+      <h2 class="text-3xl font-bold mb-6">Il Manifesto di Flowpulse</h2>
+      <div class="space-y-4 max-w-3xl">
+        <p>Crediamo che ogni persona ha il potere di ricostruire la propria realtà.</p>
+        <p>Crediamo nel potere delle scelte quotidiane, delle abitudini consapevoli e della comunità.</p>
+        <p>Crediamo che salute, lavoro e formazione non siano separati, ma interconnessi.</p>
+        <p>Flowpulse è il tuo compagno in questo viaggio verso una vita più consapevole e impattante.</p>
+      </div>
+    </div>
+  </section>
+  <section id="struttura" class="max-w-7xl mx-auto px-4 py-16">
+  <div class="mb-12">
+    <h2 class="text-3xl font-bold mb-2">La Struttura di Flowpulse</h2>
+    <p class="text-gray-600 dark:text-slate-400 max-w-2xl">
+      Flowpulse è un ecosistema che unisce <strong>visione</strong>, <strong>organizzazione</strong> e <strong>azione</strong>.
+      Ogni livello rappresenta un piano di costruzione della realtà: dal significato ai processi, fino agli eventi concreti.
+    </p>
+    <br>
+    <br>
+  </div>
+
+  <div class="grid md:grid-cols-3 gap-8">
+    <!-- 1️⃣ Visione e Principi -->
+    <div class="rounded-2xl border border-blue-200 dark:border-yellow-900/30 bg-gradient-to-br from-yellow-50 to-white dark:from-yellow-900/10 dark:to-slate-900 p-6 hover:shadow-lg transition">
+      <div class="flex items-center gap-3 mb-4">
+        <span class="text-3xl">🌅</span>
+        <h3 class="font-bold text-xl">Visione e Principi</h3>
+      </div>
+      <p class="text-sm text-gray-600 dark:text-slate-400 mb-3">
+        La base ispiratrice del sistema: comprendere la direzione, i valori e i principi su cui si fonda Flowpulse.
+      </p>
+      <ul class="text-sm text-gray-600 dark:text-slate-400 space-y-1 pl-4 list-disc">
+        <li><strong>Idea e Progetti</strong> — Dalla visione ai concept concreti.</li>
+        <li><strong>Contenuti</strong> — Stesura elaborazione obiettivi.</li>
+        <li><strong>Visione</strong> — L’idea guida e lo scopo profondo.</li>
+        <li><strong>Principi</strong> — Le leggi che orientano il metodo.</li>
+        
+        <li><strong>Vendita e Presentazione</strong> — Taxonomia, marketing e posizionamento.</li>
+        <li><strong>Viaggi</strong> — Le esperienze e le persone in movimento.</li>
+      </ul>
+    </div>
+
+    <!-- 2️⃣ Programma e Organizzazione -->
+    <div class="rounded-2xl border border-red-200 dark:border-emerald-900/30 bg-gradient-to-br from-red-100 to-white dark:from-emerald-900/10 dark:to-slate-900 p-6 hover:shadow-lg transition">
+      <div class="flex items-center gap-3 mb-4">
+        <span class="text-3xl">🧭</span>
+        <h3 class="font-bold text-xl">Programma e Organizzazione</h3>
+      </div>
+      <p class="text-sm text-gray-600 dark:text-slate-400 mb-3">
+        Il livello operativo: come pianificare, gestire e coordinare le risorse di Flowpulse.
+      </p>
+      <ul class="text-sm text-gray-600 dark:text-slate-400 space-y-1 pl-4 list-disc">
+        <li><strong>Programma</strong> — Priorità, obiettivi e bisogni reali.</li>
+        <li><strong>Piano editoriale</strong> — Stesura del piano.</li>
+        <li><strong>Risorse</strong> — Persone, strumenti, competenze.</li>
+        <li><strong>Back Office</strong> — Gestione interna e supporto operativo.</li>
+         <li><strong>Procedure e Planning</strong> — Linee guida per l’efficienza e la coerenza.</li>
+         <li><strong>Mappa Metropolitana</strong> — Visione dei processi e connessioni.</li>
+       
+      </ul>
+    </div>
+
+    <!-- 3️⃣ Costruzione e Azione -->
+    <div class="rounded-2xl border border-green-200 dark:border-blue-900/30 bg-gradient-to-br from-blue-50 to-white dark:from-blue-900/10 dark:to-slate-900 p-6 hover:shadow-lg transition">
+      <div class="flex items-center gap-3 mb-4">
+        <span class="text-3xl">🚀</span>
+        <h3 class="font-bold text-xl">Costruzione e Azione</h3>
+      </div>
+      <p class="text-sm text-gray-600 dark:text-slate-400 mb-3">
+        Il piano concreto dove si realizzano eventi, percorsi e connessioni tra persone e progetti.
+      </p>
+      <ul class="text-sm text-gray-600 dark:text-slate-400 space-y-1 pl-4 list-disc">
+        <li><strong>Esecuzione</strong> — Dalla pianificazione all’attuazione.</li>
+        <li><strong>Registrazione</strong> — Realizzazione e caricamento sulle piattaforme.</li>
+        
+        <li><strong>Eventi</strong> — Occasioni per incontrarsi e collaborare.</li>
+        <li><strong>Work e Front Office</strong> — Spazi di lavoro e coordinamento.</li>
+        <li><strong>Percorsi</strong> — Viaggi formativi e professionali.</li>
+        <li><strong>Biglietti</strong> — Accessi, prenotazioni, partecipazioni.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+
+  <!-- FOOTER -->
+  <footer class="p-8 bg-gray-900 dark:bg-slate-950 text-white border-t border-gray-800">
+    <div class="max-w-7xl mx-auto px-4 py-12">
+      <div class="grid md:grid-cols-4 gap-8 mb-8">
+        <div>
+          <h4 class="font-bold mb-4">Flowpulse</h4>
+          <p class="text-sm text-gray-400">Ricostruisci il tuo stile di vita.</p>
+        </div>
+        <div>
+          <h4 class="font-bold mb-4">Pilastri</h4>
+          <ul class="space-y-2 text-sm text-gray-400">
+            <li><a href="#pilastri" class="hover:text-white transition">Salute</a></li>
+            <li><a href="#pilastri" class="hover:text-white transition">Lavoro</a></li>
+            <li><a href="#pilastri" class="hover:text-white transition">Formazione</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold mb-4">Risorse</h4>
+          <ul class="space-y-2 text-sm text-gray-400">
+            <li><a href="#services" class="hover:text-white transition">Servizi</a></li>
+            <li><a href="#manifesto" class="hover:text-white transition">Manifesto</a></li>
+            <li><a href="#" class="hover:text-white transition">Contatti</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold mb-4">Account</h4>
+          <ul class="space-y-2 text-sm text-gray-400">
+            <li><%= link_to "Dashboard", dashboard_home_path, class: "hover:text-white transition" %></li>
+            <li><a href="#" class="hover:text-white transition">Privacy</a></li>
+            <li><a href="#" class="hover:text-white transition">Terms</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="mt-8 border-t border-gray-800 pt-8 text-sm text-gray-400">
+        <p>&copy; 2025 Flowpulse Academy. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+</div>

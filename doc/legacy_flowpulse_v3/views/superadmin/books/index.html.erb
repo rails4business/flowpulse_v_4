@@ -1,0 +1,40 @@
+<% content_for :title, "Libri" %>
+<div class="space-y-4">
+  <div class="flex items-center justify-between">
+    <h1 class="text-2xl font-bold">Libri</h1>
+    <div class="flex items-center gap-2">
+      <%= link_to "Vai a Libreria", books_path, class: "rounded-md border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100" %>
+      <%= link_to "Nuovo libro", new_superadmin_book_path, class: "rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white" %>
+    </div>
+  </div>
+
+  <div class="rounded-xl border bg-white overflow-hidden">
+    <table class="w-full text-sm">
+      <thead class="bg-slate-50">
+        <tr>
+          <th class="text-left px-3 py-2">Titolo</th>
+          <th class="text-left px-3 py-2">Slug</th>
+          <th class="text-left px-3 py-2">Domini</th>
+          <th class="text-left px-3 py-2">Stato</th>
+          <th class="text-left px-3 py-2">Azioni</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @books.each do |book| %>
+          <tr class="border-t">
+            <td class="px-3 py-2"><%= book.title %></td>
+            <td class="px-3 py-2"><code><%= book.slug %></code></td>
+            <td class="px-3 py-2"><%= book.domains.map(&:host).join(", ").presence || "—" %></td>
+            <td class="px-3 py-2"><%= book.active? ? "Attivo" : "Disattivo" %></td>
+            <td class="px-3 py-2">
+              <div class="flex items-center gap-2">
+                <%= link_to "Apri", superadmin_book_path(book), class: "text-blue-600 hover:underline" %>
+                <%= link_to "Modifica", edit_superadmin_book_path(book), class: "text-blue-600 hover:underline" %>
+              </div>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

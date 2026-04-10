@@ -1,0 +1,2355 @@
+<style>
+  /* Piccolo aiuto: area scrollabile senza far tremare layout */
+  .scroll-y { overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  .scroll-x { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+</style>
+
+<!-- Main Container matches parent max-w -->
+<section id="percorso" class="max-w-[1200px] mx-auto px-6 py-12 space-y-8">
+
+  <!-- Header Card -->
+  <div class="relative bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 p-8 md:p-12 overflow-hidden">
+    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-primary"></div>
+
+    <div class="relative z-10 grid lg:grid-cols-2 gap-8 items-start">
+	      <div class="space-y-6">
+	        <div class="inline-flex items-center justify-center px-3 py-1 rounded-full bg-slate-50 border border-slate-200 text-[10px] font-bold tracking-[0.2em] uppercase text-slate-500 shadow-sm">
+	          Accademia PosturaCorretta
+	        </div>
+
+	        <h2 class="text-4xl md:text-5xl font-black leading-[1.1] tracking-[-0.033em] text-slate-900">
+	          Postura e <span class="text-primary">Fisiologia</span>
+	        </h2>
+
+        <p class="text-lg text-slate-600 leading-relaxed font-normal">
+          Il percorso educativo per comprendere come funziona il corpo e come riattivarlo.
+          <span class="block mt-2 text-base text-slate-500">Non solo per stare in salute, ma per costruire uno stile di vita più adatto a te.</span>
+        </p>
+
+       
+      </div>
+
+      <div class="relative h-full min-h-[200px] bg-slate-50 rounded-2xl border border-slate-100">
+        <div class="p-8">
+          <span class="material-symbols-outlined text-4xl text-slate-300 mb-2">school</span>
+          <p class="text-sm text-slate-400 font-medium">Struttura del percorso</p>
+          <div class="mt-4 grid grid-cols-2 gap-2 text-xs text-left">
+            <div class="bg-white p-2 rounded border border-slate-100">
+              <span class="block font-bold text-slate-700">6 Moduli</span>
+              <span class="text-slate-400">Teoria e pratica</span>
+            </div>
+            <div class="bg-white p-2 rounded border border-slate-100">
+              <span class="block font-bold text-slate-700">32 Lezioni</span>
+              <span class="text-slate-400">Step-by-step</span>
+            </div>
+
+
+          </div>
+           <div class="mt-8 pt-6 border-t border-slate-50">
+          <p class="text-sm text-slate-400 leading-relaxed">
+            Un percorso esperienziale di <strong class="text-slate-600">educazione alla salute</strong> per imparare a leggere i segnali del corpo e riattivare la tua fisiologia attraverso le basi delle principali metodiche posturali.
+          </p>
+        </div>
+
+         
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content (inside same top card) -->
+    <div class="relative z-10 mt-8 space-y-6">
+       <div class="text-left">
+            <div class="flex items-center justify-between gap-2">
+              <h2 class="font-bold text-base text-slate-800">Moduli</h2>
+              <button id="resetAllBtn" class="text-xs px-3 py-1.5 rounded-lg bg-white border border-slate-200 hover:bg-slate-100 text-slate-600 transition-colors shadow-sm font-medium">
+                Reset
+              </button>
+            </div>
+            <p class="mt-1 text-xs text-slate-500">Scegli il modulo e continua da dove eri rimasto.</p>
+            <div id="moduleList" class="scroll-x mt-3 flex gap-3 overflow-x-auto pb-4 snap-x snap-mandatory scroll-pl-4">
+              <!-- modules injected -->
+            </div>
+          </div>
+      <div class="space-y-6">
+
+	        <!-- Content Area -->
+	        <section class="space-y-6">
+
+          <!-- Module header + stats -->
+          <div class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+            <div class="p-4 md:p-5">
+              <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+                <div class="flex items-start gap-4 min-w-0">
+                  <div id="moduleImageContainer" class="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 shrink-0"></div>
+                  <div class="min-w-0">
+                    <div class="text-xs uppercase tracking-[0.25em] text-slate-400" id="moduleMethod">Metodica</div>
+                    <h1 class="text-2xl md:text-3xl font-black tracking-tight mt-1" id="moduleTitle">Seleziona un modulo</h1>
+                    <p class="text-sm text-slate-400 mt-2" id="moduleDesc">Qui vedrai lezioni, modalità e avanzamento.</p>
+                  </div>
+                </div>
+
+                <div class="hidden md:flex flex-wrap md:flex-nowrap gap-2 text-xs">
+                  <div class="flex-1 min-w-[120px] rounded-xl border border-slate-200 bg-slate-50 p-3 text-center">
+                    <div class="text-slate-400 font-bold uppercase text-[10px]">Utenti</div>
+                    <div class="text-lg font-bold text-slate-800" id="statUsers">—</div>
+                  </div>
+                
+                  <div class="flex-1 min-w-[120px] rounded-xl border border-slate-200 bg-slate-50 p-3 text-center">
+                    <div class="text-slate-400 font-bold uppercase text-[10px]">Insegnanti</div>
+                    <div class="text-lg font-bold text-slate-800" id="statTeachers">—</div>
+                  </div>
+                  <div class="flex-1 min-w-[120px] rounded-xl border border-slate-200 bg-slate-50 p-3 text-center">
+                    <div class="text-slate-400 font-bold uppercase text-[10px]">Centri</div>
+                    <div class="text-lg font-bold text-slate-800" id="statCenters">—</div>
+                  </div>
+                    <!--div class="flex-1 min-w-[120px] rounded-xl border border-slate-200 bg-slate-50 p-3 text-center">
+                    <div class="text-slate-400 font-bold uppercase text-[10px]">Recensioni</div>
+                    <div class="text-lg font-bold text-slate-800" id="statReviews">—</div>
+                  </div-->
+                   <div class="flex-1 min-w-[120px] rounded-xl border border-slate-200 bg-slate-50 p-3 text-center">
+                    <div class="text-slate-400 font-bold uppercase text-[10px]">Scuole</div>
+                    <div class="text-lg font-bold text-slate-800">-</div>
+                  </div>
+                </div>
+              </div>
+
+              
+
+              <!-- Module Mode (NEW) -->
+              <div class="mt-5">
+	                <div class="flex flex-col md:flex-row md:items-center gap-4">
+                    <button id="openEnrollModalBtn" type="button" class="w-full md:w-auto text-sm px-4 py-2.5 rounded-xl bg-primary text-white font-bold hover:bg-primary/90 transition-colors">
+                      Iscriviti al modulo
+                    </button>
+                    <div class="w-full md:flex-1">
+                      <div class="flex items-center justify-between text-xs text-slate-400">
+                        <div id="progressLabel">Avanzamento</div>
+                        <div>
+                          <span id="progressDone">0</span>/<span id="progressTotal">0</span>
+                          <span id="progressUnit">lezioni</span>
+                        </div>
+                      </div>
+                      <div class="mt-2 h-2 rounded-full bg-slate-100 overflow-hidden">
+                        <div id="progressBar" class="h-2 bg-slate-200/90 w-0"></div>
+                      </div>
+                    </div>
+	                  <span id="moduleModeBadge" class="hidden text-[10px] font-bold px-2 py-1 rounded-lg border bg-white text-slate-600 uppercase tracking-wide">—</span>
+	                </div>
+
+	                <div id="moduleModeControls" class="hidden mt-3 grid grid-cols-1 md:grid-cols-2 gap-2">
+	                  <label class="flex items-start gap-3 p-3 rounded-xl border border-slate-200 bg-white hover:border-blue-200 cursor-pointer transition-colors">
+	                    <input id="modeModuleAutonomia" type="radio" name="moduleMode" value="autonomia" class="mt-1" />
+	                    <div>
+                      <div class="font-semibold">1) Online in autonomia</div>
+                      <div class="text-xs text-slate-500">Accedi a PDF + video. Completi le lezioni e salvi il progresso.</div>
+                      <div class="mt-2 text-xs font-semibold text-slate-700">Prezzo: <span id="priceAutonomia">—</span></div>
+                    </div>
+                  </label>
+
+                  <label class="flex items-start gap-3 p-3 rounded-xl border border-slate-200 bg-white hover:border-blue-200 cursor-pointer transition-colors">
+                    <input id="modeModulePro" type="radio" name="moduleMode" value="professionista" class="mt-1" />
+                    <div class="w-full">
+                      <div class="font-semibold">2) Seguito da un professionista</div>
+                      <div class="text-xs text-slate-500">Sblocca prenotazioni e tracciamento lezioni svolte (singolo o gruppo).</div>
+
+                      <div class="mt-3 grid grid-cols-2 gap-2">
+                        <select id="proType" class="w-full text-sm bg-white border border-slate-200 rounded-lg px-3 py-2 text-slate-700">
+                          <option value="gruppo">Gruppo (8–12)</option>
+                          <option value="singolo">Singolo</option>
+                        </select>
+                        <select id="proChannel" class="w-full text-sm bg-white border border-slate-200 rounded-lg px-3 py-2 text-slate-700">
+                          <option value="online">Online</option>
+                          <option value="presenza">In presenza</option>
+                        </select>
+                      </div>
+
+                      <div class="mt-2">
+                        <select id="proPlace" class="w-full text-sm bg-white border border-slate-200 rounded-lg px-3 py-2 text-slate-700">
+                          <option value="centro">Centro</option>
+                          <option value="domicilio">Domicilio</option>
+                        </select>
+                      </div>
+
+                      <!-- Offer choice -->
+                      <div class="mt-3 grid grid-cols-1 md:grid-cols-3 gap-2">
+                        <button id="offerSingleBtn" class="text-xs px-3 py-2 rounded-lg bg-slate-50 border border-slate-200 hover:bg-white font-semibold text-slate-700 transition-colors">
+                          Lezione singola<br><span class="font-bold" id="priceProSingle">—</span>
+                        </button>
+                        <button id="offerPackBtn" class="text-xs px-3 py-2 rounded-lg bg-slate-50 border border-slate-200 hover:bg-white font-semibold text-slate-700 transition-colors">
+                          Lezione 1:1<br><span class="font-bold" id="priceProPack">—</span>
+                        </button>
+                        <button id="offerGroupBtn" class="text-xs px-3 py-2 rounded-lg bg-slate-50 border border-slate-200 hover:bg-white font-semibold text-slate-700 transition-colors">
+                          Gruppo modulo<br><span class="font-bold" id="priceProGroup">—</span>
+                        </button>
+                      </div>
+
+                      <div class="mt-2 text-[11px] text-slate-500">
+                        MVP: acquisto/prenotazioni sono placeholder. In Rails diventeranno Checkout + Calendario.
+                      </div>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
+            </div>
+	        
+
+              <div class="border border-slate-200 bg-white shadow-sm overflow-hidden">
+                <div class="p-2 border-b border-slate-100 bg-white">
+                  <div class="flex flex-wrap gap-2">
+                    <button id="tabLessonsBtn" type="button" class="px-3 py-2 rounded-lg text-sm font-semibold border border-slate-200 bg-white text-slate-700">Lezioni</button>
+                    <button id="tabInstructorBtn" type="button" class="px-3 py-2 rounded-lg text-sm font-semibold border border-slate-200 bg-white text-slate-700">Insegnante</button>
+                    <button id="tabReviewsBtn" type="button" class="px-3 py-2 rounded-lg text-sm font-semibold border border-slate-200 bg-white text-slate-700">Recensioni</button>
+                    <button id="tabPricesBtn" type="button" class="px-3 py-2 rounded-lg text-sm font-semibold border border-slate-200 bg-white text-slate-700">Prezzi</button>
+                    <button id="tabInfoBtn" type="button" class="px-3 py-2 rounded-lg text-sm font-semibold border border-slate-200 bg-white text-slate-700">Info</button>
+                  </div>
+                </div>
+
+                <div id="tabLessonsPanel">
+		              <div class="p-4 border-b border-slate-100 bg-white flex items-center justify-between">
+                    <h3 class="font-bold text-slate-700">Lezioni</h3>
+                    <div class="text-xs text-slate-400" id="lessonHint">—</div>
+                  </div>
+                  <div class="p-4 space-y-4">
+                    <div id="lessonStepper" class="space-y-1">
+                      <!-- lessons injected -->
+                    </div>
+                  </div>
+                </div>
+
+                <div id="lessonProgramModal" class="fixed inset-0 z-[70] hidden items-center justify-center bg-slate-900/60 p-4">
+                  <div class="w-full max-w-2xl rounded-2xl border border-slate-200 bg-white shadow-2xl">
+                    <div class="flex items-start justify-between gap-4 border-b border-slate-100 px-5 py-4">
+                      <div>
+                        <div class="text-[10px] uppercase tracking-[0.2em] text-slate-400 font-bold">Programma lezione</div>
+                        <h4 id="lessonProgramModalTitle" class="mt-1 text-lg font-bold text-slate-900">—</h4>
+                        <p id="lessonProgramModalDesc" class="mt-1 text-sm text-slate-500">—</p>
+                      </div>
+                      <button id="closeLessonProgramModalBtn" type="button" class="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-50">
+                        Chiudi
+                      </button>
+                    </div>
+                    <div class="px-5 py-4">
+                      <ul id="lessonProgramModalList" class="space-y-2 text-sm text-slate-700">
+                        <!-- lesson program injected -->
+                      </ul>
+                    </div>
+                    <div class="border-t border-slate-100 px-5 py-3 flex justify-end">
+                      <button id="lessonProgramModalDoneBtn" type="button" class="rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white hover:bg-primary/90">
+                        Chiudi programma
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div id="tabInstructorPanel" class="hidden p-4">
+                  <h3 class="font-bold text-slate-800">Percorso Insegnante</h3>
+                  <p class="mt-1 text-sm text-slate-500">Lezioni insegnante previste per ogni corso/modulo.</p>
+                  <div class="p-4 mt-3 border border-slate-100 bg-white rounded-xl flex items-center justify-between">
+                    <h4 class="font-bold text-slate-700">Lezioni insegnante</h4>
+                    <div class="text-xs text-slate-400" id="instructorLessonHint">—</div>
+                  </div>
+                  <div class="mt-3 space-y-4">
+                    <div id="instructorLessonStepper" class="space-y-1">
+                      <!-- instructor lessons injected -->
+                    </div>
+                  </div>
+                </div>
+
+                <div id="tabReviewsPanel" class="hidden p-4">
+	                <div class="mb-3">
+	                  <h3 class="font-bold text-slate-800">Recensioni</h3>
+	                  <p class="text-sm text-slate-400 mt-1">Nella versione Rails arriveranno da DB/API.</p>
+	                </div>
+	                <div id="reviewList" class="grid grid-cols-1 md:grid-cols-3 gap-3">
+	                  <!-- injected -->
+	                </div>
+                </div>
+
+                <div id="tabPricesPanel" class="hidden p-4">
+                  <h3 class="font-bold text-slate-800">Prezzi del modulo</h3>
+                  <p class="mt-1 text-xs text-slate-500">Confronto diretto tra percorso in autonomia e percorso con professionista.</p>
+                  <div class="mt-3 grid grid-cols-1 lg:grid-cols-3 gap-4 text-sm">
+                    <div class="rounded-2xl border border-blue-200 bg-blue-50/40 p-4 lg:col-span-1 flex flex-col">
+                      <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[18px] text-blue-600">laptop_mac</span>
+                        <div class="text-xs font-black uppercase tracking-[0.2em] text-blue-700">Autonomia</div>
+                      </div>
+                      <div class="mt-3 rounded-xl border border-blue-100 bg-white p-4 flex-1 flex flex-col min-h-[250px]">
+                        <div class="text-xs uppercase tracking-wide text-slate-500">Accesso modulo completo</div>
+                        <div class="mt-2 text-xs text-slate-500" id="tabPriceAutonomiaMeta">Accesso al modulo in autonomia.</div>
+                        <div class="mt-auto rounded-lg border border-slate-200 bg-white px-3 py-2 flex items-center justify-between gap-3">
+                          <div class="text-[10px] uppercase tracking-wide text-slate-500">Prezzo</div>
+                          <div class="text-base leading-none font-black text-slate-900" id="tabPriceAutonomia">—</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="rounded-2xl border border-emerald-200 bg-emerald-50/40 p-4 lg:col-span-2 flex flex-col">
+                      <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[18px] text-emerald-700">medical_services</span>
+                        <div class="text-xs font-black uppercase tracking-[0.2em] text-emerald-700">Professionista</div>
+                      </div>
+                      <div class="mt-3 flex flex-col md:flex-row gap-3 flex-1">
+                        <div class="rounded-xl border border-emerald-100 bg-white p-3 flex-1 flex flex-col min-h-[250px]">
+                          <div class="text-[11px] font-bold uppercase tracking-wide text-emerald-700">Gruppo</div>
+                        
+                          <div class="mt-2 flex-1 flex flex-col">
+                            <div class="mb-2 grid grid-cols-1 gap-2">
+                              <button id="tabGroupModePackBtn" type="button" class="w-full px-2.5 py-1.5 rounded-lg text-[11px] font-bold border border-slate-200 bg-white text-slate-700 text-center">Pacchetto</button>
+                            </div>
+                            <div id="tabGroupPackPanel" class="rounded-lg border border-slate-200 bg-slate-50 p-3 flex flex-col min-h-[170px]">
+                              <div class="mt-0.5 text-[10px] uppercase tracking-wide text-slate-500">Tariffa per persona</div>
+                              <div class="text-[10px] uppercase tracking-wide text-slate-500 mb-2">Modulo: <span id="tabGroupPackLessons">—</span> lezioni</div>
+                              <label class="block mb-2">
+                                <div class="text-[10px] uppercase tracking-wide text-slate-500 mb-1">Numero persone gruppo</div>
+                                <select id="tabGroupPackSizeSelect" class="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-[11px] font-bold text-slate-700 shadow-sm">
+                                  <option value="2_4">2-4 persone</option>
+                                  <option value="5_8">5-8 persone</option>
+                                  <option value="8_12" selected>8-12 persone</option>
+                                  <option value="12_20">12-20 persone</option>
+                                  <option value="20p">oltre 20 persone</option>
+                                </select>
+                              </label>
+                              <div class="mt-auto rounded-lg border border-slate-200 bg-white px-3 py-2 flex items-center justify-between gap-3">
+                                <div class="text-[10px] uppercase tracking-wide text-slate-500">Prezzo</div>
+                                <div class="text-base leading-none font-black text-slate-900" id="tabGroupPackPriceValue">—</div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="rounded-xl border border-emerald-100 bg-white p-3 flex-1 flex flex-col min-h-[250px]">
+                          <div class="text-[11px] font-bold uppercase tracking-wide text-emerald-700">Singolo</div>
+                          <div class="mt-2 flex-1 flex flex-col">
+                            <div class="mb-2 grid grid-cols-2 gap-2">
+                              <button id="tabSingleModePackBtn" type="button" class="w-full px-2.5 py-1.5 rounded-lg text-[11px] font-bold border border-slate-200 bg-white text-slate-700 text-center">Pacchetto</button>
+                              <button id="tabSingleModeLessonBtn" type="button" class="w-full px-2.5 py-1.5 rounded-lg text-[11px] font-bold border border-slate-200 bg-white text-slate-700 text-center">1 lezione</button>
+                            </div>
+                            <div id="tabSingleLessonPanel" class="hidden rounded-lg border border-slate-200 bg-slate-50 p-3 flex flex-col min-h-[170px]">
+                              <div class="text-[10px] uppercase tracking-wide text-slate-500 mb-2">Lezione 1:1</div>
+                              <div class="text-[10px] uppercase tracking-wide text-slate-500 mb-2">Modulo: 1 lezione</div>
+                              <label class="block mb-2">
+                                <div class="text-[10px] uppercase tracking-wide text-slate-500 mb-1">Canale</div>
+                                <select id="tabSingleLessonChannelSelect" class="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-[11px] font-bold text-slate-700 shadow-sm">
+                                  <option value="online" selected>Online</option>
+                                  <option value="center">Presenza in centro</option>
+                                  <option value="home">Presenza a domicilio</option>
+                                </select>
+                              </label>
+                              <div class="mt-auto rounded-lg border border-slate-200 bg-white px-3 py-2 flex items-center justify-between gap-3">
+                                <div class="text-[10px] uppercase tracking-wide text-slate-500">Prezzo</div>
+                                <div class="text-base leading-none font-black text-slate-900" id="tabSingleLessonPriceValue">—</div>
+                              </div>
+                            </div>
+                            <div id="tabSinglePackPanel" class="rounded-lg border border-slate-200 bg-slate-50 p-3 flex flex-col min-h-[170px]">
+                              <div class="text-[10px] uppercase tracking-wide text-slate-500 mb-2">Pacchetto modulo</div>
+                              <div class="text-[10px] uppercase tracking-wide text-slate-500 mb-2">Modulo: <span id="tabPackLessons">—</span> lezioni</div>
+                              <label class="block mb-2">
+                                <div class="text-[10px] uppercase tracking-wide text-slate-500 mb-1">Canale</div>
+                                <select id="tabSinglePackChannelSelect" class="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-[11px] font-bold text-slate-700 shadow-sm">
+                                  <option value="online" selected>Online</option>
+                                  <option value="center">Presenza in centro</option>
+                                  <option value="home">Presenza a domicilio</option>
+                                </select>
+                              </label>
+                              <div class="mt-auto rounded-lg border border-slate-200 bg-white px-3 py-2 flex items-center justify-between gap-3">
+                                <div class="text-[10px] uppercase tracking-wide text-slate-500">Prezzo</div>
+                                <div class="text-base leading-none font-black text-slate-900" id="tabSinglePackPriceValue">—</div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div id="tabPricesFootnote" class="mt-3 rounded-lg border border-blue-100 bg-blue-50/60 px-3 py-2 text-xs text-slate-600">
+                    In professionista, scegli formato (singolo o gruppo), canale (online/in presenza) e, in presenza, sessione nel centro.
+                  </div>
+                </div>
+
+                <div id="tabInfoPanel" class="hidden p-4">
+                  <h3 class="font-bold text-slate-800">Info modulo</h3>
+                  <div class="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                      <div class="text-xs uppercase tracking-wide text-slate-400">Metodica</div>
+                      <div class="mt-1 font-semibold text-slate-800" id="infoMethod">—</div>
+                    </div>
+                    <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                      <div class="text-xs uppercase tracking-wide text-slate-400">Rating scuola</div>
+                      <div class="mt-1 font-semibold text-slate-800" id="infoRating">—</div>
+                    </div>
+                    <div class="rounded-xl border border-slate-200 bg-slate-50 p-4 md:col-span-2">
+                      <div class="text-xs uppercase tracking-wide text-slate-400">Descrizione</div>
+                      <div class="mt-1 text-sm text-slate-700" id="infoDesc">—</div>
+                    </div>
+                  </div>
+                  <div class="mt-3 grid grid-cols-2 gap-3 md:hidden">
+                    <div class="rounded-xl border border-slate-200 bg-slate-50 p-3 text-center">
+                      <div class="text-xs uppercase tracking-wide text-slate-400">Utenti</div>
+                      <div id="infoStatUsers" class="mt-1 text-lg font-black text-slate-900">—</div>
+                    </div>
+                    <div class="rounded-xl border border-slate-200 bg-slate-50 p-3 text-center">
+                      <div class="text-xs uppercase tracking-wide text-slate-400">Insegnanti</div>
+                      <div id="infoStatTeachers" class="mt-1 text-lg font-black text-slate-900">—</div>
+                    </div>
+                    <div class="rounded-xl border border-slate-200 bg-slate-50 p-3 text-center">
+                      <div class="text-xs uppercase tracking-wide text-slate-400">Centri</div>
+                      <div id="infoStatCenters" class="mt-1 text-lg font-black text-slate-900">—</div>
+                    </div>
+                    <div class="rounded-xl border border-slate-200 bg-slate-50 p-3 text-center">
+                      <div class="text-xs uppercase tracking-wide text-slate-400">Scuole</div>
+                      <div id="infoStatSchools" class="mt-1 text-lg font-black text-slate-900">—</div>
+                    </div>
+                  </div>
+                </div>
+
+
+              </div>
+              <div id="finalCheckStandaloneWrapper" class="mt-3 hidden px-4 pb-4">
+                <div id="finalCheckStandalone"></div>
+              </div>
+
+	        </section>
+      </div>
+    </div>
+  </div>
+</section>
+
+<%= render "modale_step_prenotazione" %>
+
+<script>
+  // --------------------------
+  // DATA (tuoi moduli)
+  // --------------------------
+  const MODULES = [
+    {
+      id: "igiene_articolare",
+      title: "Igiene Posturale",
+      method: "PosturaCorretta",
+      image: "https://ik.imagekit.io/posturacorretta/immagini_brand/igiene-posturale.png?updatedAt=1763752348993",
+      icon: "accessibility_new",
+      gradient: "from-blue-400 to-blue-600",
+      desc: "4 lezioni — focus su articolazioni, tensioni, carichi e recettori.",
+      stats: { users: 1280, reviews: 214, teachers: 18, centers: 7, rating: 4.7 },
+      pricing: {
+        autonomia: { early: 19, standard: 49 },
+        pro: { single: 70, pack: 240, group_per_person: 150 },
+        final_check: 90,
+      },
+      lessons: [
+        { id: "mob_art", title: "Mobilità articolare", desc: "Sbloccare ROM e ritrovare fluidità." },
+        { id: "punti_tensione", title: "Punti di tensione", desc: "Individuare e ridurre le rigidità principali." },
+        { id: "vie_discesa", title: "Vie di discesa", desc: "Ridistribuire i carichi: scarico e organizzazione." },
+        { id: "recettori", title: "Recettori sensoriali", desc: "Riattivare propriocezione e controllo fine." },
+      ],
+    },
+    {
+      id: "principi_fisioterapia",
+      title: "Principi di fisioterapia",
+      method: "Fisioterapia (principi)",
+      image: "https://ik.imagekit.io/posturacorretta/immagini_brand/principi-fisioterapia.png?updatedAt=1763752348755",
+      icon: "fitness_center",
+      gradient: "from-emerald-400 to-emerald-600",
+      desc: "5 lezioni — lettura per sistemi: respiro, nervi, MSK, cardio, linfatico-digerente.",
+      stats: { users: 860, reviews: 102, teachers: 12, centers: 5, rating: 4.6 },
+      pricing: {
+        autonomia: { standard: 89 },
+        pro: { single: 70, pack: 280, group_per_person: 160 },
+        final_check: 90,
+      },
+      lessons: [
+        { id: "s_resp", title: "Sistema Respiratorio", desc: "Meccanica, ritmo, tolleranza allo sforzo." },
+        { id: "s_nerv_uro", title: "Sistema Nervoso e urogen.", desc: "Regolazione, recupero, stress e segnali." },
+        { id: "s_msk", title: "Sistema Muscolo-scheletrico", desc: "Carichi, adattamento e controllo motorio." },
+        { id: "s_cardio", title: "Sistema Cardio Circolatorio", desc: "Pompa, ritorno venoso, energia e resistenza." },
+        { id: "s_linf_dig", title: "Sistema Linfatico e digerente", desc: "Drenaggio, infiammazione, ritmo e nutrimento." },
+      ],
+    },
+    {
+      id: "principi_osteopatia",
+      title: "Principi di osteopatia",
+      method: "Osteopatia (principi)",
+      image: "https://ik.imagekit.io/posturacorretta/immagini_brand/principi-osteopatia.png?updatedAt=1763752348975",
+      icon: "spa",
+      gradient: "from-amber-400 to-amber-600",
+      desc: "5 lezioni — disfunzioni + sistemi fasciale, viscerale, cranio-sacrale, neurovegetativo.",
+      stats: { users: 540, reviews: 76, teachers: 9, centers: 4, rating: 4.5 },
+      pricing: {
+        autonomia: { standard: 89 },
+        pro: { single: 70, pack: 280, group_per_person: 160 },
+        final_check: 90,
+      },
+      lessons: [
+        { id: "disfunzioni", title: "Togliere le disfunzioni", desc: "Principi, priorità e logica di intervento." },
+        { id: "fasciale", title: "Sistema Fasciale", desc: "Continuità, tensioni, catene e scorrimenti." },
+        { id: "viscerale", title: "Sistema Viscerale", desc: "Mobilità viscerale e correlazioni." },
+        { id: "cranio_sacrale", title: "Sistema Cranio Sacrale", desc: "Ritmi, ascolto e integrazione." },
+        { id: "neuroveg", title: "Sistema Neurovegetativo", desc: "Simpatico/parasimpatico, recupero, regolazione." },
+      ],
+    },
+    {
+      id: "gds_intro",
+      title: "Biomeccanica Comportamentale — Intro Metodo GDS",
+      method: "Metodo GDS (intro)",
+      image: "https://ik.imagekit.io/posturacorretta/immagini_brand/metodo-gds.png?updatedAt=1763752349069",
+      icon: "psychology",
+      gradient: "from-indigo-400 to-indigo-600",
+      desc: "6 lezioni — direzioni di movimento e catene (AM, AL, PM, PL, PAAP).",
+      stats: { users: 410, reviews: 54, teachers: 7, centers: 3, rating: 4.6 },
+      pricing: {
+        autonomia: { standard: 99 },
+        pro: { single: 70, pack: 320, group_per_person: 170 },
+        final_check: 90,
+      },
+      lessons: [
+        { id: "5_dir", title: "5 Direzioni di movimento", desc: "Griglia base per leggere il corpo in azione." },
+        { id: "am", title: "Flessione e catena AM", desc: "Pattern e compensi tipici." },
+        { id: "al", title: "Rotazione interna e catena AL", desc: "Organizzazione e “chiusure”." },
+        { id: "pm", title: "Estensione e catena PM", desc: "Aperture, sostegno, rigidità." },
+        { id: "pl", title: "Rotazione Esterna e catena PL", desc: "Spinta, proiezione, dinamica." },
+        { id: "paap", title: "Rigido e Lasso — Catena PAAP", desc: "Polarità e bilanciamento." },
+      ],
+    },
+   
+    {
+      id: "corpo_coscienza_intro",
+      title: "Bioritmi circadiani — Intro Metodo Corpo e Coscienza",
+      method: "Corpo e Coscienza (intro)",
+      image: "https://ik.imagekit.io/posturacorretta/immagini_brand/corpo-e-coscienza.png?updatedAt=1763752348994",
+      icon: "self_improvement",
+      gradient: "from-teal-400 to-teal-600",
+      desc: "8 lezioni — ritmi, circolazioni, centri di gravità, movimenti, elementi, meridiani, neurolinfatici.",
+      stats: { users: 300, reviews: 41, teachers: 5, centers: 2, rating: 4.7 },
+      pricing: {
+        autonomia: { standard: 129 },
+        pro: { single: 70, pack: 420, group_per_person: 190 },
+        final_check: 90,
+      },
+      lessons: [
+        { id: "bio_sensi", title: "Tra biologia e aspetti percettivi sensoriali", desc: "Fenomenologia del corpo vivo." },
+        { id: "2_circ", title: "Conoscere e attivare le 2 circolazioni", desc: "Logica energetica e fisiologica." },
+        { id: "3_centri", title: "Coscienza corporea — 3 centri di gravità", desc: "Testa, torace, bacino: integrazione." },
+        { id: "4_mov", title: "I 4 tipi di movimento", desc: "Pattern base e qualità del gesto." },
+        { id: "5_elem", title: "5 elementi e ritmo stagionale", desc: "Cicli, adattamento, prevenzione." },
+        { id: "6_mer", title: "6 coppie di meridiani — ritmi circadiani", desc: "Orari, qualità, regolazione." },
+        { id: "7_neuro", title: "7 centri neurolinfatici", desc: "Relazione tra tono, drenaggio e stato." },
+        { id: "fisiol_feno", title: "Fisiologia, Fenomenologia e Aspetti Energetici", desc: "Sintesi e mappa operativa." },
+      ],
+    },
+     {
+      id: "kinesiologia_sequenza",
+      title: "Una sequenza tratta dalla kinesiologia",
+      method: "Kinesiologia (sequenza)",
+      image: "https://ik.imagekit.io/posturacorretta/immagini_brand/principi_kinesiologia.png",
+      icon: "monitor_heart",
+      gradient: "from-rose-400 to-rose-600",
+      desc: "4 lezioni — sequenza guidata per postura, coordinazione e integrazione del gesto.",
+      stats: { users: 360, reviews: 39, teachers: 6, centers: 3, rating: 4.6 },
+      pricing: {
+        autonomia: { standard: 99 },
+        pro: { single: 70, pack: 290, group_per_person: 165 },
+        final_check: 90,
+      },
+      lessons: [
+        { id: "kine_setup", title: "Setup posturale", desc: "Preparazione articolare e allineamento iniziale." },
+        { id: "kine_catene", title: "Attivazione catene", desc: "Sequenza progressiva per catene muscolari principali." },
+        { id: "kine_respiro", title: "Respiro e ritmo", desc: "Sincronizzazione gesto-respiro e controllo del carico." },
+        { id: "kine_integrazione", title: "Integrazione finale", desc: "Sequenza completa e consolidamento motorio." },
+      ],
+    },
+    
+  ];
+
+  const INSTRUCTOR_LESSONS = [
+    { id: "ins_profile", title: "Profilazione cliente", desc: "Raccolta dati, bisogni e obiettivi del cliente." },
+    { id: "ins_online", title: "Percorso online", desc: "Gestione lezioni e follow-up a distanza." },
+    { id: "ins_group", title: "Percorso in gruppo", desc: "Conduzione sessioni collettive e dinamiche di gruppo." },
+    { id: "ins_single", title: "Percorso singolo", desc: "Sessione 1:1 con personalizzazione operativa." },
+    { id: "ins_internship", title: "Tirocinio", desc: "Pratica supervisionata con casi guidati." },
+    { id: "ins_cert", title: "Certificazione insegnante", desc: "Valutazione finale competenze insegnante." }
+  ];
+
+  const MODULES_DISPLAY_ORDER = [
+    "igiene_articolare",
+    "principi_fisioterapia",
+    "gds_intro",
+    "principi_osteopatia",
+    "kinesiologia_sequenza",
+    "corpo_coscienza_intro"
+  ];
+
+  function orderedModules() {
+    const byId = new Map(MODULES.map((m) => [m.id, m]));
+    return MODULES_DISPLAY_ORDER.map((id) => byId.get(id)).filter(Boolean);
+  }
+
+  const MODULE_IMAGE_FALLBACK = "https://ik.imagekit.io/posturacorretta/immagini_brand/igiene-posturale.png?updatedAt=1763752348993";
+  function moduleAvatarMarkup(m, sizeClass, iconClass) {
+    const image = m.image || MODULE_IMAGE_FALLBACK;
+    const icon = m.icon || "school";
+    const gradient = m.gradient || "from-slate-400 to-slate-500";
+    return `
+      <div class="${sizeClass} rounded-full bg-white shrink-0 relative ring-2 ring-slate-200/80 p-1">
+        <div class="w-full h-full rounded-full overflow-hidden bg-slate-100">
+          <img src="${image}" alt="${m.title}" class="w-full h-full object-cover rounded-full origin-center" style="transform: scale(2.35); clip-path: circle(24% at 50% 50%);" loading="lazy"
+               onerror="this.classList.add('hidden'); this.parentElement.nextElementSibling.classList.remove('hidden');" />
+        </div>
+        <div class="hidden absolute inset-1 rounded-full bg-gradient-to-br ${gradient} text-white items-center justify-center flex">
+          <span class="material-symbols-outlined ${iconClass} leading-none">${icon}</span>
+        </div>
+      </div>
+    `;
+  }
+
+  // --------------------------
+  // STORAGE (NEW: mode is per module)
+  // --------------------------
+  const LS_PREFIX = "pc.module_progress.v2.";
+
+  const defaultProgress = () => ({
+    mode: "autonomia",                     // "autonomia" | "professionista"
+    offer: { kind: "none" },               // "none" | "single" | "pack" | "group"
+    pro: {
+      type: "gruppo",
+      groupSize: "8-12",
+      channel: "online",
+      place: "centro",
+      onlineCountry: "",
+      onlineCity: "",
+      onlineProvince: "",
+      cap: "",
+      city: "",
+      province: "",
+      country: "",
+      neighborhood: "",
+      macroArea: ""
+    },
+    completed: {},                         // autonomy completion
+    booking: {},                           // professionista: "none" | "booked" | "done"
+    instructorCompleted: {},               // teacher path (autonomia)
+    instructorBooking: {},                 // teacher path (professionista)
+    finalCheckStatus: "none"               // "none" | "booked" | "done"
+  });
+
+  function loadProgress(moduleId) {
+    const key = LS_PREFIX + moduleId;
+    try {
+      const base = defaultProgress();
+      const raw = JSON.parse(localStorage.getItem(key)) || {};
+      return {
+        ...base,
+        ...raw,
+        offer: { ...base.offer, ...(raw.offer || {}) },
+        pro: { ...base.pro, ...(raw.pro || {}) }
+      };
+    } catch {
+      return defaultProgress();
+    }
+  }
+  function saveProgress(moduleId, data) {
+    localStorage.setItem(LS_PREFIX + moduleId, JSON.stringify(data));
+  }
+  function resetProgress(moduleId) {
+    localStorage.removeItem(LS_PREFIX + moduleId);
+  }
+
+  function hasExplicitMode(moduleId) {
+    try {
+      const raw = JSON.parse(localStorage.getItem(LS_PREFIX + moduleId) || "{}");
+      return raw.mode === "autonomia" || raw.mode === "professionista";
+    } catch {
+      return false;
+    }
+  }
+
+  // --------------------------
+  // STATE
+  // --------------------------
+  let activeModuleId = null;
+  let activeLessonId = null;
+  let activeInstructorLessonId = null;
+  let activeContentTab = "lessons";
+
+  // --------------------------
+  // DOM helpers
+  // --------------------------
+  const $ = (id) => document.getElementById(id);
+
+  function fmtEUR(n) {
+    if (n == null || n === "—") return "—";
+    return new Intl.NumberFormat("it-IT", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(n);
+  }
+
+  function getGroupTierPrices(proPricing = {}) {
+    const base = proPricing.group_per_person;
+    const tiers = proPricing.group_tiers || {};
+    const rounded = (value) => Math.round(value / 5) * 5;
+    const defaults = (base == null) ? {} : {
+      "2_4": rounded(base * 1.15),
+      "5_8": rounded(base * 1.05),
+      "8_12": rounded(base),
+      "12_20": rounded(base * 0.9),
+      "20p": rounded(base * 0.8)
+    };
+    const pick = (key) => (tiers[key] != null ? tiers[key] : defaults[key]);
+    return {
+      "2_4": pick("2_4"),
+      "5_8": pick("5_8"),
+      "8_12": pick("8_12"),
+      "12_20": pick("12_20"),
+      "20p": pick("20p")
+    };
+  }
+
+  function getSingleOptionPrices(proPricing = {}) {
+    const base = proPricing.single;
+    return {
+      online: proPricing.online_single ?? base,
+      center: proPricing.center_single ?? base,
+      home: proPricing.home_single ?? base
+    };
+  }
+
+  function getPackOptionPrices(proPricing = {}) {
+    const base = proPricing.pack;
+    return {
+      online: proPricing.online_pack ?? base,
+      center: proPricing.center_pack ?? base,
+      home: proPricing.home_pack ?? base
+    };
+  }
+
+  function getGroupOptionPrices(proPricing = {}, lessonCount = 1) {
+    const tiers = getGroupTierPrices(proPricing);
+    const lessonTiers = proPricing.group_lesson_tiers || {};
+    const lessonBase = proPricing.group_lesson_per_person;
+    const safeLessonCount = Math.max(lessonCount || 1, 1);
+    const pickLesson = (key) => {
+      if (lessonTiers[key] != null) return lessonTiers[key];
+      if (lessonBase != null) return lessonBase;
+      const pack = tiers[key];
+      if (pack == null || pack === "—") return pack;
+      return Math.round((pack / safeLessonCount) / 5) * 5;
+    };
+    return {
+      pack: tiers,
+      lesson: {
+        "2_4": pickLesson("2_4"),
+        "5_8": pickLesson("5_8"),
+        "8_12": pickLesson("8_12"),
+        "12_20": pickLesson("12_20"),
+        "20p": pickLesson("20p")
+      }
+    };
+  }
+
+  function isModuleCompleted(m, prog) {
+    if (prog.mode === "professionista") {
+      // completato = tutte le lezioni segnate "done"
+      return m.lessons.every(lsn => prog.booking[lsn.id] === "done");
+    }
+    // autonomia
+    return m.lessons.every(lsn => !!prog.completed[lsn.id]);
+  }
+
+  function finalCheckState(m, prog) {
+    if (!isModuleCompleted(m, prog)) return "locked";
+    if (prog.finalCheckStatus === "done") return "completed";
+    if (prog.finalCheckStatus === "booked") return "booked";
+    return "available";
+  }
+
+  // --------------------------
+  // RENDER: modules
+  // --------------------------
+  function renderModules() {
+    const list = $("moduleList");
+    if (!list) return;
+    list.innerHTML = "";
+
+    orderedModules().forEach((m) => {
+      const prog = loadProgress(m.id);
+
+      const total = m.lessons.length;
+      let doneCount = 0;
+
+      if (prog.mode === "professionista") {
+        doneCount = m.lessons.filter(lsn => prog.booking[lsn.id] === "done").length;
+      } else {
+        doneCount = m.lessons.filter(lsn => !!prog.completed[lsn.id]).length;
+      }
+
+      const pct = total ? Math.round((doneCount / total) * 100) : 0;
+
+      const btn = document.createElement("button");
+      // Added snap-start for mobile scroll
+      btn.className =
+        "snap-start shrink-0 w-[280px] text-left px-4 py-4 rounded-2xl border bg-white hover:bg-slate-50 transition-all shadow-sm " +
+        (m.id === activeModuleId ? "border-primary ring-2 ring-primary/10 bg-blue-50/50" : "border-slate-200");
+
+      const modeLabel = hasExplicitMode(m.id)
+        ? (prog.mode === "professionista" ? "Professionista" : "Autonomia")
+        : "Neutro";
+      
+      btn.innerHTML = `
+        <div class="flex items-start justify-between gap-3 mb-3">
+          <div class="flex items-center gap-3">
+            ${moduleAvatarMarkup(m, "w-10 h-10", "text-[20px]")}
+            <div>
+               <div class="font-bold text-slate-800 text-sm leading-tight line-clamp-2">${m.title}</div>
+               <div class="text-[10px] text-slate-500 mt-0.5">${m.method}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-3">
+          <div class="flex items-center justify-between text-xs">
+             <div class="inline-flex items-center px-2 py-0.5 rounded bg-white border border-slate-100 text-slate-400 font-medium uppercase tracking-wider text-[9px]">${modeLabel}</div>
+             <div class="font-semibold text-primary">${pct}%</div>
+          </div>
+
+          <div class="h-1.5 rounded-full bg-slate-100 overflow-hidden">
+            <div class="h-1.5 bg-primary/80 transition-all duration-500" style="width:${pct}%"></div>
+          </div>
+          
+          <div class="text-[10px] text-slate-400 text-right">
+            ${doneCount} di ${total} lezioni
+          </div>
+        </div>
+      `;
+      btn.onclick = () => selectModule(m.id);
+      list.appendChild(btn);
+    });
+  }
+
+  function renderModuleHeader(m) {
+    const container = $("moduleImageContainer");
+    if (container) {
+      const image = m.image || MODULE_IMAGE_FALLBACK;
+      const icon = m.icon || "school";
+      const gradient = m.gradient || "from-slate-400 to-slate-500";
+      container.className = "w-16 h-16 rounded-full bg-white shrink-0 relative ring-2 ring-slate-200/80 p-1";
+      container.innerHTML = `
+        <div class="w-full h-full rounded-full overflow-hidden bg-slate-100">
+          <img src="${image}" alt="${m.title}" class="w-full h-full object-cover rounded-full origin-center" style="transform: scale(2.35); clip-path: circle(24% at 50% 50%);" loading="lazy"
+               onerror="this.classList.add('hidden'); this.parentElement.nextElementSibling.classList.remove('hidden');" />
+        </div>
+        <div class="hidden absolute inset-1 rounded-full bg-gradient-to-br ${gradient} text-white items-center justify-center flex">
+          <span class="material-symbols-outlined text-[32px]">${icon}</span>
+        </div>
+      `;
+    }
+    if ($("moduleTitle")) $("moduleTitle").textContent = m.title;
+    if ($("moduleMethod")) $("moduleMethod").textContent = m.method;
+    if ($("moduleDesc")) $("moduleDesc").textContent = m.desc;
+
+    if ($("statUsers")) $("statUsers").textContent = "-";
+    if ($("statReviews")) $("statReviews").textContent = "-";
+    if ($("statTeachers")) $("statTeachers").textContent = "-";
+    if ($("statCenters")) $("statCenters").textContent = "-";
+    if ($("infoStatUsers")) $("infoStatUsers").textContent = m.stats.users.toLocaleString("it-IT");
+    if ($("infoStatTeachers")) $("infoStatTeachers").textContent = m.stats.teachers.toLocaleString("it-IT");
+    if ($("infoStatCenters")) $("infoStatCenters").textContent = m.stats.centers.toLocaleString("it-IT");
+    if ($("infoStatSchools")) $("infoStatSchools").textContent = "-";
+
+    if ($("infoMethod")) $("infoMethod").textContent = m.method;
+    if ($("infoDesc")) $("infoDesc").textContent = m.desc;
+    if ($("infoRating")) $("infoRating").textContent = `${m.stats.rating.toFixed(1)} • ${m.stats.reviews} recensioni`;
+
+    // pricing labels
+    const p = m.pricing || {};
+    const autoEarly = p.autonomia?.early;
+    const autoStandard = p.autonomia?.standard;
+    const auto = (autoEarly ?? autoStandard);
+    if ($("priceAutonomia")) $("priceAutonomia").textContent = fmtEUR(auto ?? "—");
+    if ($("priceProSingle")) $("priceProSingle").textContent = fmtEUR(p.pro?.single ?? "—");
+    if ($("priceProPack")) $("priceProPack").textContent = fmtEUR(p.pro?.pack ?? "—");
+    if ($("priceProGroup")) $("priceProGroup").textContent = fmtEUR(p.pro?.group_per_person ?? "—") + " / persona";
+    if ($("tabPriceAutonomia")) $("tabPriceAutonomia").textContent = fmtEUR(auto ?? "—");
+    const singleOptions = getSingleOptionPrices(p.pro || {});
+    const packOptions = getPackOptionPrices(p.pro || {});
+    const lessonCount = (m.lessons || []).length;
+    const groupOptions = getGroupOptionPrices(p.pro || {}, lessonCount);
+    const groupPackSize = $("tabGroupPackSizeSelect")?.value || "8_12";
+    if ($("tabGroupPackPriceValue")) $("tabGroupPackPriceValue").textContent = fmtEUR(groupOptions.pack[groupPackSize] ?? "—");
+    const singleChannel = $("tabSingleLessonChannelSelect")?.value || "online";
+    if ($("tabSingleLessonPriceValue")) {
+      const singlePrice = singleOptions[singleChannel];
+      $("tabSingleLessonPriceValue").textContent = singleChannel === "home" && singlePrice != null
+        ? `${fmtEUR(singlePrice)} + km`
+        : fmtEUR(singlePrice ?? "—");
+    }
+    const packChannel = $("tabSinglePackChannelSelect")?.value || "online";
+    if ($("tabSinglePackPriceValue")) {
+      const packPrice = packOptions[packChannel];
+      $("tabSinglePackPriceValue").textContent = packChannel === "home" && packPrice != null
+        ? `${fmtEUR(packPrice)} + km`
+        : fmtEUR(packPrice ?? "—");
+    }
+    if ($("tabGroupPackLessons")) $("tabGroupPackLessons").textContent = lessonCount;
+    if ($("tabPackLessons")) $("tabPackLessons").textContent = lessonCount;
+    if ($("tabPriceAutonomiaMeta")) {
+      const autoMeta = (autoEarly != null && autoStandard != null)
+        ? `Promo attiva: ${fmtEUR(autoEarly)} (anziche ${fmtEUR(autoStandard)}).`
+        : "Accesso al modulo in autonomia.";
+      $("tabPriceAutonomiaMeta").textContent = autoMeta;
+    }
+    if ($("tabPricesFootnote")) {
+      $("tabPricesFootnote").textContent = "In professionista, scegli formato (singolo o gruppo), canale (online/in presenza) e, in presenza, sessione nel centro.";
+    }
+    if ($("priceFinalCheck")) $("priceFinalCheck").textContent = fmtEUR(p.final_check ?? "—");
+  }
+
+  function setContentTab(tabKey) {
+    activeContentTab = tabKey;
+    const tabs = [
+      { key: "lessons", btn: "tabLessonsBtn", panel: "tabLessonsPanel" },
+      { key: "instructor", btn: "tabInstructorBtn", panel: "tabInstructorPanel" },
+      { key: "reviews", btn: "tabReviewsBtn", panel: "tabReviewsPanel" },
+      { key: "prices", btn: "tabPricesBtn", panel: "tabPricesPanel" },
+      { key: "info", btn: "tabInfoBtn", panel: "tabInfoPanel" },
+    ];
+
+    tabs.forEach(({ key, btn, panel }) => {
+      const isActive = key === tabKey;
+      const panelEl = $(panel);
+      const btnEl = $(btn);
+      if (panelEl) panelEl.classList.toggle("hidden", !isActive);
+      if (btnEl) {
+        btnEl.classList.toggle("border-primary", isActive);
+        btnEl.classList.toggle("bg-blue-50/60", isActive);
+        btnEl.classList.toggle("text-primary", isActive);
+        btnEl.classList.toggle("border-slate-200", !isActive);
+        btnEl.classList.toggle("bg-white", !isActive);
+        btnEl.classList.toggle("text-slate-700", !isActive);
+      }
+    });
+
+    const finalCheckWrapper = $("finalCheckStandaloneWrapper");
+    if (finalCheckWrapper) finalCheckWrapper.classList.toggle("hidden", tabKey !== "lessons");
+  }
+
+  function setSinglePriceTab(mode) {
+    const lessonActive = mode !== "pack";
+    const lessonPanel = $("tabSingleLessonPanel");
+    const packPanel = $("tabSinglePackPanel");
+    const lessonBtn = $("tabSingleModeLessonBtn");
+    const packBtn = $("tabSingleModePackBtn");
+    if (lessonPanel) lessonPanel.classList.toggle("hidden", !lessonActive);
+    if (packPanel) packPanel.classList.toggle("hidden", lessonActive);
+    if (lessonBtn) {
+      lessonBtn.classList.toggle("border-primary", lessonActive);
+      lessonBtn.classList.toggle("bg-blue-50/60", lessonActive);
+      lessonBtn.classList.toggle("text-primary", lessonActive);
+      lessonBtn.classList.toggle("border-slate-200", !lessonActive);
+      lessonBtn.classList.toggle("bg-white", !lessonActive);
+      lessonBtn.classList.toggle("text-slate-700", !lessonActive);
+    }
+    if (packBtn) {
+      packBtn.classList.toggle("border-primary", !lessonActive);
+      packBtn.classList.toggle("bg-blue-50/60", !lessonActive);
+      packBtn.classList.toggle("text-primary", !lessonActive);
+      packBtn.classList.toggle("border-slate-200", lessonActive);
+      packBtn.classList.toggle("bg-white", lessonActive);
+      packBtn.classList.toggle("text-slate-700", lessonActive);
+    }
+  }
+
+  function setGroupPriceTab(_mode) {
+    const packActive = true;
+    const packPanel = $("tabGroupPackPanel");
+    const packBtn = $("tabGroupModePackBtn");
+    if (packPanel) packPanel.classList.toggle("hidden", !packActive);
+    if (packBtn) {
+      packBtn.classList.toggle("border-primary", packActive);
+      packBtn.classList.toggle("bg-blue-50/60", packActive);
+      packBtn.classList.toggle("text-primary", packActive);
+      packBtn.classList.toggle("border-slate-200", !packActive);
+      packBtn.classList.toggle("bg-white", !packActive);
+      packBtn.classList.toggle("text-slate-700", !packActive);
+    }
+  }
+
+  function renderModuleMode(m, prog) {
+    const badge = $("moduleModeBadge");
+    if (badge) badge.textContent = prog.mode === "professionista" ? "Modalità: Professionista" : "Modalità: Autonomia";
+
+    if ($("modeModuleAutonomia")) $("modeModuleAutonomia").checked = prog.mode === "autonomia";
+    if ($("modeModulePro")) $("modeModulePro").checked = prog.mode === "professionista";
+
+    // enable/disable pro selects based on module mode
+    const proDisabled = prog.mode !== "professionista";
+    ["proType","proChannel","proPlace","offerSingleBtn","offerPackBtn","offerGroupBtn"].forEach(id => {
+      const el = $(id);
+      if (!el) return;
+      el.disabled = proDisabled;
+      el.classList.toggle("opacity-50", proDisabled);
+      el.classList.toggle("cursor-not-allowed", proDisabled);
+    });
+
+    // restore pro selects
+    if ($("proType")) $("proType").value = prog.pro.type;
+    if ($("proChannel")) $("proChannel").value = prog.pro.channel;
+    if ($("proPlace")) $("proPlace").value = prog.pro.place;
+
+    // highlight selected offer
+    const offerButtons = [
+      { id: "offerSingleBtn", kind: "single" },
+      { id: "offerPackBtn", kind: "pack" },
+      { id: "offerGroupBtn", kind: "group" },
+    ];
+    offerButtons.forEach(({id, kind}) => {
+      const b = $(id);
+      if (!b) return;
+      const selected = prog.offer.kind === kind;
+      b.classList.toggle("bg-white", selected);
+      b.classList.toggle("border-primary", selected);
+      b.classList.toggle("ring-1", selected);
+      b.classList.toggle("ring-primary/20", selected);
+    });
+  }
+
+  function renderProgress(m, prog) {
+    const total = m.lessons.length;
+    let done = 0;
+
+    if (prog.mode === "professionista") {
+      done = m.lessons.filter(lsn => prog.booking[lsn.id] === "done").length;
+      if ($("progressLabel")) $("progressLabel").textContent = "Avanzamento (lezioni svolte)";
+      if ($("progressUnit")) $("progressUnit").textContent = "lezioni";
+    } else {
+      done = m.lessons.filter(lsn => !!prog.completed[lsn.id]).length;
+      if ($("progressLabel")) $("progressLabel").textContent = "Avanzamento (autonomia)";
+      if ($("progressUnit")) $("progressUnit").textContent = "lezioni";
+    }
+
+    if ($("progressDone")) $("progressDone").textContent = done;
+    if ($("progressTotal")) $("progressTotal").textContent = total;
+
+    const pct = total ? Math.round((done / total) * 100) : 0;
+    if ($("progressBar")) $("progressBar").style.width = pct + "%";
+  }
+
+  // --------------------------
+  // LESSON STATES (by module mode)
+  // --------------------------
+  function lessonState(m, prog, lessonId) {
+    if (prog.mode === "professionista") {
+      const st = prog.booking[lessonId] || "none";
+      if (st === "done") return "completed";
+      if (st === "booked") return "booked";
+      return "available";
+    }
+
+    // autonomia: progressivo con lock
+    const completed = !!prog.completed[lessonId];
+    if (completed) return "completed";
+
+    const firstNotDone = m.lessons.find(x => !prog.completed[x.id]);
+    if (firstNotDone && firstNotDone.id === lessonId) return "available";
+    return "locked";
+  }
+
+  function badge(text, tone="default") {
+    const base = "px-2 py-1 rounded-lg border text-[10px] font-bold uppercase tracking-wide";
+    if (tone === "green") return `<span class="${base} bg-green-100 text-green-700 border-green-200">${text}</span>`;
+    if (tone === "blue") return `<span class="${base} bg-blue-50 text-blue-700 border-blue-100">${text}</span>`;
+    if (tone === "amber") return `<span class="${base} bg-amber-50 text-amber-700 border-amber-100">${text}</span>`;
+    return `<span class="${base} bg-slate-100 text-slate-500 border-slate-200">${text}</span>`;
+  }
+
+  function openLessonProgramModal(itemData) {
+    if (!itemData || itemData.kind !== "lesson") return;
+    const modal = $("lessonProgramModal");
+    const titleEl = $("lessonProgramModalTitle");
+    const descEl = $("lessonProgramModalDesc");
+    const listEl = $("lessonProgramModalList");
+    if (!modal || !titleEl || !descEl || !listEl) return;
+
+    const items = (Array.isArray(itemData.program) && itemData.program.length > 0)
+      ? itemData.program
+      : [itemData.desc || "Dettagli lezione non disponibili."];
+
+    titleEl.textContent = itemData.title || "Lezione";
+    descEl.textContent = itemData.desc || "";
+    listEl.innerHTML = items.map((row) => `
+      <li class="flex items-start gap-2">
+        <span class="material-symbols-outlined text-[16px] text-primary mt-0.5">check_circle</span>
+        <span>${row}</span>
+      </li>
+    `).join("");
+
+    modal.classList.remove("hidden");
+    modal.classList.add("flex");
+  }
+
+  function closeLessonProgramModal() {
+    const modal = $("lessonProgramModal");
+    if (!modal) return;
+    modal.classList.add("hidden");
+    modal.classList.remove("flex");
+  }
+
+  function renderStepper(m, prog) {
+    const stepper = $("lessonStepper");
+    if (!stepper) return;
+    stepper.innerHTML = "";
+
+    let hint = "Seleziona una lezione";
+    if (prog.mode === "professionista") {
+      const next = m.lessons.find(lsn => (prog.booking[lsn.id] || "none") !== "done");
+      hint = next ? `Prossima da fare: ${next.title}` : "Modulo completato";
+    } else {
+      const next = m.lessons.find(lsn => !prog.completed[lsn.id]);
+      hint = next ? `Prossima: ${next.title}` : "Modulo completato";
+    }
+    if ($("lessonHint")) $("lessonHint").textContent = hint;
+    if ($("finalCheckStandalone")) $("finalCheckStandalone").innerHTML = "";
+
+    const finalStepState = finalCheckState(m, prog);
+    const finalCheckPrice = fmtEUR(m.pricing?.final_check ?? "—");
+
+    const timelineItems = [
+      ...m.lessons.map((lsn, i) => ({
+        kind: "lesson",
+        id: lsn.id,
+        idx: i + 1,
+        title: lsn.title,
+        desc: lsn.desc,
+        program: lsn.program || [],
+        state: lessonState(m, prog, lsn.id)
+      })),
+      {
+        kind: "final_check",
+        id: "__final_check__",
+        idx: m.lessons.length + 1,
+        title: "Valutazione finale con il professionista (facoltativa)",
+        desc: `Facoltativa a pagamento (${finalCheckPrice}): verifica finale del programma svolto.`,
+        state: finalStepState
+      }
+    ];
+
+    if (!timelineItems.some(item => item.id === activeLessonId)) {
+      activeLessonId = timelineItems[0]?.id;
+    }
+
+    timelineItems.forEach((itemData) => {
+      const isActive = itemData.id === activeLessonId;
+      const state = itemData.state;
+      const locked = state === "locked";
+      const item = document.createElement("div");
+      const st = prog.booking[itemData.id] || "none";
+
+      // Container Layout: Flex Row with Gap
+      item.className = "mb-3 select-none";
+
+      // Left Box Styles
+      const leftBorder = isActive ? "border-primary bg-primary/5 ring-1 ring-primary/20 shadow-sm" : "border-slate-200 bg-white hover:bg-slate-50";
+      const leftOpacity = locked ? "opacity-60 grayscale-[0.5]" : "";
+      
+      // Left Icon
+      let leftIcon = "radio_button_unchecked";
+      let leftColor = "text-slate-300";
+      if (state === "completed") { leftIcon = "check_circle"; leftColor = "text-emerald-500"; }
+      if (state === "booked") { leftIcon = "event_available"; leftColor = "text-amber-500"; }
+      if (state === "locked") { leftIcon = "lock"; leftColor = "text-slate-300"; }
+      if (state === "available") { leftIcon = "play_circle"; leftColor = "text-primary"; }
+
+      // Right Stub Logic
+      let stubContent = "";
+      let stubClass = "bg-slate-50 border-slate-200 text-slate-400"; 
+      const stubBase = "w-[100px] rounded-2xl border flex flex-col items-center justify-center p-2 text-center transition-all cursor-pointer hover:brightness-95 active:scale-95";
+
+      // MOCK DATA GENERATOR (Complex Variations)
+      const MOCK_TYPES = [
+        { type: 'pro_1on1_center', label: 'In Centro', placeIcon: 'apartment', visualIcon: 'person', useAvatar: true, isGroup: false, day: "LUNEDI'" },
+        { type: 'pro_group_center', label: 'In Centro', placeIcon: 'apartment', visualIcon: 'groups', useAvatar: true, isGroup: true, day: "MARTEDI'" },
+        { type: 'pro_1on1_home',   label: 'Domicilio', placeIcon: 'home_pin', visualIcon: 'directions_car', useAvatar: true, isGroup: false, day: "MERCOLEDI'" },
+        { type: 'auto_online',     label: 'Online',    placeIcon: 'wifi', visualIcon: 'laptop_mac', useAvatar: false, isGroup: false, day: "GIOVEDI'" },
+        { type: 'pro_online_group',label: 'Online',    placeIcon: 'wifi', visualIcon: 'groups', useAvatar: true, isGroup: true, day: "VENERDI'" },
+      ];
+      
+      const typeIndex = (itemData.id.charCodeAt(0) + itemData.id.charCodeAt(itemData.id.length - 1)) % MOCK_TYPES.length;
+      const mockType = MOCK_TYPES[typeIndex];
+
+      // Visuals
+      let modeVisual = "";
+      if (mockType.useAvatar) {
+         // Pro visual
+         modeVisual = `<div class="w-8 h-8 rounded-full bg-slate-200 border border-white shadow-sm overflow-hidden shrink-0"><img src="https://i.pravatar.cc/150?u=${itemData.id}" alt="Pro" class="w-full h-full object-cover"></div>`;
+      } else {
+         // Auto visual
+         modeVisual = `<div class="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 border border-blue-100"><span class="material-symbols-outlined text-[18px]">laptop_mac</span></div>`;
+      }
+
+      // Format Icon (Single vs Group)
+      const formatIcon = mockType.isGroup ? "groups" : "person";
+      const formatLabel = mockType.isGroup ? "Gruppo" : "1:1";
+      const formatColor = mockType.isGroup ? "text-purple-600 bg-purple-50 border-purple-100" : "text-emerald-600 bg-emerald-50 border-emerald-100";
+
+      // Mock Dates
+      const mockDay = "28";
+      const mockMonth = "MAR";
+      const mockWeekday = mockType.day;
+      const mockTime = "10:00 - 11:30";
+      const groupSizeValue = prog?.pro?.groupSize || "8-12";
+      const formatText = mockType.isGroup ? `Gruppo ${groupSizeValue}` : "Singolo";
+      const MOCK_TEACHERS = [
+        { fullName: "Marco Bianchi", profession: "Fisioterapista" },
+        { fullName: "Laura Rossi", profession: "Osteopata" },
+        { fullName: "Giulia Verdi", profession: "Chinesiologa" },
+        { fullName: "Davide Neri", profession: "Insegnante posturale" },
+        { fullName: "Sara Galli", profession: "Trainer benessere" }
+      ];
+      const mockTeacher = MOCK_TEACHERS[typeIndex % MOCK_TEACHERS.length];
+      
+      // Timeline Style Layout (Option 2)
+      item.className = "group relative pl-4 pb-8 last:pb-0"; 
+
+      const isCompleted = state === "completed";
+      const isBooked = state === "booked";
+      const isLocked = state === "locked";
+      const isAvailable = state === "available";
+
+      let statusColor = "slate";
+      let statusIcon = "lock";
+      let statusText = "Bloccato";
+      let actionBtnMarkup = "";
+
+      if (isCompleted) {
+        statusColor = "emerald";
+        statusIcon = "check_circle";
+        statusText = "Completato";
+        actionBtnMarkup = `
+          <div class="flex flex-col items-center text-center leading-tight">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-500">${mockMonth}</span>
+            <span class="text-2xl font-black text-slate-700">${mockDay}</span>
+            <span class="text-[9px] font-medium uppercase text-slate-500">${mockWeekday}</span>
+            <span class="text-[9px] font-semibold text-slate-500 mt-0.5">${mockTime}</span>
+          </div>`;
+      } else if (isBooked) {
+        statusColor = "amber";
+        statusIcon = "event";
+        statusText = "Prenotato";
+        actionBtnMarkup = `
+          <button id="lessonActionBtn" class="px-3 py-1.5 rounded-lg bg-amber-100/50 hover:bg-amber-100 text-amber-700 border border-amber-200 text-[11px] font-bold uppercase tracking-wide flex items-center gap-1.5 transition-colors">
+            <span class="material-symbols-outlined text-[16px] filled">cancel</span> Disdici
+          </button>`;
+      } else if (isAvailable) {
+        statusColor = "blue";
+        statusIcon = "play_circle";
+        statusText = "Disponibile";
+        actionBtnMarkup = `
+          <button id="lessonActionBtn" class="px-4 py-1.5 rounded-lg bg-primary text-white hover:bg-primary/90 shadow-sm shadow-blue-200 text-[11px] font-bold uppercase tracking-wide flex items-center gap-1.5 transition-all transform active:scale-95">
+            <span class="material-symbols-outlined text-[16px]">touch_app</span> Prenota
+          </button>`;
+      } else {
+         // Locked
+         actionBtnMarkup = `
+          <div class="px-3 py-1.5 rounded-lg bg-slate-100 text-slate-400 text-[11px] font-bold uppercase tracking-wide flex items-center gap-1.5">
+            <span class="material-symbols-outlined text-[16px]">lock</span>
+          </div>`;
+      }
+      
+      if (itemData.kind === "final_check") {
+         if (isCompleted) {
+            statusColor = "purple"; statusIcon = "fact_check"; statusText = "Valutato";
+            actionBtnMarkup = `<div class="px-3 py-1.5 rounded-lg bg-purple-50 text-purple-700 font-bold text-[10px] uppercase">Superato</div>`;
+         } else if (isAvailable) {
+            statusColor = "blue"; statusIcon = "fact_check"; statusText = "Da fare";
+             actionBtnMarkup = `
+              <button id="lessonActionBtn" class="px-4 py-1.5 rounded-lg bg-white border border-slate-200 hover:border-primary hover:text-primary text-slate-600 shadow-sm text-[11px] font-bold uppercase tracking-wide flex items-center gap-1.5 transition-all">
+                Prenota Check
+              </button>`;
+         } else {
+            statusColor = "slate"; statusIcon = "lock"; statusText = "Bloccato";
+             actionBtnMarkup = `<span class="material-symbols-outlined text-slate-300">lock</span>`;
+         }
+      }
+
+      // Card Styles based on status
+      const activeClass = isActive ? "ring-2 ring-primary ring-offset-2" : "";
+      const cardBorder = isLocked ? "border-slate-100 bg-slate-50/50" : (isCompleted ? "border-emerald-200 bg-emerald-50/10" : "border-slate-200 bg-white hover:border-blue-300 hover:shadow-md");
+      const titleColor = isLocked ? "text-slate-400" : "text-slate-800";
+      
+      item.innerHTML = `
+        <!-- Timeline Line (Absolute Left) -->
+        <div class="absolute left-[27px] top-0 bottom-0 w-px bg-slate-200 group-last:bottom-auto group-last:h-[20px]"></div>
+        
+        <div class="grid grid-cols-[1fr_82px] gap-6 items-stretch relative">
+           <!-- Main Card -->
+           <div class="flex-1 min-w-0">
+      <div class="rounded-2xl border ${cardBorder} ${activeClass} transition-all overflow-hidden flex  flex-col md:flex-row  ${itemData.kind === "final_check" ? "bg-blue-50/60 border-blue-100" : ""}">
+                 <!-- Main Body -->
+                 <div id="lessonContentBtn" class="p-4 cursor-pointer flex gap-3 md:items-center md:justify-between">
+                    <div class="flex-1 min-w-0">
+                       <div class="flex items-center justify-between gap-2 mb-1">
+                          <span class="text-[10px] uppercase tracking-wider font-bold text-${statusColor}-500 flex items-center gap-1">
+                             ${itemData.kind === 'lesson' ? `Lezione ${itemData.idx}` : 'Valutazione finale'}
+                          </span>
+                       </div>
+                       <h3 class="text-base font-bold ${titleColor} mb-1 leading-snug flex items-center gap-1">
+                         ${isCompleted
+                           ? `<span class="material-symbols-outlined text-[14px] text-emerald-600">check_circle</span>`
+                           : `<span class="material-symbols-outlined text-[14px] text-slate-300">radio_button_unchecked</span>`}
+                         ${itemData.title}
+                       </h3>
+                       <p class="text-xs text-slate-500 line-clamp-2 leading-relaxed">${itemData.desc}</p>
+                    </div>
+                    ${!isLocked ? `
+                    <div class="hidden md:flex md:shrink-0 md:pl-6 md:ml-6 md:border-l md:border-slate-200 items-center gap-3 text-xs text-slate-500 font-medium">
+                       <div class="flex items-center gap-2 text-[13px] font-semibold text-slate-600" title="Modalita">
+                          ${mockType.useAvatar
+                            ? `<img src="https://i.pravatar.cc/150?u=${itemData.id}" alt="Insegnante" class="w-8 h-8 rounded-full object-cover border border-white shadow-sm">`
+                            : `<span class="material-symbols-outlined text-[18px] text-slate-400">laptop_mac</span>`}
+                          ${mockType.useAvatar
+                            ? `<span class="leading-tight"><span class="block text-[10px] font-bold uppercase text-slate-500">Insegnante</span><span class="block text-[12px] font-semibold text-slate-700">${mockTeacher.fullName}</span><span class="block text-[11px] font-medium text-slate-500">${mockTeacher.profession}</span></span>`
+                            : `<span class="text-[12px] font-semibold text-slate-600">Online in autonomia</span>`}
+                       </div>
+                       <div class="flex flex-col items-start gap-1 pl-3 border-l border-slate-200 min-w-[110px]">
+                          <div class="flex items-center gap-1.5" title="Luogo">
+                            <span class="material-symbols-outlined text-[16px] text-slate-400">${mockType.placeIcon}</span>
+                            <span>${mockType.label}</span>
+                          </div>
+                          <div class="flex items-center gap-1.5" title="Formato">
+                            <span class="material-symbols-outlined text-[16px] text-slate-400">${mockType.isGroup ? 'groups' : 'person'}</span>
+                            <span>${formatText}</span>
+                          </div>
+                       </div>
+                    </div>` : ''}
+                 </div>
+
+                 <!-- Footer Info & Action -->
+                 ${!isLocked ? `
+                 <div class="px-4 py-3 bg-slate-50/50 border-t border-slate-100 flex items-center md:hidden">
+                    <div class="w-full flex items-center gap-3 text-xs text-slate-500 font-medium">
+                       <div class="flex items-center gap-2 text-[13px] font-semibold text-slate-600" title="Modalita">
+                          ${mockType.useAvatar
+                            ? `<img src="https://i.pravatar.cc/150?u=${itemData.id}" alt="Insegnante" class="w-8 h-8 rounded-full object-cover border border-white shadow-sm">`
+                            : `<span class="material-symbols-outlined text-[18px] text-slate-400">laptop_mac</span>`}
+                          ${mockType.useAvatar
+                            ? `<span class="leading-tight"><span class="block text-[10px] font-bold uppercase text-slate-500">Insegnante</span><span class="block text-[12px] font-semibold text-slate-700">${mockTeacher.fullName}</span><span class="block text-[11px] font-medium text-slate-500">${mockTeacher.profession}</span></span>`
+                            : `<span class="text-[12px] font-semibold text-slate-600">Online in autonomia</span>`}
+                       </div>
+                       <div class="flex flex-col items-start gap-1 pl-3 border-l border-slate-200 min-w-[110px]">
+                          <div class="flex items-center gap-1.5" title="Luogo">
+                            <span class="material-symbols-outlined text-[16px] text-slate-400">${mockType.placeIcon}</span>
+                            <span>${mockType.label}</span>
+                          </div>
+                          <div class="flex items-center gap-1.5" title="Formato">
+                            <span class="material-symbols-outlined text-[16px] text-slate-400">${mockType.isGroup ? 'groups' : 'person'}</span>
+                            <span>${formatText}</span>
+                          </div>
+                       </div>
+                    </div>
+                 </div>` : ''}
+              </div>
+           </div>
+
+           <!-- Right: Action Bubble -->
+           <div class="relative z-10 h-full flex items-center justify-center bg-white p-2 rounded-2xl border border-slate-100 shadow-sm">
+              ${actionBtnMarkup}
+           </div>
+        </div>
+      `;
+
+      // Handlers
+      const contentBtn = item.querySelector("#lessonContentBtn");
+      const actionBtn = item.querySelector("#lessonActionBtn");
+
+      if (contentBtn) {
+        contentBtn.onclick = () => {
+          selectLesson(itemData.id);
+          openLessonProgramModal(itemData);
+        };
+      }
+      
+      if (actionBtn) actionBtn.onclick = (e) => {
+        e.stopPropagation();
+        selectLesson(itemData.id); // ensure active
+        
+        if (state === "locked") return; // no action
+
+        // Cycle Logic: 
+        // Autonomy: Available -> Completed -> Available
+        // Pro: Available -> Booked -> Done -> Available
+        
+        let nextState = "";
+        
+        if (prog.mode === "autonomia") {
+           if (state === "available") nextState = "completed";
+           else if (state === "completed") nextState = "available"; // reset
+        } else {
+           // professionista
+           // current internal status: st (none, booked, done)
+           if (st === "none" || !st) nextState = "booked";
+           else if (st === "booked") nextState = "done";
+           else if (st === "done") nextState = "none"; // reset
+        }
+
+        if (!nextState) return;
+
+        if (itemData.kind === "final_check") {
+          if (!isModuleCompleted(m, prog)) return;
+          if (prog.finalCheckStatus === "none") prog.finalCheckStatus = "booked";
+          else if (prog.finalCheckStatus === "booked") prog.finalCheckStatus = "done";
+          else prog.finalCheckStatus = "none";
+          saveProgress(activeModuleId, prog);
+          const mUpdated = MODULES.find(x => x.id === activeModuleId);
+          const pUpdated = loadProgress(activeModuleId);
+          renderModules();
+          renderProgress(mUpdated, pUpdated);
+          renderStepper(mUpdated, pUpdated);
+          return;
+        }
+
+        // Apply Change
+        if (prog.mode === "autonomia") {
+           if (nextState === "completed") prog.completed[itemData.id] = true;
+           else delete prog.completed[itemData.id];
+        } else {
+          prog.booking[itemData.id] = nextState;
+        }
+
+        saveProgress(activeModuleId, prog);
+        
+        // Refresh
+        const mUpdated = MODULES.find(x => x.id === activeModuleId); // re-fetch to be safe
+        const pUpdated = loadProgress(activeModuleId);
+        renderModules();
+        renderProgress(mUpdated, pUpdated);
+        renderStepper(mUpdated, pUpdated);
+      };
+
+      const targetContainer = itemData.kind === "final_check" ? $("finalCheckStandalone") : stepper;
+      if (targetContainer) targetContainer.appendChild(item);
+    });
+
+  }
+
+  function instructorLessonState(prog, lessonId) {
+    if (prog.mode === "professionista") {
+      const st = prog.instructorBooking?.[lessonId] || "none";
+      if (st === "done") return "completed";
+      if (st === "booked") return "booked";
+      return "available";
+    }
+    return prog.instructorCompleted?.[lessonId] ? "completed" : "available";
+  }
+
+  function renderInstructorStepper(m, prog) {
+    const stepper = $("instructorLessonStepper");
+    if (!stepper) return;
+    stepper.innerHTML = "";
+
+    let hint = "Seleziona una lezione insegnante";
+    if (prog.mode === "professionista") {
+      const next = INSTRUCTOR_LESSONS.find((lsn) => (prog.instructorBooking?.[lsn.id] || "none") !== "done");
+      hint = next ? `Prossima da fare: ${next.title}` : "Percorso insegnante completato";
+    } else {
+      const next = INSTRUCTOR_LESSONS.find((lsn) => !prog.instructorCompleted?.[lsn.id]);
+      hint = next ? `Prossima: ${next.title}` : "Percorso insegnante completato";
+    }
+    if ($("instructorLessonHint")) $("instructorLessonHint").textContent = hint;
+
+    if (!INSTRUCTOR_LESSONS.some((item) => item.id === activeInstructorLessonId)) {
+      activeInstructorLessonId = INSTRUCTOR_LESSONS[0]?.id || null;
+    }
+
+    INSTRUCTOR_LESSONS.forEach((lsn, index) => {
+      const itemData = {
+        kind: "lesson",
+        id: lsn.id,
+        idx: index + 1,
+        title: lsn.title,
+        desc: lsn.desc,
+        state: instructorLessonState(prog, lsn.id)
+      };
+
+      const isActive = itemData.id === activeInstructorLessonId;
+      const state = itemData.state;
+      const locked = state === "locked";
+      const item = document.createElement("div");
+      const st = prog.instructorBooking?.[itemData.id] || "none";
+
+      item.className = "flex items-stretch gap-2 mb-3 select-none";
+
+      const leftBorder = isActive ? "border-primary bg-primary/5 ring-1 ring-primary/20 shadow-sm" : "border-slate-200 bg-white hover:bg-slate-50";
+      const leftOpacity = locked ? "opacity-60 grayscale-[0.5]" : "";
+
+      let leftIcon = "radio_button_unchecked";
+      let leftColor = "text-slate-300";
+      if (state === "completed") { leftIcon = "check_circle"; leftColor = "text-emerald-500"; }
+      if (state === "booked") { leftIcon = "event_available"; leftColor = "text-amber-500"; }
+      if (state === "locked") { leftIcon = "lock"; leftColor = "text-slate-300"; }
+      if (state === "available") { leftIcon = "play_circle"; leftColor = "text-primary"; }
+
+      let stubContent = "";
+      let stubClass = "bg-slate-50 border-slate-200 text-slate-400";
+      const stubBase = "w-[100px] rounded-2xl border flex flex-col items-center justify-center p-2 text-center transition-all cursor-pointer hover:brightness-95 active:scale-95";
+
+      const MOCK_TYPES = [
+        { type: "pro_1on1_center", label: "In Centro", placeIcon: "apartment", useAvatar: true, isGroup: false, day: "LUNEDI'" },
+        { type: "pro_group_center", label: "In Centro", placeIcon: "apartment", useAvatar: true, isGroup: true, day: "MARTEDI'" },
+        { type: "pro_1on1_home", label: "Domicilio", placeIcon: "home_pin", useAvatar: true, isGroup: false, day: "MERCOLEDI'" },
+        { type: "auto_online", label: "Online", placeIcon: "wifi", useAvatar: false, isGroup: false, day: "GIOVEDI'" },
+        { type: "pro_online_group", label: "Online", placeIcon: "wifi", useAvatar: true, isGroup: true, day: "VENERDI'" }
+      ];
+
+      const typeIndex = (itemData.id.charCodeAt(0) + itemData.id.charCodeAt(itemData.id.length - 1)) % MOCK_TYPES.length;
+      const mockType = MOCK_TYPES[typeIndex];
+
+      let modeVisual = "";
+      if (mockType.useAvatar) {
+        modeVisual = `<div class="w-8 h-8 rounded-full bg-slate-200 border border-white shadow-sm overflow-hidden shrink-0"><img src="https://i.pravatar.cc/150?u=ins_${itemData.id}" alt="Operatore" class="w-full h-full object-cover"></div>`;
+      } else {
+        modeVisual = `<div class="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 border border-blue-100"><span class="material-symbols-outlined text-[18px]">laptop_mac</span></div>`;
+      }
+
+      const formatIcon = mockType.isGroup ? "groups" : "person";
+      const formatLabel = mockType.isGroup ? "Gruppo" : "1:1";
+      const mockDay = "28";
+      const mockMonth = "MAR";
+      const mockWeekday = mockType.day;
+      const mockTime = "10:00 - 11:30";
+      const groupSizeValue = prog?.pro?.groupSize || "8-12";
+      const formatText = mockType.isGroup ? `Gruppo ${groupSizeValue}` : "Singolo";
+      const MOCK_TEACHERS = [
+        { fullName: "Marco Bianchi", profession: "Fisioterapista" },
+        { fullName: "Laura Rossi", profession: "Osteopata" },
+        { fullName: "Giulia Verdi", profession: "Chinesiologa" },
+        { fullName: "Davide Neri", profession: "Insegnante posturale" },
+        { fullName: "Sara Galli", profession: "Trainer benessere" }
+      ];
+      const mockTeacher = MOCK_TEACHERS[typeIndex % MOCK_TEACHERS.length];
+
+      // Timeline Style Layout (Option 2)
+      item.className = "group relative pl-4 pb-8 last:pb-0"; // Container for timeline item
+
+      const isCompleted = state === "completed";
+      const isBooked = state === "booked";
+      const isLocked = state === "locked";
+      const isAvailable = state === "available";
+
+      let statusColor = "slate";
+      let statusIcon = "lock";
+      let statusText = "Bloccato";
+      let actionBtnMarkup = "";
+
+      if (isCompleted) {
+        statusColor = "emerald";
+        statusIcon = "check_circle";
+        statusText = "Completato";
+        actionBtnMarkup = `
+          <div class="flex flex-col items-center text-center leading-tight">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-500">${mockMonth}</span>
+            <span class="text-2xl font-black text-slate-700">${mockDay}</span>
+            <span class="text-[9px] font-medium uppercase text-slate-500">${mockWeekday}</span>
+            <span class="text-[9px] font-semibold text-slate-500 mt-0.5">${mockTime}</span>
+          </div>`;
+      } else if (isBooked) {
+        statusColor = "amber";
+        statusIcon = "event";
+        statusText = "Prenotato";
+        actionBtnMarkup = `
+          <button id="instructorLessonActionBtn" class="px-3 py-1.5 rounded-lg bg-amber-100/50 hover:bg-amber-100 text-amber-700 border border-amber-200 text-[11px] font-bold uppercase tracking-wide flex items-center gap-1.5 transition-colors">
+            <span class="material-symbols-outlined text-[16px] filled">cancel</span> Disdici
+          </button>`;
+      } else if (isAvailable) {
+        statusColor = "blue";
+        statusIcon = "play_circle";
+        statusText = "Disponibile";
+        actionBtnMarkup = `
+          <button id="instructorLessonActionBtn" class="px-4 py-1.5 rounded-lg bg-primary text-white hover:bg-primary/90 shadow-sm shadow-blue-200 text-[11px] font-bold uppercase tracking-wide flex items-center gap-1.5 transition-all transform active:scale-95">
+            <span class="material-symbols-outlined text-[16px]">touch_app</span> Prenota
+          </button>`;
+      } else {
+         // Locked
+         actionBtnMarkup = `
+          <div class="px-3 py-1.5 rounded-lg bg-slate-100 text-slate-400 text-[11px] font-bold uppercase tracking-wide flex items-center gap-1.5">
+            <span class="material-symbols-outlined text-[16px]">lock</span>
+          </div>`;
+      }
+
+      // Card Styles based on status
+      const activeClass = isActive ? "ring-2 ring-primary ring-offset-2" : "";
+      const cardBorder = isLocked ? "border-slate-100 bg-slate-50/50" : (isCompleted ? "border-emerald-200 bg-emerald-50/10" : "border-slate-200 bg-white hover:border-blue-300 hover:shadow-md");
+      const titleColor = isLocked ? "text-slate-400" : "text-slate-800";
+      
+      item.innerHTML = `
+        <!-- Timeline Line (Absolute Left) -->
+        <div class="absolute left-[27px] top-0 bottom-0 w-px bg-slate-200 group-last:bottom-auto group-last:h-[20px]"></div>
+        
+        <div class="grid grid-cols-[1fr_82px] gap-6 items-stretch relative">
+           <!-- Main Card -->
+           <div class="flex-1 min-w-0">
+              <div class="rounded-2xl border ${cardBorder} ${activeClass} transition-all overflow-hidden flex flex-col">
+                 <!-- Main Body -->
+                 <div id="instructorLessonContentBtn" class="p-4 cursor-pointer flex gap-3 md:items-center md:justify-between">
+                    <div class="flex-1 min-w-0">
+                       <div class="flex items-center justify-between gap-2 mb-1">
+                          <span class="text-[10px] uppercase tracking-wider font-bold text-${statusColor}-500 flex items-center gap-1">
+                             Lezione ${itemData.idx}
+                          </span>
+                       </div>
+                       <h3 class="text-base font-bold ${titleColor} mb-1 leading-snug flex items-center gap-1">
+                         ${isCompleted
+                           ? `<span class="material-symbols-outlined text-[14px] text-emerald-600">check_circle</span>`
+                           : `<span class="material-symbols-outlined text-[14px] text-slate-300">radio_button_unchecked</span>`}
+                         ${itemData.title}
+                       </h3>
+                       <p class="text-xs text-slate-500 line-clamp-2 leading-relaxed">${itemData.desc}</p>
+                    </div>
+                    ${!isLocked ? `
+                    <div class="hidden md:flex md:shrink-0 md:pl-6 md:ml-6 md:border-l md:border-slate-200 items-center gap-3 text-xs text-slate-500 font-medium">
+                       <div class="flex items-center gap-2 text-[13px] font-semibold text-slate-600" title="Modalita">
+                          ${mockType.useAvatar
+                            ? `<img src="https://i.pravatar.cc/150?u=ins_${itemData.id}" alt="Insegnante" class="w-8 h-8 rounded-full object-cover border border-white shadow-sm">`
+                            : `<span class="material-symbols-outlined text-[18px] text-slate-400">laptop_mac</span>`}
+                          ${mockType.useAvatar
+                            ? `<span class="leading-tight"><span class="block text-[10px] font-bold uppercase text-slate-500">Insegnante</span><span class="block text-[12px] font-semibold text-slate-700">${mockTeacher.fullName}</span><span class="block text-[11px] font-medium text-slate-500">${mockTeacher.profession}</span></span>`
+                            : `<span class="text-[12px] font-semibold text-slate-600">Online in autonomia</span>`}
+                       </div>
+                       <div class="flex flex-col items-start gap-1 pl-3 border-l border-slate-200 min-w-[110px]">
+                          <div class="flex items-center gap-1.5" title="Luogo">
+                            <span class="material-symbols-outlined text-[16px] text-slate-400">${mockType.placeIcon}</span>
+                            <span>${mockType.label}</span>
+                          </div>
+                          <div class="flex items-center gap-1.5" title="Formato">
+                            <span class="material-symbols-outlined text-[16px] text-slate-400">${mockType.isGroup ? 'groups' : 'person'}</span>
+                            <span>${formatText}</span>
+                          </div>
+                       </div>
+                    </div>` : ''}
+                 </div>
+
+                 <!-- Footer Info & Action -->
+                 ${!isLocked ? `
+                 <div class="px-4 py-3 bg-slate-50/50 border-t border-slate-100 flex items-center md:hidden">
+                    <div class="w-full flex items-center gap-3 text-xs text-slate-500 font-medium">
+                       <div class="flex items-center gap-2 text-[13px] font-semibold text-slate-600" title="Modalita">
+                          ${mockType.useAvatar
+                            ? `<img src="https://i.pravatar.cc/150?u=ins_${itemData.id}" alt="Insegnante" class="w-8 h-8 rounded-full object-cover border border-white shadow-sm">`
+                            : `<span class="material-symbols-outlined text-[18px] text-slate-400">laptop_mac</span>`}
+                          ${mockType.useAvatar
+                            ? `<span class="leading-tight"><span class="block text-[10px] font-bold uppercase text-slate-500">Insegnante</span><span class="block text-[12px] font-semibold text-slate-700">${mockTeacher.fullName}</span><span class="block text-[11px] font-medium text-slate-500">${mockTeacher.profession}</span></span>`
+                            : `<span class="text-[12px] font-semibold text-slate-600">Online in autonomia</span>`}
+                       </div>
+                       <div class="flex flex-col items-start gap-1 pl-3 border-l border-slate-200 min-w-[110px]">
+                          <div class="flex items-center gap-1.5" title="Luogo">
+                            <span class="material-symbols-outlined text-[16px] text-slate-400">${mockType.placeIcon}</span>
+                            <span>${mockType.label}</span>
+                          </div>
+                          <div class="flex items-center gap-1.5" title="Formato">
+                            <span class="material-symbols-outlined text-[16px] text-slate-400">${mockType.isGroup ? 'groups' : 'person'}</span>
+                            <span>${formatText}</span>
+                          </div>
+                       </div>
+                    </div>
+                 </div>` : ''}
+              </div>
+           </div>
+
+           <!-- Right: Action Bubble -->
+           <div class="relative z-10 h-full flex items-center justify-center bg-white p-2 rounded-2xl border border-slate-100 shadow-sm">
+              ${actionBtnMarkup}
+           </div>
+        </div>
+      `;
+
+      const contentBtn = item.querySelector("#instructorLessonContentBtn");
+      const actionBtn = item.querySelector("#instructorLessonActionBtn");
+
+      if (contentBtn) {
+        contentBtn.onclick = () => {
+          activeInstructorLessonId = itemData.id;
+          renderInstructorStepper(m, loadProgress(activeModuleId));
+        };
+      }
+
+      if (actionBtn) {
+        actionBtn.onclick = (e) => {
+          e.stopPropagation();
+          activeInstructorLessonId = itemData.id;
+          if (state === "locked") return;
+
+          let nextState = "";
+          if (prog.mode === "autonomia") {
+            if (state === "available") nextState = "completed";
+            else if (state === "completed") nextState = "available";
+          } else {
+            if (st === "none" || !st) nextState = "booked";
+            else if (st === "booked") nextState = "done";
+            else if (st === "done") nextState = "none";
+          }
+
+          if (!nextState) return;
+
+          if (prog.mode === "autonomia") {
+            if (nextState === "completed") prog.instructorCompleted[itemData.id] = true;
+            else delete prog.instructorCompleted[itemData.id];
+          } else {
+            prog.instructorBooking[itemData.id] = nextState;
+          }
+
+          saveProgress(activeModuleId, prog);
+          renderInstructorStepper(m, loadProgress(activeModuleId));
+        };
+      }
+
+      stepper.appendChild(item);
+    });
+  }
+
+
+  function renderReviews(m) {
+    const wrap = $("reviewList");
+    wrap.innerHTML = "";
+
+    const sample = [
+      { name: "Utente A", text: "Finalmente un percorso che mette ordine.", stars: "★★★★★" },
+      { name: "Utente B", text: "Le lezioni sono chiare e progressive.", stars: "★★★★☆" },
+      { name: "Professionista C", text: "Ottima base didattica per integrare il lavoro clinico.", stars: "★★★★★" },
+    ];
+
+    sample.forEach(r => {
+      const card = document.createElement("div");
+      card.className = "rounded-xl border border-slate-200 bg-white p-4 shadow-sm";
+      card.innerHTML = `
+        <div class="flex items-center justify-between">
+          <div class="font-semibold text-slate-800">${r.name}</div>
+          <div class="text-xs text-yellow-500">${r.stars}</div>
+        </div>
+        <div class="text-sm text-slate-600 mt-2">${r.text}</div>
+        <div class="text-xs text-slate-400 mt-3">(${m.title})</div>
+      `;
+      wrap.appendChild(card);
+    });
+  }
+
+  // --------------------------
+  // SELECTORS
+  // --------------------------
+  function selectModule(moduleId) {
+    activeModuleId = moduleId;
+    const m = MODULES.find(x => x.id === moduleId);
+    if (!m) return;
+    const prog = loadProgress(moduleId);
+
+    // default lesson = next logical
+    if (prog.mode === "professionista") {
+      const next = m.lessons.find(lsn => (prog.booking[lsn.id] || "none") !== "done");
+      activeLessonId = (next ? next.id : m.lessons[0].id);
+    } else {
+      const next = m.lessons.find(lsn => !prog.completed[lsn.id]);
+      activeLessonId = (next ? next.id : m.lessons[0].id);
+    }
+    if (prog.mode === "professionista") {
+      const nextInstructor = INSTRUCTOR_LESSONS.find((lsn) => (prog.instructorBooking?.[lsn.id] || "none") !== "done");
+      activeInstructorLessonId = (nextInstructor ? nextInstructor.id : INSTRUCTOR_LESSONS[0].id);
+    } else {
+      const nextInstructor = INSTRUCTOR_LESSONS.find((lsn) => !prog.instructorCompleted?.[lsn.id]);
+      activeInstructorLessonId = (nextInstructor ? nextInstructor.id : INSTRUCTOR_LESSONS[0].id);
+    }
+
+    renderModules();
+    renderModuleHeader(m);
+    renderModuleMode(m, prog);
+    renderProgress(m, prog);
+    renderStepper(m, prog);
+    renderInstructorStepper(m, prog);
+    renderReviews(m);
+    setContentTab(activeContentTab);
+  }
+
+  function selectLesson(lessonId) {
+    if (!activeModuleId) return;
+    const m = MODULES.find(x => x.id === activeModuleId);
+    const prog = loadProgress(activeModuleId);
+    activeLessonId = lessonId;
+
+    renderStepper(m, prog);
+  }
+
+  function flashStatus(text) {
+    const statusEl = $("uiStatus");
+    if (!statusEl) return;
+    statusEl.textContent = text;
+    setTimeout(() => {
+      if ($("uiStatus")) $("uiStatus").textContent = "Prototype (localStorage)";
+    }, 1200);
+  }
+
+  let enrollFlow = ["mode", "data", "price"];
+  let enrollFlowIndex = 0;
+
+  function buildEnrollFlow(mode, proType = "gruppo", proPlace = "centro", proChannel = "online") {
+    if (mode !== "professionista") return ["mode", "data", "price"];
+    const base = ["mode", "type", ...(proType === "gruppo" ? ["group_size"] : []), "channel"];
+    if (proChannel === "online") {
+      return [...base, "online_location", "data", "price"];
+    }
+    return [...base, "place", "data", "price"];
+  }
+
+  function stepSectionId(stepKey) {
+    return {
+      mode: "enrollStepMode",
+      type: "enrollStepType",
+      group_size: "enrollStepGroupSize",
+      channel: "enrollStepChannel",
+      online_location: "enrollStepOnlineLocation",
+      place: "enrollStepPlace",
+      data: "enrollStepData",
+      price: "enrollStepPrice"
+    }[stepKey];
+  }
+
+  function stepLabel(stepKey) {
+    return {
+      mode: "Modalita percorso",
+      type: "Tipo sessione",
+      group_size: "Dimensione gruppo",
+      channel: "Modalita erogazione",
+      online_location: "Localita online",
+      place: "Luogo",
+      data: "Dati utente",
+      price: "Prezzi"
+    }[stepKey] || "Step";
+  }
+
+  function showCurrentEnrollStep() {
+    const activeKey = enrollFlow[enrollFlowIndex];
+    ["mode", "type", "group_size", "channel", "online_location", "place", "data", "price"].forEach((key) => {
+      const id = stepSectionId(key);
+      $(id)?.classList.toggle("hidden", key !== activeKey);
+    });
+
+    const total = enrollFlow.length;
+    const current = enrollFlowIndex + 1;
+    $("enrollStepCounter").textContent = `Step ${current} di ${total}`;
+    $("enrollStepLabel").textContent = stepLabel(activeKey);
+    $("enrollStepProgress").style.width = `${Math.round((current / total) * 100)}%`;
+  }
+
+  function goToNextEnrollStep() {
+    if (enrollFlowIndex < enrollFlow.length - 1) {
+      enrollFlowIndex += 1;
+      showCurrentEnrollStep();
+    }
+  }
+
+  function goToPrevEnrollStep() {
+    if (enrollFlowIndex > 0) {
+      enrollFlowIndex -= 1;
+      showCurrentEnrollStep();
+    }
+  }
+
+  function setEnrollType(type) {
+    const value = type === "singolo" ? "singolo" : "gruppo";
+    if ($("enrollProType")) $("enrollProType").value = value;
+    $("enrollTypeSingleBtn")?.classList.toggle("border-primary", value === "singolo");
+    $("enrollTypeSingleBtn")?.classList.toggle("bg-blue-50/50", value === "singolo");
+    $("enrollTypeGroupBtn")?.classList.toggle("border-primary", value === "gruppo");
+    $("enrollTypeGroupBtn")?.classList.toggle("bg-blue-50/50", value === "gruppo");
+
+    if (activeModuleId) {
+      const m = MODULES.find(x => x.id === activeModuleId);
+      const prog = loadProgress(activeModuleId);
+      prog.pro.type = value;
+      saveProgress(activeModuleId, prog);
+      if (m) updateEnrollPrices(m, prog);
+    }
+
+    if (activeModuleId && loadProgress(activeModuleId).mode === "professionista") {
+      const place = $("enrollProPlace")?.value || "centro";
+      const channel = $("enrollProChannel")?.value || "online";
+      enrollFlow = buildEnrollFlow("professionista", value, place, channel);
+      if (enrollFlowIndex >= enrollFlow.length) enrollFlowIndex = enrollFlow.length - 1;
+      showCurrentEnrollStep();
+    }
+  }
+
+  function setEnrollGroupSize(size) {
+    const value = size || "8-12";
+    if ($("enrollGroupSize")) $("enrollGroupSize").value = value;
+    document.querySelectorAll(".enroll-group-size-btn").forEach((btn) => {
+      const selected = btn.dataset.groupSize === value;
+      btn.classList.toggle("border-primary", selected);
+      btn.classList.toggle("bg-blue-50/50", selected);
+    });
+
+    if (activeModuleId) {
+      const m = MODULES.find(x => x.id === activeModuleId);
+      const prog = loadProgress(activeModuleId);
+      prog.pro.groupSize = value;
+      saveProgress(activeModuleId, prog);
+      if (m) updateEnrollPrices(m, prog);
+    }
+  }
+
+  function updateOnlineLocationRequirements(isOnline) {
+    if ($("enrollOnlineCountry")) $("enrollOnlineCountry").required = isOnline;
+    if ($("enrollOnlineCity")) $("enrollOnlineCity").required = isOnline;
+    if ($("enrollOnlineProvince")) $("enrollOnlineProvince").required = isOnline;
+  }
+
+  function setEnrollChannel(channel) {
+    const value = channel === "presenza" ? "presenza" : "online";
+    if ($("enrollProChannel")) $("enrollProChannel").value = value;
+    $("enrollChannelOnlineBtn")?.classList.toggle("border-primary", value === "online");
+    $("enrollChannelOnlineBtn")?.classList.toggle("bg-blue-50/50", value === "online");
+    $("enrollChannelPresenceBtn")?.classList.toggle("border-primary", value === "presenza");
+    $("enrollChannelPresenceBtn")?.classList.toggle("bg-blue-50/50", value === "presenza");
+    updateOnlineLocationRequirements(value === "online");
+
+    if (activeModuleId) {
+      const m = MODULES.find(x => x.id === activeModuleId);
+      const prog = loadProgress(activeModuleId);
+      prog.pro.channel = value;
+      saveProgress(activeModuleId, prog);
+      if (m) updateEnrollPrices(m, prog);
+    }
+
+    if (activeModuleId && loadProgress(activeModuleId).mode === "professionista") {
+      const type = $("enrollProType")?.value || "gruppo";
+      const place = $("enrollProPlace")?.value || "centro";
+      enrollFlow = buildEnrollFlow("professionista", type, place, value);
+      if (enrollFlowIndex >= enrollFlow.length) enrollFlowIndex = enrollFlow.length - 1;
+      showCurrentEnrollStep();
+    }
+  }
+
+  function setEnrollPlace(place) {
+    const value = "centro";
+    if ($("enrollProPlace")) $("enrollProPlace").value = value;
+    $("enrollPlaceCenterBtn")?.classList.toggle("border-primary", value === "centro");
+    $("enrollPlaceCenterBtn")?.classList.toggle("bg-blue-50/50", value === "centro");
+
+    if (activeModuleId) {
+      const m = MODULES.find(x => x.id === activeModuleId);
+      const prog = loadProgress(activeModuleId);
+      prog.pro.place = value;
+      saveProgress(activeModuleId, prog);
+      if (m) updateEnrollPrices(m, prog);
+    }
+
+    if (activeModuleId && loadProgress(activeModuleId).mode === "professionista") {
+      const proType = $("enrollProType")?.value || "gruppo";
+      const channel = $("enrollProChannel")?.value || "online";
+      enrollFlow = buildEnrollFlow("professionista", proType, value, channel);
+      if (enrollFlowIndex >= enrollFlow.length) enrollFlowIndex = enrollFlow.length - 1;
+      showCurrentEnrollStep();
+    }
+  }
+
+  function openEnrollModal() {
+    if (!activeModuleId) return;
+    const m = MODULES.find(x => x.id === activeModuleId);
+    const prog = loadProgress(activeModuleId);
+
+    $("enrollModuleName").textContent = m ? m.title : "Modulo";
+    setEnrollType(prog.pro.type);
+    setEnrollGroupSize(prog.pro.groupSize || "8-12");
+    setEnrollChannel(prog.pro.channel);
+    setEnrollPlace(prog.pro.place);
+    $("enrollOnlineCountry").value = prog.pro.onlineCountry || "";
+    $("enrollOnlineCity").value = prog.pro.onlineCity || "";
+    $("enrollOnlineProvince").value = prog.pro.onlineProvince || "";
+
+    setEnrollMode(prog.mode);
+    updateEnrollPrices(m, prog);
+    enrollFlowIndex = 0;
+    showCurrentEnrollStep();
+
+    $("enrollModalOverlay")?.classList.remove("hidden");
+    document.body.classList.add("overflow-hidden");
+  }
+
+  function closeEnrollModal() {
+    $("enrollModalOverlay")?.classList.add("hidden");
+    document.body.classList.remove("overflow-hidden");
+  }
+
+  function setEnrollMode(mode) {
+    const chosen = (mode === "professionista") ? "professionista" : "autonomia";
+    $("enrollModeAutoBtn")?.classList.toggle("border-primary", chosen === "autonomia");
+    $("enrollModeAutoBtn")?.classList.toggle("bg-blue-50/50", chosen === "autonomia");
+    $("enrollModeProBtn")?.classList.toggle("border-primary", chosen === "professionista");
+    $("enrollModeProBtn")?.classList.toggle("bg-blue-50/50", chosen === "professionista");
+
+    if (activeModuleId) {
+      const m = MODULES.find(x => x.id === activeModuleId);
+      const prog = loadProgress(activeModuleId);
+      prog.mode = chosen;
+      saveProgress(activeModuleId, prog);
+      if (m) {
+        renderModuleMode(m, prog);
+        updateEnrollPrices(m, prog);
+      }
+    }
+    const proType = $("enrollProType")?.value || "gruppo";
+    const proPlace = $("enrollProPlace")?.value || "centro";
+    const proChannel = $("enrollProChannel")?.value || "online";
+    enrollFlow = buildEnrollFlow(chosen, proType, proPlace, proChannel);
+    if (enrollFlowIndex >= enrollFlow.length) enrollFlowIndex = enrollFlow.length - 1;
+    showCurrentEnrollStep();
+  }
+
+  function updateEnrollPrices(m, prog) {
+    const p = m?.pricing || {};
+    const auto = p.autonomia?.early ?? p.autonomia?.standard;
+    let modeLabel = "Online in autonomia";
+    if (prog.mode === "professionista") {
+      const typeLabel = prog.pro?.type === "singolo"
+        ? "Singolo"
+        : `Gruppo ${prog.pro?.groupSize || "8-12"}`;
+      const channelLabel = prog.pro?.channel === "presenza" ? "in presenza" : "online";
+      const placeLabel = prog.pro?.channel === "online"
+        ? `online (${prog.pro?.onlineCity || "citta n.d."}${prog.pro?.onlineProvince ? `, ${prog.pro.onlineProvince}` : ""}${prog.pro?.onlineCountry ? `, ${prog.pro.onlineCountry}` : ""})`
+        : prog.pro?.place === "domicilio"
+        ? `domicilio (${prog.pro?.city || "citta n.d."}${prog.pro?.province ? `, ${prog.pro.province}` : ""}${prog.pro?.country ? `, ${prog.pro.country}` : ""})`
+        : "centro";
+      modeLabel = `${typeLabel} ${channelLabel} - ${placeLabel}`;
+    }
+
+    $("enrollPriceMode").textContent = modeLabel;
+    $("enrollPriceAutonomia").textContent = fmtEUR(auto ?? "—");
+    $("enrollPriceSingle").textContent = fmtEUR(p.pro?.single ?? "—");
+    $("enrollPricePack").textContent = fmtEUR(p.pro?.pack ?? "—");
+    $("enrollPriceGroup").textContent = fmtEUR(p.pro?.group_per_person ?? "—");
+  }
+
+  function persistEnrollConfig() {
+    if (!activeModuleId) return null;
+    const m = MODULES.find(x => x.id === activeModuleId);
+    const prog = loadProgress(activeModuleId);
+    prog.mode = prog.mode === "professionista" ? "professionista" : "autonomia";
+    prog.pro = {
+      type: $("enrollProType")?.value || prog.pro.type,
+      groupSize: $("enrollGroupSize")?.value || prog.pro.groupSize || "8-12",
+      channel: $("enrollProChannel")?.value || prog.pro.channel,
+      place: $("enrollProPlace")?.value || prog.pro.place,
+      onlineCountry: $("enrollOnlineCountry")?.value?.trim() || "",
+      onlineCity: $("enrollOnlineCity")?.value?.trim() || "",
+      onlineProvince: $("enrollOnlineProvince")?.value?.trim() || "",
+      cap: "",
+      city: "",
+      province: "",
+      country: "",
+      neighborhood: "",
+      macroArea: ""
+    };
+    saveProgress(activeModuleId, prog);
+    if (m) {
+      renderModuleMode(m, prog);
+      updateEnrollPrices(m, prog);
+    }
+    return { m, prog };
+  }
+
+  function slugify(text) {
+    return String(text || "")
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+  }
+
+  function saveEnrollJson(payload) {
+    const json = JSON.stringify(payload, null, 2);
+    localStorage.setItem("pc.enroll.latest_json", json);
+    const blob = new Blob([json], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const mod = slugify(payload?.module?.name || "modulo");
+    const ts = new Date().toISOString().replace(/[:.]/g, "-");
+    const filename = `iscrizione-${mod}-${ts}.json`;
+
+    let a = document.getElementById("enrollJsonDownloadLink");
+    if (!a) {
+      a = document.createElement("a");
+      a.id = "enrollJsonDownloadLink";
+      a.className = "hidden";
+      a.textContent = "Scarica JSON iscrizione";
+      document.body.appendChild(a);
+    }
+    a.href = url;
+    a.download = filename;
+
+    // Tentativo automatico: in alcuni browser funziona solo se il link resta in DOM.
+    a.click();
+
+    // Fallback: mantieni il link disponibile qualche secondo per click manuale.
+    a.classList.remove("hidden");
+    setTimeout(() => {
+      a.classList.add("hidden");
+      URL.revokeObjectURL(url);
+    }, 30000);
+
+    return { filename };
+  }
+
+  // --------------------------
+  // EVENTS
+  // --------------------------
+  document.addEventListener("change", (e) => {
+    if (!activeModuleId) return;
+    const m = MODULES.find(x => x.id === activeModuleId);
+    const prog = loadProgress(activeModuleId);
+
+    // module mode
+    if (e.target && e.target.name === "moduleMode") {
+      prog.mode = e.target.value;
+
+      // when switching mode, keep progress but update defaults
+      // (in real app you might confirm; here we just adapt)
+      saveProgress(activeModuleId, prog);
+      flashStatus("Modalità aggiornata");
+      selectModule(activeModuleId);
+      return;
+    }
+
+    // pro settings
+    if (["proType","proChannel","proPlace"].includes(e.target.id)) {
+      prog.pro = {
+        type: $("proType").value,
+        channel: $("proChannel").value,
+        place: $("proPlace").value,
+      };
+      saveProgress(activeModuleId, prog);
+      flashStatus("Impostazioni professionista salvate");
+      renderModuleMode(m, prog);
+    }
+  });
+
+  // offer buttons
+  ["offerSingleBtn","offerPackBtn","offerGroupBtn"].forEach((id) => {
+    $(id)?.addEventListener("click", () => {
+      if (!activeModuleId) return;
+      const m = MODULES.find(x => x.id === activeModuleId);
+      const prog = loadProgress(activeModuleId);
+      if (prog.mode !== "professionista") return;
+
+      const kind = (id === "offerSingleBtn") ? "single" : (id === "offerPackBtn" ? "pack" : "group");
+      prog.offer = { kind };
+      saveProgress(activeModuleId, prog);
+      flashStatus("Offerta selezionata (placeholder)");
+      renderModuleMode(m, prog);
+    });
+  });
+
+  document.addEventListener("click", (e) => {
+    const target = e.target.closest("#startBtn, #completeBtn, #bookBtn, #doneProBtn, #resetLessonBtn");
+    if (!target) return;
+    if (!activeModuleId || !activeLessonId) return;
+
+    const m = MODULES.find(x => x.id === activeModuleId);
+    const prog = loadProgress(activeModuleId);
+
+    if (target.id === "startBtn") {
+      flashStatus("Contenuto aperto (MVP)");
+      return;
+    }
+
+    if (target.id === "completeBtn") {
+      if (prog.mode !== "autonomia") return;
+      if (activeLessonId === "__final_check__") return;
+      prog.completed[activeLessonId] = true;
+      saveProgress(activeModuleId, prog);
+      const next = m.lessons.find(lsn => !prog.completed[lsn.id]);
+      activeLessonId = next ? next.id : m.lessons[m.lessons.length - 1].id;
+      flashStatus("Lezione completata");
+    }
+
+    if (target.id === "bookBtn") {
+      if (activeLessonId === "__final_check__") {
+        if (!isModuleCompleted(m, prog)) return;
+        prog.finalCheckStatus = prog.finalCheckStatus === "booked" ? "none" : "booked";
+        saveProgress(activeModuleId, prog);
+        flashStatus(prog.finalCheckStatus === "booked" ? "Valutazione finale prenotata" : "Valutazione finale annullata");
+        renderModules();
+        renderProgress(m, prog);
+        renderStepper(m, prog);
+        return;
+      }
+      if (prog.mode !== "professionista") return;
+      const st = prog.booking[activeLessonId] || "none";
+      prog.booking[activeLessonId] = (st === "booked") ? "none" : "booked";
+      saveProgress(activeModuleId, prog);
+      flashStatus(prog.booking[activeLessonId] === "booked" ? "Prenotata (MVP)" : "Prenotazione rimossa");
+    }
+
+    if (target.id === "doneProBtn") {
+      if (activeLessonId === "__final_check__") {
+        if (!isModuleCompleted(m, prog)) return;
+        prog.finalCheckStatus = "done";
+        saveProgress(activeModuleId, prog);
+        flashStatus("Valutazione finale completata ✅");
+        renderModules();
+        renderProgress(m, prog);
+        renderStepper(m, prog);
+        return;
+      }
+      if (prog.mode !== "professionista") return;
+      prog.booking[activeLessonId] = "done";
+      saveProgress(activeModuleId, prog);
+      const next = m.lessons.find(lsn => (prog.booking[lsn.id] || "none") !== "done");
+      activeLessonId = next ? next.id : m.lessons[m.lessons.length - 1].id;
+      flashStatus("Lezione svolta ✅");
+    }
+
+    if (target.id === "resetLessonBtn") {
+      if (activeLessonId === "__final_check__") {
+        prog.finalCheckStatus = "none";
+      }
+      delete prog.completed[activeLessonId];
+      delete prog.booking[activeLessonId];
+      saveProgress(activeModuleId, prog);
+      flashStatus("Lezione resettata");
+    }
+
+    renderModules();
+    renderProgress(m, prog);
+    renderStepper(m, prog);
+  });
+
+  $("resetAllBtn")?.addEventListener("click", () => {
+    MODULES.forEach(m => resetProgress(m.id));
+    flashStatus("Progresso resettato");
+    renderModules();
+    selectModule(MODULES[0].id);
+  });
+
+  $("openEnrollModalBtn")?.addEventListener("click", openEnrollModal);
+  $("tabLessonsBtn")?.addEventListener("click", () => setContentTab("lessons"));
+  $("tabInstructorBtn")?.addEventListener("click", () => setContentTab("instructor"));
+  $("tabReviewsBtn")?.addEventListener("click", () => setContentTab("reviews"));
+  $("tabPricesBtn")?.addEventListener("click", () => setContentTab("prices"));
+  $("tabInfoBtn")?.addEventListener("click", () => setContentTab("info"));
+  $("tabGroupModePackBtn")?.addEventListener("click", () => setGroupPriceTab("pack"));
+  $("tabSingleModeLessonBtn")?.addEventListener("click", () => setSinglePriceTab("lesson"));
+  $("tabSingleModePackBtn")?.addEventListener("click", () => setSinglePriceTab("pack"));
+  ["tabGroupPackSizeSelect", "tabSingleLessonChannelSelect", "tabSinglePackChannelSelect"].forEach((id) => {
+    $(id)?.addEventListener("change", () => {
+      if (!activeModuleId) return;
+      const m = MODULES.find((x) => x.id === activeModuleId);
+      if (m) renderModuleHeader(m);
+    });
+  });
+  $("closeLessonProgramModalBtn")?.addEventListener("click", closeLessonProgramModal);
+  $("lessonProgramModalDoneBtn")?.addEventListener("click", closeLessonProgramModal);
+  $("lessonProgramModal")?.addEventListener("click", (e) => {
+    if (e.target === $("lessonProgramModal")) closeLessonProgramModal();
+  });
+  $("closeEnrollModalBtn")?.addEventListener("click", closeEnrollModal);
+  $("enrollModeAutoBtn")?.addEventListener("click", () => setEnrollMode("autonomia"));
+  $("enrollModeProBtn")?.addEventListener("click", () => setEnrollMode("professionista"));
+  $("enrollTypeSingleBtn")?.addEventListener("click", () => setEnrollType("singolo"));
+  $("enrollTypeGroupBtn")?.addEventListener("click", () => setEnrollType("gruppo"));
+  $("enrollChannelOnlineBtn")?.addEventListener("click", () => setEnrollChannel("online"));
+  $("enrollChannelPresenceBtn")?.addEventListener("click", () => setEnrollChannel("presenza"));
+  document.querySelectorAll(".enroll-group-size-btn").forEach((btn) => {
+    btn.addEventListener("click", () => setEnrollGroupSize(btn.dataset.groupSize));
+  });
+  $("enrollModeNextBtn")?.addEventListener("click", () => goToNextEnrollStep());
+  $("enrollTypeBackBtn")?.addEventListener("click", () => goToPrevEnrollStep());
+  $("enrollTypeNextBtn")?.addEventListener("click", () => {
+    const type = $("enrollProType")?.value || "gruppo";
+    const place = $("enrollProPlace")?.value || "centro";
+    const channel = $("enrollProChannel")?.value || "online";
+    persistEnrollConfig();
+    enrollFlow = buildEnrollFlow("professionista", type, place, channel);
+    const currentKey = enrollFlow[enrollFlowIndex];
+    if (currentKey !== "type") {
+      enrollFlowIndex = Math.max(0, enrollFlow.indexOf("type"));
+    }
+    goToNextEnrollStep();
+  });
+  $("enrollGroupSizeBackBtn")?.addEventListener("click", () => goToPrevEnrollStep());
+  $("enrollGroupSizeNextBtn")?.addEventListener("click", () => {
+    persistEnrollConfig();
+    goToNextEnrollStep();
+  });
+  $("enrollChannelBackBtn")?.addEventListener("click", () => goToPrevEnrollStep());
+  $("enrollChannelNextBtn")?.addEventListener("click", () => {
+    persistEnrollConfig();
+    goToNextEnrollStep();
+  });
+  $("enrollOnlineLocationBackBtn")?.addEventListener("click", () => goToPrevEnrollStep());
+  $("enrollOnlineLocationNextBtn")?.addEventListener("click", () => {
+    const countryOk = $("enrollOnlineCountry")?.reportValidity();
+    const cityOk = $("enrollOnlineCity")?.reportValidity();
+    const provinceOk = $("enrollOnlineProvince")?.reportValidity();
+    if (!countryOk || !cityOk || !provinceOk) return;
+    persistEnrollConfig();
+    goToNextEnrollStep();
+  });
+  $("enrollPlaceCenterBtn")?.addEventListener("click", () => setEnrollPlace("centro"));
+  $("enrollPlaceBackBtn")?.addEventListener("click", () => goToPrevEnrollStep());
+  $("enrollPlaceNextBtn")?.addEventListener("click", () => {
+    persistEnrollConfig();
+    goToNextEnrollStep();
+  });
+  $("enrollDataBackBtn")?.addEventListener("click", () => goToPrevEnrollStep());
+  $("enrollDataNextBtn")?.addEventListener("click", () => {
+    const nameOk = $("enrollName")?.reportValidity();
+    const emailOk = $("enrollEmail")?.reportValidity();
+    if (!nameOk || !emailOk) return;
+    persistEnrollConfig();
+    goToNextEnrollStep();
+  });
+  $("enrollPriceBackBtn")?.addEventListener("click", () => goToPrevEnrollStep());
+  $("submitEnrollBtn")?.addEventListener("click", () => {
+    if (!activeModuleId) return;
+
+    const persisted = persistEnrollConfig();
+    const m = persisted?.m || MODULES.find(x => x.id === activeModuleId);
+    const prog = persisted?.prog || loadProgress(activeModuleId);
+    const modeLabel = prog.mode === "professionista" ? "Seguito da professionista" : "Online in autonomia";
+    const name = $("enrollName")?.value?.trim() || "Utente";
+    const enrollPayload = {
+      submitted_at: new Date().toISOString(),
+      module: {
+        id: m?.id || activeModuleId,
+        name: m?.title || "Modulo",
+        lessons_count: Array.isArray(m?.lessons) ? m.lessons.length : 0
+      },
+      user: {
+        name: $("enrollName")?.value?.trim() || "",
+        email: $("enrollEmail")?.value?.trim() || "",
+        phone: $("enrollPhone")?.value?.trim() || ""
+      },
+      enrollment: {
+        mode: prog.mode,
+        mode_label: modeLabel,
+        pro: prog.pro
+      }
+    };
+    const saved = saveEnrollJson(enrollPayload);
+
+    flashStatus(`Richiesta inviata: ${name} • ${modeLabel} • JSON: ${saved?.filename || "creato"}`);
+    closeEnrollModal();
+  });
+  $("enrollModalOverlay")?.addEventListener("click", (e) => {
+    if (e.target.id === "enrollModalOverlay") closeEnrollModal();
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key !== "Escape") return;
+    closeLessonProgramModal();
+    closeEnrollModal();
+  });
+
+  // init
+  try {
+    setContentTab("lessons");
+    setGroupPriceTab("pack");
+    setSinglePriceTab("pack");
+    renderModules();
+    if (MODULES.length > 0) selectModule(MODULES[0].id);
+  } catch (e) {
+    console.error("Errore init _percorso_educativo:", e);
+  }
+</script>

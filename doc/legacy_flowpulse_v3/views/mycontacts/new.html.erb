@@ -1,0 +1,17 @@
+<% content_for :title, "Aggiungi un contatto referenziato" %>
+
+<div class="mx-auto max-w-3xl space-y-6">
+  <div>
+    <h1 class="font-bold text-3xl text-slate-900">Aggiungi un contatto</h1>
+    <p class="text-slate-600 mt-2 text-sm">
+      Inserisci i dati essenziali del contatto. Cercheremo nella rubrica condivisa e,
+      se non esiste, verrà creato un nuovo profilo da collegare al tuo Lead.
+    </p>
+  </div>
+
+  <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+    <%= render "datacontact_form", datacontact_form: @datacontact_form %>
+  </div>
+
+  <%= link_to "Torna all'elenco", mycontacts_path, class: "inline-flex items-center text-sm text-slate-500 hover:text-slate-700" %>
+</div>

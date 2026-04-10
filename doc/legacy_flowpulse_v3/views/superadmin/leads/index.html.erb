@@ -1,0 +1,101 @@
+<% content_for :title, "Leads" %>
+
+<div class="mx-auto max-w-7xl p-6 space-y-6">
+
+  <!-- Header -->
+  <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div>
+        <h1 class="text-3xl font-bold text-slate-900">Gestione Leads</h1>
+        <p class="text-slate-600 mt-1">Gestisci richieste di accesso, approvazioni e inviti.</p>
+      </div>
+      <%= link_to new_superadmin_lead_path,
+          class: "inline-flex items-center justify-center rounded-lg bg-blue-600 px-6 py-2.5 text-white font-semibold hover:bg-blue-700 shadow-sm transition-colors" do %>
+        <span class="material-symbols-outlined text-[20px] mr-2">add</span>
+        Nuovo Lead
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Tabs & Search -->
+  <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+    <!-- Tabs -->
+    <div class="border-b border-slate-200 bg-slate-50/50">
+      <% current_status = params[:status].presence || "pending" %>
+      <nav class="flex flex-wrap gap-1 px-4" aria-label="Tabs">
+        <% [ ["pending","In attesa"], ["approved","Approvati"], ["rejected","Rifiutati"], ["all","Tutti"] ].each do |val,label| %>
+          <% active = (current_status == val) %>
+          <%= link_to superadmin_leads_path(request.query_parameters.merge(status: val, page: nil)),
+              class: "px-4 py-3 text-sm font-semibold transition-colors relative " +
+                     (active ? "text-blue-700" : "text-slate-600 hover:text-slate-900") do %>
+            <span><%= label %></span>
+            <% if defined?(@counts) && @counts[val].to_i > 0 %>
+              <span class="ml-2 inline-flex items-center rounded-full bg-slate-200 px-2 py-0.5 text-xs font-medium text-slate-700"><%= @counts[val] %></span>
+            <% end %>
+            <% if active %>
+              <div class="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600"></div>
+            <% end %>
+          <% end %>
+        <% end %>
+      </nav>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="p-4 border-b border-slate-100">
+      <%= form_with url: superadmin_leads_path, method: :get, local: true, class: "flex flex-col sm:flex-row gap-3" do |f| %>
+        <%= hidden_field_tag :status, params[:status] %>
+        <div class="relative flex-1">
+          <%= f.text_field :q,
+              value: params[:q],
+              placeholder: "Cerca per email, username o ID...",
+              class: "w-full rounded-lg border-slate-300 pl-10 pr-4 py-2.5 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 shadow-sm" %>
+          <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+            <span class="material-symbols-outlined text-slate-400 text-[20px]">search</span>
+          </div>
+        </div>
+        <%= f.submit "Cerca",
+            class: "inline-flex items-center justify-center rounded-lg bg-slate-100 px-6 py-2.5 text-slate-700 font-medium hover:bg-slate-200 border border-slate-200 transition-colors" %>
+      <% end %>
+    </div>
+
+    <!-- Table -->
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-sm">
+        <thead class="bg-slate-50 border-b border-slate-200">
+          <tr>
+            <th class="px-4 py-3 text-left font-semibold text-slate-700 text-xs uppercase tracking-wider">Lead</th>
+            <th class="px-4 py-3 text-left font-semibold text-slate-700 text-xs uppercase tracking-wider">Email</th>
+            <th class="px-4 py-3 text-left font-semibold text-slate-700 text-xs uppercase tracking-wider">Creato</th>
+            <th class="px-4 py-3 text-left font-semibold text-slate-700 text-xs uppercase tracking-wider">Stato</th>
+            <th class="px-4 py-3 text-left font-semibold text-slate-700 text-xs uppercase tracking-wider">Referral</th>
+            <th class="px-4 py-3 text-right font-semibold text-slate-700 text-xs uppercase tracking-wider w-32">Azioni</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 bg-white">
+          <% if @leads.any? %>
+            <% @leads.each do |lead| %>
+              <%= render partial: "row", locals: { lead: lead } %>
+            <% end %>
+          <% else %>
+            <tr>
+              <td colspan="6" class="px-4 py-12 text-center">
+                <div class="flex flex-col items-center gap-3">
+                  <span class="material-symbols-outlined text-slate-300 text-[48px]">person_search</span>
+                  <p class="text-slate-500 font-medium">Nessun lead trovato</p>
+                  <p class="text-slate-400 text-sm">Prova a modificare i filtri di ricerca</p>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <%# Pagination %>
+  <% if defined?(pagy_nav) && @pagy %>
+    <div class="flex justify-center">
+      <%= pagy_nav(@pagy) %>
+    </div>
+  <% end %>
+</div>

@@ -1,0 +1,244 @@
+
+<% content_for :nav do %>
+ 
+<% if Current.user&.superadmin? && Current.user&.superadmin_mode_active? %>
+ 
+  <div class="flex flex-col sm:flex-row gap-3 sm:items-center">
+    <%= link_to "Visualizza Calendario",
+          eventdates_path(on: @selected_date.strftime("%Y-%m-%d")),
+          class: "flex items-center justify-center rounded-lg h-10 px-4 bg-white dark:bg-surface-dark border border-[#e5e7eb] dark:border-gray-700 text-[#111318] dark:text-white hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-sm font-medium shadow-sm" %>
+    <%= link_to new_eventdate_path,
+          class: "flex items-center justify-center gap-2 rounded-lg h-10 px-5 bg-red-600 text-white hover:bg-blue-700 transition-colors text-sm font-medium shadow-sm" do %>
+      <span class="material-symbols-outlined text-[18px]">add</span>
+      <span>Nuovo Evento</span>
+    <% end %>
+    <%= link_to "Journey",
+          journeys_path,
+          class: "flex items-center justify-center rounded-lg h-10 px-4 bg-white dark:bg-surface-dark border border-[#e5e7eb] dark:border-gray-700 text-[#111318] dark:text-white hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-sm font-medium shadow-sm" %>
+    <% lead = Current.user&.lead %>
+    <% weekplan_path = lead ? weekplan_home_path(lead_id: lead.id) : nil %>
+    <%= link_to(weekplan_path || "#",
+          class: class_names(
+            "flex items-center justify-center rounded-lg h-10 px-4 border text-sm font-medium shadow-sm transition-colors",
+            weekplan_path ? "bg-white dark:bg-surface-dark border-[#e5e7eb] dark:border-gray-700 text-[#111318] dark:text-white hover:bg-gray-50 dark:hover:bg-gray-800" : "bg-white/40 dark:bg-gray-800/40 border-transparent text-[#9aa3b2] cursor-not-allowed"
+          )) do %>
+      Week Plan
+    <% end %>
+    <% if lead.present? %>
+      <%= select_tag :lead_resources,
+            options_for_select(
+              [
+                ["Risorse Lead", ""],
+                ["Tempo", impegno_lead_path(lead, tab: "tempo")],
+                ["Soldi", impegno_lead_path(lead, tab: "soldi")],
+                ["Attenzione", impegno_lead_path(lead, tab: "attenzione")],
+                ["Energia", impegno_lead_path(lead, tab: "energia")],
+                ["Collaborazioni", impegno_lead_path(lead, tab: "collaborazioni")],
+                ["Profilo", impegno_lead_path(lead, tab: "profilo")]
+              ],
+              ""
+            ),
+            class: "calendar-select h-10 rounded-lg bg-white dark:bg-surface-dark border border-[#e5e7eb] dark:border-gray-700 text-[#111318] dark:text-white px-3 text-sm font-medium shadow-sm",
+            onchange: "if (this.value) { window.location = this.value; }" %>
+    <% end %>
+  </div>
+  <% end %>
+
+<% end %>
+
+
+<div class="relative min-h-screen w-full overflow-x-hidden bg-background-light dark:bg-background-dark text-[#111318] dark:text-white transition-colors duration-200">
+<div class="flex flex-col">
+
+<div class="flex-1 w-full max-w-[960px] mx-auto px-4 sm:px-10 py-8 flex flex-col gap-8">
+<% display_name = Current.user&.lead&.name.presence || Current.user&.lead&.username.presence || Current.user&.email_address.presence || "Amico" %>
+<section class="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-2">
+<div class="flex flex-col gap-2">
+<div class="flex items-center gap-3">
+<h1 class="text-[#111318] dark:text-white text-[32px] font-bold leading-tight tracking-tight">Bentornato, <%= display_name %>.</h1>
+<span class="inline-flex items-center rounded-full bg-gray-100 dark:bg-gray-800 px-2.5 py-0.5 text-xs font-medium text-gray-600 dark:text-gray-300 ring-1 ring-inset ring-gray-500/10">
+                            Partecipante
+                        </span>
+</div>
+<p class="text-[#636f88] dark:text-gray-400 text-sm font-normal leading-relaxed">
+                        <%= link_to "Oggi è #{I18n.l(@today, format: "%A, %d %B")}", dashboard_home_path, class: "hover:underline" %>. Hai <strong class="text-[#111318] dark:text-white font-semibold"><%= @today_week_events_count %> impegni</strong>  questa settimana.
+                    </p>
+</div>
+
+</section>
+<section class="overflow-x-auto pb-2 -mx-4 px-4 md:mx-0 md:px-0">
+<div class="flex gap-3 min-w-max">
+<button class="group flex h-8 items-center gap-2 rounded-full bg-[#111318] dark:bg-white px-4 transition-all">
+<span class="text-white dark:text-[#111318] text-sm font-medium">Tutti</span>
+</button>
+<button class="group flex h-8 items-center gap-2 rounded-full bg-white dark:bg-surface-dark border border-[#e5e7eb] dark:border-gray-700 hover:border-red-600 dark:hover:border-red-600 px-4 transition-all">
+<span class="material-symbols-outlined text-[16px] text-blue-600 dark:text-blue-400">favorite</span>
+<span class="text-[#636f88] dark:text-gray-300 text-sm font-medium group-hover:text-[#111318] dark:group-hover:text-white">Salute</span>
+</button>
+<button class="group flex h-8 items-center gap-2 rounded-full bg-white dark:bg-surface-dark border border-[#e5e7eb] dark:border-gray-700 hover:border-red-600 dark:hover:border-red-600 px-4 transition-all">
+<span class="material-symbols-outlined text-[16px] text-blue-600 dark:text-blue-400">work</span>
+<span class="text-[#636f88] dark:text-gray-300 text-sm font-medium group-hover:text-[#111318] dark:group-hover:text-white">Lavoro</span>
+</button>
+<button class="group flex h-8 items-center gap-2 rounded-full bg-white dark:bg-surface-dark border border-[#e5e7eb] dark:border-gray-700 hover:border-red-600 dark:hover:border-red-600 px-4 transition-all">
+<span class="material-symbols-outlined text-[16px] text-amber-600 dark:text-amber-400">school</span>
+<span class="text-[#636f88] dark:text-gray-300 text-sm font-medium group-hover:text-[#111318] dark:group-hover:text-white">Formazione</span>
+</button>
+</div>
+</section>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+<div class="lg:col-span-8 flex flex-col gap-12">
+<div class="flex flex-col gap-6">
+<div class="flex items-end justify-between border-b border-[#f0f2f4] dark:border-gray-800 pb-3">
+<div class="flex flex-col gap-1">
+<h2 class="text-[#111318] dark:text-white text-xl font-bold tracking-tight">Eventi</h2>
+<p class="text-xs text-[#636f88] dark:text-gray-400 font-medium">Eventi del giorno selezionato</p>
+</div>
+<%= link_to "Gestisci tutti",
+            eventdates_path(on: @selected_date.strftime("%Y-%m-%d")),
+            class: "text-red-600 text-xs font-semibold hover:underline" %>
+</div>
+
+<% if @day_events.any? %>
+  <div class="flex flex-col gap-4">
+    <% @day_events.each do |event| %>
+      <% start_time = event.date_start&.strftime("%H:%M") %>
+      <% end_time = event.date_end&.strftime("%H:%M") %>
+      <% time_range = end_time.present? ? "#{start_time} - #{end_time}" : start_time %>
+      <div class="group flex flex-col sm:flex-row gap-4 bg-surface-light dark:bg-surface-dark p-4 rounded-xl border border-transparent hover:border-[#f0f2f4] dark:hover:border-gray-700 shadow-[0_1px_3px_rgba(0,0,0,0.05)] hover:shadow-md transition-all">
+        <div class="flex flex-col justify-between flex-1 gap-2">
+          <div>
+            <div class="flex justify-between items-start">
+              <div class="flex flex-col">
+                <h4 class="text-[#111318] dark:text-white font-bold text-base group-hover:text-red-600 transition-colors">
+                  <%= event.description.presence || "Evento senza titolo" %>
+                </h4>
+                <div class="flex items-center gap-2 mt-1.5 flex-wrap">
+                  <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-300 uppercase tracking-wide">
+                    <%= event.event_type %>
+                  </span>
+                  <% if event.taxbranch&.slug_label || event.taxbranch&.name %>
+                    <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 uppercase tracking-wide">
+                      <%= event.taxbranch&.slug_label || event.taxbranch&.name %>
+                    </span>
+                  <% end %>
+                </div>
+              </div>
+              <% if event.status.present? %>
+                <span class="inline-flex items-center rounded-md bg-amber-50 dark:bg-amber-900/20 px-2 py-1 text-xs font-medium text-amber-700 dark:text-amber-400 ring-1 ring-inset ring-amber-600/20">
+                  <%= event.status %>
+                </span>
+              <% end %>
+            </div>
+            <% if event.location.present? %>
+              <p class="text-[#636f88] dark:text-gray-400 text-sm mt-2 line-clamp-2">
+                <%= event.location %>
+              </p>
+            <% end %>
+          </div>
+          <div class="flex items-center gap-4 text-xs text-[#636f88] dark:text-gray-500 font-medium mt-1">
+            <div class="flex items-center gap-1">
+              <span class="material-symbols-outlined text-[16px]">schedule</span>
+              <%= @selected_date.strftime("%d %B") %> • <%= time_range.presence || "Orario non definito" %>
+            </div>
+            <% if event.location.present? %>
+              <div class="flex items-center gap-1">
+                <span class="material-symbols-outlined text-[16px]">location_on</span>
+                <%= event.location %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% else %>
+  <div class="rounded-xl border border-dashed border-[#e5e7eb] dark:border-gray-700 bg-white/70 dark:bg-surface-dark p-6 text-sm text-[#636f88] dark:text-gray-400">
+    Nessun evento per la data selezionata.
+    <%= link_to "Vai al calendario", eventdates_path(on: @selected_date.strftime("%Y-%m-%d")), class: "text-red-600 font-semibold hover:underline ml-1" %>
+  </div>
+<% end %>
+</div>
+</div>
+<div class="lg:col-span-4 flex flex-col gap-8">
+<div class="bg-surface-light dark:bg-surface-dark rounded-xl p-5 shadow-[0_1px_3px_rgba(0,0,0,0.05)] border border-transparent dark:border-gray-800">
+<% prev_month = @selected_date.prev_month %>
+<% next_month = @selected_date.next_month %>
+<div class="flex items-center justify-between mb-4">
+<%= form_with url: dashboard_home_path, method: :get, local: true, class: "flex items-center gap-2" do %>
+  <%= select_tag :month,
+        options_for_select(
+          Date::MONTHNAMES.compact.each_with_index.map { |n, i| [n, i + 1] },
+          @selected_date.month
+        ),
+        class: "calendar-select font-bold text-[#111318] dark:text-white bg-transparent border border-transparent rounded-md px-1 py-0.5 focus:border-slate-300 focus:bg-white dark:focus:bg-gray-800 text-sm",
+        onchange: "this.form.submit()" %>
+  <%= select_tag :year,
+        options_for_select((@selected_date.year - 10..@selected_date.year + 10).to_a, @selected_date.year),
+        class: "calendar-select font-bold text-[#111318] dark:text-white bg-transparent border border-transparent rounded-md px-1 py-0.5 focus:border-slate-300 focus:bg-white dark:focus:bg-gray-800 text-sm",
+        onchange: "this.form.submit()" %>
+  <%= hidden_field_tag :day, @selected_date.day %>
+<% end %>
+<div class="flex gap-1">
+<%= link_to dashboard_home_path(date: prev_month.strftime("%Y-%m-%d")),
+            class: "p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded",
+            aria: { label: "Mese precedente" } do %>
+  <span class="material-symbols-outlined text-sm">chevron_left</span>
+<% end %>
+<%= link_to dashboard_home_path(date: next_month.strftime("%Y-%m-%d")),
+            class: "p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded",
+            aria: { label: "Mese successivo" } do %>
+  <span class="material-symbols-outlined text-sm">chevron_right</span>
+<% end %>
+</div>
+</div>
+<div class="grid grid-cols-7 text-center text-xs text-[#636f88] dark:text-gray-500 font-medium mb-2">
+<div>Lu</div><div>Ma</div><div>Me</div><div>Gi</div><div>Ve</div><div>Sa</div><div>Do</div>
+</div>
+<% start_date = @selected_date.beginning_of_month.beginning_of_week(:monday) %>
+<% end_date = @selected_date.end_of_month.end_of_week(:monday) %>
+<div class="grid grid-cols-7 text-center text-sm gap-y-3">
+  <% (start_date..end_date).each do |day| %>
+    <% outside = day.month != @selected_date.month %>
+    <% selected = day == @selected_date %>
+    <% has_events = @event_counts_by_day[day].to_i > 0 %>
+    <div class="relative">
+      <%= link_to dashboard_home_path(date: day.strftime("%Y-%m-%d")), class: "block" do %>
+        <% if selected %>
+          <span class="bg-red-600 text-white rounded-full size-7 flex items-center justify-center mx-auto shadow-sm"><%= day.day %></span>
+        <% else %>
+          <span class="<%= outside ? "text-gray-300 dark:text-gray-700" : "text-[#111318] dark:text-white" %>"><%= day.day %></span>
+        <% end %>
+      <% end %>
+      <% if has_events %>
+        <div class="absolute bottom-0 left-1/2 -translate-x-1/2 size-1 bg-blue-500 rounded-full"></div>
+      <% end %>
+    </div>
+  <% end %>
+</div>
+</div>
+<div class="bg-primary/10 dark:bg-surface-dark rounded-xl p-6 border border-red-50 dark:border-gray-700">
+<div class="flex items-start gap-3">
+<span class="material-symbols-outlined text-primary mt-1">handshake</span>
+<div>
+<h4 class="font-bold text-[#111318] dark:text-white text-sm">-</h4>
+<!--p class="text-xs text-[#636f88] dark:text-gray-400 mt-1 leading-relaxed">
+                                    1 Impegno crede nel valore dell'incontro reale. Niente gamification, niente costi nascosti. Solo tu e la tua community.
+                                </p-->
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<footer class="w-full border-t border-[#f0f2f4] dark:border-gray-800 bg-white dark:bg-surface-dark py-8 mt-auto">
+<div class="max-w-[960px] mx-auto px-4 sm:px-10 flex flex-col sm:flex-row justify-between items-center gap-4">
+<p class="text-[#636f88] dark:text-gray-500 text-xs">© 2023 Flowpulse. Open Source Platform.</p>
+<div class="flex gap-6">
+<a class="text-[#636f88] dark:text-gray-500 hover:text-red-600 dark:hover:text-white text-xs transition-colors" href="#">Privacy</a>
+<a class="text-[#636f88] dark:text-gray-500 hover:text-red-600 dark:hover:text-white text-xs transition-colors" href="#">Termini</a>
+<a class="text-[#636f88] dark:text-gray-500 hover:text-red-600 dark:hover:text-white text-xs transition-colors" href="#">Manifesto</a>
+</div>
+</div>
+</footer>
+</div>
+</div>

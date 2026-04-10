@@ -1,0 +1,401 @@
+<!-- app/views/superadmin/taxbranches/show.html.erb -->
+<% content_for :nav do %>
+  <%= render "shared/taxbranch_nav", taxbranch: @taxbranch %>
+<% end %>
+
+<!-- Breadcrumb + Title + Actions -->
+<div class="mb-4 flex items-start justify-between gap-3 mt-8">
+  <div class="flex-1 min-w-0">
+    <nav class="text-sm text-slate-600">
+      <% if Current.domain&.taxbranch %>
+        <%= taxbranch_breadcrumb(
+              @taxbranch,
+              starting_node: Current.domain&.taxbranch
+            ) %>
+      <% else %>
+        <%= taxbranch_breadcrumb(@taxbranch_node) %>
+      <% end %>
+      <div class="mt-1 text-[11px] text-slate-500">
+        slug:
+        <code class="rounded bg-slate-100 px-1.5 py-0.5 text-slate-700"><%= @taxbranch.slug %></code>
+      </div>
+    </nav>
+
+    <% domain = @taxbranch.header_domain || Current.domain %>
+    <% source_taxbranch = @taxbranch.header_domain_taxbranch %>
+    <div class="flex items-center gap-2 text-xs text-slate-600 mt-1">
+      <%= link_to "⬅️ Torna su",
+                  (@taxbranch.parent ? superadmin_taxbranch_path(@taxbranch.parent) : superadmin_taxbranches_path),
+                  class: "text-gray-600 hover:underline" %>
+      <span class="text-slate-400">·</span>
+      <span>User: <%= Current.user&.id %></span>
+      <span class="text-slate-400">·</span>
+      <span>Lead: <%= Current.user&.lead&.id %></span>
+      <% if domain.present? %>
+        <span class="text-slate-400">·</span>
+        <span class="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 font-semibold text-slate-700">
+          🌐 Dominio:
+          <%= link_to(domain.host,
+                      superadmin_domain_path(domain),
+                      class: "ml-1 text-primary hover:underline") %>
+        </span>
+        <% if source_taxbranch.present? && source_taxbranch.id != @taxbranch.id %>
+          <span class="text-slate-500">
+            ereditato da
+            <%= link_to source_taxbranch.display_label,
+                        superadmin_taxbranch_path(source_taxbranch),
+                        class: "text-primary hover:underline" %>
+          </span>
+        <% elsif @taxbranch.header_domain.blank? && Current.domain.present? %>
+          <span class="text-slate-500">fallback da host corrente</span>
+        <% end %>
+      <% else %>
+        <span class="text-slate-400">·</span>
+        <span class="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 font-semibold text-amber-800">
+          🌐 Dominio non collegato
+        </span>
+      <% end %>
+    </div>
+  </div>
+  <div class="flex shrink-0 items-center gap-2">
+    <%= link_to "Modifica taxbranch",
+                edit_superadmin_taxbranch_path(@taxbranch),
+                class: "inline-flex items-center rounded-md bg-slate-900 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-800" %>
+  </div>
+</div>
+
+<!-- RENDER DEL NODO (già presente) -->
+<% expanded_ids = [@taxbranch.id] %>
+
+<!-- FORM RAPIDO PER MODIFICARE STATO / VISIBILITÀ / PUBLISHED_AT -->
+<div class="mb-2 rounded-xl bg-white" id="tax-edit-form">
+  <div class="mb-3 flex flex-wrap items-center gap-2">
+    <% if params[:edit_tax] != "true" %>
+    <%# badge stato %>
+    <% case @taxbranch.status %>
+    <% when "published" %>
+      <span class="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-800">
+        <span class="material-symbols-outlined text-[12px]">check_circle</span>
+        Pubblicato
+      </span>
+    <% when "draft" %>
+      <span class="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800">
+        <span class="material-symbols-outlined text-[12px]">edit</span>
+        Bozza
+      </span>
+    <% when "in_review" %>
+      <span class="inline-flex items-center gap-1 rounded-full bg-sky-100 px-2 py-0.5 text-xs font-medium text-sky-700">
+        <span class="material-symbols-outlined text-[12px]">rate_review</span>
+        In revisione
+      </span>
+    <% when "archived" %>
+      <span class="inline-flex items-center gap-1 rounded-full bg-slate-200 px-2 py-0.5 text-xs font-medium text-slate-700">
+        <span class="material-symbols-outlined text-[12px]">inventory_2</span>
+        Archivio
+      </span>
+    <% else %>
+      <span class="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">
+        <span class="material-symbols-outlined text-[12px]">info</span>
+        <%= @taxbranch.status.to_s.titleize %>
+      </span>
+    <% end %>
+
+    <%# badge visibilità %>
+    <% human_visibility =
+        case @taxbranch.visibility
+        when "private_node"      then "Privato"
+        when "shared_node"       then "Condiviso"
+        when "participants_only" then "Solo partecipanti"
+        when "public_node"       then "Pubblico"
+        else @taxbranch.visibility.to_s.titleize
+        end %>
+
+    <% visibility_icon =
+         case @taxbranch.visibility
+         when "private_node"      then "lock"
+         when "shared_node"       then "groups"
+         when "participants_only" then "badge"
+         when "public_node"       then "public"
+         else "info"
+         end %>
+
+    <% if @taxbranch.public_node? && @taxbranch.post&.persisted? %>
+      <%= link_to post_path(@taxbranch.post),
+                  class: "inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700 hover:bg-slate-200" do %>
+        <span class="material-symbols-outlined text-[12px]"><%= visibility_icon %></span>
+        <%= human_visibility %>
+      <% end %>
+    <% else %>
+      <span class="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700">
+        <span class="material-symbols-outlined text-[12px]"><%= visibility_icon %></span>
+        <%= human_visibility %>
+      </span>
+    <% end %>
+
+    <%# badge fase %>
+    <% if @taxbranch.phase.present? %>
+      <span class="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700">
+        <span class="material-symbols-outlined text-[12px]">trip_origin</span>
+        <%= @taxbranch.phase.humanize %>
+      </span>
+    <% else %>
+      <span class="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-400">
+        <span class="material-symbols-outlined text-[12px]">trip_origin</span>
+        —
+      </span>
+    <% end %>
+
+    <%# badge data programmata %>
+    <span class="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700">
+      <span class="material-symbols-outlined text-[12px]">event</span>
+      <%= @taxbranch.scheduled_eventdate&.date_start.present? ? @taxbranch.scheduled_eventdate.date_start.strftime("%d/%m/%Y %H:%M") : "—" %>
+    </span>
+
+    <%# badge data pubblicazione %>
+    <span class="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700">
+      <span class="material-symbols-outlined text-[12px]">schedule</span>
+      <%= @taxbranch.published_at.present? ? @taxbranch.published_at.strftime("%d/%m/%Y %H:%M") : "—" %>
+    </span>
+
+    <%# badge ordine figli (toggle) %>
+    <% order_title = @taxbranch.order_des ? "Ordine discendente" : "Ordine ascendente" %>
+    <% order_icon = @taxbranch.order_des ? "south" : "north" %>
+    <%= button_to superadmin_taxbranch_path(@taxbranch),
+                  method: :patch,
+                  params: { taxbranch: { order_des: !@taxbranch.order_des } },
+                  form_class: "inline",
+                  class: "inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700 hover:bg-slate-200",
+                  title: order_title do %>
+      <span class="material-symbols-outlined text-[12px]"><%= order_icon %></span>
+      <%= @taxbranch.order_des ? "Disc" : "Asc" %>
+    <% end %>
+    <% end %>
+
+    <div class="ml-auto flex items-center gap-2">
+      <% unless params[:edit_tax] == "true" %>
+        <%= link_to "Modifica",
+                    superadmin_taxbranch_path(@taxbranch, edit_tax: true, anchor: "tax-edit-form"),
+                    class: "inline-flex items-center rounded-md bg-slate-900 px-2.5 py-1 text-xs font-semibold text-white hover:bg-slate-800" %>
+      <% end %>
+    </div>
+  </div>
+
+  <% if params[:edit_tax] == "true" %>
+    <%= form_with model: @taxbranch,
+                  url: superadmin_taxbranch_path(@taxbranch),
+                  method: :patch,
+                  local: true,
+                  class: "flex flex-wrap md:flex-nowrap items-end gap-3" do |f| %>
+
+    <div class="min-w-[110px] flex-1">
+      <%= f.label :status, "Stato", class: "block text-[11px] font-medium text-slate-600" %>
+      <%= f.select :status,
+                   Taxbranch.statuses.keys.map { |s| [s.humanize, s] },
+                   {},
+                   class: "mt-1 w-full rounded-lg border border-slate-300 px-2 py-1 text-xs" %>
+    </div>
+
+    <div class="min-w-[130px] flex-1">
+      <%= f.label :visibility, "Visibilità", class: "block text-[11px] font-medium text-slate-600" %>
+      <%= f.select :visibility,
+                   [
+                     ["Privato",          :private_node],
+                     ["Condiviso",        :shared_node],
+                     ["Solo partecipanti",:participants_only],
+                     ["Pubblico",         :public_node]
+                   ],
+                   { selected: @taxbranch.visibility },
+                   class: "mt-1 w-full rounded-lg border border-slate-300 px-2 py-1 text-xs" %>
+    </div>
+
+    <div class="min-w-[110px] flex-1">
+      <%= f.label :phase, "Fase", class: "block text-[11px] font-medium text-slate-600" %>
+      <%= f.select :phase,
+                   Taxbranch.phases.keys.map { |p| [p.humanize, p] },
+                   { include_blank: "—", selected: @taxbranch.phase },
+                   class: "mt-1 w-full rounded-lg border border-slate-300 px-2 py-1 text-xs" %>
+    </div>
+
+    <div class="min-w-[170px] flex-1">
+      <%= f.label :scheduled_eventdate_id, "Previsto (Eventdate)", class: "block text-[11px] font-medium text-slate-600" %>
+      <% scheduled_event = @taxbranch.scheduled_eventdate %>
+      <% if scheduled_event.present? %>
+        <div class="mt-1 rounded-lg border border-slate-200 bg-white p-2 text-[10px] text-slate-600">
+          <div class="flex items-center justify-between">
+            <span>ID: <%= scheduled_event.id %></span>
+            <span><%= scheduled_event.date_start&.strftime("%d/%m/%Y %H:%M") || "—" %></span>
+          </div>
+          <div class="mt-1 flex items-center justify-between text-[10px] text-slate-500">
+            <span>Fine</span>
+            <span><%= scheduled_event.date_end&.strftime("%d/%m/%Y %H:%M") || "—" %></span>
+          </div>
+          <div class="mt-1 flex items-center gap-2 text-xs">
+            <%= link_to "Modifica evento",
+                        edit_eventdate_path(scheduled_event, scheduled_taxbranch_id: @taxbranch.id),
+                        data: { turbo_frame: "modal" },
+                        class: "font-semibold text-primary hover:underline" %>
+            <%= link_to "Apri",
+                        eventdate_path(scheduled_event),
+                        class: "font-semibold text-slate-500 hover:underline" %>
+          </div>
+        </div>
+      <% else %>
+        <%= link_to "Crea eventdate",
+                    new_eventdate_path(scheduled_taxbranch_id: @taxbranch.id, event_type: "taxbranch_scheduled"),
+                    data: { turbo_frame: "modal" },
+                    class: "mt-2 inline-flex items-center rounded-md border border-slate-300 px-2 py-1 text-[10px] font-semibold text-slate-600 hover:bg-slate-50" %>
+      <% end %>
+    </div>
+    <div class="min-w-[170px] flex-1">
+      <%= f.label :published_at, "Data pubblicazione", class: "block text-[11px] font-medium text-slate-600" %>
+      <%= f.datetime_local_field :published_at,
+                                 value: @taxbranch.published_at&.strftime("%Y-%m-%dT%H:%M"),
+                                 class: "mt-1 w-full rounded-lg border border-slate-300 px-2 py-1 text-xs" %>
+    </div>
+
+    <div class="min-w-[120px] flex-1">
+      <%= f.label :order_des, "Ordine figli", class: "block text-[11px] font-medium text-slate-600" %>
+      <%= f.select :order_des,
+                   [["Ascendente", false], ["Discendente", true]],
+                   { selected: @taxbranch.order_des },
+                   class: "mt-1 w-full rounded-lg border border-slate-300 px-2 py-1 text-xs" %>
+    </div>
+
+    <div class="ml-auto flex items-center gap-2">
+      <%= link_to superadmin_taxbranch_path(@taxbranch),
+                  class: "inline-flex h-10 w-10 items-center justify-center rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-50",
+                  title: "Annulla" do %>
+        <span class="material-symbols-outlined text-[18px]">close</span>
+      <% end %>
+      <%= f.submit "Aggiorna",
+                   class: "inline-flex items-center rounded-lg bg-emerald-600 px-3 py-2 text-sm font-semibold text-white hover:bg-emerald-700" %>
+    </div>
+    <% end %>
+  <% end %>
+</div>
+<div id="form-post">
+  <%= render "node", node: @taxbranch, expanded_ids: expanded_ids %>
+</div>
+
+<turbo-frame id="modal"></turbo-frame>
+
+
+
+
+
+
+
+<!-- DETTAGLI TAXBRANCH -->
+<div class="mb-6 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+  <h3 class="text-sm font-semibold text-slate-800 mb-3">Dettagli</h3>
+  <div class="grid gap-4 md:grid-cols-2">
+    <div class="text-sm">
+      <p class="text-xs uppercase tracking-wide text-slate-500">Slug</p>
+      <p class="mt-1 text-slate-800"><%= @taxbranch.slug %></p>
+      <p class="text-xs text-slate-500 mt-1">
+        Categoria: <strong><%= @taxbranch.slug_category %></strong> ·
+        Etichetta: <strong><%= @taxbranch.slug_label %></strong>
+      </p>
+    </div>
+
+    <div class="text-sm">
+      <p class="text-xs uppercase tracking-wide text-slate-500">Parent</p>
+      <% if @taxbranch.parent.present? %>
+        <p class="mt-1 text-slate-800">
+          <%= link_to @taxbranch.parent.display_label,
+                      superadmin_taxbranch_path(@taxbranch.parent),
+                      class: "text-blue-600 hover:underline" %>
+        </p>
+      <% else %>
+        <p class="mt-1 text-slate-500">Nessun parent (root)</p>
+      <% end %>
+      <p class="text-xs text-slate-500 mt-1">
+        Ancestry: <%= @taxbranch.ancestry.presence || "—" %>
+      </p>
+    </div>
+
+    <div class="text-sm">
+      <p class="text-xs uppercase tracking-wide text-slate-500">Lead</p>
+      <p class="mt-1 text-slate-800">
+        ID: <%= @taxbranch.lead_id || "—" %>
+      </p>
+    </div>
+
+    <div class="text-sm">
+      <p class="text-xs uppercase tracking-wide text-slate-500">Posizione</p>
+      <p class="mt-1 text-slate-800">Position: <%= @taxbranch.position || "—" %></p>
+      <p class="text-xs text-slate-500 mt-1">
+        Home nav: <%= @taxbranch.home_nav? ? "Sì" : "No" %>
+      </p>
+    </div>
+
+    <div class="text-sm">
+      <p class="text-xs uppercase tracking-wide text-slate-500">Date</p>
+      <p class="mt-1 text-slate-800">
+        Pubblicazione: <%= @taxbranch.published_at ? l(@taxbranch.published_at, format: :short) : "—" %>
+      </p>
+      <p class="text-xs text-slate-500 mt-1">
+        Programmata: <%= @taxbranch.scheduled_eventdate&.date_start ? l(@taxbranch.scheduled_eventdate.date_start, format: :short) : "—" %>
+      </p>
+    </div>
+
+    <div class="text-sm">
+      <p class="text-xs uppercase tracking-wide text-slate-500">GeneraImpresa</p>
+      <% if @taxbranch.generaimpresa_md.present? %>
+        <p class="mt-1 text-slate-800">Presente</p>
+        <%= link_to "Apri tab",
+                    generaimpresa_superadmin_taxbranch_path(@taxbranch),
+                    class: "text-xs text-blue-600 hover:underline" %>
+      <% else %>
+        <p class="mt-1 text-slate-500">Non presente</p>
+      <% end %>
+    </div>
+
+    <div class="text-sm md:col-span-2">
+      <p class="text-xs uppercase tracking-wide text-slate-500">Note interne</p>
+      <p class="mt-1 text-slate-800 whitespace-pre-line"><%= @taxbranch.notes.presence || "—" %></p>
+    </div>
+  </div>
+</div>
+
+
+
+  <% if (diagram_code = @taxbranch.post&.mermaid).present? %>
+    <div class="mb-6">
+      <%= render "shared/mermaid_diagram",
+                mermaid: diagram_code,
+                badge: "Genera Impresa",
+                title: "Diagramma della campagna",
+                subtitle: @taxbranch.display_label,
+                hint: "Aggiorna il codice dal post collegato al ramo." %>
+    </div>
+  <% end %>
+
+  <div class="mb-6 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+  <div class="flex items-center justify-between gap-3">
+    <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">
+      Ruoli autorizzati
+    </p>
+    <% if (domain = @taxbranch.header_domain).present? %>
+      <p class="text-xs text-slate-500">
+        Fonte: <%= link_to domain.title.presence || domain.host, superadmin_domain_path(domain), class: "text-blue-600 hover:underline" %>
+      </p>
+    <% end %>
+  </div>
+  <% if @taxbranch.permission_access_roles.present? %>
+    <div class="mt-2 flex flex-wrap gap-2">
+      <% @taxbranch.permission_access_roles.each do |role| %>
+        <span class="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700">
+          <%= role %>
+        </span>
+      <% end %>
+    </div>
+    <p class="mt-2 text-xs text-slate-500">
+      Solo i ruoli sopra elencati possono accedere a questo ramo (oltre a superadmin e proprietari).
+    </p>
+  <% else %>
+    <p class="mt-1 text-sm text-slate-500">
+      Nessuna restrizione aggiuntiva: segue esclusivamente la visibilità del nodo.
+    </p>
+  <% end %>
+</div>

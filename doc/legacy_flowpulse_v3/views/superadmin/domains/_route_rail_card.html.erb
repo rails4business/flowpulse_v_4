@@ -1,0 +1,19 @@
+<div class="flex flex-col items-center">
+  <!-- 🛤️ Rail Connector (Aligns with the background rail) -->
+  <div class="relative z-10 flex h-[84px] w-full items-center justify-center">
+    <div class="flex items-center justify-center gap-2 rounded-full border border-blue-500/30 bg-[#0f172a] px-4 py-1.5 shadow-sm text-blue-300">
+      <span class="text-xs font-bold uppercase tracking-wider"><%= journey.title.presence || "Rail" %></span>
+      <span class="material-symbols-outlined text-sm">arrow_forward</span>
+    </div>
+  </div>
+
+  <!-- 📄 Rail Details (Subtle) -->
+  <div class="w-full text-center px-4 relative top-[-10px]">
+    <%= link_to edit_journey_path(journey),
+                data: { turbo_frame: "modal" },
+                class: "inline-flex items-center gap-1 text-[10px] text-[#9dabb9] hover:text-white transition-colors" do %>
+      <span><%= journey.slug %></span>
+      <span class="material-symbols-outlined text-[12px]">edit</span>
+    <% end %>
+  </div>
+</div>

@@ -1,0 +1,176 @@
+<%= form_with(model: post, class: "space-y-4") do |form| %>
+  <% tb = local_assigns[:taxbranch] || post.taxbranch %>
+
+  <% if post.errors.any? %>
+    <div id="error_explanation" class="bg-red-50 text-red-600 px-3 py-2 rounded-md">
+      <h2><%= pluralize(post.errors.count, "errore") %> impediscono il salvataggio:</h2>
+      <ul class="list-disc ml-6">
+        <% post.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <%# ——— hidden di contesto ——— %>
+  <%= form.hidden_field :lead_id,      value: (post.lead_id || Current.user&.lead&.id) %>
+  <%= form.hidden_field :taxbranch_id, value: tb&.id %>
+
+  <% if tb %>
+    <div class="rounded-md bg-slate-50 border border-slate-200 px-3 py-2 text-xs text-slate-600 mb-2">
+      <p>
+        Categoria collegata:
+        <strong><%= tb.slug_label %></strong>
+      </p>
+      <p class="mt-1">
+        Stato ramo:
+        <span class="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-700">
+          <%= tb.status.humanize %>
+        </span>
+        · Visibilità:
+        <span class="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-700">
+          <%= case tb.visibility
+             when "private_node"      then "Privato"
+             when "shared_node"       then "Condiviso"
+             when "participants_only" then "Partecipanti"
+             when "public_node"       then "Pubblico"
+             else tb.visibility.to_s.humanize
+             end %>
+        </span>
+        <% if tb.published_at.present? %>
+          · Pubblicato il:
+          <span class="font-medium"><%= l(tb.published_at, format: :short) %></span>
+        <% end %>
+      </p>
+      <p class="mt-1">
+        <span class="text-slate-500">
+          Lo stato e la pubblicazione si modificano dal pannello sopra del Taxbranch.
+        </span>
+      </p>
+    </div>
+  <% end %>
+
+  <div>
+    <%= form.label :title, "Titolo", class: "block text-sm font-medium" %>
+    <%= form.text_field :title, class: "mt-1 block w-full rounded-md border px-3 py-2" %>
+  </div>
+
+  <div>
+    <%= form.label :slug, class: "block text-sm font-medium" %>
+    <%= form.text_field :slug, class: "mt-1 block w-full rounded-md border px-3 py-2" %>
+  </div>
+
+  <div>
+    <%= form.label :description, "Descrizione", class: "block text-sm font-medium" %>
+    <%= form.text_area :description, rows: 3, class: "mt-1 block w-full rounded-md border px-3 py-2" %>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <div>
+      <%= form.label :thumb_url, "Thumb URL", class: "block text-sm font-medium" %>
+      <%= form.text_field :thumb_url, class: "mt-1 block w-full rounded-md border px-3 py-2" %>
+    </div>
+    <div>
+      <%= form.label :horizontal_cover_url, "Cover orizzontale", class: "block text-sm font-medium" %>
+      <%= form.text_field :horizontal_cover_url, class: "mt-1 block w-full rounded-md border px-3 py-2" %>
+    </div>
+    <div>
+      <%= form.label :vertical_cover_url, "Cover verticale", class: "block text-sm font-medium" %>
+      <%= form.text_field :vertical_cover_url, class: "mt-1 block w-full rounded-md border px-3 py-2" %>
+    </div>
+    <div>
+      <%= form.label :banner_url, "Banner URL", class: "block text-sm font-medium" %>
+      <%= form.text_field :banner_url, class: "mt-1 block w-full rounded-md border px-3 py-2" %>
+    </div>
+  </div>
+
+  <div>
+    <%= form.label :url_media_content, "Media URL", class: "block text-sm font-medium" %>
+    <%= form.text_field :url_media_content, class: "mt-1 block w-full rounded-md border px-3 py-2" %>
+  </div>
+
+  <div>
+    <%= form.label :content, "Contenuto (rich text)", class: "block text-sm font-medium" %>
+    <%= form.rich_text_area :content, rows: 8, class: "mt-1 block w-full rounded-md border px-3 py-2" %>
+  </div>
+
+  <div class="mb-6" data-autosave-container="<%= post.persisted? %>">
+    <%= form.label :content_md, "Contenuto (Markdown)", class: "block text-sm font-medium text-slate-700 mb-1" %>
+    <%= form.text_area :content_md, rows: 18,
+          class: "w-full rounded-md border border-slate-300 px-3 py-2 font-mono" %>
+    <p class="mt-1 text-xs text-slate-500">
+      Supporta # titoli, **grassetto**, _corsivo_, liste, ```code```…
+    </p>
+    <p class="mt-1 text-xs text-slate-500" data-autosave-status></p>
+  </div>
+
+  <div class="mb-6">
+    <div class="flex items-center justify-between">
+      <%= form.label :mermaid, "Diagramma (Mermaid.js)", class: "block text-sm font-medium text-slate-700" %>
+      <span class="text-xs text-slate-500">Esempio: <code>flowchart TD; A-->B</code></span>
+    </div>
+    <%= form.text_area :mermaid,
+          rows: 6,
+          placeholder: "flowchart TD;\n  idea --> prototipo --> servizio",
+          class: "w-full rounded-md border border-slate-300 px-3 py-2 font-mono text-sm" %>
+    <p class="mt-1 text-xs text-slate-500">
+      Il codice verrà renderizzato solo sui rami Genera Impresa per visualizzare roadmap e funding.
+    </p>
+  </div>
+
+  <% if post.persisted? %>
+    <script>
+      (() => {
+        const container = document.querySelector("[data-autosave-container='true']");
+        if (!container) return;
+        const textarea = container.querySelector("textarea[name='post[content_md]']");
+        const status = container.querySelector("[data-autosave-status]");
+        const form = textarea?.closest("form");
+        if (!textarea || !form || !status) return;
+
+        let timer;
+        const save = () => {
+          const token = document.querySelector("meta[name='csrf-token']")?.getAttribute("content");
+          status.textContent = "Salvataggio…";
+          fetch(form.action, {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+              "Accept": "application/json",
+              "X-CSRF-Token": token
+            },
+            credentials: "same-origin",
+            body: JSON.stringify({ post: { content_md: textarea.value } })
+          }).then((res) => {
+            if (!res.ok) throw new Error("Autosave failed");
+            const now = new Date();
+            const hh = String(now.getHours()).padStart(2, "0");
+            const mm = String(now.getMinutes()).padStart(2, "0");
+            status.textContent = `Salvato alle ${hh}:${mm}`;
+          }).catch(() => {
+            status.textContent = "Errore salvataggio";
+          });
+        };
+
+        textarea.addEventListener("input", () => {
+          clearTimeout(timer);
+          timer = setTimeout(save, 1500);
+        });
+      })();
+    </script>
+  <% end %>
+
+  <div>
+    <%= form.label :meta, "Meta (JSON / testo)", class: "block text-sm font-medium" %>
+    <%= form.text_area :meta, rows: 3, class: "mt-1 block w-full rounded-md border px-3 py-2" %>
+  </div>
+
+  <div class="flex gap-2">
+    <%= form.submit (post.persisted? ? "Aggiorna" : "Crea"),
+        class: "rounded-md px-3.5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-medium" %>
+
+    <%= link_to "Annulla",
+        (tb.present? ? [ :superadmin, tb ] : posts_path),
+        class: "rounded-md px-3.5 py-2.5 bg-gray-100 hover:bg-gray-50 font-medium" %>
+  </div>
+<% end %>

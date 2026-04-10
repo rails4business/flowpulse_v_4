@@ -1,0 +1,44 @@
+html {
+  scroll-behavior: smooth;
+}
+
+body.posturacorretta-preview {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  color: #111827;
+  background:
+    radial-gradient(circle at top right, rgba(59, 130, 246, 0.08), transparent 22%),
+    linear-gradient(180deg, #f8fbff 0%, #eff6ff 100%);
+}
+
+.posturacorretta-preview main {
+  min-height: 100vh;
+}
+
+.posturacorretta-preview a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.posturacorretta-preview section {
+  width: 100%;
+}
+
+.posturacorretta-preview .max-w-7xl,
+.posturacorretta-preview .max-w-6xl,
+.posturacorretta-preview .max-w-screen-xl,
+.posturacorretta-preview .lg\:max-w-screen-xl,
+.posturacorretta-preview .sm\:max-w-xl,
+.posturacorretta-preview .md\:max-w-full {
+  width: min(1120px, calc(100% - 32px));
+}
+
+.posturacorretta-preview img {
+  max-width: 100%;
+  height: auto;
+}
+
+.posturacorretta-preview button {
+  cursor: pointer;
+}
+

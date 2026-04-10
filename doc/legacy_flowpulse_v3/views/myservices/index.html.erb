@@ -1,0 +1,75 @@
+<% content_for :title, "I miei servizi" %>
+
+<div class="max-w-5xl mx-auto py-8 space-y-8">
+  <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+    <h1 class="text-3xl font-bold text-slate-900">I miei servizi attivi</h1>
+    <p class="text-sm text-slate-600 mt-1">
+      Panoramica dei percorsi e servizi a cui sei iscritto tramite il tuo profilo Lead.
+    </p>
+  </div>
+
+  <% if @services.any? %>
+    <div class="space-y-6">
+      <% @services.each do |service| %>
+        <% enrollments = @enrollments_by_service[service] || [] %>
+        <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
+          <div class="flex items-start justify-between gap-3 flex-wrap">
+            <div>
+              <p class="text-xs uppercase tracking-wide text-slate-500">Servizio</p>
+              <h2 class="text-xl font-semibold text-slate-900"><%= service&.name || "Servizio senza titolo" %></h2>
+              <p class="text-sm text-slate-600"><%= service&.description %></p>
+            </div>
+            <% if service&.taxbranch&.post.present? %>
+              <%= link_to "Vai al percorso",
+                          post_entry_link(service.taxbranch.post, taxbranch: service.taxbranch),
+                          class: "inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500" %>
+            <% end %>
+          </div>
+
+          <div class="grid gap-4 md:grid-cols-2">
+            <div class="rounded-xl border border-slate-100 bg-slate-50 p-4">
+              <p class="text-xs uppercase tracking-wide text-slate-500">Ruoli ammessi</p>
+              <p class="mt-2 text-sm text-slate-700">
+                <%= Array(service&.allowed_roles).presence&.join(", ") || "Non specificati" %>
+              </p>
+            </div>
+            <div class="rounded-xl border border-slate-100 bg-slate-50 p-4">
+              <p class="text-xs uppercase tracking-wide text-slate-500">Ruoli rilasciati</p>
+              <p class="mt-2 text-sm text-slate-700">
+                <%= Array(service&.output_roles).presence&.join(", ") || "Non specificati" %>
+              </p>
+            </div>
+          </div>
+
+          <div class="space-y-3">
+            <p class="text-sm font-semibold text-slate-800">Iscrizioni collegate</p>
+            <% enrollments.each do |enrollment| %>
+              <div class="rounded-xl border border-slate-100 px-4 py-3 text-sm flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p class="font-medium text-slate-900">
+                    Journey: <%= enrollment.journey&.title || "—" %>
+                  </p>
+                  <p class="text-xs text-slate-500">
+                    Stato: <%= enrollment.status.humanize %> · Ruolo: <%= enrollment.participant_role.presence || enrollment.role_name || "—" %>
+                  </p>
+                  <% if enrollment.target_role.present? %>
+                    <p class="text-xs text-slate-500">
+                      Obiettivo: <%= enrollment.target_role %>
+                    </p>
+                  <% end %>
+                </div>
+                <div class="text-xs text-slate-500">
+                  <span>Iscritto il <%= l(enrollment.created_at.to_date, format: :long) %></span>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="rounded-2xl border border-dashed border-slate-300 p-6 text-center text-slate-500">
+      Non risultano servizi attivi. Visita i domini disponibili o contatta un tutor per iscriverti a un percorso.
+    </div>
+  <% end %>
+</div>

@@ -1,0 +1,582 @@
+<div class="mx-auto w-full max-w-5xl">
+<%= form_with(model: [:superadmin, taxbranch], local: true, class: "space-y-6") do |f| %>
+  <% if taxbranch.errors.any? %>
+    <div class="rounded-md border border-red-200 bg-red-50 p-4 text-red-800">
+      <p class="font-semibold mb-2">⚠️ Ci sono <%= pluralize(taxbranch.errors.count, "errore") %> nel form:</p>
+      <ul class="list-disc pl-5 space-y-0.5">
+        <% taxbranch.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <%= hidden_field_tag :children_id, params[:children_id] if params[:children_id].present? %>
+
+  <% if @taxbranch.persisted? %>
+    <div class="grid gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+      <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">
+        Collegamenti rapidi
+      </p>
+      <div class="flex flex-wrap items-center gap-3 text-sm">
+        <% if @taxbranch.children.exists? %>
+          <p class="text-slate-500">
+            Questo nodo ha già dei figli, non può diventare un link.
+          </p>
+        <% else %>
+          <%= link_to "🔗 Collega a un altro taxbranch",
+                      superadmin_taxbranches_path(link_parent_id: @taxbranch.id),
+                      class: "inline-flex items-center rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-700" %>
+        <% end %>
+
+        <% if action_name != "new" && @taxbranch.children.none? %>
+          <div class="w-full md:w-auto md:flex-1">
+            <%= f.label :link_child_taxbranch_id, "Link a unico figlio", class: "block text-xs font-medium text-slate-600 mb-1" %>
+            <%= f.text_field :link_child_taxbranch_id,
+                  class: "w-full rounded-md border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 #{'border-red-300 bg-red-50' if @taxbranch.errors[:link_child_taxbranch_id].any?}" %>
+            <% @taxbranch.errors.full_messages_for(:link_child_taxbranch_id).each do |m| %>
+              <p class="mt-1 text-xs text-red-600"><%= m %></p>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+  <!-- Metadati e posizionamento -->
+  <section class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm space-y-4">
+    <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">
+      Metadati principali
+    </p>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div>
+        <%= f.label :lead_id, "Lead ID", class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <%= f.text_field :lead_id,
+              class: "w-full rounded-md border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 #{'border-red-300 bg-red-50' if taxbranch.errors[:lead_id].any?}" %>
+        <% taxbranch.errors.full_messages_for(:lead_id).each do |m| %>
+          <p class="mt-1 text-xs text-red-600"><%= m %></p>
+        <% end %>
+      </div>
+
+      <div>
+        <%= f.label :position, "Posizione", class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <%= f.number_field :position,
+              class: "w-full rounded-md border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 #{'border-red-300 bg-red-50' if taxbranch.errors[:position].any?}" %>
+        <% taxbranch.errors.full_messages_for(:position).each do |m| %>
+          <p class="mt-1 text-xs text-red-600"><%= m %></p>
+        <% end %>
+      </div>
+
+      <div>
+        <%= f.label :parent_id, "ID Padre", class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <%= f.text_field :parent_id, value: taxbranch.parent_id,
+              class: "w-full rounded-md border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 #{'border-red-300 bg-red-50' if taxbranch.errors[:parent_id].any?}" %>
+        <% taxbranch.errors.full_messages_for(:parent_id).each do |m| %>
+          <p class="mt-1 text-xs text-red-600"><%= m %></p>
+        <% end %>
+      </div>
+    </div>
+
+    <label class="inline-flex items-center gap-2 text-sm text-slate-700">
+      <%= f.check_box :home_nav, class: "h-4 w-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500" %>
+      Mostra nella navbar
+    </label>
+  </section>
+
+  <!-- Stato editoriale + visibilità -->
+  <section class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm space-y-4">
+    <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">
+      Stato editoriale & visibilità
+    </p>
+    <div class="grid grid-cols-1 md:grid-cols-6 gap-4">
+      <div>
+        <%= f.label :status, "Stato editoriale", class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <%= f.select :status,
+                     Taxbranch.statuses.keys.map { |s| [s.humanize, s] },
+                     {},
+                     class: "w-full rounded-md border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 #{'border-red-300 bg-red-50' if taxbranch.errors[:status].any?}" %>
+        <% taxbranch.errors.full_messages_for(:status).each do |m| %>
+          <p class="mt-1 text-xs text-red-600"><%= m %></p>
+        <% end %>
+      </div>
+
+      <div>
+        <%= f.label :visibility, "Visibilità", class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <% visibility_options =
+          Taxbranch.visibilities.keys.map do |key|
+            label =
+              case key.to_sym
+              when :private_node      then "Privato"
+              when :shared_node       then "Condiviso (team)"
+              when :participants_only then "Solo partecipanti"
+              when :public_node       then "Pubblico"
+              else key.to_s.humanize
+              end
+
+            [label, key]
+          end
+        %>
+        <%= f.select :visibility,
+                     visibility_options,
+                     {},
+                     class: "w-full rounded-md border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 #{'border-red-300 bg-red-50' if taxbranch.errors[:visibility].any?}" %>
+        <% taxbranch.errors.full_messages_for(:visibility).each do |m| %>
+          <p class="mt-1 text-xs text-red-600"><%= m %></p>
+        <% end %>
+      </div>
+
+      <div>
+        <%= f.label :phase, "Fase", class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <%= f.select :phase,
+                     Taxbranch.phases.keys.map { |p| [p.humanize, p] },
+                     { include_blank: "—" },
+                     class: "w-full rounded-md border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 #{'border-red-300 bg-red-50' if taxbranch.errors[:phase].any?}" %>
+        <% taxbranch.errors.full_messages_for(:phase).each do |m| %>
+          <p class="mt-1 text-xs text-red-600"><%= m %></p>
+        <% end %>
+      </div>
+
+      <div>
+        <%= f.label :order_des, "Ordine figli", class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <%= f.select :order_des,
+                     [["Ascendente", false], ["Discendente", true]],
+                     { selected: taxbranch.order_des },
+                     class: "w-full rounded-md border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+      </div>
+
+      <div>
+        <%= f.label :scheduled_eventdate_id, "Eventdate programmata", class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <% scheduled_event = taxbranch.scheduled_eventdate %>
+        <% if scheduled_event.present? %>
+          <div class="rounded-lg border border-slate-200 bg-white p-3 text-xs text-slate-600">
+            <div class="flex items-center justify-between">
+              <span>ID: <%= scheduled_event.id %></span>
+              <span><%= scheduled_event.date_start&.strftime("%d/%m/%Y %H:%M") || "—" %></span>
+            </div>
+            <div class="mt-1 flex items-center justify-between text-[11px] text-slate-500">
+              <span>Fine</span>
+              <span><%= scheduled_event.date_end&.strftime("%d/%m/%Y %H:%M") || "—" %></span>
+            </div>
+            <div class="mt-2 flex items-center gap-2">
+              <%= link_to "Modifica evento",
+                          edit_eventdate_path(scheduled_event, scheduled_taxbranch_id: taxbranch.id),
+                          data: { turbo_frame: "modal" },
+                          class: "font-semibold text-primary hover:underline" %>
+              <%= link_to "Apri",
+                          eventdate_path(scheduled_event),
+                          class: "font-semibold text-slate-500 hover:underline" %>
+            </div>
+          </div>
+        <% else %>
+          <%= link_to "Crea eventdate",
+                      new_eventdate_path(scheduled_taxbranch_id: taxbranch.id, event_type: "taxbranch_scheduled"),
+                      data: { turbo_frame: "modal" },
+                      class: "inline-flex items-center rounded-md border border-slate-300 px-2 py-1 text-xs font-semibold text-slate-600 hover:bg-slate-50" %>
+        <% end %>
+      </div>
+      <div>
+        <%= f.label :published_at, "Data pubblicazione", class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <%= f.datetime_local_field :published_at,
+                                   value: taxbranch.published_at&.strftime("%Y-%m-%dT%H:%M"),
+                                   class: "w-full rounded-md border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 #{'border-red-300 bg-red-50' if taxbranch.errors[:published_at].any?}" %>
+        <% taxbranch.errors.full_messages_for(:published_at).each do |m| %>
+          <p class="mt-1 text-xs text-red-600"><%= m %></p>
+        <% end %>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- Note interne -->
+  <div>
+    <%= f.label :notes, "Note interne", class: "block text-sm font-medium text-gray-700 mb-1" %>
+    <%= f.text_area :notes,
+          placeholder: "Appunti per il team (non pubblici)…",
+          rows: 3,
+          class: "w-full rounded-md border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 #{'border-red-300 bg-red-50' if taxbranch.errors[:notes].any?}" %>
+    <% taxbranch.errors.full_messages_for(:notes).each do |m| %>
+      <p class="mt-1 text-xs text-red-600"><%= m %></p>
+    <% end %>
+  </div>
+
+  <!-- Meta JSON -->
+  <div id="metaJsonBlock">
+    <%= f.label :meta, "Meta (JSON)", class: "block text-sm font-medium text-gray-700 mb-1" %>
+    <%= text_area_tag "taxbranch[meta]",
+          (taxbranch.meta.present? ? JSON.pretty_generate(taxbranch.meta) : ""),
+          placeholder: '{"scoring":{"enabled":true}}',
+          rows: 8,
+          id: "metaJsonInput",
+          class: "w-full rounded-md border-gray-300 bg-white px-3 py-2 font-mono text-xs shadow-sm focus:border-blue-500 focus:ring-blue-500 #{'border-red-300 bg-red-50' if taxbranch.errors[:meta].any?}" %>
+    <p id="metaJsonHelp" class="mt-1 text-xs text-slate-500">
+      Modificabile. Inserisci un JSON valido (oggetto).
+    </p>
+    <div id="questionnaireMetaHint"
+         class="hidden mt-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-800">
+      Esempio questionnaire_config (gestito automaticamente da source/version):
+      <pre class="mt-2 whitespace-pre-wrap rounded border border-emerald-200 bg-white p-2 font-mono text-[11px] text-slate-700">{
+  "scoring": {
+    "enabled": true,
+    "max_total": 27,
+    "levels": [
+      { "min": 0, "max": 9,  "code": "rosso",  "label": "Mobilita limitata" },
+      { "min": 10, "max": 18, "code": "giallo", "label": "Mobilita media" },
+      { "min": 19, "max": 27, "code": "verde",  "label": "Buona mobilita" }
+    ]
+  }
+}</pre>
+    </div>
+    <% taxbranch.errors.full_messages_for(:meta).each do |m| %>
+      <p class="mt-1 text-xs text-red-600"><%= m %></p>
+    <% end %>
+    <% taxbranch.errors.full_messages_for(:questionnaire_config).each do |m| %>
+      <p class="mt-1 text-xs text-red-600"><%= m %></p>
+    <% end %>
+  </div>
+
+  <% questionnaire_files = Dir.glob(Rails.root.join("config/data/questionnaires/*.{yml,yaml}")).sort %>
+  <% questionnaire_options = questionnaire_files.map do |path|
+       rel = Pathname.new(path).relative_path_from(Rails.root).to_s
+       begin
+         data = YAML.safe_load_file(path, permitted_classes: [], aliases: false) || {}
+         title = data["title"].presence || File.basename(path, ".*").humanize
+         version = data["version"].presence || "v1"
+       rescue StandardError
+         title = File.basename(path, ".*").humanize
+         version = "v1"
+       end
+       [title, rel, version]
+     end %>
+  <% legacy_questionnaire_cfg = {} %>
+  <% if taxbranch.meta.is_a?(Hash) %>
+    <% legacy_questionnaire_cfg["questionnaire_source"] = taxbranch.meta["questionnaire_source"] if taxbranch.meta["questionnaire_source"].present? %>
+    <% legacy_questionnaire_cfg["questionnaire_version"] = taxbranch.meta["questionnaire_version"] if taxbranch.meta["questionnaire_version"].present? %>
+    <% legacy_questionnaire_cfg["question_kind"] = taxbranch.meta["question_kind"] if taxbranch.meta["question_kind"].present? %>
+    <% legacy_questionnaire_cfg["scoring"] = taxbranch.meta["scoring"] if taxbranch.meta["scoring"].is_a?(Hash) %>
+  <% end %>
+  <% questionnaire_config_for_form =
+       if taxbranch.questionnaire_config.is_a?(Hash) && taxbranch.questionnaire_config.present?
+         taxbranch.questionnaire_config
+       else
+         legacy_questionnaire_cfg
+       end %>
+
+  <div id="questionnaireSourceBlock"
+       class="<%= taxbranch.slug_category.to_s == 'questionnaire' ? '' : 'hidden' %> grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div>
+      <%= f.label :questionnaire_source, "Questionario", class: "block text-sm font-medium text-gray-700 mb-1" %>
+      <%= f.select :questionnaire_source,
+            options_for_select(questionnaire_options.map { |label, rel, _v| [label, rel] }, taxbranch.questionnaire_source.presence),
+            { include_blank: "Seleziona questionario..." },
+            class: "w-full rounded-md border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500",
+            data: { questionnaire_source_select: true } %>
+      <p class="mt-1 text-xs text-slate-500">I file arrivano da <code>config/data/questionnaires/</code>.</p>
+      <div class="hidden" data-questionnaire-version-map>
+        <% questionnaire_options.each do |_label, rel, ver| %>
+          <span data-source="<%= rel %>" data-version="<%= ver %>"></span>
+        <% end %>
+      </div>
+    </div>
+    <div>
+      <%= f.label :questionnaire_version, "Questionnaire version", class: "block text-sm font-medium text-gray-700 mb-1" %>
+      <%= f.text_field :questionnaire_version,
+            placeholder: "v1",
+            class: "w-full rounded-md border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500",
+            data: { questionnaire_version_input: true } %>
+      <p class="mt-1 text-xs text-slate-500">Si compila automaticamente dal file YAML (puoi modificarla).</p>
+    </div>
+  </div>
+  <div id="questionnaireConfigBlock"
+       class="<%= taxbranch.slug_category.to_s == 'questionnaire' ? '' : 'hidden' %> mt-3">
+    <%= f.label :questionnaire_config, "Questionnaire Config (JSON)", class: "block text-sm font-medium text-gray-700 mb-1" %>
+    <%= text_area_tag "taxbranch[questionnaire_config]",
+          (questionnaire_config_for_form.present? ? JSON.pretty_generate(questionnaire_config_for_form) : ""),
+          rows: 8,
+          id: "questionnaireConfigInput",
+          placeholder: '{"questionnaire_source":"config/data/questionnaires/..yml","questionnaire_version":"v1","scoring":{"enabled":true}}',
+          class: "w-full rounded-md border-gray-300 bg-white px-3 py-2 font-mono text-xs shadow-sm focus:border-blue-500 focus:ring-blue-500 #{'border-red-300 bg-red-50' if taxbranch.errors[:questionnaire_config].any?}" %>
+    <p class="mt-1 text-xs text-slate-500">Auto-caricato da `questionnaire_config`; se vuoto usa i dati legacy trovati in `meta`.</p>
+    <% taxbranch.errors.full_messages_for(:questionnaire_config).each do |m| %>
+      <p class="mt-1 text-xs text-red-600"><%= m %></p>
+    <% end %>
+  </div>
+
+  <!-- GeneraImpresa (MD interno) -->
+  <div>
+    <%= f.label :generaimpresa_md, "GeneraImpresa (MD interno)", class: "block text-sm font-medium text-gray-700 mb-1" %>
+    <%= f.text_area :generaimpresa_md,
+          placeholder: "Documento interno di progettazione (non pubblico)…",
+          rows: 8,
+          class: "w-full rounded-md border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 #{'border-red-300 bg-red-50' if taxbranch.errors[:generaimpresa_md].any?}" %>
+    <p class="mt-1 text-xs text-slate-500">Visibile solo in admin; se presente, identifica un branch GeneraImpresa.</p>
+    <% taxbranch.errors.full_messages_for(:generaimpresa_md).each do |m| %>
+      <p class="mt-1 text-xs text-red-600"><%= m %></p>
+    <% end %>
+  </div>
+
+  <!-- Tag positioning pubblico -->
+  <div>
+    <%= f.label :positioning_tag_public, "Mostra pubblicamente (tag positioning)", class: "block text-sm font-medium text-gray-700 mb-1" %>
+
+    <div class="flex items-center gap-2">
+      <%= f.check_box :positioning_tag_public,
+                      { include_hidden: true,
+                        class: "h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" } %>
+      <span class="text-sm text-slate-600">Abilita visibilità pubblica dei tag positioning</span>
+    </div>
+
+    <% taxbranch.errors.full_messages_for(:positioning_tag_public).each do |m| %>
+      <p class="mt-1 text-xs text-red-600"><%= m %></p>
+    <% end %>
+  </div>
+
+  <% header_domain = taxbranch.header_domain %>
+  <section class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm space-y-4">
+    <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">
+      Dominio & accessi
+    </p>
+    <div class="grid gap-6 lg:grid-cols-2">
+      <!-- Slug builder (con Stimulus) -->
+      <div class="space-y-4" data-controller="taxbranch-slug">
+        <div class="space-y-1">
+          <%= f.label :slug_category, "Categoria", class: "block text-sm font-medium text-slate-700" %>
+          <% show_templates = Dir.glob(Rails.root.join("app/views/posts/show.html+*.erb"))
+                                .map { |path| File.basename(path).sub("show.html+", "").sub(".erb", "") } %>
+          <%= f.text_field :slug_category,
+                list: "slug-categories",
+                placeholder: "es. blog_creators, ruolo, corso…",
+                class: "w-full rounded-md border-slate-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+
+          <datalist id="slug-categories">
+            <% (Taxbranch.category_suggestions + show_templates).uniq.sort.each do |cat| %>
+              <option value="<%= cat %>"></option>
+            <% end %>
+          </datalist>
+
+          <p class="text-xs text-slate-500">Scegli una categoria esistente o scrivine una nuova.</p>
+          <div id="questionnaireCategoryHint"
+               class="<%= %w[questionnaire question option].include?(taxbranch.slug_category.to_s) ? '' : 'hidden' %> mt-2 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-xs text-blue-800">
+            Modalita questionario attiva. Usa:
+            <span class="font-semibold">questionnaire</span> (root),
+            <span class="font-semibold">question</span> (domanda),
+            <span class="font-semibold">option</span> (opzione).
+          </div>
+        </div>
+
+        <div>
+          <%= f.label :slug_label, "Etichetta", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= f.text_field :slug_label,
+                  class: "w-full rounded-md border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 #{'border-red-300 bg-red-50' if taxbranch.errors[:slug_label].any?}",
+                  data: { "taxbranch-slug-target": "label", action: "input->taxbranch-slug#update" } %>
+          <% taxbranch.errors.full_messages_for(:slug_label).each do |m| %>
+            <p class="mt-1 text-xs text-red-600"><%= m %></p>
+          <% end %>
+        </div>
+
+        <div>
+          <%= f.label :slug, "Slug (auto)", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= f.text_field :slug,
+                placeholder: "generato da categoria + etichetta o nome",
+                class: "w-full rounded-md border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 #{'border-red-300 bg-red-50' if taxbranch.errors[:slug].any?}",
+                data: { "taxbranch-slug-target": "slug" } %>
+          <% taxbranch.errors.full_messages_for(:slug).each do |m| %>
+            <p class="mt-1 text-xs text-red-600"><%= m %></p>
+          <% end %>
+        </div>
+      </div>
+
+      <div class="space-y-5">
+        <div class="rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm">
+          <p class="text-xs uppercase tracking-wide text-slate-500 mb-1">Dominio di riferimento</p>
+          <% if header_domain.present? %>
+            <p>
+              <%= link_to header_domain.title.presence || header_domain.host,
+                          superadmin_domain_path(header_domain),
+                          class: "text-blue-600 hover:underline" %>
+              <span class="text-slate-400">· Taxbranch #<%= header_domain.taxbranch_id %></span>
+            </p>
+          <% else %>
+            <p class="text-slate-500">Nessun dominio associato.</p>
+          <% end %>
+        </div>
+
+        <div>
+          <%= f.label :permission_access_roles, "Ruoli che hanno il permesso di accedere", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%
+            available_roles = header_domain&.operative_roles.presence
+            error_classes = "w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 #{'border-red-300 bg-red-50' if taxbranch.errors[:permission_access_roles].any?}"
+          %>
+          <% if available_roles.present? %>
+            <div class="rounded-lg border border-slate-200 bg-white p-3">
+              <%= hidden_field_tag "#{f.object_name}[permission_access_roles][]", "", id: nil %>
+              <div class="grid gap-2 sm:grid-cols-2">
+                <%= f.collection_check_boxes :permission_access_roles,
+                      available_roles,
+                      :to_s,
+                      :to_s do |b| %>
+                  <label class="flex items-center gap-2 rounded-md border border-slate-200 px-2 py-1 text-sm text-slate-700">
+                    <%= b.check_box(class: "h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500") %>
+                    <span><%= b.text %></span>
+                  </label>
+                <% end %>
+              </div>
+              <p class="mt-2 text-xs text-slate-500">
+                Seleziona uno o più ruoli per limitare l’accesso a questo ramo. Se non spunti nulla il contenuto resta aperto a tutti.
+              </p>
+            </div>
+          <% else %>
+            <%= f.text_area :permission_access_roles,
+                  value: taxbranch.permission_access_roles_text,
+                  rows: 3,
+                  placeholder: "Es.\nUtente\nProfessionista\nTutor",
+                  class: error_classes %>
+            <p class="mt-1 text-xs text-slate-500">
+              Nessuna lista disponibile dal dominio: inserisci i ruoli consentiti separati da newline o virgole. Lascia vuoto per non impostare restrizioni.
+            </p>
+          <% end %>
+          <% taxbranch.errors.full_messages_for(:permission_access_roles).each do |m| %>
+            <p class="mt-1 text-xs text-red-600"><%= m %></p>
+          <% end %>
+        </div>
+
+        <div class="space-y-4">
+          <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Ruolo step (chi fa cosa)</p>
+
+          <div>
+            <%= f.label :execution_mode, "Modalità esecuzione", class: "block text-sm font-medium text-gray-700 mb-1" %>
+            <%= f.select :execution_mode,
+                  [["Autonomia", "self"], ["Assistita", "assisted"], ["Entrambe", "both"]],
+                  {},
+                  class: "w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 #{'border-red-300 bg-red-50' if taxbranch.errors[:execution_mode].any?}" %>
+            <% taxbranch.errors.full_messages_for(:execution_mode).each do |m| %>
+              <p class="mt-1 text-xs text-red-600"><%= m %></p>
+            <% end %>
+          </div>
+
+          <div>
+            <%= f.label :performed_by_roles, "Ruoli che eseguono lo step", class: "block text-sm font-medium text-gray-700 mb-1" %>
+            <% if available_roles.present? %>
+              <div class="rounded-lg border border-slate-200 bg-white p-3">
+                <%= hidden_field_tag "#{f.object_name}[performed_by_roles][]", "", id: nil %>
+                <div class="grid gap-2 sm:grid-cols-2">
+                  <%= f.collection_check_boxes :performed_by_roles, available_roles, :to_s, :to_s do |b| %>
+                    <label class="flex items-center gap-2 rounded-md border border-slate-200 px-2 py-1 text-sm text-slate-700">
+                      <%= b.check_box(class: "h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500") %>
+                      <span><%= b.text %></span>
+                    </label>
+                  <% end %>
+                </div>
+              </div>
+            <% else %>
+              <%= f.text_area :performed_by_roles,
+                    value: taxbranch.performed_by_roles_text,
+                    rows: 2,
+                    placeholder: "Es.\nTutor\nInsegnante\nUtente",
+                    class: "w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 #{'border-red-300 bg-red-50' if taxbranch.errors[:performed_by_roles].any?}" %>
+            <% end %>
+            <% taxbranch.errors.full_messages_for(:performed_by_roles).each do |m| %>
+              <p class="mt-1 text-xs text-red-600"><%= m %></p>
+            <% end %>
+          </div>
+
+          <div>
+            <%= f.label :target_roles, "Ruoli destinatari dello step", class: "block text-sm font-medium text-gray-700 mb-1" %>
+            <% if available_roles.present? %>
+              <div class="rounded-lg border border-slate-200 bg-white p-3">
+                <%= hidden_field_tag "#{f.object_name}[target_roles][]", "", id: nil %>
+                <div class="grid gap-2 sm:grid-cols-2">
+                  <%= f.collection_check_boxes :target_roles, available_roles, :to_s, :to_s do |b| %>
+                    <label class="flex items-center gap-2 rounded-md border border-slate-200 px-2 py-1 text-sm text-slate-700">
+                      <%= b.check_box(class: "h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500") %>
+                      <span><%= b.text %></span>
+                    </label>
+                  <% end %>
+                </div>
+              </div>
+            <% else %>
+              <%= f.text_area :target_roles,
+                    value: taxbranch.target_roles_text,
+                    rows: 2,
+                    placeholder: "Es.\nUtente\nInsegnante",
+                    class: "w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 #{'border-red-300 bg-red-50' if taxbranch.errors[:target_roles].any?}" %>
+            <% end %>
+            <% taxbranch.errors.full_messages_for(:target_roles).each do |m| %>
+              <p class="mt-1 text-xs text-red-600"><%= m %></p>
+            <% end %>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Ancestry -->
+  <%= f.hidden_field :ancestry, value: taxbranch.ancestry %>
+
+  <!-- Submit -->
+  <div class="flex justify-end">
+    <%= f.submit "💾 Salva",
+          class: "inline-flex items-center rounded-md bg-blue-600 px-4 py-2 text-white font-medium shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2" %>
+  </div>
+
+<% end %>
+</div>
+
+<script>
+  (function () {
+    const form = document.querySelector("form[action*='/superadmin/taxbranches']");
+    if (!form) return;
+
+    const slugInput = form.querySelector("[name='taxbranch[slug_category]']");
+    const categoryHint = document.getElementById("questionnaireCategoryHint");
+    const metaHint = document.getElementById("questionnaireMetaHint");
+    const metaJsonBlock = document.getElementById("metaJsonBlock");
+    const metaJsonInput = document.getElementById("metaJsonInput");
+    const metaJsonHelp = document.getElementById("metaJsonHelp");
+    const sourceBlock = document.getElementById("questionnaireSourceBlock");
+    const configBlock = document.getElementById("questionnaireConfigBlock");
+    const sourceSelect = form.querySelector("[data-questionnaire-source-select]");
+    const versionInput = form.querySelector("[data-questionnaire-version-input]");
+    const versionMap = form.querySelector("[data-questionnaire-version-map]");
+    const configInput = document.getElementById("questionnaireConfigInput");
+    if (!slugInput) return;
+
+    const applyVersionFromSource = () => {
+      if (!sourceSelect || !versionInput || !versionMap) return;
+      const source = sourceSelect.value;
+      if (!source) return;
+      const node = versionMap.querySelector(`[data-source="${source}"]`);
+      if (!node) return;
+      if (!versionInput.value || versionInput.dataset.autofill === "true") {
+        versionInput.value = node.dataset.version || "v1";
+        versionInput.dataset.autofill = "true";
+      }
+    };
+
+    const refreshHints = () => {
+      const value = (slugInput.value || "").trim().toLowerCase();
+      const inFamily = ["questionnaire", "question", "option"].includes(value);
+      const isQuestionnaire = value === "questionnaire";
+      if (categoryHint) categoryHint.classList.toggle("hidden", !inFamily);
+      if (metaHint) metaHint.classList.toggle("hidden", true);
+      if (sourceBlock) sourceBlock.classList.toggle("hidden", !isQuestionnaire);
+      if (configBlock) configBlock.classList.toggle("hidden", !isQuestionnaire);
+      if (metaJsonBlock) metaJsonBlock.classList.remove("hidden");
+      if (metaJsonInput) metaJsonInput.readOnly = false;
+      if (metaJsonHelp) {
+        metaJsonHelp.textContent = "Modificabile. Inserisci un JSON valido (oggetto).";
+      }
+      if (isQuestionnaire) applyVersionFromSource();
+    };
+
+    sourceSelect?.addEventListener("change", () => {
+      if (versionInput) versionInput.dataset.autofill = "true";
+      applyVersionFromSource();
+    });
+    versionInput?.addEventListener("input", () => {
+      if (versionInput) versionInput.dataset.autofill = "false";
+    });
+
+    slugInput.addEventListener("input", refreshHints);
+    refreshHints();
+  })();
+</script>

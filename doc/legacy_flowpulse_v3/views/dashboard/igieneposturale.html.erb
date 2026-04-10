@@ -1,0 +1,804 @@
+
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Igiene Posturale — Landing · Mappa · Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <meta name="color-scheme" content="light dark" />
+</head>
+<body class="min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100">
+  <!-- TOPBAR -->
+  <header class="sticky top-0 z-40 border-b border-slate-200 dark:border-slate-800 bg-gradient-to-r from-blue-600 via-cyan-500 to-sky-500 text-white">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-white/20"></div>
+        <div>
+          <h1 class="text-lg font-semibold leading-none">PosturaCorretta · Igiene Posturale</h1>
+          <p class="text-[12px] opacity-90">Landing · Mappa metropolitana · Dashboard</p>
+        </div>
+      </div>
+      <nav id="topnav" class="hidden md:flex items-center gap-1 font-medium">
+        <button data-go="landing" class="px-3 py-1.5 rounded-lg hover:bg-white/10">Landing</button>
+        <button data-go="metro" class="px-3 py-1.5 rounded-lg hover:bg-white/10">Mappa</button>
+        <button data-go="dashboard" class="px-3 py-1.5 rounded-lg hover:bg-white/10">Dashboard</button>
+      </nav>
+      <button id="darkToggle" class="px-3 py-1.5 rounded-lg bg-white/15 hover:bg-white/20" title="Tema chiaro/scuro">🌓</button>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 py-8 space-y-12 text-[15px] leading-relaxed">
+
+    <!-- ============== LANDING (FRONT-OFFICE) ============== -->
+    <section id="view-landing" class="space-y-8">
+      <div class="rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800">
+        <div class="bg-gradient-to-r from-blue-600 via-cyan-500 to-sky-500 p-8 text-white">
+          <h2 class="text-3xl font-bold">Benvenuto nell'Igiene Posturale</h2>
+          <p class="mt-2 text-white/90 max-w-2xl">Scegli il tuo ruolo, scopri come funziona il percorso e avvia subito un gruppo nel tuo centro.</p>
+          <div class="mt-4 flex flex-wrap gap-2">
+            <button data-go="metro" class="rounded-xl bg-white text-blue-700 hover:bg-slate-100 px-4 py-2 font-semibold">Vedi la mappa operativa</button>
+            <button data-go="dashboard" class="rounded-xl bg-white/15 hover:bg-white/20 px-4 py-2 font-semibold">Vai alla tua dashboard</button>
+          </div>
+        </div>
+        <div class="p-6 grid md:grid-cols-3 gap-6 bg-white dark:bg-slate-900">
+          <!-- Professionisti -->
+          <div class="rounded-2xl border border-slate-200 dark:border-slate-800 p-5">
+            <h3 class="font-semibold">Sei un professionista?</h3>
+            <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">Rosso (sanitario), Verde (benessere), Blu (insegnante). Apri gruppi, eroga lezioni, certificati.</p>
+            <div class="mt-3 flex flex-wrap gap-2">
+              <span class="text-xs px-2 py-0.5 rounded-full border border-red-300 bg-red-50 text-red-700">Prof. Salute</span>
+              <span class="text-xs px-2 py-0.5 rounded-full border border-green-300 bg-green-50 text-green-700">Prof. Benessere</span>
+              <span class="text-xs px-2 py-0.5 rounded-full border border-blue-300 bg-blue-50 text-blue-700">Insegnanti</span>
+            </div>
+            <button data-go="metro" class="mt-4 w-full rounded-xl border border-blue-700 bg-blue-600 text-white px-4 py-2 text-sm font-semibold hover:bg-blue-700">Come funziona</button>
+          </div>
+          <!-- Organizzatori -->
+          <div class="rounded-2xl border border-slate-200 dark:border-slate-800 p-5">
+            <h3 class="font-semibold">Vuoi organizzare un gruppo?</h3>
+            <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">Apri un ciclo nel tuo centro, gestisci iscrizioni e materiali. Premi per referral.</p>
+            <div class="mt-3 flex flex-wrap gap-2">
+              <span class="text-xs px-2 py-0.5 rounded-full border border-violet-300 bg-violet-50 text-violet-700">Organizzatore</span>
+              <span class="text-xs px-2 py-0.5 rounded-full border border-amber-300 bg-amber-50 text-amber-700">Responsabile Sala</span>
+            </div>
+            <button data-go="metro" class="mt-4 w-full rounded-xl border border-violet-700 bg-violet-600 text-white px-4 py-2 text-sm font-semibold hover:bg-violet-700">Vedi il flusso</button>
+          </div>
+          <!-- Clienti -->
+          <div class="rounded-2xl border border-slate-200 dark:border-slate-800 p-5">
+            <h3 class="font-semibold">Vuoi partecipare?</h3>
+            <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">Scopri le 5 lezioni base e iscriviti a un gruppo vicino a te o online.</p>
+            <span class="text-xs px-2 py-0.5 rounded-full border border-slate-300 bg-slate-50 text-slate-700">Cliente</span>
+            <button data-go="dashboard" class="mt-4 w-full rounded-xl border border-emerald-700 bg-emerald-600 text-white px-4 py-2 text-sm font-semibold hover:bg-emerald-700">Trova un gruppo</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Lezioni in breve -->
+      <div>
+        <h4 class="text-slate-700 dark:text-slate-300 font-semibold mb-3">Lezioni (0–4)</h4>
+        <ol class="grid sm:grid-cols-2 xl:grid-cols-3 gap-5">
+          <li class="rounded-2xl border border-blue-200 bg-blue-50/60 dark:bg-blue-900/10 dark:border-blue-800 p-5 shadow-sm">
+            <div class="text-sm text-blue-700 dark:text-blue-300">Lezione 0</div>
+            <h4 class="font-semibold">Profilo · Diario · Introduzione</h4>
+          </li>
+          <li class="rounded-2xl border border-green-200 bg-green-50/60 dark:bg-green-900/10 dark:border-green-800 p-5 shadow-sm">
+            <div class="text-sm text-green-700 dark:text-green-300">Lezione 1</div>
+            <h4 class="font-semibold">Mobilità articolare</h4>
+          </li>
+          <li class="rounded-2xl border border-rose-200 bg-rose-50/60 dark:bg-rose-900/10 dark:border-rose-800 p-5 shadow-sm">
+            <div class="text-sm text-rose-700 dark:text-rose-300">Lezione 2</div>
+            <h4 class="font-semibold">Collo e spalle leggere</h4>
+          </li>
+          <li class="rounded-2xl border border-amber-200 bg-amber-50/60 dark:bg-amber-900/10 dark:border-amber-800 p-5 shadow-sm">
+            <div class="text-sm text-amber-700 dark:text-amber-300">Lezione 3</div>
+            <h4 class="font-semibold">Stress ↓ & sistema nervoso</h4>
+          </li>
+          <li class="rounded-2xl border border-cyan-200 bg-cyan-50/60 dark:bg-cyan-900/10 dark:border-cyan-800 p-5 shadow-sm">
+            <div class="text-sm text-cyan-700 dark:text-cyan-300">Lezione 4</div>
+            <h4 class="font-semibold">Recettori cutanei & energia</h4>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ============== MAPPA METROPOLITANA (OPERATIONS) ============== -->
+    <section id="view-metro" class="hidden space-y-6">
+      <div class="flex items-center justify-between">
+        <h3 class="text-xl md:text-2xl font-bold">Mappa Metropolitana · Processi</h3>
+        <div class="flex items-center gap-2">
+          <button id="resetProgress" class="rounded-xl px-3 py-1.5 text-sm border hover:bg-slate-50 dark:hover:bg-slate-800">Reset spunte</button>
+        </div>
+      </div>
+
+      <div class="grid lg:grid-cols-2 gap-6">
+        <!-- SVG MAP -->
+        <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-3 overflow-hidden">
+          <div class="relative w-full" style="aspect-ratio: 1.6/1">
+            <svg id="metroSvg" viewBox="0 0 100 62.5" class="w-full h-full"></svg>
+          </div>
+          <div class="text-xs text-slate-500 px-2 pb-2">Clicca una stazione per vedere le procedure.</div>
+        </div>
+
+        <!-- DETTAGLIO STAZIONE -->
+        <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
+          <div class="space-y-3" id="stationDetail"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============== DASHBOARD UTENTE ============== -->
+    <section id="view-dashboard" class="hidden space-y-6">
+      <div class="flex items-center justify-between">
+        <h3 class="text-xl md:text-2xl font-bold">La tua dashboard</h3>
+        <select id="myRole" class="rounded-xl border px-3 py-2 text-sm"></select>
+      </div>
+
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5" id="taskGrid"></div>
+
+      <div class="rounded-2xl border border-slate-200 dark:border-slate-800 p-4">
+        <h4 class="font-semibold mb-2">Percorsi suggeriti</h4>
+        <p class="text-sm text-slate-600 dark:text-slate-400">Completa le attività stazione per stazione. Gli avanzamenti restano nel browser. In produzione: sync con Flowpulse (API JSON).</p>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="max-w-7xl mx-auto px-4 pt-6 pb-16 text-xs text-slate-500">
+    © PosturaCorretta / Flowpulse · Prototipo single‑file HTML (Tailwind CDN) — pronto per collegarsi a Rails.
+  </footer>
+
+  <script>
+    // ===================== DATA =====================
+    const ROLES = [
+      { key: "cliente", label: "Cliente", color: "slate" },
+      { key: "organizzatore", label: "Organizzatore", color: "violet" },
+      { key: "tutor", label: "Tutor", color: "emerald" },
+      { key: "insegnante_blu", label: "Insegnante (Blu)", color: "blue" },
+      { key: "prof_rosso", label: "Prof. Salute (Rosso)", color: "red" },
+      { key: "prof_verde", label: "Prof. Benessere (Verde)", color: "green" },
+      { key: "resp_sala", label: "Responsabile Sala", color: "amber" },
+      { key: "admin", label: "Admin Postura", color: "slate" },
+    ];
+
+    const LINES = {
+      acquisizione: { color: "rose" },
+      organizzazione: { color: "violet" },
+      marketing: { color: "cyan" },
+      triage: { color: "amber" },
+      amministrazione: { color: "slate" },
+      erogazione: { color: "blue" },
+      crescita: { color: "green" },
+    };
+
+    const STATIONS = [
+      { id: "S0", title: "Demo con medico", line: "acquisizione", x: 10, y: 30, roleHints: ["organizzatore","prof_rosso","insegnante_blu"], procedure: [
+        { id: "p1", text: "Contatta un professionista (30–60 min)", role: "organizzatore" },
+        { id: "p2", text: "Esegui la demo in studio/centro", role: "insegnante_blu" },
+        { id: "p3", text: "Proponi test su 10 persone", role: "organizzatore" },
+      ], next: ["S1"] },
+      { id: "S1", title: "Calendario corso", line: "organizzazione", x: 30, y: 45, roleHints: ["resp_sala","organizzatore"], procedure: [
+        { id: "p4", text: "Stabilisci date e orari", role: "resp_sala" },
+        { id: "p5", text: "Conferma docente e sala", role: "organizzatore" },
+        { id: "p6", text: "Nomina referente accessi/chiavi", role: "resp_sala" },
+      ], next: ["S2","S2b"] },
+      { id: "S2", title: "Materiali & iscrizioni", line: "marketing", x: 50, y: 40, roleHints: ["admin","tutor"], procedure: [
+        { id: "p7", text: "Materiale segnalatori (biglietto + QR)", role: "admin" },
+        { id: "p8", text: "Materiale iscrizione (sito/modulo)", role: "admin" },
+        { id: "p9", text: "Kit clienti (PDF, palline, bastone)", role: "tutor" },
+      ], next: ["S3"] },
+      { id: "S2b", title: "Selezione utenti", line: "triage", x: 50, y: 60, roleHints: ["prof_verde","prof_rosso"], procedure: [
+        { id: "p9b", text: "Smistare: visita individuale o gruppo", role: "prof_verde" },
+      ], next: ["S3"] },
+      { id: "S3", title: "Pagamenti & fatture", line: "amministrazione", x: 70, y: 50, roleHints: ["organizzatore","admin"], procedure: [
+        { id: "p10", text: "Conferma min 8 iscritti (deadline)", role: "organizzatore" },
+        { id: "p11", text: "Incassa (SumUp/online)", role: "organizzatore" },
+        { id: "p12", text: "Fatture automatiche & pagare prof.", role: "admin" },
+      ], next: ["S4"] },
+      { id: "S4", title: "Erogazione & feedback", line: "erogazione", x: 88, y: 35, roleHints: ["insegnante_blu","tutor"], procedure: [
+        { id: "p13", text: "Assicurare presenza partecipanti", role: "resp_sala" },
+        { id: "p14", text: "Eroga lezioni 0–4", role: "insegnante_blu" },
+        { id: "p15", text: "Raccogli feedback e problemi", role: "tutor" },
+        { id: "p16", text: "Attestato di partecipazione", role: "insegnante_blu" },
+      ], next: ["S5"] },
+      { id: "S5", title: "Miglioramento & referral", line: "crescita", x: 88, y: 70, roleHints: ["admin","organizzatore"], procedure: [
+        { id: "p17", text: "Chiudi gruppo e aggiorna processo", role: "admin" },
+        { id: "p18", text: "Gestisci segnalatori (20%)", role: "organizzatore" },
+      ], next: [] },
+    ];
+
+    // ===================== STATE (localStorage) =====================
+    const PROG_KEY = 'fp_progress_v1';
+    const loadProgress = () => { try { return JSON.parse(localStorage.getItem(PROG_KEY) || '{}'); } catch { return {}; } };
+    const saveProgress = (p) => localStorage.setItem(PROG_KEY, JSON.stringify(p));
+    let PROGRESS = loadProgress();
+
+    // ===================== NAV / VIEWS =====================
+    const go = (name) => {
+      document.querySelectorAll('main > section').forEach(s => s.id.startsWith('view-') && (s.classList.toggle('hidden', s.id !== `view-${name}`)));
+      document.querySelectorAll('#topnav [data-go]').forEach(b => b.classList.toggle('bg-white/15', b.dataset.go === name));
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+    document.querySelectorAll('[data-go]').forEach(btn => btn.addEventListener('click', () => go(btn.dataset.go)));
+
+    // theme toggle
+    const darkToggle = document.getElementById('darkToggle');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    if(localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && prefersDark)){
+      document.documentElement.classList.add('dark');
+    }
+    darkToggle.addEventListener('click',()=>{
+      document.documentElement.classList.toggle('dark');
+      const isDark = document.documentElement.classList.contains('dark');
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    });
+
+    // ===================== METRO: RENDER =====================
+    const metroSvg = document.getElementById('metroSvg');
+    const stationDetail = document.getElementById('stationDetail');
+    const resetBtn = document.getElementById('resetProgress');
+    let ACTIVE_ID = 'S1';
+
+    const edges = [];
+    STATIONS.forEach(s => s.next.forEach(n => edges.push([s.id, n])));
+
+    function colorFor(line){ return (LINES[line]||{color:'slate'}).color; }
+
+    function renderMetro(){
+      metroSvg.innerHTML = '';
+      // lines
+      edges.forEach(([a,b],i)=>{
+        const A = STATIONS.find(s=>s.id===a), B = STATIONS.find(s=>s.id===b);
+        const c = colorFor(A.line);
+        const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+        line.setAttribute('x1',A.x); line.setAttribute('y1',A.y);
+        line.setAttribute('x2',B.x); line.setAttribute('y2',B.y);
+        line.setAttribute('stroke-width','2.5');
+        line.setAttribute('class',`stroke-${c}-500`);
+        line.setAttribute('stroke-linecap','round');
+        metroSvg.appendChild(line);
+      });
+      // stations
+      STATIONS.forEach(s=>{
+        const c = colorFor(s.line);
+        const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+        g.setAttribute('class','cursor-pointer');
+        g.addEventListener('click',()=>{ ACTIVE_ID = s.id; renderStation(); });
+
+        const halo = document.createElementNS('http://www.w3.org/2000/svg','circle');
+        halo.setAttribute('cx',s.x); halo.setAttribute('cy',s.y); halo.setAttribute('r', ACTIVE_ID===s.id? '6': '0');
+        halo.setAttribute('class',`fill-transparent stroke-${c}-300`);
+        halo.setAttribute('stroke-dasharray','2 2');
+        g.appendChild(halo);
+
+        const dot = document.createElementNS('http://www.w3.org/2000/svg','circle');
+        dot.setAttribute('cx',s.x); dot.setAttribute('cy',s.y); dot.setAttribute('r','3.8');
+        dot.setAttribute('class',`fill-white stroke-${c}-600`);
+        dot.setAttribute('stroke-width','2.2');
+        g.appendChild(dot);
+
+        const label = document.createElementNS('http://www.w3.org/2000/svg','text');
+        label.setAttribute('x', s.x + 1.8); label.setAttribute('y', s.y - 1.2);
+        label.setAttribute('class',`text-[2.2px] fill-${c}-700`);
+        label.textContent = s.title;
+        g.appendChild(label);
+
+        metroSvg.appendChild(g);
+      });
+    }
+
+    function roleChip(roleKey){
+      const role = ROLES.find(r=>r.key===roleKey);
+      if(!role) return '';
+      return `<span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs border border-${role.color}-300 bg-${role.color}-50 dark:bg-${role.color}-900/20 dark:border-${role.color}-800 text-${role.color}-700 dark:text-${role.color}-300">${role.label}</span>`;
+    }
+    function lineBadge(line){
+      const c = colorFor(line);
+      return `<span class="text-xs px-2 py-0.5 rounded-full border border-${c}-300 bg-${c}-50 dark:bg-${c}-900/20 dark:border-${c}-800 text-${c}-700 dark:text-${c}-300">${line}</span>`;
+    }
+
+    function renderStation(){
+      const s = STATIONS.find(x=>x.id===ACTIVE_ID) || STATIONS[0];
+      stationDetail.innerHTML = `
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <h4 class="text-lg font-semibold">${s.title}</h4>
+            ${lineBadge(s.line)}
+          </div>
+          <div class="flex flex-wrap gap-1">${s.roleHints.map(roleChip).join('')}</div>
+        </div>
+        <ul class="space-y-2">
+          ${s.procedure.map(p=>`
+            <li class="rounded-xl border border-slate-200 dark:border-slate-700 p-3 flex items-start gap-3">
+              <input type="checkbox" ${PROGRESS[p.id] ? 'checked' : ''} data-proc="${p.id}" class="mt-1" />
+              <div>
+                <div class="text-sm">${p.text}</div>
+                <div class="text-xs mt-1">${roleChip(p.role)}</div>
+              </div>
+            </li>
+          `).join('')}
+        </ul>
+        ${s.next.length ? `<div class="pt-2">
+          <div class="text-xs text-slate-500 mb-1">Prossime fermate</div>
+          <div class="flex flex-wrap gap-2">
+            ${s.next.map(nid=>{
+              const n = STATIONS.find(x=>x.id===nid); if(!n) return '';
+              return `<button data-next="${nid}" class="px-3 py-1 rounded-full border text-xs hover:bg-slate-50 dark:hover:bg-slate-800">${n.title}</button>`;
+            }).join('')}
+          </div>
+        </div>`: ''}
+      `;
+
+      // bind interactions
+      stationDetail.querySelectorAll('input[type="checkbox"][data-proc]').forEach(cb=>{
+        cb.addEventListener('change', (e)=>{
+          const id = e.target.dataset.proc; PROGRESS[id] = !!e.target.checked; saveProgress(PROGRESS);
+        });
+      });
+      stationDetail.querySelectorAll('[data-next]').forEach(btn=>{
+        btn.addEventListener('click', ()=>{ ACTIVE_ID = btn.dataset.next; renderMetro(); renderStation(); });
+      });
+      renderMetro();
+    }
+
+    resetBtn.addEventListener('click', ()=>{ PROGRESS = {}; saveProgress(PROGRESS); renderStation(); });
+
+    // ===================== DASHBOARD =====================
+    const myRoleSel = document.getElementById('myRole');
+    const taskGrid = document.getElementById('taskGrid');
+    function initRoles(){
+      myRoleSel.innerHTML = ROLES.map(r=>`<option value="${r.key}">${r.label}</option>`).join('');
+      myRoleSel.value = 'organizzatore';
+      myRoleSel.addEventListener('change', renderTasks);
+    }
+    function renderTasks(){
+      const role = myRoleSel.value;
+      const list = [];
+      STATIONS.forEach(s=> s.procedure.forEach(p=> { if(p.role===role) list.push({ ...p, station: s }); }));
+      taskGrid.innerHTML = list.map(t=>`
+        <div class="rounded-2xl border border-slate-200 dark:border-slate-800 p-4 bg-white dark:bg-slate-900">
+          <div class="flex items-center justify-between">
+            <div class="font-semibold text-sm">${t.station.title}</div>
+            ${lineBadge(t.station.line)}
+          </div>
+          <div class="mt-2 text-sm">${t.text}</div>
+          <div class="mt-2 text-xs">Stato: ${PROGRESS[t.id] ? '<span class="text-emerald-700 dark:text-emerald-300">completato</span>' : '<span class="text-slate-500">da fare</span>'}</div>
+        </div>
+      `).join('');
+    }
+
+    // ===================== BOOT =====================
+    go('landing');
+    renderMetro();
+    renderStation();
+    initRoles();
+    renderTasks();
+  </script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Igiene Posturale — PosturaCorretta</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <meta name="color-scheme" content="light dark" />
+</head>
+<body class="bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100">
+  <!-- TOP BAR -->
+  <header class="sticky top-0 z-40 border-b border-slate-200 dark:border-slate-800 bg-gradient-to-r from-blue-600 via-cyan-500 to-sky-500 text-white">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-white/20"></div>
+        <div>
+          <h1 class="text-lg font-semibold leading-none">Igiene Posturale</h1>
+          <p class="text-[12px] opacity-90">Metodo PosturaCorretta · Percorso base 4 lezioni</p>
+        </div>
+      </div>
+      <nav class="hidden md:flex items-center gap-1 font-medium">
+        <a href="#ruoli" class="px-3 py-1.5 rounded-lg hover:bg-white/10">Ruoli</a>
+        <a href="#lezioni" class="px-3 py-1.5 rounded-lg hover:bg-white/10">Lezioni</a>
+        <a href="#procedura" class="px-3 py-1.5 rounded-lg hover:bg-white/10">Procedura</a>
+        <a href="#cicli" class="px-3 py-1.5 rounded-lg hover:bg-white/10">Cicli</a>
+        <a href="#contatti" class="px-3 py-1.5 rounded-lg hover:bg-white/10">Contatti</a>
+      </nav>
+      <button id="darkToggle" class="px-3 py-1.5 rounded-lg bg-white/15 hover:bg-white/20" title="Tema chiaro/scuro">🌓</button>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 py-8 space-y-14 text-[15px] leading-relaxed">
+
+    <!-- HERO NOTE -->
+    <section class="rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+      <div class="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 p-6">
+        <h2 class="text-2xl font-bold text-blue-900 dark:text-blue-200">Avvia un gruppo di Igiene Posturale</h2>
+        <p class="text-slate-700 dark:text-slate-300 mt-2">Struttura chiara, ruoli definiti, modulistica pronta. In fondo trovi il modulo contatti per partire subito.</p>
+      </div>
+    </section>
+
+    <!-- RUOLI -->
+    <section id="ruoli" class="space-y-6">
+      <div class="flex items-end justify-between">
+        <h3 class="text-xl md:text-2xl font-bold">Ruoli</h3>
+        <span class="text-[11px] uppercase tracking-wide text-slate-500">cosa fare · ruoli · chi esegue</span>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-6">
+        <!-- Backend -->
+        <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm p-5">
+          <h4 class="font-semibold mb-3">Ruoli operativi (backend)</h4>
+          <div class="flex flex-wrap gap-2">
+            <span class="inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium border border-slate-300 bg-slate-50 dark:bg-slate-800/60 dark:border-slate-700">Admin Postura</span>
+            <span class="inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium border border-amber-200 bg-amber-50 text-amber-700 dark:text-amber-300 dark:bg-amber-900/20 dark:border-amber-800">Responsabile Sala</span>
+            <span class="inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium border border-slate-300 bg-slate-50 dark:bg-slate-800/60 dark:border-slate-700">Cliente</span>
+            <span class="inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium border border-slate-300 bg-slate-50 dark:bg-slate-800/60 dark:border-slate-700">Organizzatore</span>
+            <span class="inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium border border-slate-300 bg-slate-50 dark:bg-slate-800/60 dark:border-slate-700">Tutor</span>
+          </div>
+        </div>
+        <!-- Con pagina dedicata -->
+        <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm p-5">
+          <h4 class="font-semibold mb-3">Ruoli con pagina dedicata</h4>
+          <div class="flex flex-wrap gap-2">
+            <span class="inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium border border-red-200 bg-red-50 text-red-700 dark:text-red-300 dark:bg-red-900/20 dark:border-red-800">Prof. Salute (ROSSI)</span>
+            <span class="inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium border border-green-200 bg-green-50 text-green-700 dark:text-green-300 dark:bg-green-900/20 dark:border-green-800">Prof. Benessere (VERDI)</span>
+            <span class="inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium border border-blue-200 bg-blue-50 text-blue-700 dark:text-blue-300 dark:bg-blue-900/20 dark:border-blue-800">Insegnanti (BLU)</span>
+            <span class="inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium border border-slate-300 bg-slate-50 dark:bg-slate-800/60 dark:border-slate-700">Responsabili Metodiche</span>
+          </div>
+        </div>
+        <!-- Rete -->
+        <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm p-5">
+          <h4 class="font-semibold mb-3">Rete e strutture</h4>
+          <div class="flex flex-wrap gap-2">
+            <span class="inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium border border-slate-300 bg-slate-50 dark:bg-slate-800/60 dark:border-slate-700">Centri accreditati</span>
+            <span class="inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium border border-slate-300 bg-slate-50 dark:bg-slate-800/60 dark:border-slate-700">Attività affiliate</span>
+          </div>
+          <div class="mt-3 text-xs text-slate-600 dark:text-slate-400">Segmentazione: cura · riabilitazione · prevenzione · performance · benessere · estetica</div>
+        </div>
+      </div>
+
+      <div class="text-xs text-slate-600 dark:text-slate-400">Legenda: <span class="text-blue-700 dark:text-blue-300 font-medium">Blu = Educazione</span> · <span class="text-red-700 dark:text-red-300 font-medium">Rosso = Sanitario</span> · <span class="text-green-700 dark:text-green-300 font-medium">Verde = Benessere</span></div>
+    </section>
+
+    <!-- LEZIONI -->
+    <section id="lezioni" class="space-y-5">
+      <div class="flex items-end justify-between">
+        <h3 class="text-xl md:text-2xl font-bold">Lezioni (4 settimane)</h3>
+        <div class="text-[11px] uppercase tracking-wide text-slate-500">lezione introduttiva + 4 moduli</div>
+      </div>
+
+      <ol class="grid sm:grid-cols-2 xl:grid-cols-3 gap-5">
+        <li class="rounded-2xl border border-blue-200 bg-blue-50/60 dark:bg-blue-900/10 dark:border-blue-800 p-5 shadow-sm">
+          <div class="text-sm text-blue-700 dark:text-blue-300">Lezione 0</div>
+          <h4 class="font-semibold">Profilo · Diario · Introduzione</h4>
+          <p class="text-sm mt-2 text-slate-700 dark:text-slate-300">Valutazione iniziale, diario dolore/energia, principi base.</p>
+        </li>
+        <li class="rounded-2xl border border-green-200 bg-green-50/60 dark:bg-green-900/10 dark:border-green-800 p-5 shadow-sm">
+          <div class="text-sm text-green-700 dark:text-green-300">Lezione 1</div>
+          <h4 class="font-semibold">Mobilità articolare</h4>
+          <p class="text-sm mt-2 text-slate-700 dark:text-slate-300">Routine per liberare le articolazioni e recuperare ampiezza.</p>
+        </li>
+        <li class="rounded-2xl border border-rose-200 bg-rose-50/60 dark:bg-rose-900/10 dark:border-rose-800 p-5 shadow-sm">
+          <div class="text-sm text-rose-700 dark:text-rose-300">Lezione 2</div>
+          <h4 class="font-semibold">Alleggerire collo e spalle</h4>
+          <p class="text-sm mt-2 text-slate-700 dark:text-slate-300">Suboccipitali, catene cervicali, mandibola, spalle.</p>
+        </li>
+        <li class="rounded-2xl border border-amber-200 bg-amber-50/60 dark:bg-amber-900/10 dark:border-amber-800 p-5 shadow-sm">
+          <div class="text-sm text-amber-700 dark:text-amber-300">Lezione 3</div>
+          <h4 class="font-semibold">Riequilibrare il sistema nervoso</h4>
+          <p class="text-sm mt-2 text-slate-700 dark:text-slate-300">Respiro A–O, gesti espressivi, downshift simpatico.</p>
+        </li>
+        <li class="rounded-2xl border border-cyan-200 bg-cyan-50/60 dark:bg-cyan-900/10 dark:border-cyan-800 p-5 shadow-sm">
+          <div class="text-sm text-cyan-700 dark:text-cyan-300">Lezione 4</div>
+          <h4 class="font-semibold">Recettori cutanei & energia</h4>
+          <p class="text-sm mt-2 text-slate-700 dark:text-slate-300">Stimoli cutanei, automassaggio, integrazione quotidiana.</p>
+        </li>
+      </ol>
+    </section>
+
+    <!-- PROCEDURA OPERATIVA -->
+    <section id="procedura" class="space-y-6">
+      <div class="flex items-end justify-between">
+        <h3 class="text-xl md:text-2xl font-bold">Procedura operativa</h3>
+        <span class="text-[11px] uppercase tracking-wide text-slate-500">spuntare · assegnare ruolo · indicare esecutore</span>
+      </div>
+
+      <div class="rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
+        <div class="p-4 bg-slate-50 dark:bg-slate-900/50 flex items-center justify-between">
+          <div class="text-sm text-slate-700 dark:text-slate-300">Le spunte sono salvate sul tuo browser. In produzione: invio a Flowpulse.</div>
+          <button class="inline-flex items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700" onclick="resetProcedura()">↺ Reset</button>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="min-w-full text-[14px]">
+            <thead class="bg-slate-100 dark:bg-slate-900/70 text-slate-700 dark:text-slate-300">
+              <tr class="text-left">
+                <th class="p-3 w-10">✔</th>
+                <th class="p-3">Cosa fare</th>
+                <th class="p-3">Ruolo</th>
+                <th class="p-3">Chi lo fa</th>
+                <th class="p-3">Note</th>
+              </tr>
+            </thead>
+            <tbody id="proceduraBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="text-xs text-slate-600 dark:text-slate-400 flex flex-wrap gap-3">
+        <span class="px-2 py-0.5 rounded-full border border-slate-200 dark:border-slate-700">Segnalatore: 20% se porta un amico</span>
+        <span class="px-2 py-0.5 rounded-full border border-slate-200 dark:border-slate-700">Pagamenti: online/offline (SumUp)</span>
+        <span class="px-2 py-0.5 rounded-full border border-slate-200 dark:border-slate-700">Fatture automatizzate</span>
+        <span class="px-2 py-0.5 rounded-full border border-slate-200 dark:border-slate-700">Partenza: min 8 iscritti</span>
+        <span class="px-2 py-0.5 rounded-full border border-slate-200 dark:border-slate-700">Iscrizioni: entro 7 gg prima</span>
+        <span class="px-2 py-0.5 rounded-full border border-slate-200 dark:border-slate-700">Saldo: entro 3 gg</span>
+      </div>
+
+      <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm p-5">
+        <h4 class="font-semibold mb-2">Diventare insegnante (Blu)</h4>
+        <ol class="list-decimal list-inside space-y-1 text-sm">
+          <li>Attestato di partecipazione (completa il percorso base)</li>
+          <li>Tirocinio: crea/gestisci un gruppo una volta</li>
+          <li>Certificazione finale: <span class="text-green-700 dark:text-green-300 font-medium">Verde = benessere</span> · <span class="text-red-700 dark:text-red-300 font-medium">Rosso = sanitario</span> · <span class="text-blue-700 dark:text-blue-300 font-medium">Blu = educatore</span></li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- CREAZIONE CICLI (Organizzatore) -->
+    <section id="cicli" class="space-y-6">
+      <div class="flex items-end justify-between">
+        <h3 class="text-xl md:text-2xl font-bold">Cicli / Gruppi</h3>
+        <div class="text-[11px] uppercase tracking-wide text-slate-500">l'organizzatore può aprire nuovi cicli</div>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-6">
+        <form id="formCiclo" class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm p-5 space-y-4" onsubmit="addCiclo(event)">
+          <h4 class="font-semibold">Apri un nuovo ciclo</h4>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Centro / Sala</label>
+            <input class="mt-1 w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-blue-200/70 dark:focus:ring-blue-900/30" name="centro" placeholder="Es. Palestra XYZ, Brescia" required />
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Inizio</label>
+              <input type="date" class="mt-1 w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-blue-200/70 dark:focus:ring-blue-900/30" name="start" required />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Orario</label>
+              <input type="time" class="mt-1 w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-blue-200/70 dark:focus:ring-blue-900/30" name="time" required />
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Insegnante</label>
+              <input class="mt-1 w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-blue-200/70 dark:focus:ring-blue-900/30" name="teacher" placeholder="Nome e cognome" required />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Posti (min 8)</label>
+              <input type="number" min="8" class="mt-1 w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-blue-200/70 dark:focus:ring-blue-900/30" name="seats" value="12" required />
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Note</label>
+            <input class="mt-1 w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-blue-200/70 dark:focus:ring-blue-900/30" name="note" placeholder="Materiale, QR, contatti, accessi…" />
+          </div>
+          <button class="w-full inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold border border-blue-700 bg-blue-600 text-white hover:bg-blue-700 shadow-sm">Crea ciclo</button>
+        </form>
+
+        <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm p-5">
+          <h4 class="font-semibold mb-3">Cicli aperti</h4>
+          <ul id="listaCicli" class="space-y-3 text-sm"></ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTATTI / LEAD -->
+    <section id="contatti" class="space-y-6">
+      <div class="flex items-end justify-between">
+        <h3 class="text-xl md:text-2xl font-bold">Inizia / Richiedi informazioni</h3>
+        <div class="text-[11px] uppercase tracking-wide text-slate-500">modulo contatti · lead</div>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-6">
+        <form id="formLead" class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm p-5 space-y-4" onsubmit="addLead(event)">
+          <h4 class="font-semibold">Lascia i tuoi dati</h4>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Nome</label>
+              <input class="mt-1 w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-blue-200/70 dark:focus:ring-blue-900/30" name="nome" required />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Email</label>
+              <input class="mt-1 w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-blue-200/70 dark:focus:ring-blue-900/30" name="email" type="email" required />
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Telefono</label>
+              <input class="mt-1 w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-blue-200/70 dark:focus:ring-blue-900/30" name="tel" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Ruolo</label>
+              <select class="mt-1 w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-blue-200/70 dark:focus:ring-blue-900/30" name="ruolo">
+                <option>Cliente</option>
+                <option>Organizzatore</option>
+                <option>Tutor</option>
+                <option>Insegnante (Blu)</option>
+                <option>Prof. Salute (Rosso)</option>
+                <option>Prof. Benessere (Verde)</option>
+                <option>Responsabile Sala</option>
+                <option>Segnalatore</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Interesse</label>
+            <select class="mt-1 w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm focus:outline-none focus:ring-4 focus:ring-blue-200/70 dark:focus:ring-blue-900/30" name="interesse">
+              <option>Partecipare a un gruppo</option>
+              <option>Richiedere una demo (30–60 min)</option>
+              <option>Ospitare il corso nel mio centro</option>
+              <option>Diventare insegnante / tutor</option>
+              <option>Collaborare come professionista</option>
+            </select>
+          </div>
+          <label class="flex items-center gap-2 text-xs text-slate-700 dark:text-slate-300">
+            <input id="privacy" type="checkbox" class="rounded" required />
+            <span>Acconsento al trattamento dei dati secondo l'informativa.</span>
+          </label>
+          <button class="w-full inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold border border-blue-700 bg-blue-600 text-white hover:bg-blue-700 shadow-sm">Invia</button>
+        </form>
+
+        <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm p-5">
+          <h4 class="font-semibold mb-3">Contatti ricevuti</h4>
+          <ul id="listaLead" class="space-y-3 text-sm"></ul>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="max-w-7xl mx-auto px-4 pt-6 pb-16 text-xs text-slate-500">
+    © PosturaCorretta — Prototipo HTML. In produzione: salvataggio su Flowpulse, autenticazione ruoli e fatturazione automatica.
+  </footer>
+
+  <script>
+    // ===== THEME TOGGLE =====
+    const darkToggle = document.getElementById('darkToggle');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    if(localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && prefersDark)){
+      document.documentElement.classList.add('dark');
+    }
+    darkToggle.addEventListener('click',()=>{
+      document.documentElement.classList.toggle('dark');
+      const isDark = document.documentElement.classList.contains('dark');
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    });
+
+    // ===== PROCEDURA =====
+    const PROCEDURA_KEY = 'pc_procedura_v1';
+    const proceduraDefault = [
+      { t:"Contattare un professionista della salute per demo (30–60 min)", ruolo:"Organizzatore", who:"", note:"", done:false },
+      { t:"Eseguire la demo presso lo studio/centro", ruolo:"Insegnante (Blu)", who:"", note:"", done:false },
+      { t:"Proporre test su 10 persone", ruolo:"Organizzatore", who:"", note:"", done:false },
+      { t:"Stabilire le date del corso", ruolo:"Responsabile Sala", who:"", note:"", done:false },
+      { t:"Incarico ufficiale all'Organizzatore dai responsabili progetto", ruolo:"Admin Postura", who:"", note:"", done:false },
+      { t:"Contattare responsabile centro/sala/palestra", ruolo:"Tutor", who:"", note:"", done:false },
+      { t:"Contattare l'insegnante", ruolo:"Organizzatore", who:"", note:"", done:false },
+      { t:"Confermare calendario corso (4 lezioni)", ruolo:"Insegnante (Blu)", who:"", note:"", done:false },
+      { t:"Visitare medici/farmacie/PR del territorio", ruolo:"Prof. Salute (Rosso)", who:"", note:"", done:false },
+      { t:"Nomina referente del centro (accessi, chiavi, logistica)", ruolo:"Responsabile Sala", who:"", note:"", done:false },
+      { t:"Materiale informativo per segnalatori (biglietto + QR)", ruolo:"Admin Postura", who:"", note:"", done:false },
+      { t:"Materiale iscrizione corso (sito o modulo)", ruolo:"Admin Postura", who:"", note:"", done:false },
+      { t:"Materiale per i clienti (PDF schede, palline, bastone, libretto)", ruolo:"Tutor", who:"", note:"", done:false },
+      { t:"Smistare clienti: visita individuale o gruppo", ruolo:"Prof. Benessere (Verde)", who:"", note:"", done:false },
+      { t:"Confermare iscrizioni (min 8). Pagamento entro 3 giorni", ruolo:"Organizzatore", who:"", note:"", done:false },
+      { t:"Raccogliere pagamenti (online/offline: SumUp)", ruolo:"Organizzatore", who:"", note:"", done:false },
+      { t:"Fatture automatiche", ruolo:"Admin Postura", who:"", note:"", done:false },
+      { t:"Pagare i professionisti", ruolo:"Admin Postura", who:"", note:"", done:false },
+      { t:"Assicurare la presenza dei partecipanti", ruolo:"Responsabile Sala", who:"", note:"", done:false },
+      { t:"Raccogliere feedback e problemi", ruolo:"Tutor", who:"", note:"", done:false },
+      { t:"Chiudere il gruppo e migliorare il processo", ruolo:"Admin Postura", who:"", note:"", done:false },
+      { t:"Gestire segnalatori (20% se portano un amico)", ruolo:"Organizzatore", who:"", note:"", done:false },
+      { t:"Rilasciare attestato di partecipazione", ruolo:"Insegnante (Blu)", who:"", note:"", done:false }
+    ];
+
+    function getProcedura(){
+      return JSON.parse(localStorage.getItem(PROCEDURA_KEY) || 'null') || proceduraDefault;
+    }
+    function saveProcedura(data){
+      localStorage.setItem(PROCEDURA_KEY, JSON.stringify(data));
+    }
+    function renderProcedura(){
+      const body = document.getElementById('proceduraBody');
+      const rows = getProcedura().map((r, i)=>{
+        return `
+          <tr class="border-t border-slate-100 dark:border-slate-800 odd:bg-slate-50 dark:odd:bg-slate-900/40">
+            <td class="p-3 align-top"><input type="checkbox" ${r.done? 'checked':''} onchange="toggleDone(${i})"/></td>
+            <td class="p-3 align-top">${r.t}</td>
+            <td class="p-3 align-top">
+              <select class="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200/70 dark:focus:ring-blue-900/30" onchange="updateRole(${i}, this.value)">
+                ${[
+                  'Admin Postura','Responsabile Sala','Cliente','Organizzatore','Tutor',
+                  'Prof. Salute (Rosso)','Prof. Benessere (Verde)','Insegnante (Blu)','Responsabili Metodiche'
+                ].map(opt => `<option ${opt===r.ruolo?'selected':''}>${opt}</option>`).join('')}
+              </select>
+            </td>
+            <td class="p-3 align-top"><input class="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200/70 dark:focus:ring-blue-900/30" value="${r.who||''}" placeholder="Nome cognome" oninput="updateWho(${i}, this.value)"/></td>
+            <td class="p-3 align-top"><input class="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200/70 dark:focus:ring-blue-900/30" value="${r.note||''}" placeholder="Note" oninput="updateNote(${i}, this.value)"/></td>
+          </tr>
+        `;
+      }).join('');
+      body.innerHTML = rows;
+    }
+    function toggleDone(i){ const d=getProcedura(); d[i].done=!d[i].done; saveProcedura(d); }
+    function updateRole(i,v){ const d=getProcedura(); d[i].ruolo=v; saveProcedura(d); }
+    function updateWho(i,v){ const d=getProcedura(); d[i].who=v; saveProcedura(d); }
+    function updateNote(i,v){ const d=getProcedura(); d[i].note=v; saveProcedura(d); }
+    function resetProcedura(){ localStorage.removeItem(PROCEDURA_KEY); renderProcedura(); }
+
+    // ===== CICLI =====
+    const CICLI_KEY = 'pc_cicli_v1';
+    function getCicli(){ return JSON.parse(localStorage.getItem(CICLI_KEY) || '[]'); }
+    function saveCicli(list){ localStorage.setItem(CICLI_KEY, JSON.stringify(list)); }
+    function addCiclo(e){
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      const item = Object.fromEntries(fd.entries());
+      item.id = crypto.randomUUID();
+      item.created_at = new Date().toISOString();
+      const list = getCicli();
+      list.unshift(item);
+      saveCicli(list);
+      e.target.reset();
+      renderCicli();
+    }
+    function removeCiclo(id){
+      const list = getCicli().filter(c => c.id!==id);
+      saveCicli(list); renderCicli();
+    }
+    function renderCicli(){
+      const ul = document.getElementById('listaCicli');
+      const list = getCicli();
+      if(list.length===0){ ul.innerHTML = '<li class="text-slate-500">Nessun ciclo aperto.</li>'; return; }
+      ul.innerHTML = list.map(c => `
+        <li class="p-4 border border-slate-200 dark:border-slate-700 rounded-xl">
+          <div class="flex items-center justify-between">
+            <div class="font-medium">${c.centro}</div>
+            <button class="px-2 py-0.5 rounded-full text-xs border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800" onclick="removeCiclo('${c.id}')">Elimina</button>
+          </div>
+          <div class="text-xs text-slate-500 mt-1">Inizio ${c.start} · ${c.time} · Insegnante: ${c.teacher} · Posti: ${c.seats}</div>
+          ${c.note? `<div class="text-xs mt-1">Note: ${c.note}</div>`: ''}
+        </li>
+      `).join('');
+    }
+
+    // ===== LEAD =====
+    const LEAD_KEY = 'pc_lead_v1';
+    function getLead(){ return JSON.parse(localStorage.getItem(LEAD_KEY) || '[]'); }
+    function saveLead(list){ localStorage.setItem(LEAD_KEY, JSON.stringify(list)); }
+    function addLead(e){
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      const item = Object.fromEntries(fd.entries());
+      item.id = crypto.randomUUID();
+      item.created_at = new Date().toISOString();
+      const list = getLead(); list.unshift(item); saveLead(list); e.target.reset(); renderLead();
+    }
+    function renderLead(){
+      const ul = document.getElementById('listaLead');
+      const list = getLead();
+      if(list.length===0){ ul.innerHTML = '<li class="text-slate-500">Ancora nessun contatto.</li>'; return; }
+      ul.innerHTML = list.map(l => `
+        <li class="p-4 border border-slate-200 dark:border-slate-700 rounded-xl">
+          <div class="font-medium">${l.nome} <span class="text-xs text-slate-500">(${l.ruolo})</span></div>
+          <div class="text-xs text-slate-500">${l.email}${l.tel? ' · '+l.tel: ''} · ${l.interesse}</div>
+          <div class="text-[10px] text-slate-400 mt-1">${new Date(l.created_at).toLocaleString()}</div>
+        </li>
+      `).join('');
+    }
+
+    // Boot
+    renderProcedura();
+    renderCicli();
+    renderLead();
+  </script>
+</body>
+</html>

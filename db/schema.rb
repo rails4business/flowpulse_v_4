@@ -10,16 +10,38 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_05_104500) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_09_065729) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "ports", force: :cascade do |t|
+    t.bigint "brand_port_id"
+    t.string "color_key"
+    t.datetime "created_at", null: false
+    t.text "description"
+    t.jsonb "meta", default: {}
+    t.string "name", null: false
+    t.integer "port_kind", default: 0, null: false
+    t.bigint "profile_id", null: false
+    t.datetime "published_at"
+    t.string "slug", null: false
+    t.datetime "updated_at", null: false
+    t.integer "visibility", default: 0, null: false
+    t.integer "x"
+    t.integer "y"
+    t.index ["brand_port_id"], name: "index_ports_on_brand_port_id"
+    t.index ["profile_id", "slug"], name: "index_ports_on_profile_id_and_slug", unique: true
+    t.index ["profile_id"], name: "index_ports_on_profile_id"
+  end
 
   create_table "profiles", force: :cascade do |t|
     t.text "bio"
     t.datetime "created_at", null: false
-    t.boolean "creator_enabled", default: false, null: false
-    t.boolean "creator_requested", default: false, null: false
+    t.datetime "creator_enabled_until"
+    t.datetime "creator_requested_at"
     t.string "display_name", null: false
+    t.datetime "professional_enabled_until"
+    t.datetime "professional_requested_at"
     t.string "slug", null: false
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
@@ -46,6 +68,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_05_104500) do
     t.index ["email_address"], name: "index_users_on_email_address", unique: true
   end
 
+  add_foreign_key "ports", "ports", column: "brand_port_id"
+  add_foreign_key "ports", "profiles"
   add_foreign_key "profiles", "users"
   add_foreign_key "sessions", "users"
 end

@@ -1,0 +1,29 @@
+<% grouped_eventdates.each do |group| %>
+  <div class="mb-6">
+    <div class="flex items-center justify-between mb-2">
+      <h3 class="text-sm font-semibold text-slate-900">
+        <%= group[:label] %>
+      </h3>
+      <% count = group[:events].size %>
+      <span class="text-xs text-slate-500"><%= count == 1 ? "1 evento" : "#{count} eventi" %></span>
+    </div>
+
+    <div class="overflow-x-auto rounded-lg border border-slate-200 bg-white">
+      <table class="min-w-full divide-y divide-slate-200 text-sm">
+        <thead class="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
+          <tr>
+            <th scope="col" class="px-4 py-3 text-left">Periodo</th>
+            <th scope="col" class="px-4 py-3 text-left">Taxbranch</th>
+            <th scope="col" class="px-4 py-3 text-left">Stato</th>
+            <th scope="col" class="px-4 py-3 text-right">Azioni</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-200 bg-white text-slate-700">
+          <%= render partial: "eventdates/list_row",
+              collection: group[:events],
+              as: :eventdate %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+<% end %>

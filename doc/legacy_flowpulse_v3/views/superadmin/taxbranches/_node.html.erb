@@ -1,0 +1,337 @@
+<% expanded_ids = local_assigns[:expanded_ids] || [] %>
+
+<li
+  class="mb-1 list-none"
+  style="margin-left: <%= node.depth * 12 %>px">
+  <details
+    class="group border border-slate-200 rounded-md shadow-sm px-2 py-1.5 <%= 'ring-2 ring-blue-300' if node.id == @taxbranch.id %>"
+    style="<%= pastel_bg_for_category(node.slug_category) %>"
+    <%= "open" if expanded_ids.include?(node.id) %>
+  >
+    <summary class="flex items-center justify-between cursor-pointer list-none">
+      <!-- Info principale -->
+      <div class="flex items-center gap-2 flex-1 min-w-0">
+        <!-- Icona apertura: freccia che ruota -->
+        <% if node.children.exists? %>
+          <span
+            class="mr-1 text-xs text-slate-500 transition-transform group-open:rotate-90"
+          >
+            ▶
+          </span>
+        <% else %>
+          <span class="w-3 mr-1"></span>
+        <% end %>
+
+        <!-- Badge dominio -->
+        <% dom = node.domains.first %>
+
+        <% if dom %>
+          <span title="<%= dom.host %>" class="ml-1 inline-flex items-center rounded-full bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-slate-600">
+            <%= link_to superadmin_domains_path(taxbranch_id: node.id),
+                        class: "text-blue-600 hover:underline inline-flex items-center gap-1" do %>
+              <span class="material-symbols-outlined text-[12px]">language</span>
+              <span class="sr-only"><%= dom.host %></span>
+            <% end %>
+          </span>
+        <% else %>
+          <% src = node.effective_domain_taxbranch %>
+
+          <% if src.present? %>
+            <span title="Eredita da <%= src.display_label %>" class="ml-1 inline-flex items-center rounded-full bg-green-100 px-1.5 py-0.5 text-[10px] font-medium text-slate-600">
+              <%= link_to superadmin_domains_path(taxbranch_id: src.id),
+                          class: "underline inline-flex items-center gap-1" do %>
+                <span class="material-symbols-outlined text-[12px]">call_split</span>
+                <span class="sr-only"><%= src.display_label %></span>
+              <% end %>
+            </span>
+          <% elsif node.slug_category == "brand" %>
+            <span class="ml-1 inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-600">
+              <%= link_to "＋ dominio",
+                          new_superadmin_domain_path(taxbranch_id: node.id),
+                          class: "text-green-600 hover:underline" %>
+            </span>
+          <% end %>
+        <% end %>
+
+        <!-- Position + Edit -->
+        <span class="ml-1 inline-flex items-center rounded-full bg-slate-100 px-1.5 py-0.5 text-[10px] font-semibold text-slate-600">
+          <%= node.position %>
+        </span>
+        <%= link_to edit_superadmin_taxbranch_path(node),
+                    class: "ml-1 inline-flex size-6 items-center justify-center rounded-md bg-white text-blue-600 shadow-md ring-1 ring-slate-500 hover:bg-blue-50",
+                    title: "Modifica taxbranch" do %>
+          <span class="material-symbols-outlined text-[14px]">edit</span>
+        <% end %>
+
+        <!-- Identità: tx_id + category + label -->
+        <span class="ml-1 text-[11px] text-slate-600 font-medium">
+          tx_id_<%= node.id %>
+        </span>
+        <span
+          class="ml-1 inline-flex items-center rounded-full px-1.5 py-0.5 text-[10px] font-medium"
+          style="<%= pastel_style_for_category(node.slug_category) %>"
+        >
+          <%= node.slug_category.presence || "—" %>
+        </span>
+        <%= link_to node.slug_label,
+                    superadmin_taxbranch_path(node),
+                    class: "ml-1 text-sm text-slate-800 font-medium truncate hover:underline" %>
+
+        <!-- Stato editoriale (icona) -->
+        <% case node.status %>
+        <% when "published" %>
+          <span title="Pubblicato" class="ml-1 inline-flex items-center rounded-full bg-emerald-100 px-1.5 py-0.5 text-[10px] font-medium text-emerald-800">
+            <span class="material-symbols-outlined text-[12px]">check_circle</span>
+            <span class="sr-only">Pubblicato</span>
+          </span>
+        <% when "draft" %>
+          <span title="Bozza" class="ml-1 inline-flex items-center rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-medium text-amber-800">
+            <span class="material-symbols-outlined text-[12px]">edit</span>
+            <span class="sr-only">Bozza</span>
+          </span>
+        <% when "in_review" %>
+          <span title="Review" class="ml-1 inline-flex items-center rounded-full bg-sky-100 px-1.5 py-0.5 text-[10px] font-medium text-sky-700">
+            <span class="material-symbols-outlined text-[12px]">rate_review</span>
+            <span class="sr-only">Review</span>
+          </span>
+        <% when "archived" %>
+          <span title="Archivio" class="ml-1 inline-flex items-center rounded-full bg-slate-200 px-1.5 py-0.5 text-[10px] font-medium text-slate-700">
+            <span class="material-symbols-outlined text-[12px]">inventory_2</span>
+            <span class="sr-only">Archivio</span>
+          </span>
+        <% else %>
+          <span title="<%= node.status.to_s.titleize %>" class="ml-1 inline-flex items-center rounded-full bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-slate-600">
+            <span class="material-symbols-outlined text-[12px]">info</span>
+            <span class="sr-only"><%= node.status.to_s.titleize %></span>
+          </span>
+        <% end %>
+
+        <!-- Visibilità -->
+        <% human_visibility =
+             case node.visibility
+             when "private_node"      then "Privato"
+             when "shared_node"       then "Condiviso"
+             when "participants_only" then "Partecipanti"
+             when "public_node"       then "Pubblico"
+             else node.visibility.to_s.titleize
+             end %>
+
+        <% visibility_icon =
+             case node.visibility
+             when "private_node"      then "lock"
+             when "shared_node"       then "groups"
+             when "participants_only" then "badge"
+             when "public_node"       then "public"
+             else "info"
+             end %>
+
+        <% if node.public_node? %>
+          <% post_link_target = node.post&.persisted? ? post_path(node.post) : new_post_path(post: { taxbranch_id: node.id }) %>
+          <% post_link_title = node.post&.persisted? ? human_visibility : "Crea post per questo taxbranch" %>
+          <%= link_to post_link_target,
+                      title: post_link_title,
+                      class: "ml-1 inline-flex items-center rounded-full bg-slate-50 px-1.5 py-0.5 text-[10px] font-medium text-slate-600 hover:bg-slate-100" do %>
+            <span class="material-symbols-outlined text-[12px]"><%= visibility_icon %></span>
+            <span class="sr-only"><%= post_link_title %></span>
+          <% end %>
+        <% else %>
+          <span title="<%= human_visibility %>" class="ml-1 inline-flex items-center rounded-full bg-slate-50 px-1.5 py-0.5 text-[10px] font-medium text-slate-600">
+            <span class="material-symbols-outlined text-[12px]"><%= visibility_icon %></span>
+            <span class="sr-only"><%= human_visibility %></span>
+          </span>
+        <% end %>
+
+        <span class="ml-2 text-slate-300">|</span>
+        <% if node.post&.persisted? %>
+          <%= link_to post_path(node.post),
+                      class: "ml-1 text-xs text-slate-600 hover:underline" do %>
+            post_id: <%= node.post.id %> · <%= node.post.title.presence&.truncate(20) || node.post.slug.to_s.truncate(20) || "Post" %>
+          <% end %>
+        <% else %>
+          <span class="ml-1 text-xs text-slate-400">post_id: —</span>
+        <% end %>
+
+        <!-- Metadati TAG / NAV -->
+        <% if node.positioning_tag_public %>
+          <span class="ml-1 inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-xs font-semibold text-blue-700 ring-1 ring-inset ring-blue-200">
+            TAG
+          </span>
+        <% end %>
+
+        <% if node.home_nav == true %>
+          <span class="ml-1 inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-200">
+            NAV
+          </span>
+        <% end %>
+       <% tb = node %>
+
+<% if tb.link_node? && tb.link_child %>
+  <%= link_to superadmin_taxbranch_path(tb.link_child),
+              class: "ml-1 inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-200" do %>
+    LINK →
+  <% end %>
+<% end %>
+
+<% if tb.linked_parents.any? %>
+  <button
+    type="button"
+    class="ml-1 inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-200"
+    onclick="document.getElementById('parents-modal-<%= tb.id %>').classList.remove('hidden')">
+    ← LINKS
+  </button>
+
+  <div
+    id="parents-modal-<%= tb.id %>"
+    class="fixed inset-0 z-50 hidden bg-black/40 flex items-center justify-center"
+    onclick="this.classList.add('hidden')"  
+  ><!-- click sull’overlay = chiudi -->
+    <div
+      class="mx-4 max-w-md rounded-lg bg-white p-4 shadow-lg"
+      onclick="event.stopPropagation()"    
+    >  <!-- click dentro = NON chiudere -->
+      <div class="mb-2 flex items-center justify-between">
+        <h2 class="text-sm font-semibold text-slate-800">
+          Taxbranch che linkano
+          <span class="font-bold"><%= tb.display_label %></span>
+        </h2>
+        <button
+          type="button"
+          class="text-xs text-slate-500 hover:text-slate-700"
+          onclick="document.getElementById('parents-modal-<%= tb.id %>').classList.add('hidden')">
+          ✕
+        </button>
+      </div>
+
+      <ul class="space-y-2">
+        <% tb.linked_parents.each do |parent| %>
+          <li>
+            <%= link_to superadmin_taxbranch_path(parent),
+                        class: "block" do %>
+              <div class="border rounded-md p-3 flex items-center justify-between gap-3 hover:bg-slate-50 transition">
+                <div class="flex flex-col">
+                  <span class="font-medium text-slate-800"><%= parent.display_label %></span>
+                  <span class="text-xs text-slate-500">
+                    <%= parent.slug_category %> / <%= parent.slug_label %>
+                  </span>
+                </div>
+
+                <span class="text-slate-400 text-sm">Apri →</span>
+              </div>
+            <% end %>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+  </div>
+<% end %>
+
+     
+
+      </div>
+
+      <!-- Azioni -->
+      <% prev      = node.higher_item %>
+      <% next_node = node.lower_item  %>
+      <% siblings_desc = node.parent&.order_des? || false %>
+      <% visual_prev = siblings_desc ? next_node : prev %>
+      <% visual_next = siblings_desc ? prev : next_node %>
+      <% up_enabled = visual_prev.present? %>
+      <% down_enabled = visual_next.present? %>
+      <% up_path = move_up_superadmin_taxbranch_path(node) %>
+      <% down_path = move_down_superadmin_taxbranch_path(node) %>
+
+      <div class="flex items-center gap-2 text-xs text-slate-500 shrink-0">
+        <%= link_to "＋ Figlio",
+                  new_superadmin_taxbranch_path(parent_id: node.id),
+                  class: "inline-flex h-6 items-center justify-center rounded-md bg-white px-2 text-[11px] font-semibold text-emerald-700 shadow-md ring-1 ring-slate-500 hover:bg-emerald-50",
+                  title: "+ figlio" %>
+
+        <button
+          type="button"
+          class="inline-flex size-6 items-center justify-center rounded-md bg-white text-red-600 shadow-md ring-1 ring-red-400 hover:bg-red-50"
+          title="Elimina"
+          onclick="document.getElementById('delete-modal-<%= node.id %>').classList.remove('hidden')">
+          🗑️
+        </button>
+
+        <span class="text-slate-300">|</span>
+
+        <% if up_enabled %>
+          <%= link_to "⬆", up_path,
+                data: { turbo_method: :patch },
+                class: "text-slate-500 hover:text-slate-800", title: "Sposta su" %>
+        <% else %>
+          <span class="opacity-30 text-slate-500" title="Già in cima">⬆</span>
+        <% end %>
+
+        <% if down_enabled %>
+          <%= link_to "⬇", down_path,
+                data: { turbo_method: :patch },
+                class: "text-slate-500 hover:text-slate-800", title: "Sposta giù" %>
+        <% else %>
+          <span class="opacity-30 text-slate-500" title="Già in fondo">⬇</span>
+        <% end %>
+
+        <% if node.parent.present?  %>
+          <%= link_to "⬅️", move_left_superadmin_taxbranch_path(node),
+                data: { turbo_method: :patch },
+                class: "hover:text-slate-700", title: "Sposta a sinistra (outdent)" %>
+        <% else %>
+          <span class="opacity-40" title="Già a radice">⬅️</span>
+        <% end %>
+
+        <% if visual_prev.present? %>
+          <%= link_to "➡️", move_right_superadmin_taxbranch_path(node),
+                data: { turbo_method: :patch },
+                class: "hover:text-slate-700", title: "Sposta a destra (indent)" %>
+        <% else %>
+          <span class="opacity-40" title="Nessun fratello precedente">➡️</span>
+        <% end %>
+      </div>
+
+      <div
+        id="delete-modal-<%= node.id %>"
+        class="fixed inset-0 z-50 hidden bg-black/40 flex items-center justify-center"
+        onclick="this.classList.add('hidden')">
+        <div class="mx-4 w-full max-w-md rounded-lg bg-white p-4 shadow-lg" onclick="event.stopPropagation()">
+          <div class="mb-2 flex items-center justify-between">
+            <h2 class="text-sm font-semibold text-slate-800">
+              Eliminare “<%= node.display_label %>”?
+            </h2>
+            <button type="button" class="text-xs text-slate-500 hover:text-slate-700" onclick="document.getElementById('delete-modal-<%= node.id %>').classList.add('hidden')">
+              ✕
+            </button>
+          </div>
+          <p class="text-xs text-slate-500 mb-3">
+            Scegli cosa fare con i children.
+          </p>
+          <div class="flex flex-wrap gap-2">
+            <%= button_to "Elimina tutto",
+                          destroy_with_children_superadmin_taxbranch_path(node),
+                          method: :delete,
+                          class: "inline-flex items-center rounded-md bg-red-600 px-3 py-2 text-xs font-semibold text-white hover:bg-red-700" %>
+            <%= button_to "Vedi elementi collegati",
+                          reparent_children_superadmin_taxbranch_path(node),
+                          method: :patch,
+                          class: "inline-flex items-center rounded-md bg-slate-900 px-3 py-2 text-xs font-semibold text-white hover:bg-slate-800" %>
+            <button type="button" class="inline-flex items-center rounded-md border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50" onclick="document.getElementById('delete-modal-<%= node.id %>').classList.add('hidden')">
+              Annulla
+            </button>
+          </div>
+        </div>
+      </div>
+    </summary>
+
+    <%# FIGLI: visibili solo quando il <details> è aperto %>
+    <% if node.children.exists? %>
+      <% children_scope = node.children.ordered %>
+      <% children_scope = children_scope.reorder(position: :desc) if node.order_des %>
+      <ul class="ml-4 mt-1 space-y-1">
+        <%= render partial: "node",
+                   collection: children_scope,
+                   as: :node,
+                   locals: { expanded_ids: expanded_ids } %>
+      </ul>
+    <% end %>
+  </details>
+</li>

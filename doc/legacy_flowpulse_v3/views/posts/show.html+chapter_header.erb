@@ -1,0 +1,31 @@
+<%# Template per capitolo principale (introduce un gruppo di sezioni) %>
+<% content_for :title, @post.title.presence || "Chapter" %>
+
+<div class="min-h-screen bg-slate-900 text-white">
+  <div class="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-12 space-y-8">
+    <header class="space-y-3">
+      <p class="text-xs uppercase tracking-[0.3em] text-white/70">Chapter Header</p>
+      <h1 class="text-4xl font-bold leading-tight"><%= @post.title %></h1>
+      <% if @post.description.present? %>
+        <p class="text-sm text-white/70"><%= @post.description %></p>
+      <% end %>
+    </header>
+
+    <section class="grid gap-4 md:grid-cols-2">
+      <% @post.taxbranch.children.ordered.each_with_index do |section, idx| %>
+        <article class="rounded-2xl border border-white/10 bg-white/5 p-6 space-y-2">
+          <p class="text-xs uppercase tracking-wide text-white/70">Sezione <%= idx + 1 %></p>
+          <h3 class="text-xl font-semibold"><%= section.slug_label.presence || section.display_label %></h3>
+          <% if section.post&.description.present? %>
+            <p class="text-sm text-white/70"><%= section.post.description %></p>
+          <% end %>
+          <% if section.post.present? %>
+            <%= link_to "Apri sezione",
+                        post_entry_link(section.post, taxbranch: section),
+                        class: "inline-flex items-center rounded-full px-4 py-2 text-sm font-semibold text-white bg-white/10 hover:bg-white/20" %>
+          <% end %>
+        </article>
+      <% end %>
+    </section>
+  </div>
+</div>

@@ -1,0 +1,78 @@
+<% datacontacts_scope = local_assigns[:datacontacts_scope] || @datacontacts_scope || [] %>
+<% selected_datacontact = local_assigns[:datacontact] %>
+<% status_options = [
+     ["In attesa di approvazione", "pending"],
+     ["Approvato", "approved"],
+     ["Rifiutato", "rejected"]
+   ] %>
+
+<%= form_with(model: mycontact, class: "space-y-6") do |form| %>
+  <% if mycontact.errors.any? %>
+    <div class="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded-md">
+      <h2 class="text-sm font-semibold">
+        <%= pluralize(mycontact.errors.count, "errore") %> impedisce il salvataggio:
+      </h2>
+      <ul class="mt-2 text-sm list-disc ml-5 space-y-0.5">
+        <% mycontact.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <section class="border border-slate-200 rounded-xl p-4 space-y-4">
+    <div>
+      <%= form.label :datacontact_id, "Contatto selezionato", class: "block text-sm font-medium text-slate-700" %>
+      <% if selected_datacontact %>
+        <%= form.hidden_field :datacontact_id, value: selected_datacontact.id %>
+        <div class="mt-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700">
+          <p class="font-semibold text-slate-900"><%= selected_datacontact.full_name.presence || "Contatto ##{selected_datacontact.id}" %></p>
+          <p class="text-slate-600"><%= selected_datacontact.email %></p>
+          <% if selected_datacontact.phone.present? %>
+            <p class="text-slate-600">☎︎ <%= selected_datacontact.phone %></p>
+          <% end %>
+        </div>
+      <% elsif datacontacts_scope.any? %>
+        <%= form.collection_select :datacontact_id,
+              datacontacts_scope,
+              :id,
+              ->(dc) { [dc.full_name.presence || "Contatto ##{dc.id}", dc.email.presence].compact.join(" · ") },
+              { include_blank: "Scegli un contatto..." },
+              class: "mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500" %>
+        <p class="text-xs text-slate-500 mt-1">
+          L’elenco mostra i contatti dove sei referente o proprietario. Puoi <%= link_to "crearne uno nuovo", new_datacontact_path, class: "text-blue-600 hover:underline" %>.
+        </p>
+      <% else %>
+        <p class="text-sm text-slate-600 mt-1">
+          Non hai ancora registrato alcun dato contatto. <%= link_to "Crea un contatto", new_datacontact_path, class: "text-blue-600 hover:underline" %> prima di procedere.
+        </p>
+      <% end %>
+    </div>
+
+    <div>
+      <%= form.label :status_contact, "Stato del collegamento", class: "block text-sm font-medium text-slate-700" %>
+      <%= form.select :status_contact,
+            options_for_select(status_options, mycontact.status_contact),
+            {},
+            class: "mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500" %>
+    </div>
+
+    <div>
+      <%= form.label :approved_by_referent_at, "Approvato dal referente il", class: "block text-sm font-medium text-slate-700" %>
+      <%= form.datetime_local_field :approved_by_referent_at,
+            class: "mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500" %>
+      <p class="text-xs text-slate-500 mt-1">Compila solo quando il referente conferma l’uso di questo contatto.</p>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <%= form.check_box :original,
+            class: "h-4 w-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500" %>
+      <%= form.label :original, "Creato direttamente da me", class: "text-sm text-slate-700" %>
+    </div>
+  </section>
+
+  <div class="flex justify-end">
+    <%= form.submit "Salva collegamento",
+          class: "rounded-md px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-medium cursor-pointer" %>
+  </div>
+<% end %>

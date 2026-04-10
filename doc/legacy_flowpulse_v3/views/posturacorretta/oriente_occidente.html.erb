@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="it">
+  <head>
+    <meta charset="utf-8" />
+    <title>Corpo e Coscienza Georges Courchinoux (rivisitata Mark Postura)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      :root {
+        --bg: #0b1220;
+        --fg: #e2e8f0;
+        --muted: #94a3b8;
+        --soft2: #ffffff24;
+        --chip: #0f172a;
+        --chipfg: #e2e8f0;
+        --cardbg: #ffffff12;
+        --cardborder: #ffffff22;
+        --shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+        --accent: #38bdf8;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        background: var(--bg);
+        color: var(--fg);
+        margin: 0;
+        padding: 28px;
+      }
+      h1 {
+        margin: 0 0 6px;
+        text-align: center;
+      }
+      .lead {
+        margin: 0 auto 16px;
+        text-align: center;
+        color: var(--muted);
+        max-width: 960px;
+      }
+      .toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        justify-content: center;
+        margin: 12px auto 20px;
+      }
+      .close-btn {
+        position: fixed;
+        top: 14px;
+        right: 14px;
+        z-index: 50;
+        border: 1px solid #ffffff44;
+        background: #0f172a;
+        color: #e2e8f0;
+        padding: 8px 12px;
+        border-radius: 999px;
+        text-decoration: none;
+        font-weight: 800;
+      }
+      .btn {
+        appearance: none;
+        border: 1px solid #ffffff22;
+        background: var(--chip);
+        color: var(--chipfg);
+        padding: 10px 14px;
+        border-radius: 999px;
+        font-weight: 800;
+        cursor: pointer;
+      }
+      .grid-container {
+        display: flex;
+        justify-content: center;
+        overflow-x: auto;
+      }
+      table {
+        border-collapse: separate;
+        border-spacing: 16px;
+        width: max-content;
+        margin: 0 auto 16px;
+      }
+      th,
+      td {
+        text-align: center;
+        vertical-align: top;
+      }
+      th {
+        font-weight: 800;
+        font-size: 1rem;
+        color: #f8fafc;
+        padding: 10px 12px;
+      }
+      td {
+        width: 220px;
+        height: 200px;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid var(--cardborder);
+        border-radius: 20px;
+        padding: 12px;
+        box-shadow: var(--shadow);
+        color: #f1f5f9;
+        font-size: 0.9rem;
+      }
+      .header-col {
+        writing-mode: vertical-rl;
+        transform: rotate(180deg);
+        font-weight: 700;
+        color: #94a3b8;
+        font-size: 1rem;
+        padding: 8px;
+      }
+      .funzione {
+        font-size: 1.1rem;
+        font-weight: 800;
+        color: #fef08a;
+      }
+      .elemento {
+        color: #a5b4fc;
+        font-size: 0.85rem;
+        display: block;
+        margin-top: 4px;
+      }
+      .card-title {
+        font-weight: 700;
+        margin-top: 4px;
+        font-size: 0.95rem;
+        color: #f8fafc;
+      }
+      .card-desc {
+        margin-top: 4px;
+        opacity: 0.9;
+      }
+      .section {
+        max-width: 1200px;
+        margin: 18px auto 0;
+        padding: 0 4px;
+      }
+      .panel {
+        background: var(--cardbg);
+        border: 1px solid var(--cardborder);
+        border-radius: 20px;
+        padding: 18px;
+        box-shadow: var(--shadow);
+      }
+      .row {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+      @media (min-width: 900px) {
+        .row.cols-2 {
+          grid-template-columns: 1fr 1fr;
+        }
+        .row.cols-4 {
+          grid-template-columns: repeat(4, 1fr);
+        }
+      }
+      .chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: var(--chip);
+        color: var(--chipfg);
+        font-weight: 700;
+        font-size: 13px;
+        border: 1px solid #ffffff22;
+      }
+      .divider {
+        height: 1px;
+        background: var(--soft2);
+        margin: 14px 0;
+      }
+      .mini {
+        font-size: 0.9rem;
+        color: #cbd5e1;
+      }
+      .data-card {
+        background: var(--cardbg);
+        border: 1px solid var(--cardborder);
+        border-radius: 16px;
+        padding: 14px;
+      }
+      .data-card h3 {
+        font-size: 1rem;
+        margin-bottom: 6px;
+      }
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 800;
+        background: #ffffff10;
+        border: 1px solid #ffffff22;
+        color: #e2e8f0;
+        margin-left: 6px;
+      }
+      .meta {
+        color: var(--muted);
+        font-size: 0.9rem;
+        margin-bottom: 8px;
+      }
+      .kv {
+        display: grid;
+        grid-template-columns: 140px 1fr;
+        gap: 8px;
+        align-items: center;
+      }
+      .kv .k {
+        color: #cbd5e1;
+        font-weight: 700;
+      }
+      .kv .v {
+        color: #e5e7eb;
+      }
+      code.inline {
+        background: #111827;
+        border: 1px solid #1f2937;
+        border-radius: 8px;
+        padding: 0.1rem 0.35rem;
+        font-family: ui-monospace, Menlo, Consolas, monospace;
+      }
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: #ffffff10;
+        border: 1px solid #ffffff22;
+        color: #e2e8f0;
+        font-weight: 700;
+        font-size: 12px;
+      }
+      /* Riga toolbar per riga */
+      .row-tools {
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+        margin: 8px 0 18px;
+      }
+    </style>
+    <script
+      src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"
+      defer
+    ></script>
+  </head>
+  <body>
+    <a class="close-btn" href="<%= posturacorretta_mappa_path %>" aria-label="Chiudi e torna alla mappa">Chiudi</a>
+    <h1>🌿 Corpo e Coscienza Georges Courchinoux – rivisitata Mark Postura</h1>
+    <p class="lead">
+      Esporta PNG dell’intera tabella o una riga alla volta (1080×1350 per
+      carosello Instagram).
+    </p>
+
+    <!-- TOOLBAR GENERALE -->
+    <div class="toolbar">
+      <button class="btn" id="btn-export-table">
+        📥 Scarica TABELLONE (PNG)
+      </button>
+      <button class="btn" id="btn-export-all-rows">
+        📥 Scarica TUTTE le RIGHE (6 PNG)
+      </button>
+    </div>
+
+    <!-- TABELLA -->
+    <div class="grid-container">
+      <table id="table-main" aria-label="Mappa Funzioni per Stagioni">
+        <tr id="row-head">
+          <th></th>
+          <th>
+            <span class="funzione">🜃 Sensazione</span
+            ><span class="elemento">Terra</span>
+          </th>
+          <th>
+            <span class="funzione">🜁 Pensiero</span
+            ><span class="elemento">Aria</span>
+          </th>
+          <th>
+            <span class="funzione">🜄 Sentimento</span
+            ><span class="elemento">Acqua</span>
+          </th>
+          <th>
+            <span class="funzione">🜂 Intuito</span
+            ><span class="elemento">Fuoco</span>
+          </th>
+        </tr>
+
+        <tr id="row-1">
+          <th class="header-col">
+            🌳 Primavera<span class="elemento">Legno</span>
+          </th>
+          <td>
+            <div class="card-title">Radicamento che germoglia</div>
+            <div class="card-desc">
+              Corpo si risveglia, percezione tattile e vitalità.
+            </div>
+          </td>
+          <td>
+            <div class="card-title">Progetto e direzione</div>
+            <div class="card-desc">
+              Idee nuove, mente chiara, voglia di creare.
+            </div>
+          </td>
+          <td>
+            <div class="card-title">Relazioni in germoglio</div>
+            <div class="card-desc">Empatia, apertura, nuovi legami.</div>
+          </td>
+          <td>
+            <div class="card-title">Visione del possibile</div>
+            <div class="card-desc">
+              Intuizione delle potenzialità, slancio creativo.
+            </div>
+          </td>
+        </tr>
+
+        <tr id="row-2">
+          <th class="header-col">
+            🔥 Estate<span class="elemento">Fuoco</span>
+          </th>
+          <td>
+            <div class="card-title">Calore vitale</div>
+            <div class="card-desc">
+              Energia corporea al massimo, piacere del movimento.
+            </div>
+          </td>
+          <td>
+            <div class="card-title">Parola e chiarezza</div>
+            <div class="card-desc">Comunicazione fluida, pensiero veloce.</div>
+          </td>
+          <td>
+            <div class="card-title">Gioia relazionale</div>
+            <div class="card-desc">
+              Espressione del cuore, entusiasmo condiviso.
+            </div>
+          </td>
+          <td>
+            <div class="card-title">Ispirazione</div>
+            <div class="card-desc">
+              Creatività accesa, illuminazione, carisma.
+            </div>
+          </td>
+        </tr>
+
+        <tr id="row-3">
+          <th class="header-col">
+            🌾 Caniculà<span class="elemento">Terra</span>
+          </th>
+          <td>
+            <div class="card-title">Nutrimento</div>
+            <div class="card-desc">
+              Centratura, alimentazione, stabilità corporea.
+            </div>
+          </td>
+          <td>
+            <div class="card-title">Sintesi e ordine</div>
+            <div class="card-desc">Pensiero razionale e concreto.</div>
+          </td>
+          <td>
+            <div class="card-title">Cura e accoglienza</div>
+            <div class="card-desc">Amore calmo, equilibrio emotivo.</div>
+          </td>
+          <td>
+            <div class="card-title">Intuizione concreta</div>
+            <div class="card-desc">
+              Trasformare le idee in routine pratiche.
+            </div>
+          </td>
+        </tr>
+
+        <tr id="row-4">
+          <th class="header-col">
+            ⚙️ Autunno<span class="elemento">Metallo</span>
+          </th>
+          <td>
+            <div class="card-title">Struttura</div>
+            <div class="card-desc">
+              Ordine del corpo e del ritmo quotidiano.
+            </div>
+          </td>
+          <td>
+            <div class="card-title">Analisi</div>
+            <div class="card-desc">
+              Discernimento, selezione dell’essenziale.
+            </div>
+          </td>
+          <td>
+            <div class="card-title">Distacco grato</div>
+            <div class="card-desc">Elaborazione emotiva e gratitudine.</div>
+          </td>
+          <td>
+            <div class="card-title">Chiarezza interiore</div>
+            <div class="card-desc">Intuizione lucida, essenza dei valori.</div>
+          </td>
+        </tr>
+
+        <tr id="row-5">
+          <th class="header-col">
+            💧 Inverno<span class="elemento">Acqua</span>
+          </th>
+          <td>
+            <div class="card-title">Ascolto profondo</div>
+            <div class="card-desc">Riposo, introspezione sensoriale.</div>
+          </td>
+          <td>
+            <div class="card-title">Contemplazione</div>
+            <div class="card-desc">Pensiero lento, riflessione.</div>
+          </td>
+          <td>
+            <div class="card-title">Profondità emotiva</div>
+            <div class="card-desc">Empatia, silenzio, rigenerazione.</div>
+          </td>
+          <td>
+            <div class="card-title">Visione interiore</div>
+            <div class="card-desc">Sogni, simboli, connessione spirituale.</div>
+          </td>
+        </tr>
+
+        <tr id="row-6">
+          <th class="header-col">
+            🌍 Canìculi<span class="elemento">Terra</span>
+          </th>
+          <td>
+            <div class="card-title">Risveglio corporeo</div>
+            <div class="card-desc">Appetito vitale e movimento.</div>
+          </td>
+          <td>
+            <div class="card-title">Pre-visione</div>
+            <div class="card-desc">Idee che emergono dal silenzio.</div>
+          </td>
+          <td>
+            <div class="card-title">Emozioni in moto</div>
+            <div class="card-desc">Sensibilità che torna a fluire.</div>
+          </td>
+          <td>
+            <div class="card-title">Scintilla</div>
+            <div class="card-desc">Intuito che accende la rinascita.</div>
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- ASSI ORIENTALI / OCCIDENTALI -->
+    <div class="section">
+      <div class="row cols-2">
+        <div class="panel">
+          <h2>🧭 Assi “Orientali”</h2>
+          <div class="chips">
+            <span class="chip">⬆️ Espansione</span
+            ><span class="chip">⬇️ Contrazione</span>
+            <span class="chip">🌀 Massima apertura</span
+            ><span class="chip">🕳️ Massima chiusura</span>
+            <span class="chip">🌱 Radicamento</span>
+          </div>
+        </div>
+        <div class="panel">
+          <h2>🧠 Assi “Occidentali”</h2>
+          <div class="chips">
+            <span class="chip">🎚️ Tono</span
+            ><span class="chip">⚖️ Equilibrio</span>
+            <span class="chip">🌬️ Respiro</span
+            ><span class="chip">🧭 Atteggiamento mentale</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Funzione ↔ Asse fisiologico -->
+    <div class="section">
+      <div class="panel">
+        <h2>🔗 Funzione ↔ Asse fisiologico</h2>
+        <div class="row cols-4">
+          <div class="data-card">
+            <h3>🜃 Sensazione <span class="badge">Equilibrio</span></h3>
+            <div class="mini">Vestibolare · Propriocettivo</div>
+          </div>
+          <div class="data-card">
+            <h3>🜁 Pensiero <span class="badge">Tono (dosaggio)</span></h3>
+            <div class="mini">Attivazione/Inibizione</div>
+          </div>
+          <div class="data-card">
+            <h3>🜄 Sentimento <span class="badge">Respiro | HRV</span></h3>
+            <div class="mini">Ritmo · Coerenza</div>
+          </div>
+          <div class="data-card">
+            <h3>🜂 Intuito <span class="badge">Onde cerebrali</span></h3>
+            <div class="mini">δ θ α β γ</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tarocchi -->
+    <div class="section">
+      <div class="panel">
+        <h2>🃏 Tarocchi (semi → funzioni)</h2>
+        <div class="chips">
+          <span class="chip">🟫 Denari → 🜃 Sensazione</span>
+          <span class="chip">⚔️ Spade → 🜁 Pensiero</span>
+          <span class="chip">🏺 Coppe → 🜄 Sentimento</span>
+          <span class="chip">🪵 Bastoni → 🜂 Intuito</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modelli dati -->
+    <div class="section">
+      <h2>🗂️ Modelli di dato (implementazione)</h2>
+      <div class="row cols-4">
+        <div class="data-card">
+          <h3>
+            🜃 Sensazione — Percorso passo-passo
+            <span class="badge">workflow</span>
+          </h3>
+          <div class="meta">Step numerati con stato e tempo.</div>
+          <div class="kv">
+            <div class="k">Tabelle</div>
+            <div class="v">
+              <code class="inline">Journey</code>,
+              <code class="inline">Step</code>
+            </div>
+            <div class="k">Campi</div>
+            <div class="v">
+              position, title, status, started_at, finished_at
+            </div>
+            <div class="k">KPI</div>
+            <div class="v">Equilibrio (0–10), Stabilità</div>
+          </div>
+        </div>
+        <div class="data-card">
+          <h3>
+            🜁 Pensiero — Mappa/Albero 2D <span class="badge">pos+parent</span>
+          </h3>
+          <div class="meta">Outline gerarchico su canvas.</div>
+          <div class="kv">
+            <div class="k">Tabella</div>
+            <div class="v"><code class="inline">Node</code></div>
+            <div class="k">Campi</div>
+            <div class="v">parent_id, x, y, title, priority, state</div>
+            <div class="k">KPI</div>
+            <div class="v">Tono (0–10), Carico cognitivo</div>
+          </div>
+        </div>
+        <div class="data-card">
+          <h3>
+            🜄 Sentimento — Rete relazioni <span class="badge">multigrafo</span>
+          </h3>
+          <div class="meta">Tutti i collegamenti con pesi/valenza.</div>
+          <div class="kv">
+            <div class="k">Tabelle</div>
+            <div class="v">
+              <code class="inline">Entity</code>,
+              <code class="inline">Edge</code>
+            </div>
+            <div class="k">Edge</div>
+            <div class="v">
+              from_id, to_id, weight, valence, label, timestamp
+            </div>
+            <div class="k">KPI</div>
+            <div class="v">HRV, Valenza (−5…+5)</div>
+          </div>
+        </div>
+        <div class="data-card">
+          <h3>🜂 Intuito — Spazio 3D/ND <span class="badge">embedding</span></h3>
+          <div class="meta">Ricerca spaziale; salti ispirativi.</div>
+          <div class="kv">
+            <div class="k">Tabella</div>
+            <div class="v"><code class="inline">Point</code> (pgvector)</div>
+            <div class="k">Campi</div>
+            <div class="v">
+              vec JSONB, label, plane ∈ {delta,theta,alpha,beta,gamma}
+            </div>
+            <div class="k">KPI</div>
+            <div class="v">Piano dominante, Novità</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TOOLBAR PER RIGA -->
+      <div class="row-tools">
+        <button class="btn" data-row="row-1">🌳 Scarica Primavera</button>
+        <button class="btn" data-row="row-2">🔥 Scarica Estate</button>
+        <button class="btn" data-row="row-3">🌾 Scarica Caniculà</button>
+        <button class="btn" data-row="row-4">🍁 Scarica Autunno</button>
+        <button class="btn" data-row="row-5">❄️ Scarica Inverno</button>
+        <button class="btn" data-row="row-6">🌍 Scarica Canìculi</button>
+      </div>
+    </div>
+
+    <script>
+      // Export helper: render an element with html2canvas, then fit it onto 1080x1350 canvas
+      async function exportAsSlide(el, filename, opts = {}) {
+        const W = 1080,
+          H = 1350,
+          PAD = opts.pad ?? 60;
+        // Render source at devicePixelRatio*scale for sharpness, then downscale
+        const canvasSrc = await html2canvas(el, {
+          backgroundColor: null,
+          scale: 2,
+          useCORS: true,
+          logging: false,
+          onclone: (doc) => {
+            // opzionale: nulla
+          },
+        });
+        const srcW = canvasSrc.width,
+          srcH = canvasSrc.height;
+        // Fit into target with padding
+        const availW = W - PAD * 2,
+          availH = H - PAD * 2;
+        const scale = Math.min(availW / srcW, availH / srcH);
+        const drawW = Math.round(srcW * scale),
+          drawH = Math.round(srcH * scale);
+        const off = document.createElement("canvas");
+        off.width = W;
+        off.height = H;
+        const ctx = off.getContext("2d");
+        // background aesthetic
+        ctx.fillStyle = "#0b1220";
+        ctx.fillRect(0, 0, W, H);
+        // soft vignette
+        const grad = ctx.createRadialGradient(
+          W * 0.5,
+          H * 0.25,
+          100,
+          W * 0.5,
+          H * 0.25,
+          W
+        );
+        grad.addColorStop(0, "rgba(56,189,248,0.10)");
+        grad.addColorStop(1, "rgba(56,189,248,0.0)");
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, W, H);
+        // draw image centered
+        const dx = Math.round((W - drawW) / 2),
+          dy = Math.round((H - drawH) / 2);
+        ctx.drawImage(canvasSrc, dx, dy, drawW, drawH);
+        // footer label (optional)
+        if (opts.footer !== false) {
+          ctx.font = "bold 28px system-ui, -apple-system, Segoe UI, Roboto";
+          ctx.fillStyle = "rgba(226,232,240,0.9)";
+          ctx.textAlign = "center";
+          ctx.fillText(
+            opts.caption || "Funzioni × Stagioni — PosturaCorretta · Flowpulse",
+            W / 2,
+            H - 24
+          );
+        }
+        const link = document.createElement("a");
+        link.download = filename;
+        link.href = off.toDataURL("image/png");
+        link.click();
+      }
+
+      window.addEventListener("DOMContentLoaded", () => {
+        const table = document.getElementById("table-main");
+
+        // Export whole table
+        document
+          .getElementById("btn-export-table")
+          .addEventListener("click", async () => {
+            await exportAsSlide(table, "tabella_funzioni_stagioni.png", {
+              caption: "Tabella completa — Funzioni × Stagioni",
+            });
+          });
+
+        // Export each row by buttons
+        document
+          .querySelectorAll(".row-tools .btn[data-row]")
+          .forEach((btn) => {
+            btn.addEventListener("click", async () => {
+              const rowId = btn.getAttribute("data-row");
+              const row = document.getElementById(rowId);
+              // Create a temporary table with header + that row for nicer framing
+              const tmp = document.createElement("div");
+              tmp.style.padding = "16px";
+              tmp.style.background = "transparent";
+              const cloneTable = document.createElement("table");
+              cloneTable.style.borderSpacing = "16px";
+              cloneTable.style.borderCollapse = "separate";
+              const head = document.getElementById("row-head").cloneNode(true);
+              const r = row.cloneNode(true);
+              cloneTable.appendChild(head);
+              cloneTable.appendChild(r);
+              tmp.appendChild(cloneTable);
+              document.body.appendChild(tmp);
+              await exportAsSlide(tmp, rowId + ".png", {
+                caption: btn.textContent.trim(),
+              });
+              document.body.removeChild(tmp);
+            });
+          });
+
+        // Export all rows
+        document
+          .getElementById("btn-export-all-rows")
+          .addEventListener("click", async () => {
+            const ids = ["row-1", "row-2", "row-3", "row-4", "row-5", "row-6"];
+            for (const id of ids) {
+              const btn = document.querySelector(
+                `.row-tools .btn[data-row="${id}"]`
+              );
+              btn && btn.click();
+              // piccolo delay per evitare lock UI
+              await new Promise((r) => setTimeout(r, 400));
+            }
+          });
+      });
+    </script>
+  </body>
+</html>

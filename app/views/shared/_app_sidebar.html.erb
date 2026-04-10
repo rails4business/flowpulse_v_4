@@ -1,67 +1,79 @@
-<aside class="app-sidebar">
-  <div class="app-sidebar-brand">
-    <span class="brand-dot"></span>
-    <div>
-      <p class="app-sidebar-kicker">Flowpulse</p>
-      <h2><%= Current.session.user.profile&.display_name || "Spazio" %></h2>
+<div class="app-sidebar-shell" data-controller="sidebar">
+  <button type="button" class="app-sidebar-toggle" data-action="sidebar#open" aria-label="Apri menu laterale">
+    <span class="app-sidebar-toggle-icon">☰</span>
+    <span>Menu</span>
+  </button>
+  <button type="button" class="app-sidebar-overlay" data-sidebar-target="overlay" data-action="sidebar#close" aria-label="Chiudi menu"></button>
+
+  <aside class="app-sidebar" data-sidebar-target="panel">
+    <div class="app-sidebar-mobile-head">
+      <span>Menu</span>
+      <button type="button" class="app-sidebar-close" data-action="sidebar#close" aria-label="Chiudi">×</button>
     </div>
-  </div>
 
-  <div class="workspace-switcher">
-    <p class="sidebar-group-label">Spazio attivo</p>
-    <%= form_with url: workspace_dashboard_path, method: :patch, class: "workspace-switcher-form" do |form| %>
-      <%= form.select :mode,
-                      options_for_select(available_workspace_modes.map { |workspace| [workspace[:label], workspace[:key]] }, current_workspace_mode),
-                      {},
-                      class: "workspace-switcher-select",
-                      onchange: "this.form.requestSubmit()" %>
-    <% end %>
-  </div>
-
-  <nav class="app-sidebar-nav">
-    <% if current_workspace_mode == "traveler" %>
-      <div class="sidebar-group sidebar-group-traveler">
-        <a href="/flowpulse_v_4/4_1impegno.html">Le mie mappe percorse</a>
-        <a href="/flowpulse_v_4/6_calendar_journey.html">Viaggi vissuti</a>
-        <a href="/flowpulse_v_4/5_calendario_ticket.html">Ticket e calendario</a>
+    <div class="app-sidebar-brand">
+      <span class="brand-dot"></span>
+      <div>
+        <p class="app-sidebar-kicker">Flowpulse</p>
+        <h2><%= Current.session.user.profile&.display_name || "Spazio" %></h2>
       </div>
-    <% end %>
+    </div>
 
-    <% if current_workspace_mode == "creator" && Current.session.user.profile&.creator? %>
-      <div class="sidebar-group sidebar-group-creator">
-        <a href="/flowpulse_v_4/1_flowpulse_albero_indice_mappe.html">Indice mappe creator</a>
-        <a href="/flowpulse_v_4/2_generaimpresa_mappa.html">Branch e mappe</a>
-        <a href="/flowpulse_v_4/3_rails4b.html">Trail creator</a>
-        <%= link_to "Valore percorsi", creator_value_architecture_path, class: current_page?(creator_value_architecture_path) ? "active" : nil %>
-      </div>
-    <% end %>
+    <div class="workspace-switcher">
+      <p class="sidebar-group-label">Spazio attivo</p>
+      <%= form_with url: workspace_dashboard_path, method: :patch, class: "workspace-switcher-form" do |form| %>
+        <%= form.select :mode,
+                        options_for_select(available_workspace_modes.map { |workspace| [workspace[:label], workspace[:key]] }, current_workspace_mode),
+                        {},
+                        class: "workspace-switcher-select",
+                        onchange: "this.form.requestSubmit()" %>
+      <% end %>
+    </div>
 
-    <% if current_workspace_mode == "professional" %>
-      <div class="sidebar-group sidebar-group-professionals">
-        <%= link_to "Crea un percorso", professionals_path, class: current_page?(professionals_path) ? "active" : nil %>
-        <%= link_to "Listino servizi", professionals_catalog_path, class: current_page?(professionals_catalog_path) ? "active" : nil %>
-        <%= link_to "Valore", professionals_value_path, class: current_page?(professionals_value_path) ? "active" : nil %>
-        <%= link_to "Formazione", professionals_titles_path, class: current_page?(professionals_titles_path) ? "active" : nil %>
-      </div>
-    <% end %>
+    <nav class="app-sidebar-nav">
+      <% if current_workspace_mode == "traveler" %>
+        <div class="sidebar-group sidebar-group-traveler">
+          <a href="/flowpulse_v_4/4_1impegno.html" data-action="click->sidebar#close">Le mie mappe percorse</a>
+          <a href="/flowpulse_v_4/6_calendar_journey.html" data-action="click->sidebar#close">Viaggi vissuti</a>
+          <a href="/flowpulse_v_4/5_calendario_ticket.html" data-action="click->sidebar#close">Ticket e calendario</a>
+        </div>
+      <% end %>
 
-    <% if current_workspace_mode == "superadmin" && Current.session.user.superadmin? %>
-      <div class="sidebar-group sidebar-group-superadmin">
-        <%= link_to "Richieste creator", admin_creator_requests_path, class: current_page?(admin_creator_requests_path) ? "active" : nil %>
-        <a href="#">Profili</a>
-        <a href="#">Utenti</a>
-      </div>
-    <% end %>
+      <% if current_workspace_mode == "creator" && Current.session.user.profile&.creator? %>
+        <div class="sidebar-group sidebar-group-creator">
+          <%= link_to "Carta nautica", creator_carta_nautica_path, class: current_page?(creator_carta_nautica_path) ? "active" : nil, data: { action: "click->sidebar#close" } %>
+          <a href="/flowpulse_v_4/2_generaimpresa_mappa.html" data-action="click->sidebar#close">Branch e mappe</a>
+          <a href="/flowpulse_v_4/3_rails4b.html" data-action="click->sidebar#close">Trail creator</a>
+          <%= link_to "Valore percorsi", creator_value_architecture_path, class: current_page?(creator_value_architecture_path) ? "active" : nil, data: { action: "click->sidebar#close" } %>
+        </div>
+      <% end %>
 
-    <details class="sidebar-accordion sidebar-group sidebar-group-space">
-      <summary class="sidebar-accordion-summary">Impostazioni</summary>
-      <div class="sidebar-accordion-body">
-        <%= link_to "Dashboard", dashboard_path, class: current_page?(dashboard_path) ? "active" : nil %>
-        <% if Current.session.user.profile.present? %>
-          <%= link_to "Profilo", edit_profile_path, class: current_page?(edit_profile_path) ? "active" : nil %>
-        <% end %>
-        <%= button_to "Esci", session_path, method: :delete, class: "sidebar-button" %>
-      </div>
-    </details>
-  </nav>
-</aside>
+      <% if current_workspace_mode == "professional" %>
+        <div class="sidebar-group sidebar-group-professionals">
+          <%= link_to "Crea un percorso", professionals_path, class: current_page?(professionals_path) ? "active" : nil, data: { action: "click->sidebar#close" } %>
+          <%= link_to "Listino servizi", professionals_catalog_path, class: current_page?(professionals_catalog_path) ? "active" : nil, data: { action: "click->sidebar#close" } %>
+          <%= link_to "Valore", professionals_value_path, class: current_page?(professionals_value_path) ? "active" : nil, data: { action: "click->sidebar#close" } %>
+          <%= link_to "Formazione", professionals_titles_path, class: current_page?(professionals_titles_path) ? "active" : nil, data: { action: "click->sidebar#close" } %>
+        </div>
+      <% end %>
+
+      <% if current_workspace_mode == "superadmin" && Current.session.user.superadmin? %>
+        <div class="sidebar-group sidebar-group-superadmin">
+          <%= link_to "Richieste accessi", admin_creator_requests_path, class: current_page?(admin_creator_requests_path) ? "active" : nil, data: { action: "click->sidebar#close" } %>
+          <%= link_to "Persone", admin_users_path, class: current_page?(admin_users_path) || current_page?(admin_profiles_path) ? "active" : nil, data: { action: "click->sidebar#close" } %>
+        </div>
+      <% end %>
+
+      <details class="sidebar-accordion sidebar-group sidebar-group-space">
+        <summary class="sidebar-accordion-summary">Impostazioni</summary>
+        <div class="sidebar-accordion-body">
+          <%= link_to "Dashboard", dashboard_path, class: current_page?(dashboard_path) ? "active" : nil, data: { action: "click->sidebar#close" } %>
+          <% if Current.session.user.profile.present? %>
+            <%= link_to "Profilo", edit_profile_path, class: current_page?(edit_profile_path) ? "active" : nil, data: { action: "click->sidebar#close" } %>
+          <% end %>
+          <%= button_to "Esci", session_path, method: :delete, class: "sidebar-button" %>
+        </div>
+      </details>
+    </nav>
+  </aside>
+</div>

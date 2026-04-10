@@ -1,0 +1,363 @@
+
+<%# app/views/posts/show.html+exercise_sheet.erb - versione NO JS %>
+<% content_for :title, @post.title.presence || "Scheda esercizi" %>
+
+<% modal_view = turbo_frame_request? || params[:modal].present? %>
+<% view_content = capture do %>
+  <%= render 'shared/nav_partial_post' unless modal_view %>
+
+  <div class="<%= modal_view ?
+                  'fixed inset-0 z-50 bg-black/40 flex items-start justify-center overflow-y-auto' :
+                  'min-h-screen bg-slate-50 text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100' %>">
+    <div class="<%= modal_view ? 'mt-6 w-full max-w-4xl px-4' : 'mx-auto max-w-5xl px-4 sm:px-6 lg:px-8' %> py-10">
+    <%# ---------- FLASH MESSAGES ---------- %>
+    <% if flash[:notice].present? || flash[:alert].present? %>
+      <div class="mt-2 space-y-3">
+        <% if flash[:notice].present? %>
+          <div id="alert-success" class="flex p-4 text-sm text-green-800 border border-green-300 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400 dark:border-green-800" role="alert">
+            <svg class="flex-shrink-0 inline w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18.707 3.293a1 1 0 00-1.414 0L9 11.586 3.707 6.293a1 1 0 00-1.414 1.414l6.293 6.293a1 1 0 001.414 0l9.293-9.293a1 1 0 000-1.414z" clip-rule="evenodd"></path></svg>
+            <div><%= flash[:notice] %></div>
+          </div>
+        <% end %>
+        <% if flash[:alert].present? %>
+          <div id="alert-error" class="flex p-4 text-sm text-red-800 border border-red-300 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400 dark:border-red-800" role="alert">
+            <svg class="flex-shrink-0 inline w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18.707 3.293a1 1 0 00-1.414 0L9 11.586 3.707 6.293a1 1 0 00-1.414 1.414l6.293 6.293a1 1 0 001.414 0l9.293-9.293a1 1 0 000-1.414z" clip-rule="evenodd"></path></svg>
+            <div><%= flash[:alert] %></div>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+
+    <% if modal_view %>
+      <div class="mb-4 flex justify-end">
+        <button class="px-3 py-1.5 rounded-full bg-white text-slate-700 border border-slate-200 text-sm" data-action="turbo-frame#close" onclick="this.closest('turbo-frame').innerHTML = ''">
+          Chiudi ✕
+        </button>
+      </div>
+    <% end %>
+
+    <%# ---------- CONTEX / LEAD / CHILDREN ---------- %>
+    <% lead         = Current.user&.lead || (defined?(current_lead) ? current_lead : nil) %>
+    <% sheet_branch = @post.taxbranch %>
+    <% children     = sheet_branch&.children || Taxbranch.none %>
+    <% sheet_scope  = lead && sheet_branch ? Eventdate.where(lead: lead, taxbranch: sheet_branch) : Eventdate.none %>
+    <% sheet_done_at = sheet_scope.order(created_at: :desc).limit(1).pick(:created_at) %>
+    <% sheet_completed = sheet_done_at.present? %>
+
+    <% total = 0; done = 0 %>
+    <% children.order(position: :desc).each do |tb| %>
+      <% next unless tb.public_and_published? && tb.post.present? %>
+      <% total += 1 %>
+      <% if lead && Eventdate.where(lead: lead, taxbranch: tb).exists? %>
+        <% done += 1 %>
+      <% end %>
+    <% end %>
+
+    <% density_class =
+      if total <= 4
+        "print-density-low"
+      elsif total <= 8
+        "print-density-mid"
+      else
+        "print-density-high"
+      end
+    %>
+
+    <main class="dark:bg-slate-950 w-full mx-auto bg-white shadow-lg rounded-2xl overflow-hidden">
+
+      <%# ---------- HEADER BARRA ALTA ---------- %>
+      <div class="flex justify-between items-center px-4 py-3 md:px-6 border-b border-slate-200">
+        <div class="flex flex-col gap-2">
+          <h1 class="text-lg md:text-xl font-semibold">
+            <%= @post.title.presence || "Scheda esercizi" %>
+          </h1>
+          <% if total.positive? %>
+            <p class="mt-1 text-xs text-slate-500">
+              Esercizi completati:
+              <span class="font-semibold"><%= done %></span>/<%= total %>
+            </p>
+          <% end %>
+          <% if sheet_branch.present? %>
+            <p class="text-xs text-slate-500">
+              Scheda:
+              <% if sheet_completed %>
+                completata il <%= l(sheet_done_at, format: :short) %> (<%= sheet_scope.count %> volte)
+              <% else %>
+                non ancora completata
+              <% end %>
+            </p>
+          <% end %>
+        </div>
+
+        <button
+          class="no-print inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium border border-slate-300 hover:border-slate-400 hover:bg-slate-50 transition"
+          onclick="<%= modal_view ? "document.getElementById('sheet_modal').innerHTML=''" : "window.print()" %>"
+        >
+          <%= modal_view ? "Chiudi" : "Scarica PDF" %>
+        </button>
+      </div>
+
+      <% if sheet_branch.present? %>
+        <div class="px-4 md:px-6 pb-4 flex items-center justify-between flex-wrap gap-3">
+          <div class="text-xs text-slate-500">
+            <%= sheet_completed ? "Scheda già registrata" : "Registra il completamento quando termini gli esercizi." %>
+          </div>
+          <% if Current.user.present? %>
+            <%= button_to(
+                  sheet_completed ? "✓ Scheda completata" : "Segna scheda completata",
+                  mark_done_post_path(@post, taxbranch_id: sheet_branch.id),
+                  method: :post,
+                  class: "inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-semibold " +
+                         (sheet_completed ? "bg-emerald-100 text-emerald-700 border border-emerald-200" :
+                                            "border border-slate-300 text-slate-700 hover:bg-slate-50"),
+                  form: { data: { turbo: true } }
+                ) %>
+          <% else %>
+            <%= link_to "Accedi per registrare",
+                        new_registration_path,
+                        class: "text-xs text-blue-600 hover:underline" %>
+          <% end %>
+        </div>
+      <% end %>
+
+      <%# ---------- HERO INTRO: 2/3 TESTO – 1/3 IMMAGINE ---------- %>
+      <section class="px-4 py-6 md:px-8 md:py-8">
+        <div class="flex flex-col md:flex-row gap-6 items-center">
+          <!-- Testo (2/3) -->
+          <div class="md:w-2/3 w-full prose prose-sm md:prose-base max-w-none">
+            <%= markdown(@post.content_md) %>
+          </div>
+
+          <!-- Immagine (1/3) -->
+          <% if @post.thumb_url.present? %>
+          <div class="md:w-1/3 w-full rounded-2xl overflow-hidden border border-slate-200">
+              <img src="<%= @post.thumb_url %>"
+                alt="<%= @post.title %>"
+                  class="w-full h-40 object-contain bg-white" />
+            </div>
+           
+          <% end %>
+        </div>
+      </section>
+
+      <%# ---------- MESSAGGIO SE NON CI SONO ESERCIZI ---------- %>
+      <% if total.zero? %>
+        <section class="px-4 pb-6 md:px-8 md:pb-8">
+          <div class="rounded-xl border border-slate-200 p-4 text-slate-600 text-sm">
+            Nessun esercizio collegato a questa scheda.
+            Collega dei post figli al taxbranch di questo contenuto per popolare la scheda esercizi.
+          </div>
+        </section>
+      <% else %>
+
+        <%# ---------- SEZIONE ESERCIZI (PAGINA 2 IN PDF) ---------- %>
+        <section class="mt-2 px-4 pb-6 md:px-8 md:pb-8 exercise-section">
+          <h3 class="text-lg md:text-xl font-semibold mb-4">
+            Esercizi della scheda
+          </h3>
+
+          <div id="exerciseList" class="space-y-4 <%= density_class %>">
+            <% children.order(position: :asc).each_with_index do |taxbranch, idx| %>
+              <% next unless taxbranch.public_and_published? %>
+              <% child_post = taxbranch.post %>
+              <% next unless child_post.present? %>
+
+              <% exercise_url = (post_path(child_post) rescue nil) %>
+              <% has_media   = child_post.respond_to?(:url_media_content) && child_post.url_media_content.present? %>
+
+              <%
+                scope        = lead ? Eventdate.where(lead: lead, taxbranch: taxbranch) : Eventdate.none
+                done_at      = scope.order(created_at: :desc).limit(1).pick(:created_at)
+                already_done = done_at.present?
+              %>
+
+              <article class="exercise-card">
+                <%# MEDIA COLONNA SINISTRA %>
+                <div class="exercise-card-media">
+                  <% if has_media && (embed = media_embed(child_post.url_media_content)).present? %>
+                    <%= embed %>
+                  <% elsif child_post.horizontal_cover_url.present? %>
+                    <img
+                      src="<%= child_post.horizontal_cover_url %>"
+                      alt="<%= child_post.title %>"
+                    >
+                  <% elsif @post.thumb_url.present? %>
+                    <img
+                      src="<%= @post.thumb_url %>"
+                      alt="<%= child_post.title %>"
+                    >
+                  <% else %>
+                    <img
+                      src="https://images.unsplash.com/photo-1517832207067-4db24a2ae47c?auto=format&fit=crop&w=800&q=80"
+                      alt="Esercizio"
+                    >
+                  <% end %>
+                </div>
+
+                <%# TESTO E META A DESTRA %>
+                <div class="p-4 md:p-5 flex flex-col justify-between flex-1">
+                  <div>
+                    <div class="flex items-start justify-between gap-3">
+                      <div class="min-w-0">
+                        <h4 class="text-base md:text-lg font-semibold text-slate-800 mb-1 truncate">
+                          <span class="text-xs text-slate-400 mr-1">
+                            #<%= idx + 1 %>
+                          </span>
+                          <%= child_post.title.presence || "Esercizio" %>
+                        </h4>
+
+                        <!--p class="text-xs text-slate-500 mb-2">
+                          Serie _____ &nbsp;&nbsp; Ripetizioni _____ &nbsp;&nbsp; Carico _____
+                        </p-->
+
+                        <% if child_post.description.present? %>
+                          <p class="text-sm text-slate-700 leading-relaxed prose-lite">
+                            <%= child_post.description %>
+                          </p>
+                        <% end %>
+
+                        <% if already_done %>
+                          <p class="mt-1 text-xs text-emerald-700">
+                            ✅ Completato il <%= l(done_at, format: :short) %> (x<%= scope.count %>)
+                          </p>
+                        <% end %>
+                      </div>
+
+                      <%# PULSANTE CHECK A DESTRA %>
+                      <div class="shrink-0">
+                        <% if Current.user.present? %>
+                          <%= button_to(
+                            already_done ? "✓" : "○",
+                            mark_done_post_path(child_post, taxbranch_id: taxbranch.id),
+                            method: :post,
+                            class: "w-9 h-9 flex items-center justify-center rounded-full border-2 text-lg font-bold transition-all " +
+                                   (already_done ?
+                                     "border-green-600 text-green-600 bg-white hover:bg-green-50" :
+                                     "border-slate-300 text-slate-400 hover:border-slate-400 hover:text-slate-500"),
+                            form: { data: { turbo: true } }
+                          ) %>
+                        <% else %>
+                          <%= link_to "Registrati per compilare",
+                                      new_registration_path,
+                                      class: "text-[11px] font-medium text-blue-600 hover:underline" %>
+                        <% end %>
+                      </div>
+                    </div>
+                  </div>
+
+                  <% if exercise_url.present? %>
+                    <div class="mt-3">
+                      <%= link_to "Apri esercizio →", exercise_url,
+                            class: "inline-flex items-center text-xs md:text-sm underline hover:no-underline text-slate-700" %>
+                    </div>
+                  <% end %>
+                </div>
+              </article>
+            <% end %>
+          </div>
+        </section>
+      <% end %>
+    </main>
+    </div>
+  </div>
+
+<style>
+  /* ---------- CARD ESERCIZI ---------- */
+  .exercise-card {
+    display: flex;
+    flex-direction: column; /* mobile: verticale */
+    border-radius: 0.75rem;
+    border: 1px solid rgb(226 232 240);
+    background: #ffffff;
+    overflow: hidden;
+  }
+
+  .exercise-card-media {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+  }
+
+  .exercise-card-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  @media (min-width: 768px) {
+    .exercise-card {
+      flex-direction: row; /* desktop: orizzontale */
+    }
+    .exercise-card-media {
+      flex: 0 0 40%;
+    }
+  }
+
+  /* ---------- STAMPA / PDF ---------- */
+  @media print {
+    .no-print {
+      display: none !important;
+    }
+
+    body {
+      background: #ffffff !important;
+    }
+
+    @page {
+      size: A4;
+      margin: 12mm;
+    }
+
+    .min-h-screen,
+    .max-w-5xl,
+    main {
+      box-shadow: none !important;
+      border-radius: 0 !important;
+      max-width: 100% !important;
+    }
+
+    /* Pagina 2: esercizi su nuova pagina */
+    .exercise-section {
+      page-break-before: always;
+    }
+
+    /* Card orizzontali e non spezzate */
+    .exercise-card {
+      flex-direction: row !important;
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .exercise-card-media {
+      aspect-ratio: 16 / 9;
+    }
+
+    /* Densità in base al numero di esercizi */
+    .print-density-low .exercise-card-media {
+      flex: 0 0 45% !important;
+    }
+
+    .print-density-mid .exercise-card-media {
+      flex: 0 0 35% !important;
+    }
+
+    .print-density-high .exercise-card-media {
+      flex: 0 0 30% !important;
+    }
+
+    .exercise-card-media img {
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: cover !important;
+    }
+  }
+</style>
+<% end %>
+
+<% if modal_view %>
+  <%= turbo_frame_tag "sheet_modal" do %>
+    <%= view_content %>
+  <% end %>
+<% else %>
+  <%= view_content %>
+<% end %>

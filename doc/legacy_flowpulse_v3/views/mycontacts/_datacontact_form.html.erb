@@ -1,0 +1,72 @@
+<%= form_with model: datacontact_form,
+              url: lookup_mycontacts_path,
+              class: "space-y-6" do |form| %>
+  <% if datacontact_form.errors.any? %>
+    <div class="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded-md">
+      <h2 class="text-sm font-semibold">
+        <%= pluralize(datacontact_form.errors.count, "errore") %> impedisce di proseguire:
+      </h2>
+      <ul class="mt-2 ml-5 list-disc text-sm space-y-0.5">
+        <% datacontact_form.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <section class="space-y-4">
+    <h3 class="text-base font-semibold text-slate-800">Dati principali</h3>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div>
+        <%= form.label :first_name, "Nome", class: "block text-sm font-medium text-slate-700" %>
+        <%= form.text_field :first_name,
+              class: "mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500" %>
+      </div>
+      <div>
+        <%= form.label :last_name, "Cognome", class: "block text-sm font-medium text-slate-700" %>
+        <%= form.text_field :last_name,
+              class: "mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500" %>
+      </div>
+      <div>
+        <%= form.label :date_of_birth, "Data di nascita", class: "block text-sm font-medium text-slate-700" %>
+        <%= form.datetime_field :date_of_birth,
+              class: "mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500" %>
+      </div>
+      <div>
+        <%= form.label :fiscal_code, "Codice fiscale", class: "block text-sm font-medium text-slate-700" %>
+        <%= form.text_field :fiscal_code,
+              class: "mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm uppercase focus:ring-2 focus:ring-blue-500" %>
+      </div>
+    </div>
+  </section>
+
+  <section class="space-y-4">
+    <h3 class="text-base font-semibold text-slate-800">Contatti</h3>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div class="sm:col-span-2">
+        <%= form.label :email, "Email", class: "block text-sm font-medium text-slate-700" %>
+        <%= form.email_field :email,
+              placeholder: "esempio@email.it",
+              class: "mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500" %>
+        <p class="text-xs text-slate-500 mt-1">
+          L'email è il dato principale per verificare se il contatto esiste già.
+        </p>
+      </div>
+      <div class="sm:col-span-2">
+        <%= form.label :phone, "Telefono", class: "block text-sm font-medium text-slate-700" %>
+        <%= form.telephone_field :phone,
+              placeholder: "+39...",
+              class: "mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500" %>
+      </div>
+      <div>
+        <%= form.label :vat_number, "Partita IVA (opzionale)", class: "block text-sm font-medium text-slate-700" %>
+        <%= form.text_field :vat_number,
+              class: "mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500" %>
+      </div>
+    </div>
+  </section>
+
+  <div class="flex justify-end">
+    <%= form.submit "Continua", class: "rounded-md px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-medium cursor-pointer" %>
+  </div>
+<% end %>

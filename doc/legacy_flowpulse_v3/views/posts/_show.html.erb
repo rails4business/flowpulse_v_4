@@ -1,0 +1,50 @@
+<%# locals: post:, admin: false %>
+<% admin = local_assigns.fetch(:admin, false) %>
+
+<div class="md:w-2/3 w-full">
+  <% if flash[:notice].present? %>
+    <p class="py-2 px-3 bg-green-50 mb-5 text-green-500 font-medium rounded-md inline-block" id="notice">
+      <%= flash[:notice] %>
+    </p>
+  <% end %>
+
+  <% if post.taxbranch.present? %>
+    <p class="text-sm text-slate-500 mb-2">
+      Categoria:
+      <% if admin %>
+        <%= link_to post.taxbranch.slug_label,
+                    superadmin_taxbranch_path(post.taxbranch),
+                    class: "text-blue-600 hover:underline font-medium" %>
+      <% else %>
+        <% if post.persisted? %>
+          <%= link_to post.taxbranch.slug_label,
+                      post_path(post),
+                      class: "text-blue-600 hover:underline font-medium" %>
+        <% else %>
+          <span class="text-blue-600 font-medium"><%= post.taxbranch.slug_label %></span>
+        <% end %>
+      <% end %>
+    </p>
+  <% end %>
+
+  <h1 class="font-bold text-4xl"><%= post.title.presence || "Untitled" %></h1>
+
+  <%= render partial: "posts/post", locals: { post: post } %><%# renderizza _post.html.erb se lo hai, altrimenti rimuovi questa riga %>
+
+  <% if admin && post.persisted? %>
+    <div class="mt-3 space-x-2">
+      <%= link_to "Edit this post",
+                  edit_post_path(post),
+                  class: "inline-block rounded-md px-3.5 py-2.5 bg-gray-100 hover:bg-gray-50 font-medium" %>
+      <%= link_to "Back to posts",
+                  posts_path,
+                  class: "inline-block rounded-md px-3.5 py-2.5 bg-gray-100 hover:bg-gray-50 font-medium" %>
+      <%= button_to "Destroy this post",
+                    post,
+                    method: :delete,
+                    form_class: "inline-block",
+                    class: "rounded-md px-3.5 py-2.5 text-white bg-red-600 hover:bg-red-500 font-medium cursor-pointer",
+                    data: { turbo_confirm: "Are you sure?" } %>
+    </div>
+  <% end %>
+</div>

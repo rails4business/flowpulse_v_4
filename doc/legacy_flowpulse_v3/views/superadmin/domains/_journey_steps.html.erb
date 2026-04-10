@@ -1,0 +1,118 @@
+<% eventdates = journey.eventdates.order(Arel.sql("CASE WHEN position IS NULL THEN 1 ELSE 0 END, position ASC, date_start ASC")).limit(6) %>
+<% template = journey.kind == "cycle_template" %>
+<% tone = template ? "blue" : "emerald" %>
+<% modal_id = local_assigns[:modal_id] || "eventdate-journey-#{journey.id}" %>
+
+<div class="mt-2 rounded-lg border border-<%= tone %>-500/10 bg-[#0a111d] px-3 py-3 text-[11px] text-<%= tone %>-100/80">
+  <div class="flex items-center justify-between gap-2">
+    <span class="text-<%= tone %>-200/80 font-semibold">Step</span>
+    <%= link_to "+",
+                new_eventdate_path(journey_id: journey.id),
+                class: "text-#{tone}-200 hover:text-white text-[14px]",
+                data: { turbo_frame: "modal" } %>
+  </div>
+
+  <% if eventdates.any? %>
+    <ol class="relative mt-3 ml-2 border-l border-<%= tone %>-500/20 space-y-4">
+      <% eventdates.each do |eventdate| %>
+        <% done = eventdate.status == "completed" %>
+        <li class="relative pl-6">
+          <span class="absolute -left-[9px] top-1 flex h-4 w-4 items-center justify-center rounded-full border border-<%= tone %>-500/40 bg-[#0f172a]">
+            <span class="material-symbols-outlined text-[10px] <%= done ? "text-#{tone}-300" : "text-#{tone}-500/60" %>">
+              <%= done ? "check" : "schedule" %>
+            </span>
+          </span>
+            <div class="flex items-start justify-between gap-2">
+              <div class="min-w-0 flex-1">
+                <p class="font-semibold text-white leading-snug">
+                  <%= eventdate.description.presence || "Senza descrizione" %>
+                </p>
+                <div class="mt-1 flex flex-wrap items-center gap-2 text-[10px] text-<%= tone %>-200/60">
+                  <% if eventdate.time_duration.present? %>
+                    <span class="flex items-center gap-1">
+                      <span class="material-symbols-outlined text-[10px]">timer</span>
+                      <strong class="text-<%= tone %>-100"><%= eventdate.time_duration %></strong>
+                      <%= eventdate.unit_duration.present? ? eventdate.unit_duration.humanize.downcase : "min" %>
+                    </span>
+                  <% end %>
+                  
+                  <% if eventdate.date_start.present? %>
+                    <span class="flex items-center gap-1">
+                      <span class="material-symbols-outlined text-[10px]">event</span>
+                      <%= l(eventdate.date_start, format: "%d %b %H:%M") %>
+                      <% if eventdate.date_end.present? %>
+                        → <%= l(eventdate.date_end, format: "%H:%M") %>
+                      <% end %>
+                    </span>
+                  <% end %>
+                  
+                  <% if eventdate.journey_role.present? %>
+                    <span class="rounded-full border border-<%= tone %>-500/20 px-2 py-0.5 ml-1">
+                      <%= eventdate.journey_role %>
+                    </span>
+                  <% end %>
+                </div>
+              </div>
+              
+              <div class="flex items-center gap-2 shrink-0">
+                <span class="shrink-0 rounded-full border border-<%= tone %>-500/20 px-2 py-0.5 text-[10px] text-<%= tone %>-200/70">
+                  <%= done ? "Completato" : "In attesa" %>
+                </span>
+                <%= link_to edit_eventdate_path(eventdate),
+                            data: { turbo_frame: "modal" },
+                            aria: { label: "Modifica eventdate" },
+                            class: "inline-flex items-center justify-center text-#{tone}-200 hover:text-white" do %>
+                  <span class="material-symbols-outlined text-[14px]">edit</span>
+                <% end %>
+              </div>
+            </div>
+
+          <%= render "superadmin/domains/journey_step_commitments",
+                     eventdate: eventdate,
+                     tone: tone %>
+        </li>
+      <% end %>
+    </ol>
+  <% else %>
+    <p class="mt-3 text-<%= tone %>-200/60">Nessun eventdate.</p>
+  <% end %>
+</div>
+
+<script>
+  (() => {
+    const durationForms = document.querySelectorAll("[data-duration-form]");
+    if (!durationForms.length) return;
+
+    const toMinutes = (value, unit) => {
+      const amount = Number(value);
+      if (!amount || !unit) return null;
+      if (unit === "minutes") return amount;
+      if (unit === "hours") return amount * 60;
+      if (unit === "days") return amount * 60 * 24;
+      return null;
+    };
+
+    durationForms.forEach((form) => {
+      const start = form.querySelector("[data-role='duration-start']");
+      const end = form.querySelector("[data-role='duration-end']");
+      const value = form.querySelector("[data-role='duration-value']");
+      const unit = form.querySelector("[data-role='duration-unit']");
+      if (!start || !end || !value || !unit) return;
+
+      const updateEnd = () => {
+        const minutes = toMinutes(value.value, unit.value);
+        if (!start.value || !minutes) return;
+        const startDate = new Date(start.value);
+        if (Number.isNaN(startDate.getTime())) return;
+        const endDate = new Date(startDate.getTime() + minutes * 60 * 1000);
+        const iso = new Date(endDate.getTime() - endDate.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+        end.value = iso;
+      };
+
+      [start, value, unit].forEach((el) => {
+        el.addEventListener("change", updateEnd);
+        el.addEventListener("input", updateEnd);
+      });
+    });
+  })();
+</script>

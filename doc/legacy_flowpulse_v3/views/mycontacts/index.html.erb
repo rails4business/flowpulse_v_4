@@ -1,0 +1,11 @@
+<% content_for :title, "Mycontacts" %>
+
+<h1 class="text-xl font-bold mb-4">I miei contatti</h1>
+
+<div class="space-y-3">
+  <% @mycontacts.each do |mc| %>
+    <%= render "shared/mycontact_card", mycontact: mc %>
+  <% end %>
+</div>
+
+

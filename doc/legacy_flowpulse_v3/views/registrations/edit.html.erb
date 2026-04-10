@@ -1,0 +1,89 @@
+<%# app/views/registrations/edit.html.erb %>
+<% content_for :title, "Impostazioni account" %>
+
+<% tabs = [
+     { label: "Profilo", path: edit_registration_path },
+     { label: "I miei dati contatto", path: datacontacts_path }
+   ] %>
+
+<nav class="mx-auto max-w-2xl mb-6 border-b border-slate-200">
+  <div class="flex gap-4">
+    <% tabs.each do |tab| %>
+      <% active = current_page?(tab[:path]) %>
+      <%= link_to tab[:label],
+          tab[:path],
+          class: [
+            "px-3 py-2 text-sm font-medium border-b-2 transition",
+            active ? "border-blue-600 text-blue-600" : "border-transparent text-slate-500 hover:text-slate-800"
+          ].join(" ") %>
+    <% end %>
+  </div>
+</nav>
+
+<div class="mx-auto max-w-2xl bg-white border border-slate-200 rounded-2xl p-8 shadow-sm">
+  <h1 class="text-2xl font-bold mb-2">Impostazioni account</h1>
+  <p class="text-slate-600 mb-6">Aggiorna i tuoi dati. I campi Lead servono per la rete PosturaCorretta.</p>
+
+  <% if flash[:alert] %>
+    <p class="py-2 px-3 bg-red-50 mb-5 text-red-600 font-medium rounded-lg inline-block"><%= flash[:alert] %></p>
+  <% end %>
+
+  <%= form_with url: registration_path, method: :patch, class: "space-y-8" do |f| %>
+    <section>
+      <h2 class="text-lg font-semibold text-slate-800 mb-3">Dati utente</h2>
+      <%= fields_for :user, @user do |u| %>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        
+          <div>
+            <%= u.label :email_address, "Email", class: "block text-sm font-medium text-slate-700 mb-1" %>
+            <%= u.email_field :email_address, class: "w-full rounded-md border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-blue-600" %>
+          </div>
+         
+        </div>
+
+        <details class="mt-4">
+          <summary class="cursor-pointer text-sm text-slate-600">Cambia password</summary>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-3">
+            <div>
+              <%= u.label :password, "Nuova password", class: "block text-sm font-medium text-slate-700 mb-1" %>
+              <%= u.password_field :password, autocomplete: "new-password",
+                    class: "w-full rounded-md border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-blue-600" %>
+            </div>
+            <div>
+              <%= u.label :password_confirmation, "Conferma", class: "block text-sm font-medium text-slate-700 mb-1" %>
+              <%= u.password_field :password_confirmation, autocomplete: "new-password",
+                    class: "w-full rounded-md border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-blue-600" %>
+            </div>
+          </div>
+        </details>
+      <% end %>
+    </section>
+
+    <section>
+      <h2 class="text-lg font-semibold text-slate-800 mb-3">Dati Lead</h2>
+      <%= fields_for :lead, @lead do |l| %>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+            <%= l.label :name, "Nome", class: "block text-sm font-medium text-slate-700 mb-1" %>
+            <%= l.text_field :name, class: "w-full rounded-md border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-blue-600" %>
+          </div>
+          <div>
+            <%= l.label :surname, "Cognome", class: "block text-sm font-medium text-slate-700 mb-1" %>
+            <%= l.text_field :surname, class: "w-full rounded-md border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-blue-600" %>
+          </div>
+          <div class="sm:col-span-2">
+            <%= l.label :username, "Username pubblico", class: "block text-sm font-medium text-slate-700 mb-1" %>
+            <%= l.text_field :username, class: "w-full rounded-md border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-blue-600" %>
+            <p class="text-xs text-slate-500 mt-1">Sarà visibile nella community.</p>
+          </div>
+         
+        </div>
+      <% end %>
+    </section>
+
+    <div>
+      <%= f.submit "Salva modifiche",
+            class: "inline-flex items-center rounded-md bg-blue-600 hover:bg-blue-500 text-white px-4 py-2.5 font-medium cursor-pointer" %>
+    </div>
+  <% end %>
+</div>

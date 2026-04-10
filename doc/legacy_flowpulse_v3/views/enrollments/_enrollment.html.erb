@@ -1,0 +1,78 @@
+<div id="<%= dom_id enrollment %>" class="w-full sm:w-auto my-5 space-y-5">
+  <div>
+    <strong class="block font-medium mb-1">Service:</strong>
+    <%= enrollment.service_id %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Journey:</strong>
+    <%= enrollment.journey_id %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Contact:</strong>
+    <%= enrollment.mycontact_id %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Role name:</strong>
+    <%= enrollment.role_name %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Journey role:</strong>
+    <%= enrollment.journey_role.presence || "—" %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Ruolo di ingresso:</strong>
+    <%= enrollment.participant_role.presence || "—" %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Ruolo in uscita:</strong>
+    <%= enrollment.target_role.presence || "—" %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Status:</strong>
+    <%= enrollment.status %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Mode:</strong>
+    <%= enrollment.mode %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Phase:</strong>
+    <%= enrollment.phase.presence || "—" %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Request kind:</strong>
+    <%= enrollment.request_kind %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Requested by datacontact:</strong>
+    <%= enrollment.requested_by_lead_id %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Invited by datacontact:</strong>
+    <%= enrollment.invited_by_lead_id %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Price euro:</strong>
+    <%= enrollment.price_euro %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Price dash:</strong>
+    <%= enrollment.price_dash %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Certificato il:</strong>
+    <% if enrollment.certified_at.present? %>
+      <%= l(enrollment.certified_at, format: :short) %>
+    <% else %>
+      —
+    <% end %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Notes:</strong>
+    <%= enrollment.notes %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Meta:</strong>
+    <%= enrollment.meta %>
+  </div>
+</div>

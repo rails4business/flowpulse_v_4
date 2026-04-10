@@ -1,0 +1,40 @@
+<% content_for :title, "Editing taxbranch" %>
+<!-- app/views/superadmin/taxbranches/show.html.erb -->
+<% content_for :nav do %>
+  <%= render "shared/taxbranch_nav", taxbranch: @taxbranch %>
+<% end %>
+<!-- Tabs azioni -->
+<div class="border-b border-slate-200 mb-4">
+  <nav class="-mb-px flex space-x-6" aria-label="Tabs">
+    <% tabs = [
+      ["📄 Taxbranch", superadmin_taxbranch_path(@taxbranch)],
+      ["📝 Edit", edit_superadmin_taxbranch_path(taxbranch_id: @taxbranch.id)],
+      ["🌐 Tag Posizionamento", positioning_superadmin_taxbranch_path(@taxbranch)]
+    ] %>
+
+    <% tabs.each do |label, path| %>
+      <%= link_to label, path,
+        class: class_names(
+          "whitespace-nowrap border-b-2 px-3 py-2 text-sm font-medium",
+          current_page?(path) ?
+            "border-blue-500 text-blue-600" :
+            "border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-700"
+        )
+      %>
+    <% end %>
+  </nav>
+</div>
+<div class="md:w-2/3 w-full">
+  <h1 class="font-bold text-4xl">Editing taxbranch id: <%= @taxbranch.id %></h1>
+
+  <div class="mt-3 mb-4">
+    <%= link_to "➕ New domain (precompilato)",
+                new_superadmin_domain_path(taxbranch_id: @taxbranch.id),
+                class: "inline-flex items-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-500" %>
+  </div>
+
+  <%= render "form", taxbranch: @taxbranch %>
+
+  <%= link_to "Show this taxbranch",[:superadmin, @taxbranch], class: "w-full sm:w-auto text-center mt-2 sm:mt-0 sm:ml-2 rounded-md px-3.5 py-2.5 bg-gray-100 hover:bg-gray-50 inline-block font-medium" %>
+  <%= link_to "Back to taxbranches", superadmin_taxbranches_path, class: "w-full sm:w-auto text-center mt-2 sm:mt-0 sm:ml-2 rounded-md px-3.5 py-2.5 bg-gray-100 hover:bg-gray-50 inline-block font-medium" %>
+</div>

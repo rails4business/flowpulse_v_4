@@ -1,0 +1,103 @@
+<% content_for :title, "I miei invitati" %>
+
+<div class="mx-auto max-w-3xl">
+  <h1 class="text-2xl font-bold mb-4">I miei invitati</h1>
+
+  <% if flash[:notice] %>
+    <p class="py-2 px-3 bg-green-50 mb-5 text-green-600 font-medium rounded-lg inline-block"><%= flash[:notice] %></p>
+  <% end %>
+  <% if flash[:alert] %>
+    <p class="py-2 px-3 bg-red-50 mb-5 text-red-600 font-medium rounded-lg inline-block"><%= flash[:alert] %></p>
+  <% end %>
+
+  <div class="mb-6 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+    <h2 class="text-lg font-semibold mb-3">Il tuo link referral</h2>
+
+    <% if Current.user.approved_referrer? %>
+      <% if Current.user.can_invite? %>
+        <% link = Current.user.referral_url(host: Current.domain&.host || Current.domain&.host || "http://localhost:3000") %>
+        <div class="flex items-center gap-2">
+          <input type="text" readonly value="<%= link %>"
+                 class="w-full rounded-md border border-slate-300 px-3 py-2">
+          <button data-action="click->clipboard#copy"
+                  data-clipboard-text-value="<%= link %>"
+                  class="rounded-md bg-blue-600 hover:bg-blue-500 text-white px-4 py-2.5 font-medium">
+            Copia
+          </button>
+        </div>
+        <p class="mt-2 text-xs text-slate-500">
+          Inviti rimasti: <%= Current.user.remaining_invites %> su <%= Current.user.invites_limit %>.
+          Il link scade tra 14 giorni.
+        </p>
+      <% else %>
+        <p class="text-sm text-slate-600">Hai raggiunto il limite massimo di inviti ( <%= Current.user.invites_limit %> ).</p>
+      <% end %>
+    <% else %>
+      <p class="text-sm text-slate-600">Il referral è attivo solo per utenti approvati. Contatta un Tutor per l’abilitazione.</p>
+    <% end %>
+  </div>
+
+  <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+  <h2 class="text-lg font-semibold mb-3">Invitati (referral)</h2>
+
+  <table class="w-full text-sm">
+    <thead class="text-left text-slate-500">
+      <tr>
+        <th class="py-2">Email</th>
+        <th class="py-2">Username</th>
+        <th class="py-2">Nome</th>
+        <th class="py-2">Cognome</th>
+        <th class="py-2 text-right">Azioni</th>
+      </tr>
+    </thead>
+
+    <tbody class="divide-y divide-slate-100">
+      <% @invited_leads.each do |lead| %>
+        <% u = lead.user || User.find_by(email_address: lead.email) %>
+
+        <tr>
+          <td class="py-2"><%= lead.email %></td>
+          <td class="py-2"><%= lead.username %></td>
+          <td class="py-2"><%= lead.name %></td>
+          <td class="py-2"><%= lead.surname %></td>
+
+         <td class="py-2 text-right space-x-3">
+  <% u = lead.user || User.find_by(email_address: lead.email) %>
+
+  <%# Bottoncino "Copia link" solo se utente approvato e link disponibile %>
+  <% if u&.approved? %>
+    <% link = u.referral_url(host: (Current.domain&.host || Current.domain&.host || "http://localhost:3000")) %>
+    <% if link.present? %>
+      <button
+        data-action="click->clipboard#copy"
+        data-clipboard-text-value="<%= link %>"
+        class="text-blue-600 hover:underline">
+        Copia link
+      </button>
+    <% end %>
+  <% end %>
+
+  <%# Approva / Rimuovi solo per superadmin o tutor/manager %>
+  <% if Current.user&.tutor_or_manager? %>
+
+  <div class="flex">
+  <% if policy(lead).approve? && (lead.user.state_registration == "pending" || lead.user&.pending?) %>
+  <%= button_to "Approva", approve_superadmin_lead_path(lead), method: :post, class: "..." %>
+<% end %>
+   
+  
+    <%= button_to "Rimuovi",
+          account_lead_path(lead),
+          method: :delete,
+          form: { data: { turbo_confirm: "Rimuovere questo invitato?" } },
+          class: "text-red-600 hover:underline" %>
+  <% end %>
+  </div>
+</td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+
+</div>

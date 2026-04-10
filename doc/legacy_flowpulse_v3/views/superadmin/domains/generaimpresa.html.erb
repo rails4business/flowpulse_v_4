@@ -1,0 +1,1657 @@
+<% content_for :title, "Service maps · #{@domain.title.presence || @domain.host}" %>
+
+<style>
+  .map-frame {
+    background-image: radial-gradient(circle, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+    background-size: 28px 28px;
+    position: relative;
+    overflow: hidden;
+    cursor: grab;
+  }
+  .map-frame.editing {
+    cursor: crosshair;
+    border-color: #f59e0b;
+    box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.35) inset;
+  }
+  .map-frame.editing .map-viewport {
+    filter: saturate(1.1);
+  }
+  .map-cursor {
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    border: 2px solid #f59e0b;
+    border-radius: 9999px;
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    display: none;
+  }
+  .map-cursor::before,
+  .map-cursor::after {
+    content: "";
+    position: absolute;
+    background: #f59e0b;
+  }
+  .map-cursor::before {
+    width: 10px;
+    height: 2px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+  .map-cursor::after {
+    width: 2px;
+    height: 10px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+  .map-frame.dragging {
+    cursor: grabbing;
+  }
+  .map-viewport {
+    width: 100%;
+    height: 520px;
+    transform-origin: center;
+    transition: transform 0.15s ease;
+  }
+  .map-label {
+    font-size: 11px;
+    font-weight: 600;
+    fill: #ffffff;
+  }
+  .map-sub {
+    font-size: 10px;
+    fill: #9dabb9;
+  }
+  .map-pill {
+    background: rgba(15, 23, 42, 0.45);
+    color: #ffffff;
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 6px;
+  }
+  .map-pill-sub {
+    background: rgba(15, 23, 42, 0.35);
+    color: #9dabb9;
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 500;
+    padding: 1px 6px;
+    border-radius: 6px;
+  }
+  .station-label {
+    pointer-events: none;
+  }
+  .journey-label {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease;
+    overflow: visible;
+  }
+  .journey-hit:hover + .journey-line + .journey-label,
+  .journey-line:hover + .journey-label {
+    opacity: 1;
+  }
+  .journey-hit:hover + .journey-line {
+    stroke: #137fec;
+  }
+  .station-node:hover rect {
+    stroke: #137fec;
+  }
+  .station-node:hover circle {
+    fill: #137fec;
+  }
+  .map-frame.disable-station-hover .station-node:hover rect {
+    stroke: #34d399;
+  }
+  .map-frame.disable-station-hover .station-node:hover circle {
+    fill: #ffffff;
+  }
+  .map-frame.disable-rail-hover .journey-hit:hover + .journey-line {
+    stroke: #34d399;
+  }
+  .station-node.route-selected rect {
+    stroke: #137fec;
+    filter: drop-shadow(0 0 6px rgba(19, 127, 236, 0.5));
+  }
+  .station-node.route-selected circle {
+    fill: #137fec;
+  }
+  .station-node.route-hover rect {
+    stroke: #38bdf8;
+  }
+  .station-node.route-hover circle {
+    fill: #38bdf8;
+  }
+  .journey-line.route-selected {
+    stroke: #137fec;
+    stroke-width: 4;
+  }
+  .journey-line.route-hover {
+    stroke: #137fec;
+    stroke-width: 4;
+    marker-end: url(#arrowhead-selected);
+  }
+  .station-node.selected rect {
+    stroke: #137fec;
+  }
+  .station-node.selected circle {
+    fill: #137fec;
+  }
+  .journey-line.selected {
+    stroke: #137fec;
+  }
+  .station-node.selected rect {
+    stroke: #137fec;
+    filter: drop-shadow(0 0 6px rgba(19, 127, 236, 0.6));
+  }
+  .station-node.selected circle {
+    fill: #137fec;
+  }
+  .station-node.start rect {
+    stroke: #38bdf8;
+  }
+  .station-node.start circle {
+    fill: #38bdf8;
+  }
+  .station-node.end rect,
+  .station-node.rail-hover rect {
+    stroke: #38bdf8;
+  }
+  .station-node.end circle,
+  .station-node.rail-hover circle {
+    fill: #38bdf8;
+  }
+  .journey-line.highlight {
+    stroke: #137fec;
+    stroke-width: 4;
+    marker-end: url(#arrowhead-selected);
+  }
+</style>
+
+<div class="space-y-6">
+  <div class="rounded-2xl border border-[#283039] bg-[#101922] p-6 shadow-sm">
+    <nav class="text-xs text-[#9dabb9] mb-3">
+      <%= link_to "Domains", superadmin_domains_path, class: "hover:text-white" %>
+      <span class="mx-1">/</span>
+      <%= link_to @domain.title.presence || @domain.host,
+                  superadmin_domain_path(@domain),
+                  class: "hover:text-white" %>
+      <span class="mx-1">/</span>
+      <span class="text-white">Mapservices</span>
+      <span class="mx-1">/</span>
+      <%= link_to "TestRoute",
+                  testroute_superadmin_domain_path(@domain),
+                  class: "hover:text-white" %>
+    </nav>
+    <h1 class="text-3xl font-bold text-white">Mapservices</h1>
+    <p class="text-sm text-[#9dabb9] mt-1">
+      Services collegati alle stazioni del dominio <strong><%= @domain.title.presence || @domain.host %></strong>.
+    </p>
+
+  </div>
+
+  <% edit_map = params[:edit_map].present? %>
+  <% route_select = params[:route_select].present? %>
+  <% railservices_enabled = params[:railservices].present? %>
+  <% add_station_enabled = params[:add_services].present? %>
+  <% move_stations_enabled = params[:move_stations].present? %>
+  <% if @services.any? %>
+    <% map_width = 1000 %>
+    <% map_height = 600 %>
+    <% center_x = map_width / 2 %>
+    <% center_y = map_height / 2 %>
+    <% positions = {} %>
+    <% @stations.each_with_index do |station, index| %>
+      <% x = station.respond_to?(:x_coordinated) ? station.x_coordinated : nil %>
+      <% y = station.respond_to?(:y_coordinated) ? station.y_coordinated : nil %>
+      <% fallback_x = 140 + (index % 4) * 220 %>
+      <% fallback_y = 120 + (index / 4) * 170 %>
+      <% px = x.present? ? center_x + x : fallback_x %>
+      <% py = y.present? ? center_y + y : fallback_y %>
+      <% positions[station.id] = [px, py] %>
+    <% end %>
+
+ 
+
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-3 text-xs text-[#9dabb9]">
+          <span class="text-white font-semibold uppercase tracking-wide">Mappa</span>
+          <% if edit_map %>
+            <span class="rounded-full border border-amber-400/50 px-2 py-1 text-[10px] font-semibold text-amber-200">
+              Modifica attiva
+            </span>
+          <% end %>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <% if edit_map %>
+            <% sposta_active = move_stations_enabled %>
+            <% if sposta_active %>
+              <button
+                class="inline-flex items-center gap-2 rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-white"
+                type="button"
+                id="save-map-positions"
+              >
+                <span class="material-symbols-outlined text-sm">save</span>
+                Salva posizioni
+              </button>
+            <% end %>
+            <%= link_to mapservice_superadmin_domain_path(@domain, edit_map: 1, move_stations: 1),
+                        class: class_names(
+                          "inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-semibold transition-colors",
+                          sposta_active ? "border-primary text-primary bg-primary/10" : "border-[#283039] text-white hover:border-primary"
+                        ) do %>
+              <span class="material-symbols-outlined text-sm">open_with</span>
+              Sposta stazioni
+            <% end %>
+
+            <%= link_to mapservice_superadmin_domain_path(@domain, edit_map: 1, add_services: 1),
+                        class: class_names(
+                          "inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-semibold transition-colors",
+                          add_station_enabled ? "border-primary text-primary bg-primary/10" : "border-[#283039] text-white hover:border-primary"
+                        ) do %>
+              <span class="material-symbols-outlined text-sm">diamond</span>
+              + stazione
+            <% end %>
+
+            <%= link_to mapservice_superadmin_domain_path(@domain, edit_map: 1, railservices: 1),
+                        class: class_names(
+                          "inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-semibold transition-colors",
+                          railservices_enabled ? "border-primary text-primary bg-primary/10" : "border-[#283039] text-white hover:border-primary"
+                        ) do %>
+              <span class="material-symbols-outlined text-sm">polyline</span>
+              + railservice
+            <% end %>
+
+            <%= link_to mapservice_superadmin_domain_path(@domain),
+                        class: "inline-flex items-center justify-center rounded-lg border border-[#283039] px-2.5 py-2 text-xs font-semibold text-white hover:border-primary" do %>
+              <span class="material-symbols-outlined text-sm">close</span>
+            <% end %>
+          <% else %>
+            <% if route_select %>
+              <%= link_to testroute_superadmin_domain_path(@domain),
+                          class: "inline-flex items-center gap-2 rounded-lg border border-[#283039] px-3 py-2 text-xs font-semibold text-white hover:border-primary opacity-60 pointer-events-none",
+                          id: "show-route-btn",
+                          data: { base_href: testroute_superadmin_domain_path(@domain) } do %>
+                <span class="material-symbols-outlined text-sm">route</span>
+                Mostra tragitto
+              <% end %>
+              <%= link_to mapservice_superadmin_domain_path(@domain),
+                          class: "inline-flex items-center justify-center rounded-lg border border-[#283039] px-2.5 py-2 text-xs font-semibold text-white hover:border-primary",
+                          title: "Annulla selezione" do %>
+                <span class="material-symbols-outlined text-sm">close</span>
+              <% end %>
+            <% else %>
+              <%= link_to mapservice_superadmin_domain_path(@domain, route_select: 1),
+                          class: "inline-flex items-center gap-2 rounded-lg border border-[#283039] px-3 py-2 text-xs font-semibold text-white hover:border-primary",
+                          title: "Seleziona tragitto" do %>
+                <span class="material-symbols-outlined text-sm">route</span>
+                Seleziona tragitto
+              <% end %>
+            <% end %>
+            <%= link_to mapservice_superadmin_domain_path(@domain, edit_map: 1),
+                        class: "inline-flex items-center justify-center rounded-lg border border-[#283039] px-2.5 py-2 text-xs font-semibold text-white hover:border-primary",
+                        title: "Modifica mappa" do %>
+              <span class="material-symbols-outlined text-sm">edit</span>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+
+      <% if edit_map && (add_station_enabled || railservices_enabled) %>
+        <div class="mt-3 rounded-lg border border-[#283039] bg-[#0f172a] px-4 py-3 text-xs text-[#9dabb9]" id="map-step-hint">
+          <% if add_station_enabled %>
+            <strong class="text-amber-200">Step 1:</strong> clicca sulla mappa per aggiungere una stazione.
+          <% elsif railservices_enabled %>
+            <strong class="text-amber-200">Step 1:</strong> seleziona la prima stazione.
+          <% end %>
+        </div>
+      <% end %>
+
+      <% if route_select && !edit_map %>
+        <div class="mt-3 rounded-lg border border-[#283039] bg-[#0f172a] px-4 py-3 text-xs text-[#9dabb9]" id="route-select-panel">
+          <div class="flex flex-wrap items-center gap-2">
+            <strong class="text-amber-200">Selezione tragitto:</strong>
+            <div class="flex flex-wrap gap-2" id="route-tags"></div>
+            <button type="button" class="inline-flex items-center gap-1 rounded-full border border-[#283039] px-2 py-1 text-[11px] font-semibold text-white hover:border-primary" id="route-remove-last">
+              <span class="material-symbols-outlined text-[14px]">close</span>
+              Rimuovi ultimo
+            </button>
+          </div>
+          <p class="mt-2" id="route-select-hint">Seleziona una stazione per iniziare.</p>
+        </div>
+      <% end %>
+
+      <% if params[:railservices].present? %>
+        <div class="rounded-2xl border border-[#283039] bg-[#101922] p-4 shadow-sm">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h3 class="text-sm font-semibold text-white uppercase tracking-wide">Nuovo railservice</h3>
+              <p class="text-xs text-[#9dabb9] mt-1">Seleziona 2 stazioni sulla mappa.</p>
+            </div>
+        <%= link_to "Chiudi",
+                    mapservice_superadmin_domain_path(@domain, edit_map: 1),
+                    class: "text-xs font-semibold text-[#9dabb9] hover:text-white" %>
+          </div>
+          <%= form_with url: create_railservice_superadmin_domain_path(@domain), method: :post, class: "mt-4 grid gap-3 text-sm sm:grid-cols-3" do %>
+            <input id="rail-start-id" name="rail[start_service_id]" type="hidden" value="" />
+            <input id="rail-end-id" name="rail[end_service_id]" type="hidden" value="" />
+            <div class="sm:col-span-2 rounded-lg border border-[#283039] bg-[#0f172a] px-4 py-3 text-xs text-[#9dabb9]">
+              <p><strong class="text-white">Stazione iniziale:</strong> <span id="rail-start-label">—</span></p>
+              <p class="mt-1"><strong class="text-white">Stazione finale:</strong> <span id="rail-end-label">—</span></p>
+              <p class="mt-2" id="railservice-selection">Seleziona 2 stazioni per creare il railservice.</p>
+            </div>
+            <div class="flex items-end">
+              <button
+                class="inline-flex w-full items-center justify-center rounded-lg bg-primary px-4 py-2 text-xs font-semibold text-white opacity-50"
+                type="submit"
+                id="railservice-submit"
+                disabled
+              >
+                Crea railservice
+              </button>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+
+      <div class="mt-4 rounded-xl border border-[#283039] bg-background-dark map-frame <%= edit_map && add_station_enabled ? "editing" : "" %>">
+        <div class="map-cursor" id="map-cursor"></div>
+        <svg
+          class="map-viewport"
+          id="map-viewport"
+          viewBox="0 0 <%= map_width %> <%= map_height %>"
+          preserveAspectRatio="xMidYMid meet"
+        >
+          <defs>
+            <marker id="arrowhead" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto">
+              <path d="M0,0 L5,2.5 L0,5 Z" fill="#34d399"></path>
+            </marker>
+            <marker id="arrowhead-selected" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto">
+              <path d="M0,0 L5,2.5 L0,5 Z" fill="#137fec"></path>
+            </marker>
+            <marker id="arrowhead-preview" markerWidth="5" markerHeight="5" refX="4.5" refY="2.5" orient="auto">
+              <path d="M0,0 L5,2.5 L0,5 Z" fill="#137fec"></path>
+            </marker>
+          </defs>
+          <% service_positions = {} %>
+          <% @services_by_station.each do |station_id, services| %>
+            <% base = positions[station_id] %>
+            <% next if base.nil? %>
+            <% services.each_with_index do |service, idx| %>
+              <% dx = ((idx % 3) - 1) * 34 %>
+              <% dy = (idx / 3) * 34 %>
+              <% x = base[0] + dx %>
+              <% y = base[1] + dy %>
+              <% service_positions[service.id] = [x, y] %>
+            <% end %>
+          <% end %>
+
+          <% if @journeys.any? %>
+            <% @journeys.each do |journey| %>
+              <% journey_label = (journey.title.presence || journey.slug).to_s.sub(/^Railservice:\s*/i, "") %>
+              <% from_service = @services_by_station[journey.taxbranch_id]&.first %>
+              <% to_service = @services_by_station[journey.end_taxbranch_id]&.first %>
+              <% from_pos = from_service ? service_positions[from_service.id] : nil %>
+              <% to_pos = to_service ? service_positions[to_service.id] : nil %>
+              <% next if from_pos.nil? || to_pos.nil? %>
+              <% dx = to_pos[0] - from_pos[0] %>
+              <% dy = to_pos[1] - from_pos[1] %>
+              <% dist = Math.sqrt(dx * dx + dy * dy) %>
+              <% offset = 20.0 %>
+              <% if dist > 0 %>
+                <% ux = dx / dist %>
+                <% uy = dy / dist %>
+                <% x1 = from_pos[0] + ux * offset %>
+                <% y1 = from_pos[1] + uy * offset %>
+                <% x2 = to_pos[0] - ux * offset %>
+                <% y2 = to_pos[1] - uy * offset %>
+              <% else %>
+                <% x1 = from_pos[0] %>
+                <% y1 = from_pos[1] %>
+                <% x2 = to_pos[0] %>
+                <% y2 = to_pos[1] %>
+              <% end %>
+              <a href="<%= journey_path(journey) %>" xlink:href="<%= journey_path(journey) %>">
+                <title>
+                  <%= journey_label %>
+                  (<%= from_service&.name || from_service&.slug || "—" %> → <%= to_service&.name || to_service&.slug || "—" %>)
+                </title>
+                <line
+                  class="journey-hit"
+                  data-journey-id="<%= journey.id %>"
+                  data-journey-label="<%= journey_label %>"
+                  data-from-service-id="<%= from_service.id %>"
+                  data-to-service-id="<%= to_service.id %>"
+                  x1="<%= format('%.1f', x1) %>"
+                  y1="<%= format('%.1f', y1) %>"
+                  x2="<%= format('%.1f', x2) %>"
+                  y2="<%= format('%.1f', y2) %>"
+                  stroke="transparent"
+                  stroke-width="14"
+                />
+                <line
+                  class="journey-line"
+                  data-journey-id="<%= journey.id %>"
+                  data-journey-label="<%= journey_label %>"
+                  data-from-service-id="<%= from_service.id %>"
+                  data-to-service-id="<%= to_service.id %>"
+                  x1="<%= format('%.1f', x1) %>"
+                  y1="<%= format('%.1f', y1) %>"
+                  x2="<%= format('%.1f', x2) %>"
+                  y2="<%= format('%.1f', y2) %>"
+                  stroke="#34d399"
+                  stroke-width="3"
+                  marker-end="url(#arrowhead)"
+                />
+              </a>
+            <% end %>
+          <% end %>
+
+          <% @services_by_station.each do |station_id, services| %>
+            <% base = positions[station_id] %>
+            <% next if base.nil? %>
+            <% services.each_with_index do |service, idx| %>
+              <% dx = ((idx % 3) - 1) * 34 %>
+              <% dy = (idx / 3) * 34 %>
+              <% x = base[0] + dx %>
+              <% y = base[1] + dy %>
+              <a href="<%= rails4b_superadmin_service_path(service) %>" xlink:href="<%= rails4b_superadmin_service_path(service) %>">
+                <g
+                  class="cursor-pointer station-node"
+                  data-station-id="<%= station_id %>"
+                  data-service-id="<%= service.id %>"
+                  data-service-label="<%= service.name.presence || service.slug %>"
+                  data-dx="<%= dx %>"
+                  data-dy="<%= dy %>"
+                  data-x="<%= x %>"
+                  data-y="<%= y %>"
+                  transform="translate(<%= x %>, <%= y %>)"
+                >
+                  <title>
+                    <%= service.name.presence || service.slug %> · stazione: <%= @stations_by_id[station_id]&.display_label %>
+                  </title>
+                  <rect fill="#101922" height="28" width="28" x="-14" y="-14" transform="rotate(45)" stroke="#34d399" stroke-width="3"></rect>
+                  <circle fill="#ffffff" r="4"></circle>
+                  <foreignObject x="-90" y="-54" width="180" height="22" class="station-label">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="text-align:center;">
+                      <span class="map-pill"><%= service.name.presence || service.slug %></span>
+                    </div>
+                  </foreignObject>
+                </g>
+              </a>
+            <% end %>
+          <% end %>
+
+          <% if @journeys.any? %>
+            <% @journeys.each do |journey| %>
+              <% journey_label = (journey.title.presence || journey.slug).to_s.sub(/^Railservice:\s*/i, "") %>
+              <% from_service = @services_by_station[journey.taxbranch_id]&.first %>
+              <% to_service = @services_by_station[journey.end_taxbranch_id]&.first %>
+              <% from_pos = from_service ? service_positions[from_service.id] : nil %>
+              <% to_pos = to_service ? service_positions[to_service.id] : nil %>
+              <% next if from_pos.nil? || to_pos.nil? %>
+              <% dx = to_pos[0] - from_pos[0] %>
+              <% dy = to_pos[1] - from_pos[1] %>
+              <% dist = Math.sqrt(dx * dx + dy * dy) %>
+              <% offset = 20.0 %>
+              <% if dist > 0 %>
+                <% ux = dx / dist %>
+                <% uy = dy / dist %>
+                <% x1 = from_pos[0] + ux * offset %>
+                <% y1 = from_pos[1] + uy * offset %>
+                <% x2 = to_pos[0] - ux * offset %>
+                <% y2 = to_pos[1] - uy * offset %>
+              <% else %>
+                <% x1 = from_pos[0] %>
+                <% y1 = from_pos[1] %>
+                <% x2 = to_pos[0] %>
+                <% y2 = to_pos[1] %>
+              <% end %>
+              <a href="<%= journey_path(journey) %>" xlink:href="<%= journey_path(journey) %>">
+                <foreignObject x="<%= ((x1 + x2) / 2.0 - 90).round(1) %>" y="<%= ((y1 + y2) / 2.0 - 18).round(1) %>" width="180" height="22" class="journey-label" data-journey-id="<%= journey.id %>">
+                  <div xmlns="http://www.w3.org/1999/xhtml" style="text-align:center; position: relative; z-index: 3;">
+                    <span class="map-pill"><%= journey_label %></span>
+                  </div>
+                </foreignObject>
+              </a>
+            <% end %>
+          <% end %>
+        </svg>
+        <div class="absolute bottom-4 right-4 flex flex-col gap-2 z-10">
+          <div class="flex flex-col bg-background-dark/80 backdrop-blur-md border border-[#283039] rounded-lg overflow-hidden shadow-xl">
+            <button class="p-2.5 text-white hover:bg-primary/20 transition-colors" data-zoom="in" type="button">
+              <span class="material-symbols-outlined">add</span>
+            </button>
+            <div class="h-px bg-[#283039]"></div>
+            <button class="p-2.5 text-white hover:bg-primary/20 transition-colors" data-zoom="out" type="button">
+              <span class="material-symbols-outlined">remove</span>
+            </button>
+          </div>
+          <button class="p-2.5 bg-background-dark/80 backdrop-blur-md border border-[#283039] rounded-lg text-white hover:bg-primary/20 shadow-xl transition-colors" data-zoom="reset" type="button">
+            <span class="material-symbols-outlined">navigation</span>
+          </button>
+        </div>
+      </div>
+  
+  <% else %>
+    <div class="rounded-2xl border border-[#283039] bg-[#101922] p-6 shadow-sm">
+      <p class="text-sm text-[#9dabb9]">
+        Nessun service trovato per le stazioni del dominio.
+      </p>
+    </div>
+  <% end %>
+
+  
+
+  <div class="rounded-2xl border border-[#283039] bg-[#101922] p-6 shadow-sm text-white">
+    <div class="flex items-center justify-between gap-4">
+      <h2 class="text-lg font-semibold text-white">Taxbranch e services</h2>
+      <% if params[:add_services].present? %>
+        <%= link_to "Annulla",
+                    mapservice_superadmin_domain_path(@domain),
+                    class: "text-xs font-semibold text-amber-300 hover:underline" %>
+      <% else %>
+        <%= link_to "Aggiungi services",
+                    mapservice_superadmin_domain_path(@domain, add_services: true),
+                    class: "text-xs font-semibold text-amber-300 hover:underline" %>
+      <% end %>
+    </div>
+    
+
+    <% if @stations.any? %>
+      <ul class="mt-4 space-y-2 text-sm">
+        <% @stations.each do |node| %>
+          <li class="flex items-center gap-3">
+            <div class="flex items-center gap-2">
+              <span class="inline-block h-1.5 w-1.5 rounded-full bg-primary"></span>
+              <%= link_to node.display_label,
+                          superadmin_taxbranch_path(node),
+                          class: "text-primary hover:underline" %>
+              <span class="text-[#9dabb9] text-xs">(<%= node.slug %>)</span>
+            </div>
+            <% if node.service.present? %>
+              <div class="flex items-center gap-2 text-xs text-[#9dabb9]">
+                <span class="inline-block h-1 w-1 rounded-full bg-emerald-400"></span>
+                <%= link_to node.service.name.presence || node.service.slug,
+                            superadmin_service_path(node.service),
+                            class: "text-emerald-300 hover:underline" %>
+              </div>
+            <% elsif params[:add_services].present? %>
+              <div class="flex items-center gap-2 text-xs text-[#9dabb9]">
+                <span class="inline-block h-1 w-1 rounded-full bg-amber-400"></span>
+                <%= link_to "Aggiungi service",
+                            new_superadmin_taxbranch_service_path(node),
+                            class: "text-amber-300 hover:underline" %>
+              </div>
+            <% end %>
+          </li>
+        <% end %>
+      </ul>
+    <% else %>
+      <p class="mt-3 text-sm text-[#9dabb9]">Nessun taxbranch figlio trovato.</p>
+    <% end %>
+  </div>
+  <div class="rounded-2xl border border-[#283039] bg-[#101922] p-6 shadow-sm">
+    <div class="flex items-center justify-between gap-3">
+      <h2 class="text-lg font-semibold text-white">Rails</h2>
+      <button
+        class="inline-flex items-center rounded-lg border border-[#283039] px-3 py-1.5 text-xs font-semibold text-white hover:border-primary"
+        type="button"
+        id="open-eventdate-modal"
+      >
+        Aggiungi eventdate
+      </button>
+    </div>
+    <p class="text-sm text-[#9dabb9] mt-1">
+      Collegamenti tra services (start → end).
+    </p>
+
+    <% if @journeys.any? %>
+      <ul class="mt-4 space-y-2 text-sm">
+        <% @journeys.each do |journey| %>
+          <% from_service = @services_by_station[journey.taxbranch_id]&.first %>
+          <% to_service = @services_by_station[journey.end_taxbranch_id]&.first %>
+          <%= link_to  journey do %>
+          <li class="flex items-center gap-2">
+            <span class="inline-block h-1.5 w-1.5 rounded-full bg-blue-400"></span>
+            <span class="text-white"><%= journey.title.presence || journey.slug %></span>
+            <span class="text-[#9dabb9] text-xs">
+              (<%= from_service&.name || from_service&.slug || "—" %> → <%= to_service&.name || to_service&.slug || "—" %>)
+            </span>
+          </li>
+           <% end %>
+        <% end %>
+      </ul>
+    <% else %>
+      <p class="mt-3 text-sm text-[#9dabb9]">Nessun journey trovato per queste stazioni.</p>
+    <% end %>
+  </div>
+</div>
+
+<div
+  class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 p-4"
+  id="eventdate-modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="eventdate-modal-title"
+>
+  <div class="w-full max-w-lg rounded-2xl border border-[#283039] bg-[#101922] p-6 shadow-2xl">
+    <div class="flex items-start justify-between gap-4">
+      <h3 class="text-lg font-semibold text-white" id="eventdate-modal-title">
+        Nuovo eventdate
+      </h3>
+      <button class="text-[#9dabb9] hover:text-white" type="button" id="close-eventdate-modal">
+        Chiudi
+      </button>
+    </div>
+    <p class="text-sm text-[#9dabb9] mt-1">
+      Seleziona un journey e (se serve) il ruolo da assegnare all'eventdate.
+    </p>
+
+    <div class="mt-4 space-y-3 text-sm">
+      <div>
+        <label class="block text-xs text-[#9dabb9] mb-1">Journey</label>
+        <select
+          id="eventdate-journey"
+          class="w-full rounded-lg border border-[#283039] bg-[#0f172a] px-3 py-2 text-white"
+        >
+          <option value="">Seleziona</option>
+          <% @journeys.each do |journey| %>
+            <option value="<%= journey.id %>"><%= journey.title.presence || journey.slug %></option>
+          <% end %>
+        </select>
+      </div>
+      <div>
+        <label class="block text-xs text-[#9dabb9] mb-1">Ruolo Journey</label>
+        <select
+          id="eventdate-journey-role"
+          class="w-full rounded-lg border border-[#283039] bg-[#0f172a] px-3 py-2 text-white"
+        >
+          <option value="">—</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="mt-5 flex items-center justify-end gap-3">
+      <button
+        class="rounded-lg border border-[#283039] px-4 py-2 text-xs font-semibold text-white hover:border-primary"
+        type="button"
+        id="cancel-eventdate-modal"
+      >
+        Annulla
+      </button>
+      <a
+        class="inline-flex items-center rounded-lg bg-primary px-4 py-2 text-xs font-semibold text-white"
+        id="eventdate-create-link"
+        href="/eventdates/new"
+      >
+        Vai al form
+      </a>
+    </div>
+  </div>
+</div>
+
+<div
+  class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 p-4"
+  id="station-modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="station-modal-title"
+>
+  <div class="w-full max-w-lg rounded-2xl border border-[#283039] bg-[#101922] p-6 shadow-2xl">
+    <div class="flex items-start justify-between gap-4">
+      <h3 class="text-lg font-semibold text-white" id="station-modal-title">
+        Nuova stazione
+      </h3>
+      <button class="text-[#9dabb9] hover:text-white" type="button" id="close-station-modal">
+        Chiudi
+      </button>
+    </div>
+    <p class="text-sm text-[#9dabb9] mt-1">
+      Crea un taxbranch e il suo service direttamente sulla mappa.
+    </p>
+
+    <form id="station-form" class="mt-4 space-y-3 text-sm">
+      <div>
+        <label class="block text-xs text-[#9dabb9] mb-1">Nome stazione</label>
+        <input
+          class="w-full rounded-lg border border-[#283039] bg-[#0f172a] px-3 py-2 text-white"
+          id="station-name"
+          name="station[name]"
+          required
+          type="text"
+        />
+      </div>
+      <input id="station-service-name" name="station[service_name]" type="hidden" />
+      <input id="station-category" name="station[slug_category]" type="hidden" value="service" />
+      <input id="station-x" name="station[x]" type="hidden" />
+      <input id="station-y" name="station[y]" type="hidden" />
+
+      <div class="flex items-center justify-end gap-3 pt-2">
+        <button
+          class="rounded-lg border border-[#283039] px-4 py-2 text-xs font-semibold text-white hover:border-primary"
+          type="button"
+          id="cancel-station-modal"
+        >
+          Annulla
+        </button>
+        <button
+          class="inline-flex items-center rounded-lg bg-primary px-4 py-2 text-xs font-semibold text-white"
+          type="submit"
+        >
+          Crea stazione
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  (() => {
+    const startInput = document.getElementById("rail-start-id");
+    const endInput = document.getElementById("rail-end-id");
+    const startLabel = document.getElementById("rail-start-label");
+    const endLabel = document.getElementById("rail-end-label");
+    const selectionText = document.getElementById("railservice-selection");
+    const submitButton = document.getElementById("railservice-submit");
+    if (!startInput || !endInput) return;
+
+    const serviceToTaxbranch = new Map([
+      <% @services.each do |service| %>
+        [<%= service.id %>, <%= service.taxbranch_id || "null" %>],
+      <% end %>
+    ]);
+    const serviceNameById = new Map([
+      <% @services.each do |service| %>
+        [<%= service.id %>, "<%= j(service.name.presence || service.slug) %>"],
+      <% end %>
+    ]);
+    const existingPairs = new Set([
+      <% @journeys.each do |journey| %>
+        "<%= journey.taxbranch_id %>-<%= journey.end_taxbranch_id %>",
+      <% end %>
+    ]);
+
+    function updateRailUI() {
+      const startId = Number(startInput.value || 0);
+      const endId = Number(endInput.value || 0);
+      const startTax = serviceToTaxbranch.get(startId);
+      const endTax = serviceToTaxbranch.get(endId);
+      const pairKey = startTax && endTax ? `${startTax}-${endTax}` : null;
+      if (startLabel) startLabel.textContent = startId ? serviceNameById.get(startId) : "—";
+      if (endLabel) endLabel.textContent = endId ? serviceNameById.get(endId) : "—";
+      if (selectionText) {
+        if (startId && endId) {
+          selectionText.textContent = `Selezionati: ${serviceNameById.get(startId)} → ${serviceNameById.get(endId)}`;
+        } else if (startId) {
+          selectionText.textContent = `Partenza selezionata: ${serviceNameById.get(startId)}`;
+        } else {
+          selectionText.textContent = "Seleziona 2 stazioni per creare il railservice.";
+        }
+      }
+      if (submitButton) {
+        const disabled = !startId || !endId || (pairKey && existingPairs.has(pairKey));
+        submitButton.disabled = disabled;
+        submitButton.classList.toggle("opacity-50", disabled);
+      }
+    }
+
+    updateRailUI();
+    window.updateRailFormFromMap = (startId, endId) => {
+      startInput.value = startId ? String(startId) : "";
+      endInput.value = endId ? String(endId) : "";
+      updateRailUI();
+      const url = new URL(window.location.href);
+      if (startId) url.searchParams.set("start_service_id", startId);
+      if (endId) {
+        url.searchParams.set("end_service_id", endId);
+      } else {
+        url.searchParams.delete("end_service_id");
+      }
+      window.history.replaceState({}, "", url.toString());
+    };
+  })();
+</script>
+
+<script>
+  (() => {
+    const modal = document.getElementById("eventdate-modal");
+    const openBtn = document.getElementById("open-eventdate-modal");
+    const closeBtn = document.getElementById("close-eventdate-modal");
+    const cancelBtn = document.getElementById("cancel-eventdate-modal");
+    const journeySelect = document.getElementById("eventdate-journey");
+    const roleSelect = document.getElementById("eventdate-journey-role");
+    const createLink = document.getElementById("eventdate-create-link");
+
+    if (!modal || !openBtn || !closeBtn || !cancelBtn || !journeySelect || !roleSelect || !createLink) return;
+
+    const journeyRoles = new Map([
+      <% @journeys.each do |journey| %>
+        [<%= journey.id %>, <%= raw(Array(journey.journey_roles).to_json) %>],
+      <% end %>
+    ]);
+
+    function updateRoles() {
+      const journeyId = Number(journeySelect.value || 0);
+      const roles = journeyRoles.get(journeyId) || [];
+      roleSelect.innerHTML = "";
+      const empty = document.createElement("option");
+      empty.value = "";
+      empty.textContent = "—";
+      roleSelect.appendChild(empty);
+      roles.forEach((role) => {
+        const option = document.createElement("option");
+        option.value = role;
+        option.textContent = role;
+        roleSelect.appendChild(option);
+      });
+    }
+
+    function updateLink() {
+      const journeyId = Number(journeySelect.value || 0);
+      const role = roleSelect.value;
+      const params = new URLSearchParams();
+      if (journeyId) params.set("journey_id", journeyId);
+      if (role) params.set("journey_role", role);
+      createLink.href = `/eventdates/new?${params.toString()}`;
+    }
+
+    function openModal() {
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+      if (!journeySelect.value && journeySelect.options.length > 1) {
+        journeySelect.value = journeySelect.options[1].value;
+      }
+      updateRoles();
+      updateLink();
+    }
+
+    function closeModal() {
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+    }
+
+    openBtn.addEventListener("click", openModal);
+    closeBtn.addEventListener("click", closeModal);
+    cancelBtn.addEventListener("click", closeModal);
+    journeySelect.addEventListener("change", () => {
+      updateRoles();
+      updateLink();
+    });
+    roleSelect.addEventListener("change", updateLink);
+    updateRoles();
+    updateLink();
+  })();
+</script>
+
+<script>
+  (() => {
+    const viewport = document.getElementById("map-viewport");
+    const frame = viewport?.closest(".map-frame");
+    if (!viewport || !frame) return;
+    const csrfToken = document.querySelector("meta[name='csrf-token']")?.content;
+    const centerX = <%= center_x %>;
+    const centerY = <%= center_y %>;
+    const editMap = <%= edit_map ? "true" : "false" %>;
+    const routeSelectEnabled = <%= route_select ? "true" : "false" %>;
+    const railservicesEnabled = <%= railservices_enabled ? "true" : "false" %>;
+    const addStationEnabled = <%= add_station_enabled ? "true" : "false" %>;
+    const moveStationsEnabled = <%= move_stations_enabled ? "true" : "false" %>;
+    let scale = 1;
+    let offsetX = 0;
+    let offsetY = 0;
+    let dragging = false;
+    let startX = 0;
+    let startY = 0;
+    let nodeDrag = null;
+    let nodeMoved = false;
+    let dragReleasedAt = 0;
+    let selectedServiceId = null;
+    let selectedNode = null;
+    const pendingPositions = new Map();
+    const mapCursor = document.getElementById("map-cursor");
+    const railStartSelect = document.getElementById("journey-start-service");
+    const railEndSelect = document.getElementById("journey-end-service");
+    const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
+    const stepHint = document.getElementById("map-step-hint");
+    const routeTags = document.getElementById("route-tags");
+    const routeHint = document.getElementById("route-select-hint");
+    const routeRemoveBtn = document.getElementById("route-remove-last");
+    const showRouteBtn = document.getElementById("show-route-btn");
+
+    const stationNodes = () => Array.from(viewport.querySelectorAll(".station-node"));
+    const journeyLines = () => Array.from(viewport.querySelectorAll(".journey-line"));
+    const journeyHits = () => Array.from(viewport.querySelectorAll(".journey-hit"));
+    const journeyLabels = () => Array.from(viewport.querySelectorAll(".journey-label"));
+
+    const setJourneyLabelVisible = (journeyId, visible) => {
+      if (!journeyId) return;
+      const label = viewport.querySelector(`.journey-label[data-journey-id="${journeyId}"]`);
+      if (!label) return;
+      label.style.opacity = visible ? "1" : "0";
+    };
+    const existingPairs = new Set([
+      <% @journeys.each do |journey| %>
+        "<%= journey.taxbranch_id %>-<%= journey.end_taxbranch_id %>",
+      <% end %>
+    ]);
+    let routeItems = [];
+
+    function railDataById() {
+      const map = new Map();
+      journeyLines().forEach((line) => {
+        map.set(Number(line.dataset.journeyId), {
+          id: Number(line.dataset.journeyId),
+          fromServiceId: Number(line.dataset.fromServiceId),
+          toServiceId: Number(line.dataset.toServiceId),
+          label: line.dataset.journeyLabel || "Railservice"
+        });
+      });
+      return map;
+    }
+
+    function serviceLabelById(serviceId) {
+      const node = stationNodes().find((n) => Number(n.dataset.serviceId) === Number(serviceId));
+      return node?.dataset.serviceLabel || node?.querySelector(".map-label")?.textContent || "Stazione";
+    }
+
+    function currentRouteStationId() {
+      if (!routeItems.length) return null;
+      const last = routeItems[routeItems.length - 1];
+      if (last.type === "service") return last.id;
+      if (last.type === "rail") return last.toServiceId;
+      return null;
+    }
+
+    function clearRouteHover() {
+      stationNodes().forEach((node) => node.classList.remove("route-hover"));
+      journeyLines().forEach((line) => {
+        line.classList.remove("highlight", "route-hover");
+        if (!line.classList.contains("selected") && !line.classList.contains("route-selected")) {
+          line.setAttribute("marker-end", "url(#arrowhead)");
+        }
+      });
+    }
+
+    function highlightRouteItems() {
+      stationNodes().forEach((node) => node.classList.remove("route-selected"));
+      journeyLines().forEach((line) => {
+        line.classList.remove("route-selected");
+        if (!line.classList.contains("selected")) {
+          line.setAttribute("marker-end", "url(#arrowhead)");
+        }
+      });
+      clearRouteHover();
+      routeItems.forEach((item) => {
+        if (item.type === "service") {
+          const node = stationNodes().find((n) => Number(n.dataset.serviceId) === item.id);
+          if (node) node.classList.add("route-selected");
+        }
+        if (item.type === "rail") {
+          const line = journeyLines().find((l) => Number(l.dataset.journeyId) === item.id);
+          if (line) {
+            line.classList.add("route-selected");
+            line.setAttribute("marker-end", "url(#arrowhead-selected)");
+          }
+          const endNode = stationNodes().find((n) => Number(n.dataset.serviceId) === item.toServiceId);
+          if (endNode) endNode.classList.add("route-selected");
+        }
+      });
+    }
+
+    function renderRouteTags() {
+      if (!routeTags) return;
+      routeTags.innerHTML = "";
+      routeItems.forEach((item, idx) => {
+        const tag = document.createElement("span");
+        tag.className = "inline-flex items-center gap-1 rounded-full border border-[#283039] px-2 py-1 text-[11px] font-semibold text-white";
+        tag.textContent = item.label;
+        if (idx === routeItems.length - 1) {
+          tag.classList.add("border-primary", "text-primary");
+        }
+        routeTags.appendChild(tag);
+      });
+    }
+
+    function updateRouteLink() {
+      if (!showRouteBtn) return;
+      const base = showRouteBtn.dataset.baseHref;
+      const parts = [];
+      if (routeItems[0]?.type === "service") {
+        parts.push(`service:${routeItems[0].id}`);
+      }
+      routeItems.forEach((item) => {
+        if (item.type === "rail") {
+          parts.push(`rail:${item.id}`);
+          parts.push(`service:${item.toServiceId}`);
+        }
+      });
+      const canShow = routeItems.length >= 2 && routeItems[0]?.type === "service" && routeItems.some((item) => item.type === "rail");
+      if (parts.length) {
+        const routeParam = parts.map((part) => part.replace(":", "-")).join("_");
+        showRouteBtn.href = `${base}?route=${routeParam}`;
+      } else {
+        showRouteBtn.href = base;
+      }
+      showRouteBtn.classList.toggle("opacity-60", !canShow);
+      showRouteBtn.classList.toggle("pointer-events-none", !canShow);
+    }
+
+    function updateRouteHint(text) {
+      if (routeHint) routeHint.textContent = text;
+    }
+
+    function addRouteService(node) {
+      const serviceId = Number(node.dataset.serviceId);
+      const label = node.dataset.serviceLabel || node.querySelector(".map-label")?.textContent || "Stazione";
+      routeItems.push({ type: "service", id: serviceId, label });
+    }
+
+    function addRouteRail(rail) {
+      routeItems.push({
+        type: "rail",
+        id: rail.id,
+        label: `${rail.label} (${serviceLabelById(rail.fromServiceId)} → ${serviceLabelById(rail.toServiceId)})`,
+        fromServiceId: rail.fromServiceId,
+        toServiceId: rail.toServiceId
+      });
+    }
+
+    function handleRouteStationClick(node) {
+      const last = routeItems[routeItems.length - 1];
+      if (!last) {
+        addRouteService(node);
+        updateRouteHint("Seleziona il railservice collegato.");
+        return true;
+      }
+      if (last.type === "rail") {
+        updateRouteHint("Seleziona il railservice successivo.");
+        return false;
+      }
+      updateRouteHint("Ora seleziona il railservice collegato.");
+      return false;
+    }
+
+    function handleRouteRailClick(journeyId) {
+      const currentStationId = currentRouteStationId();
+      if (!currentStationId) {
+        updateRouteHint("Seleziona prima una stazione.");
+        return false;
+      }
+      const rail = railDataById().get(Number(journeyId));
+      if (!rail) return false;
+      if (currentStationId !== rail.fromServiceId) {
+        updateRouteHint("Puoi scegliere solo railservice in uscita dalla stazione selezionata.");
+        return false;
+      }
+      addRouteRail(rail);
+      updateRouteHint("Seleziona il railservice successivo.");
+      return true;
+    }
+
+    function highlightEligibleRail(rail, line) {
+      clearRouteHover();
+      line.classList.add("route-hover");
+      line.setAttribute("marker-end", "url(#arrowhead-selected)");
+      const endServiceId = rail.toServiceId;
+      const endNode = stationNodes().find((n) => Number(n.dataset.serviceId) === Number(endServiceId));
+      if (endNode) {
+        endNode.classList.add("route-hover");
+      }
+    }
+
+    function refreshRouteUI() {
+      renderRouteTags();
+      highlightRouteItems();
+      updateRouteLink();
+      if (routeRemoveBtn) {
+        routeRemoveBtn.disabled = routeItems.length === 0;
+        routeRemoveBtn.classList.toggle("opacity-50", routeItems.length === 0);
+        routeRemoveBtn.classList.toggle("pointer-events-none", routeItems.length === 0);
+      }
+      if (routeItems.length === 0) {
+        updateRouteHint("Seleziona una stazione per iniziare.");
+      }
+    }
+
+    function applyTransform() {
+      viewport.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale.toFixed(2)})`;
+    }
+
+    function updateLines() {
+      const nodeByService = new Map(
+        stationNodes().map((node) => [Number(node.dataset.serviceId), node])
+      );
+      journeyLines().forEach((line) => {
+        const fromNode = nodeByService.get(Number(line.dataset.fromServiceId));
+        const toNode = nodeByService.get(Number(line.dataset.toServiceId));
+        if (!fromNode || !toNode) return;
+        const x1 = Number(fromNode.dataset.x);
+        const y1 = Number(fromNode.dataset.y);
+        const x2 = Number(toNode.dataset.x);
+        const y2 = Number(toNode.dataset.y);
+        const dx = x2 - x1;
+        const dy = y2 - y1;
+        const dist = Math.hypot(dx, dy) || 1;
+        const offset = 20;
+        const ux = dx / dist;
+        const uy = dy / dist;
+        line.setAttribute("x1", (x1 + ux * offset).toFixed(1));
+        line.setAttribute("y1", (y1 + uy * offset).toFixed(1));
+        line.setAttribute("x2", (x2 - ux * offset).toFixed(1));
+        line.setAttribute("y2", (y2 - uy * offset).toFixed(1));
+      });
+    }
+
+    function updatePreviewLine(startServiceId, endServiceId) {
+      if (!railservicesEnabled) return;
+      const startNode = stationNodes().find((node) => Number(node.dataset.serviceId) === Number(startServiceId));
+      const endNode = stationNodes().find((node) => Number(node.dataset.serviceId) === Number(endServiceId));
+      if (!startNode || !endNode) return;
+      const x1 = Number(startNode.dataset.x);
+      const y1 = Number(startNode.dataset.y);
+      const x2 = Number(endNode.dataset.x);
+      const y2 = Number(endNode.dataset.y);
+      const dx = x2 - x1;
+      const dy = y2 - y1;
+      const dist = Math.hypot(dx, dy) || 1;
+      const offset = 20;
+      const ux = dx / dist;
+      const uy = dy / dist;
+      let preview = viewport.querySelector(".journey-preview");
+      if (!preview) {
+        preview = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        preview.classList.add("journey-preview");
+        preview.setAttribute("stroke", "#137fec");
+        preview.setAttribute("stroke-width", "4");
+        preview.setAttribute("stroke-dasharray", "6 6");
+        preview.setAttribute("marker-end", "url(#arrowhead-preview)");
+        viewport.appendChild(preview);
+      }
+      preview.setAttribute("x1", (x1 + ux * offset).toFixed(1));
+      preview.setAttribute("y1", (y1 + uy * offset).toFixed(1));
+      preview.setAttribute("x2", (x2 - ux * offset).toFixed(1));
+      preview.setAttribute("y2", (y2 - uy * offset).toFixed(1));
+    }
+
+    function clearSelectedRail() {
+      journeyLines().forEach((line) => {
+        line.classList.remove("selected");
+        line.setAttribute("marker-end", "url(#arrowhead)");
+      });
+      journeyLabels().forEach((label) => {
+        label.style.opacity = "0";
+      });
+      frame.classList.remove("disable-station-hover");
+    }
+
+    function clearSelectedStations() {
+      stationNodes().forEach((node) => {
+        node.classList.remove("selected", "start", "end");
+      });
+      selectedNode = null;
+      selectedServiceId = null;
+      frame.classList.remove("disable-rail-hover");
+    }
+
+    function updateStationNodes(stationId, baseX, baseY) {
+      stationNodes()
+        .filter((node) => Number(node.dataset.stationId) === stationId)
+        .forEach((node) => {
+          const dx = Number(node.dataset.dx);
+          const dy = Number(node.dataset.dy);
+          const x = baseX + dx;
+          const y = baseY + dy;
+          node.dataset.x = x.toFixed(1);
+          node.dataset.y = y.toFixed(1);
+          node.setAttribute("transform", `translate(${x}, ${y})`);
+        });
+      updateLines();
+    }
+
+    function openJourneyLinkFromElement(el) {
+      const anchor = el && el.closest ? el.closest("a") : null;
+      const href = anchor && anchor.getAttribute ? anchor.getAttribute("href") : null;
+      if (href) {
+        window.location.href = href;
+      }
+    }
+
+    function saveStationPosition(stationId, baseX, baseY) {
+      if (!csrfToken) return;
+      const relX = Math.round(baseX - centerX);
+      const relY = Math.round(baseY - centerY);
+      const body = new URLSearchParams();
+      body.append("taxbranch[x_coordinated]", relX);
+      body.append("taxbranch[y_coordinated]", relY);
+      fetch(`/superadmin/taxbranches/${stationId}`, {
+        method: "PATCH",
+        headers: {
+          "X-CSRF-Token": csrfToken,
+          "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+          "Accept": "text/vnd.turbo-stream.html, text/html, application/xhtml+xml"
+        },
+        body,
+        credentials: "same-origin"
+      }).catch(() => {});
+    }
+
+    document.querySelectorAll("[data-zoom]").forEach((btn) => {
+      btn.addEventListener("pointerdown", (event) => {
+        event.stopPropagation();
+      });
+      btn.addEventListener("click", () => {
+        const action = btn.getAttribute("data-zoom");
+        if (action === "in") scale = clamp(scale + 0.1, 0.6, 2);
+        if (action === "out") scale = clamp(scale - 0.1, 0.6, 2);
+        if (action === "reset") {
+          scale = 1;
+          offsetX = 0;
+          offsetY = 0;
+        }
+        applyTransform();
+      });
+    });
+
+    frame.addEventListener("pointerdown", (event) => {
+      if (event.button !== 0) return;
+      if (event.target.closest("[data-zoom]")) return;
+      const node = event.target.closest(".station-node");
+      if (node) {
+        if (!editMap || !moveStationsEnabled) return;
+        event.preventDefault();
+        event.stopPropagation();
+        const stationId = Number(node.dataset.stationId);
+        const dx = Number(node.dataset.dx);
+        const dy = Number(node.dataset.dy);
+        const baseX = Number(node.dataset.x) - dx;
+        const baseY = Number(node.dataset.y) - dy;
+        nodeDrag = {
+          stationId,
+          baseX,
+          baseY,
+          startClientX: event.clientX,
+          startClientY: event.clientY
+        };
+        nodeMoved = false;
+        frame.setPointerCapture(event.pointerId);
+        return;
+      }
+      if (event.target.closest("a")) return;
+      dragging = true;
+      startX = event.clientX - offsetX;
+      startY = event.clientY - offsetY;
+      frame.classList.add("dragging");
+      frame.setPointerCapture(event.pointerId);
+    });
+
+    frame.addEventListener("pointermove", (event) => {
+      if (nodeDrag) {
+        const deltaX = (event.clientX - nodeDrag.startClientX) / scale;
+        const deltaY = (event.clientY - nodeDrag.startClientY) / scale;
+        const nextX = nodeDrag.baseX + deltaX;
+        const nextY = nodeDrag.baseY + deltaY;
+        updateStationNodes(nodeDrag.stationId, nextX, nextY);
+        pendingPositions.set(nodeDrag.stationId, { x: nextX, y: nextY });
+        if (Math.abs(deltaX) > 2 || Math.abs(deltaY) > 2) nodeMoved = true;
+        return;
+      }
+      if (!dragging) return;
+      offsetX = event.clientX - startX;
+      offsetY = event.clientY - startY;
+      applyTransform();
+    });
+
+    frame.addEventListener("pointerup", (event) => {
+      if (nodeDrag) {
+        const deltaX = (event.clientX - nodeDrag.startClientX) / scale;
+        const deltaY = (event.clientY - nodeDrag.startClientY) / scale;
+        const nextX = nodeDrag.baseX + deltaX;
+        const nextY = nodeDrag.baseY + deltaY;
+        pendingPositions.set(nodeDrag.stationId, { x: nextX, y: nextY });
+        nodeDrag = null;
+        dragReleasedAt = Date.now();
+      }
+      dragging = false;
+      frame.classList.remove("dragging");
+    });
+
+    frame.addEventListener("pointercancel", () => {
+      nodeDrag = null;
+      dragging = false;
+      frame.classList.remove("dragging");
+    });
+
+    frame.addEventListener("pointermove", (event) => {
+      if (!editMap || !addStationEnabled || !mapCursor) return;
+      const rect = frame.getBoundingClientRect();
+      mapCursor.style.left = `${event.clientX - rect.left}px`;
+      mapCursor.style.top = `${event.clientY - rect.top}px`;
+      mapCursor.style.display = "block";
+    });
+
+    frame.addEventListener("pointerleave", () => {
+      if (!mapCursor) return;
+      mapCursor.style.display = "none";
+    });
+
+    stationNodes().forEach((node) => {
+      node.addEventListener("mouseenter", () => {
+        if (railservicesEnabled && !node.classList.contains("start")) {
+          node.classList.add("rail-hover");
+        }
+      });
+      node.addEventListener("mouseleave", () => {
+        node.classList.remove("rail-hover");
+      });
+    });
+
+    frame.addEventListener("click", (event) => {
+      if (routeSelectEnabled && event.target.closest("a")) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+      const stationNode = event.target.closest(".station-node");
+      if (!stationNode) return;
+      if (routeSelectEnabled) {
+        event.preventDefault();
+        event.stopPropagation();
+        if (handleRouteStationClick(stationNode)) {
+          refreshRouteUI();
+        }
+        return;
+      }
+      if (nodeMoved || Date.now() - dragReleasedAt < 250) {
+        event.preventDefault();
+        event.stopPropagation();
+        return;
+      }
+      if (editMap && railservicesEnabled) {
+        event.preventDefault();
+        event.stopPropagation();
+      } else if (editMap && (addStationEnabled || moveStationsEnabled)) {
+        event.preventDefault();
+        event.stopPropagation();
+        return;
+      }
+      if ((event.metaKey || event.ctrlKey) && !railservicesEnabled) return;
+      const node = event.target.closest(".station-node");
+      if (!node) return;
+      frame.classList.add("disable-rail-hover");
+      clearSelectedRail();
+      const serviceId = Number(node.dataset.serviceId);
+      if (!serviceId) return;
+      if (selectedNode === node) {
+        node.classList.remove("selected");
+        selectedNode = null;
+        selectedServiceId = null;
+        return;
+      }
+      if (!selectedServiceId) {
+        node.classList.add("selected", "start");
+        selectedNode = node;
+        selectedServiceId = serviceId;
+        if (selectionText) {
+          selectionText.textContent = `Partenza selezionata: ${node.querySelector(".map-label")?.textContent || "—"}`;
+        }
+        if (stepHint) {
+          stepHint.innerHTML = "<strong class=\"text-amber-200\">Step 2:</strong> seleziona la seconda stazione.";
+        }
+        if (window.updateRailFormFromMap) {
+          window.updateRailFormFromMap(serviceId, null);
+        }
+        return;
+      }
+      const startId = selectedServiceId;
+      const endId = serviceId;
+      const startStationId = Number(selectedNode?.dataset.stationId || 0);
+      const endStationId = Number(node.dataset.stationId || 0);
+      if (startStationId && endStationId) {
+        const pairKey = `${startStationId}-${endStationId}`;
+        if (existingPairs.has(pairKey)) {
+          if (selectionText) {
+            selectionText.textContent = "Questo railservice esiste già.";
+          }
+          return;
+        }
+      }
+      if (selectedNode) selectedNode.classList.remove("selected", "start");
+      selectedNode = null;
+      selectedServiceId = null;
+      node.classList.add("end");
+      if (window.updateRailFormFromMap) {
+        window.updateRailFormFromMap(startId, endId);
+      }
+      updatePreviewLine(startId, endId);
+    });
+
+    journeyHits().forEach((hit) => {
+      hit.addEventListener("mouseenter", () => {
+        if (routeSelectEnabled) {
+          const currentStationId = currentRouteStationId();
+          if (!currentStationId) return;
+          const rail = railDataById().get(Number(hit.dataset.journeyId));
+          if (!rail) return;
+          if (currentStationId !== rail.fromServiceId) return;
+          const line = hit.nextElementSibling;
+          if (line && line.classList.contains("journey-line")) {
+            highlightEligibleRail(rail, line);
+            setJourneyLabelVisible(hit.dataset.journeyId, true);
+          }
+          return;
+        }
+        const line = hit.nextElementSibling;
+        if (line && line.classList.contains("journey-line") && !line.classList.contains("selected")) {
+          line.setAttribute("marker-end", "url(#arrowhead-selected)");
+          line.classList.add("highlight");
+        }
+        setJourneyLabelVisible(hit.dataset.journeyId, true);
+      });
+      hit.addEventListener("mouseleave", () => {
+        if (routeSelectEnabled) {
+          clearRouteHover();
+          const line = hit.nextElementSibling;
+          if (line && !line.classList.contains("selected") && !line.classList.contains("route-selected")) {
+            line.setAttribute("marker-end", "url(#arrowhead)");
+          }
+          if (!line || (!line.classList.contains("selected") && !line.classList.contains("route-selected"))) {
+            setJourneyLabelVisible(hit.dataset.journeyId, false);
+          }
+          return;
+        }
+        const line = hit.nextElementSibling;
+        if (line && line.classList.contains("journey-line") && !line.classList.contains("selected")) {
+          line.setAttribute("marker-end", "url(#arrowhead)");
+          line.classList.remove("highlight");
+        }
+        if (!line || !line.classList.contains("selected")) {
+          setJourneyLabelVisible(hit.dataset.journeyId, false);
+        }
+      });
+      hit.addEventListener("click", (event) => {
+        if (routeSelectEnabled) {
+          event.preventDefault();
+          event.stopPropagation();
+          if (handleRouteRailClick(hit.dataset.journeyId)) {
+            refreshRouteUI();
+          }
+          return;
+        }
+        if (editMap && railservicesEnabled) return;
+        event.preventDefault();
+        event.stopPropagation();
+        openJourneyLinkFromElement(hit);
+      });
+    });
+
+    journeyLines().forEach((line) => {
+      line.addEventListener("mouseenter", () => {
+        if (routeSelectEnabled) {
+          const currentStationId = currentRouteStationId();
+          if (!currentStationId) return;
+          const rail = railDataById().get(Number(line.dataset.journeyId));
+          if (!rail) return;
+          if (currentStationId !== rail.fromServiceId) return;
+          highlightEligibleRail(rail, line);
+          setJourneyLabelVisible(line.dataset.journeyId, true);
+          return;
+        }
+        if (line.classList.contains("selected")) return;
+        line.classList.add("highlight");
+        line.setAttribute("marker-end", "url(#arrowhead-selected)");
+        setJourneyLabelVisible(line.dataset.journeyId, true);
+      });
+      line.addEventListener("mouseleave", () => {
+        if (routeSelectEnabled) {
+          clearRouteHover();
+          if (!line.classList.contains("selected") && !line.classList.contains("route-selected")) {
+            line.setAttribute("marker-end", "url(#arrowhead)");
+          }
+          if (!line.classList.contains("selected") && !line.classList.contains("route-selected")) {
+            setJourneyLabelVisible(line.dataset.journeyId, false);
+          }
+          return;
+        }
+        if (line.classList.contains("selected")) return;
+        line.classList.remove("highlight");
+        line.setAttribute("marker-end", "url(#arrowhead)");
+        setJourneyLabelVisible(line.dataset.journeyId, false);
+      });
+      line.addEventListener("click", (event) => {
+        if (routeSelectEnabled) {
+          event.preventDefault();
+          event.stopPropagation();
+          if (handleRouteRailClick(line.dataset.journeyId)) {
+            refreshRouteUI();
+          }
+          return;
+        }
+        if (editMap && railservicesEnabled) return;
+        event.preventDefault();
+        event.stopPropagation();
+        openJourneyLinkFromElement(line);
+      });
+    });
+
+    frame.addEventListener("click", (event) => {
+      if (!editMap || !addStationEnabled) return;
+      if (event.target.closest(".station-node")) return;
+      if (event.target.closest("a")) return;
+      if (nodeMoved || Date.now() - dragReleasedAt < 250) return;
+      const rect = viewport.getBoundingClientRect();
+      const x = (event.clientX - rect.left) / scale;
+      const y = (event.clientY - rect.top) / scale;
+      openStationModal(x, y);
+    });
+
+    applyTransform();
+
+    const saveButton = document.getElementById("save-map-positions");
+    if (saveButton && editMap) {
+      saveButton.addEventListener("click", async () => {
+        if (!pendingPositions.size) {
+          const url = new URL(window.location.href);
+          url.searchParams.delete("edit_map");
+          window.location.href = url.toString();
+          return;
+        }
+        saveButton.disabled = true;
+        saveButton.textContent = "Salvataggio...";
+        const updates = Array.from(pendingPositions.entries());
+        await Promise.all(
+          updates.map(([stationId, coords]) =>
+            fetch(`/superadmin/taxbranches/${stationId}`, {
+              method: "PATCH",
+              headers: {
+                "X-CSRF-Token": csrfToken,
+                "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+                "Accept": "text/vnd.turbo-stream.html, text/html, application/xhtml+xml"
+              },
+              body: new URLSearchParams({
+                "taxbranch[x_coordinated]": Math.round(coords.x - centerX),
+                "taxbranch[y_coordinated]": Math.round(coords.y - centerY)
+              }),
+              credentials: "same-origin"
+            })
+          )
+        );
+        const url = new URL(window.location.href);
+        url.searchParams.delete("edit_map");
+        url.searchParams.delete("add_services");
+        url.searchParams.delete("move_stations");
+        window.location.href = url.toString();
+      });
+    }
+
+    if (routeSelectEnabled) {
+      refreshRouteUI();
+      if (routeRemoveBtn) {
+        routeRemoveBtn.addEventListener("click", () => {
+          routeItems.pop();
+          refreshRouteUI();
+        });
+      }
+    }
+
+    const stationModal = document.getElementById("station-modal");
+    const stationForm = document.getElementById("station-form");
+    const stationName = document.getElementById("station-name");
+    const stationServiceName = document.getElementById("station-service-name");
+    const stationCategory = document.getElementById("station-category");
+    const stationX = document.getElementById("station-x");
+    const stationY = document.getElementById("station-y");
+    const stationClose = document.getElementById("close-station-modal");
+    const stationCancel = document.getElementById("cancel-station-modal");
+
+    function openStationModal(x, y) {
+      if (!stationModal || !stationForm) return;
+      stationX.value = Math.round(x - centerX);
+      stationY.value = Math.round(y - centerY);
+      if (stationServiceName && stationName) {
+        stationServiceName.value = stationName.value;
+      }
+      stationModal.classList.remove("hidden");
+      stationModal.classList.add("flex");
+    }
+
+    function closeStationModal() {
+      if (!stationModal) return;
+      stationModal.classList.add("hidden");
+      stationModal.classList.remove("flex");
+    }
+
+    if (stationName && stationServiceName) {
+      stationName.addEventListener("input", () => {
+        stationServiceName.value = stationName.value;
+      });
+    }
+
+    stationClose?.addEventListener("click", closeStationModal);
+    stationCancel?.addEventListener("click", closeStationModal);
+
+    stationForm?.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      if (!csrfToken) return;
+      const payload = new URLSearchParams(new FormData(stationForm));
+      const response = await fetch("<%= create_station_superadmin_domain_path(@domain) %>", {
+        method: "POST",
+        headers: {
+          "X-CSRF-Token": csrfToken,
+          "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+          "Accept": "application/json"
+        },
+        body: payload,
+        credentials: "same-origin"
+      });
+      if (response.ok) {
+        const url = new URL(window.location.href);
+        url.searchParams.set("edit_map", "1");
+        window.location.href = url.toString();
+      }
+    });
+  })();
+</script>

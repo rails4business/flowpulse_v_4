@@ -1,0 +1,149 @@
+ <!-- variant: "post" — Pagina singolo post -->
+
+<% content_for :title, @post.title.presence || "Post" %>
+
+<%= render 'shared/nav_partial_post' %>
+
+<div class="min-h-full text-slate-900 antialiased dark:bg-slate-900 dark:text-white">
+  <% parent_branch = @post.taxbranch.parent %>
+  <% child_cta_taxbranch = @post.taxbranch.children.find { |child| child.post.present? && child.visible_and_published_for?(@post.lead) } %>
+  <% child_cta_post = child_cta_taxbranch&.post %>
+  <% hero_image_url = @post.thumb_url.presence || @post.horizontal_cover_url.presence %>
+
+  <% raw_markdown = markdown(@post.content_md.to_s) %>
+  <% preview_plain = strip_tags(raw_markdown) %>
+  <% preview_excerpt = truncate(preview_plain, length: 320, separator: " ") %>
+
+  <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-10 space-y-10">
+    <!-- Hero -->
+    <section class="bg-transparent">
+      <div class="grid max-w-screen-xl px-4 py-8 mx-auto lg:gap-8 xl:gap-0 lg:py-16 lg:grid-cols-12">
+        <div class="mr-auto place-self-center lg:col-span-7 space-y-5">
+           <h1 class="max-w-2xl text-4xl font-extrabold tracking-tight leading-tight text-gray-900 md:text-5xl xl:text-6xl dark:text-white">
+            <%= @post.title %>
+          </h1>
+          <% if @post.description.present? %>
+            <h2 class="text-2xl font-semibold text-gray-800 dark:text-gray-200">
+              <%= @post.description %>
+            </h2>
+          <% end %>
+          <div class="flex flex-wrap gap-3">
+            <%= link_to new_session_path,
+                  class: "inline-flex items-center justify-center px-5 py-3 text-base font-medium text-center text-white rounded-lg bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-primary-300 dark:focus:ring-primary-900" do %>
+              Inizia
+              <svg class="w-5 h-5 ml-2 -mr-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+            <% end %>
+            <%= link_to "#brand-services",
+                  class: "inline-flex items-center justify-center px-5 py-3 text-base font-medium text-center text-gray-900 border border-gray-300 rounded-lg hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 dark:text-white dark:border-gray-700 dark:hover:bg-gray-700 dark:focus:ring-gray-800" do %>
+              Scopri i servizi
+            <% end %>
+          </div>
+        </div>
+        <div class="hidden lg:mt-0 lg:col-span-5 lg:flex">
+          <% if hero_image_url.present? %>
+            <img src="<%= hero_image_url %>" alt="<%= @post.title %>" class="rounded-3xl border border-slate-100 object-cover shadow-lg dark:border-slate-800">
+          <% else %>
+            <div class="w-full aspect-[4/3] rounded-3xl border border-slate-100 bg-slate-50 shadow-lg dark:border-slate-800 dark:bg-slate-900 flex items-center justify-center">
+              <svg class="h-20 w-20 text-slate-300 dark:text-slate-600" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+                <rect x="12" y="12" width="40" height="40" rx="12" stroke="currentColor" stroke-width="2"></rect>
+                <circle cx="32" cy="32" r="10" stroke="currentColor" stroke-width="2"></circle>
+              </svg>
+            </div>
+          <% end %>
+       </div>
+     </div>
+   </section>
+<div class="mx-auto w-full max-w-4xl px-4 ">
+    <section class="mx-auto w-full max-w-4xl px-2">
+      <div class="rounded-3xl bg-white shadow ring-1 ring-slate-100 dark:bg-slate-900 dark:ring-slate-800">
+        <details class="group">
+          <summary class="flex cursor-pointer flex-col gap-3 px-6 py-6 sm:px-10 sm:py-8">
+           
+            <% if preview_excerpt.present? %>
+              <p class="text-base text-slate-600 dark:text-slate-300 group-open:hidden">
+                <%= preview_excerpt %>
+              </p>
+            <% end %>
+            <span class="text-sm font-semibold text-blue-600 dark:text-sky-400 group-open:hidden">
+              Leggi tutto
+            </span>
+            <span class="hidden text-sm font-semibold text-blue-600 dark:text-sky-400 group-open:inline-flex">
+              Nascondi manifesto
+            </span>
+          </summary>
+        <div class="border-t border-slate-100 px-6 py-6 sm:px-10 sm:py-10 dark:border-slate-800">
+          <div class="prose-lite">
+            <%= raw_markdown.html_safe %>
+          </div>
+        </div>
+        </details>
+      </div>
+    </section>
+    </div>
+
+    <% related_taxbranches = @post.taxbranch.children.includes(:post) %>
+    <% related_posts = related_taxbranches.filter_map do |child|
+         next unless child.post.present?
+         next unless child.visible_and_published_for?(@post.lead)
+         child.post
+       end %>
+
+ 
+
+
+    <main id="brand-services" class="flex-grow">
+    <div class="max-w-6xl mx-auto p-6">
+      <% if @post&.mermaid.present? %>
+        <div class="mb-6">
+          <%= render "shared/mermaid_diagram",
+                    mermaid: @post.mermaid,
+                    badge: "Genera Impresa",
+                    title: "Blueprint di campagna",
+                    subtitle: @taxbranch.display_label,
+                    hint: "Il diagramma viene letto da mermaid.js" %>
+        </div>
+      <% end %>
+      <% if @children.any? %>
+      
+        <% visible_children = @children.where(status: :published, visibility: :public_node).where("published_at IS NULL OR published_at <= ?", Time.current).where.not(home_nav: true) %>
+
+        <% if visible_children.any? %>
+          <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-4">
+            Servizi e contenuti collegati
+          </h2>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <% visible_children.each do |child_tax| %>
+              <%= render "posts/child_card", child_taxbranch: child_tax %>
+            <% end %>
+          </div>
+        <% else %>
+          <p class="text-slate-500 text-sm">
+         <%= @children.where(status: :published, visibility: :public_node).where("published_at IS NULL OR published_at <= ?", Time.current).where.not(home_nav: true).ids %>
+            Non ci sono elementi pubblicati e visibili.
+          </p>
+        <% end %>
+      <% else %>
+        <p class="text-slate-500">Non ci sono elementi.</p>
+      <% end %>
+    </div>
+  </main>
+
+    
+
+  </div>
+</div>
+
+ <footer class="border-t border-slate-200 bg-white py-6 text-center text-slate-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200">
+    <div class="max-w-3xl mx-auto px-4">
+      <div class="flex flex-col items-center justify-center space-y-3">
+        <a href="#" target="_blank" rel="noopener" class="flex items-center">
+          <p class="mt-2 text-xs italic text-slate-500 flex items-center gap-2 dark:text-slate-400">
+            👉 Sostieni il progetto: fai una donazione con
+            <img src="https://ik.imagekit.io/posturacorretta/dash-dash-logo.png"
+                 alt="Dash Digital Cash Logo"
+                 class="h-6 w-auto">
+          </p>
+        </a>
+      </div>
+    </div>
+  </footer>

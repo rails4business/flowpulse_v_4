@@ -1,7 +1,7 @@
 class ApplicationController < ActionController::Base
   include Authentication
   before_action :ensure_profile_completed
-  helper_method :current_workspace_mode, :available_workspace_modes
+  helper_method :current_workspace_mode, :available_workspace_modes, :workspace_landing_path
   # Only allow modern browsers supporting webp images, web push, badges, import maps, CSS nesting, and CSS :has.
   allow_browser versions: :modern
 
@@ -49,8 +49,23 @@ class ApplicationController < ActionController::Base
       ]
 
       modes << { key: "creator", label: "Creator" } if Current.session.user.profile&.creator?
-      modes << { key: "professional", label: "Professionista" }
+      modes << { key: "professional", label: "Professionista" } if Current.session.user.profile&.professional?
       modes << { key: "superadmin", label: "Superadmin" } if Current.session.user.superadmin?
       modes
+    end
+
+    def workspace_landing_path(mode = current_workspace_mode)
+      case mode.to_s
+      when "traveler"
+        traveler_impegno_path
+      when "creator"
+        creator_carta_nautica_path
+      when "professional"
+        professionals_path
+      when "superadmin"
+        admin_creator_requests_path
+      else
+        dashboard_path
+      end
     end
 end

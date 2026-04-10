@@ -1,0 +1,46 @@
+<div id="<%= dom_id taxbranch %>" class="w-full sm:w-auto my-5 space-y-5">
+  <div>
+    <strong class="block font-medium mb-1">Lead:</strong>
+    <%= taxbranch.lead_id %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Note interne:</strong>
+    <%= taxbranch.notes.presence || "—" %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Slug:</strong>
+    <%= taxbranch.slug %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Slug category:</strong>
+    <%= taxbranch.slug_category %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Slug label:</strong>
+    <%= taxbranch.slug_label %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Ancestry:</strong>
+    <%= taxbranch.ancestry %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Position:</strong>
+    <%= taxbranch.position %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Meta:</strong>
+    <%= taxbranch.meta %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Ruoli con accesso:</strong>
+    <% if taxbranch.permission_access_roles.present? %>
+      <ul class="list-disc ml-5 text-sm text-slate-700 space-y-0.5">
+        <% taxbranch.permission_access_roles.each do |role| %>
+          <li><%= role %></li>
+        <% end %>
+      </ul>
+    <% else %>
+      <span class="text-sm text-slate-500">Nessuna limitazione.</span>
+    <% end %>
+  </div>
+</div>

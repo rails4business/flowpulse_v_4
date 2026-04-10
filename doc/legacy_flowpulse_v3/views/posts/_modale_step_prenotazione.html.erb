@@ -1,0 +1,144 @@
+<div id="enrollModalOverlay" class="hidden fixed inset-0 z-50 bg-black/40 p-4">
+  <div class="mx-auto mt-8 w-full max-w-xl rounded-2xl border border-slate-200 bg-white shadow-2xl">
+    <div class="flex items-center justify-between border-b border-slate-100 p-4">
+      <div>
+        <h3 class="text-base font-bold text-slate-800">Iscriviti al modulo</h3>
+        <p id="enrollModuleName" class="text-xs text-slate-500 mt-0.5">—</p>
+      </div>
+      <button id="closeEnrollModalBtn" type="button" class="text-slate-400 hover:text-slate-700">✕</button>
+    </div>
+
+    <div class="p-4 space-y-4">
+      <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-3">
+        <div class="flex items-center justify-between text-xs font-semibold text-slate-500">
+          <span id="enrollStepCounter">Step 1 di 3</span>
+          <span id="enrollStepLabel">Modalita del percorso</span>
+        </div>
+        <div class="mt-2 h-1.5 rounded-full bg-slate-200 overflow-hidden">
+          <div id="enrollStepProgress" class="h-1.5 bg-primary" style="width: 33%"></div>
+        </div>
+      </div>
+
+      <section id="enrollStepMode" class="space-y-3">
+        <div class="text-sm font-semibold text-slate-700">Scegli la modalita del modulo</div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+          <button id="enrollModeAutoBtn" type="button" class="text-left rounded-lg border border-slate-200 bg-white px-3 py-2 hover:bg-slate-50">
+            <div class="text-xs font-bold text-slate-800">Online in autonomia</div>
+            <div class="text-[11px] text-slate-500 mt-1">Vai direttamente ai dati e prezzi</div>
+          </button>
+          <button id="enrollModeProBtn" type="button" class="text-left rounded-lg border border-slate-200 bg-white px-3 py-2 hover:bg-slate-50">
+            <div class="text-xs font-bold text-slate-800">Seguito da professionista</div>
+            <div class="text-[11px] text-slate-500 mt-1">Step guidati per configurare il percorso</div>
+          </button>
+        </div>
+        <button id="enrollModeNextBtn" type="button" class="w-full rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white hover:bg-primary/90">Continua</button>
+      </section>
+
+      <section id="enrollStepType" class="hidden space-y-3">
+        <div class="text-sm font-semibold text-slate-700">Tipo sessione</div>
+        <input id="enrollProType" type="hidden" value="gruppo" />
+        <div class="grid grid-cols-2 gap-2">
+          <button id="enrollTypeSingleBtn" type="button" class="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">
+            <span class="material-symbols-outlined text-[18px]">person</span>Singolo
+          </button>
+          <button id="enrollTypeGroupBtn" type="button" class="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">
+            <span class="material-symbols-outlined text-[18px]">groups</span>In gruppo
+          </button>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <button id="enrollTypeBackBtn" type="button" class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">Indietro</button>
+          <button id="enrollTypeNextBtn" type="button" class="rounded-lg bg-primary px-3 py-2 text-sm font-bold text-white hover:bg-primary/90">Continua</button>
+        </div>
+      </section>
+
+      <section id="enrollStepGroupSize" class="hidden space-y-3">
+        <div class="text-sm font-semibold text-slate-700">Dimensione gruppo</div>
+        <input id="enrollGroupSize" type="hidden" value="8-12" />
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
+          <button type="button" data-group-size="2-4" class="enroll-group-size-btn rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">2 - 4</button>
+          <button type="button" data-group-size="5-8" class="enroll-group-size-btn rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">5 - 8</button>
+          <button type="button" data-group-size="8-12" class="enroll-group-size-btn rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">8 - 12</button>
+          <button type="button" data-group-size="12-20" class="enroll-group-size-btn rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">12 - 20</button>
+          <button type="button" data-group-size="20+" class="enroll-group-size-btn rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">+ di 20</button>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <button id="enrollGroupSizeBackBtn" type="button" class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">Indietro</button>
+          <button id="enrollGroupSizeNextBtn" type="button" class="rounded-lg bg-primary px-3 py-2 text-sm font-bold text-white hover:bg-primary/90">Continua</button>
+        </div>
+      </section>
+
+      <section id="enrollStepChannel" class="hidden space-y-3">
+        <div class="text-sm font-semibold text-slate-700">Modalita erogazione</div>
+        <input id="enrollProChannel" type="hidden" value="online" />
+        <div class="grid grid-cols-2 gap-2">
+          <button id="enrollChannelOnlineBtn" type="button" class="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">
+            <span class="material-symbols-outlined text-[18px]">wifi</span>Online
+          </button>
+          <button id="enrollChannelPresenceBtn" type="button" class="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">
+            <span class="material-symbols-outlined text-[18px]">apartment</span>In presenza
+          </button>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <button id="enrollChannelBackBtn" type="button" class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">Indietro</button>
+          <button id="enrollChannelNextBtn" type="button" class="rounded-lg bg-primary px-3 py-2 text-sm font-bold text-white hover:bg-primary/90">Continua</button>
+        </div>
+      </section>
+
+      <section id="enrollStepOnlineLocation" class="hidden space-y-3">
+        <div class="text-sm font-semibold text-slate-700">Localita (online)</div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+          <input id="enrollOnlineCountry" type="text" placeholder="Paese" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm" />
+          <input id="enrollOnlineProvince" type="text" placeholder="Provincia" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm" />
+          <input id="enrollOnlineCity" type="text" placeholder="Citta" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm md:col-span-2" />
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <button id="enrollOnlineLocationBackBtn" type="button" class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">Indietro</button>
+          <button id="enrollOnlineLocationNextBtn" type="button" class="rounded-lg bg-primary px-3 py-2 text-sm font-bold text-white hover:bg-primary/90">Continua</button>
+        </div>
+      </section>
+
+      <section id="enrollStepPlace" class="hidden space-y-3">
+        <div class="text-sm font-semibold text-slate-700">Luogo</div>
+        <input id="enrollProPlace" type="hidden" value="centro" />
+        <div class="grid grid-cols-1 gap-2">
+          <button id="enrollPlaceCenterBtn" type="button" class="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">
+            <span class="material-symbols-outlined text-[18px]">location_city</span>Nel centro
+          </button>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <button id="enrollPlaceBackBtn" type="button" class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">Indietro</button>
+          <button id="enrollPlaceNextBtn" type="button" class="rounded-lg bg-primary px-3 py-2 text-sm font-bold text-white hover:bg-primary/90">Continua</button>
+        </div>
+      </section>
+
+      <section id="enrollStepData" class="hidden space-y-3">
+        <div class="text-sm font-semibold text-slate-700">Inserisci i tuoi dati</div>
+        <div class="space-y-2">
+          <input id="enrollName" type="text" required placeholder="Nome e cognome" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm" />
+          <input id="enrollEmail" type="email" required placeholder="Email" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm" />
+          <input id="enrollPhone" type="tel" placeholder="Telefono" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm" />
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <button id="enrollDataBackBtn" type="button" class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">Indietro</button>
+          <button id="enrollDataNextBtn" type="button" class="rounded-lg bg-primary px-3 py-2 text-sm font-bold text-white hover:bg-primary/90">Continua</button>
+        </div>
+      </section>
+
+      <section id="enrollStepPrice" class="hidden space-y-3">
+        <div class="text-sm font-semibold text-slate-700">Prezzi del modulo</div>
+        <div class="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-2 text-sm">
+          <div class="flex items-center justify-between"><span>Modalita selezionata</span><strong id="enrollPriceMode">—</strong></div>
+          <div class="flex items-center justify-between"><span>Online in autonomia</span><strong id="enrollPriceAutonomia">—</strong></div>
+          <div class="flex items-center justify-between"><span>Lezione singola</span><strong id="enrollPriceSingle">—</strong></div>
+          <div class="flex items-center justify-between"><span>Pacchetto modulo</span><strong id="enrollPricePack">—</strong></div>
+          <div class="flex items-center justify-between"><span>Gruppo (per persona)</span><strong id="enrollPriceGroup">—</strong></div>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <button id="enrollPriceBackBtn" type="button" class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">Indietro</button>
+          <button id="submitEnrollBtn" type="button" class="rounded-lg bg-primary px-3 py-2 text-sm font-bold text-white hover:bg-primary/90">Invia richiesta</button>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>

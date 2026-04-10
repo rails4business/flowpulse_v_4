@@ -1,0 +1,508 @@
+<%# ---- HEAD della pagina (font, utilità css, JSON-LD) ---- %>
+<% content_for :head do %>
+  <!-- Google Fonts (Inter) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Utility inline senza tailwind.config.js -->
+  <style>
+    html{scroll-behavior:smooth}
+    .container{max-width:1200px}
+    :root{ --pc-blue:#1f6feb; --pc-red:#dc2626; --pc-green:#059669; }
+    /* Utility personalizzate */
+    .bg-pc-blue{background-color:var(--pc-blue)} .text-pc-blue{color:var(--pc-blue)}
+    .bg-pc-red{background-color:var(--pc-red)}   .text-pc-red{color:var(--pc-red)}
+    .bg-pc-green{background-color:var(--pc-green)} .text-pc-green{color:var(--pc-green)}
+    .shadow-soft{box-shadow:0 10px 30px rgba(0,0,0,.08)}
+  </style>
+  <!-- JSON-LD -->
+  <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"Organization","name":"PosturaCorretta","url":"https://posturacorretta.org","logo":"https://posturacorretta.org/logo.png","sameAs":["https://www.youtube.com/@PosturaCorretta"]}
+  </script>
+  <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"WebSite","name":"PosturaCorretta","url":"https://posturacorretta.org","potentialAction":{"@type":"SearchAction","target":"https://posturacorretta.org/?q={search_term_string}","query-input":"required name=search_term_string"}}
+  </script>
+<% end %>
+<%# ---- CONTENUTO DELLA PAGINA ---- %>
+<div class="bg-slate-50 text-slate-900 font-sans antialiased">
+  <!-- Top bar -->
+  <div class="bg-slate-900 text-white text-xs">
+    <div class="container mx-auto px-4 py-2 flex items-center justify-between">
+      <p class="opacity-80">posturacorretta.org <span class="font-semibold">v3</span></p>
+      <a href="#start" class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 hover:bg-white/20">Trova il tuo percorso</a>
+    </div>
+  </div>
+  <!-- Header -->
+  <header class="bg-white/90 backdrop-blur sticky top-0 z-50 border-b border-slate-200">
+    <nav class="container mx-auto px-4 h-16 flex items-center justify-between">
+      <a href="#" class="flex items-center gap-3">
+        <%= image_tag 'posturacorretta/logo_pc.png', class:"h-8" %>
+      </a>
+      <div class="hidden md:flex items-center gap-6 text-sm">
+        <a href="#perche" class="hover:text-pc-blue">Perché</a>
+        <a href="#tre-mondi" class="hover:text-pc-blue">I tre mondi</a>
+        <a href="#accademia" class="hover:text-pc-blue">Accademia</a>
+        <a href="#modalita" class="hover:text-pc-blue">Come funziona</a>
+        <a href="#iscriviti" class="inline-flex items-center rounded-full bg-pc-blue text-white px-4 py-2 font-semibold shadow-soft hover:shadow">Inizia ora</a>
+      </div>
+      <a href="#iscriviti" class="md:hidden inline-flex items-center rounded-full bg-pc-blue text-white px-3 py-2 text-sm font-semibold">Inizia</a>
+    </nav>
+  </header>
+  <!-- Hero -->
+  <section class="bg-gradient-to-b from-white to-slate-100">
+    <div class="container mx-auto px-4 py-16 md:py-24 grid md:grid-cols-2 gap-8 items-center">
+      <div>
+        <div class="inline-flex items-center gap-2 rounded-full bg-slate-100 border border-slate-200 px-3 py-1 text-xs font-medium mb-4">
+          <span class="w-2 h-2 rounded-full bg-pc-blue"></span> Educazione, Salute, Benessere
+        </div>
+        <h1 class="text-3xl md:text-4xl font-extrabold leading-tight tracking-tight">
+          Hai un corpo, prova ad ascoltarlo, non è mai troppo tardi
+        </h1>
+        <p>Le metodiche posturali ti possono aiutare!</p>
+        <p class="mt-4 text-slate-600 text-lg md:text-xl">
+          Ci muoviamo sempre meno, seduti e fermi rapiti dallo Smartphone, computer, intelligenza artificiale.
+          Se va bene del corpo e dei suoi sistemi ormai è rimasto solo un ricordo di quello che avevi studiato a scuola.
+          <br>
+          Con<span class="font-semibold"> PosturaCorretta</span>
+          riattiva i tuoi sistemi fisiologici e impara come funzionano.
+        </p>
+        <div class="mt-8 flex flex-col sm:flex-row gap-3">
+          <a href="#start" class="inline-flex items-center justify-center rounded-xl bg-pc-blue text-white px-6 py-3 font-semibold shadow-soft hover:opacity-95">Scopri il tuo percorso</a>
+          <a href="#igiene" class="inline-flex items-center justify-center rounded-xl bg-white border border-slate-200 px-6 py-3 font-semibold hover:bg-slate-50">Inizia da Igiene Posturale</a>
+        </div>
+        <p class="mt-4 text-xs text-slate-500">Blu = Educazione • Rosso = Stop al dolore • Verde = Benessere integrato</p>
+      </div>
+      <div class="relative h-128">
+        <figure class="h-128 relative aspect-[3/4] md:aspect-[3/4] w-full rounded-2xl bg-slate-900 border border-slate-200 shadow-soft overflow-hidden">
+          <%= image_tag "posturacorretta/posturascorretta.png",
+              alt: "Scheletro in postura scorretta che guarda lo smartphone",
+              class: "absolute inset-0 w-full h-full object-contain md:object-cover bg-slate-900",
+              loading: "lazy" %>
+          <!-- scrim per contrasto testo -->
+          <div class="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-slate-900/85 via-slate-900/40 to-transparent"></div>
+          <!-- badge opzionale -->
+          <div class="absolute top-3 left-3">
+            <span class="inline-flex items-center gap-2 rounded-full bg-white/15 backdrop-blur px-3 py-1 text-xs font-semibold text-white ring-1 ring-white/30">
+              Forma ↔ Funzione
+            </span>
+          </div>
+          <!-- overlay testo -->
+          <figcaption class="absolute bottom-0 left-0 right-0 p-4 md:p-6">
+            <div class="inline-block max-w-[90%] rounded-xl bg-white/10 backdrop-blur px-3 py-2 ring-1 ring-white/20">
+              <p class="text-white font-semibold text-base md:text-lg leading-snug drop-shadow">
+                Le abitudini modellano il corpo. Educarle lo protegge.
+              </p>
+            </div>
+          </figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+  <!-- Perché -->
+  <section id="perche" class="bg-white">
+    <div class="container mx-auto px-4 py-16 grid md:grid-cols-2 gap-10 items-center">
+      <div>
+        <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">Le abitudini e l'ambiente, in cui viviamo modellano il corpo.</h2>
+        <p class="text-slate-600 mt-3">Per millenni l’ambiente naturale ci ha costretti a correre, saltare, arrampicarci, lanciare, cambiare andatura. Negli ultimi decenni abbiamo tolto gli stimoli che ci hanno fatti evolvere. Il corpo è <em>super economico</em>: smantella ciò che non usa.</p>
+        <p class="text-slate-700 mt-3 font-medium">La soluzione? Non aspettare di avere dolori o patologie, e no non è abbastanza solo il movimento! 
+        </p>
+        <div class="mt-6 flex gap-3">
+          <a href="#tre-mondi" class="inline-flex items-center rounded-xl bg-pc-blue text-white px-5 py-3 font-semibold shadow-soft">Vedi i 3 mondi</a>
+          <a href="#iscriviti" class="inline-flex items-center rounded-xl bg-white border border-slate-200 px-5 py-3 font-semibold hover:bg-slate-50">Parla con noi</a>
+        </div>
+      </div>
+      <ul class="space-y-4">
+        <li class="p-5 rounded-2xl border border-slate-200 bg-white shadow-soft"><span class="font-semibold">Educazione</span> — Conosci i tuoi sistemi? Sono attivi o bisogna risvegliarli?</li>
+        <li class="p-5 rounded-2xl border border-slate-200 bg-white shadow-soft"><span class="font-semibold">Prevenzione</span> — Quali rischi ogni giorno potresti, alleviare e come? </li>
+        <li class="p-5 rounded-2xl border border-slate-200 bg-white shadow-soft"><span class="font-semibold">Esperienza</span> — I professionisti della salute sono guide, ti possono aiutare nei momenti difficili, quando perdi la capacità di ascoltare i messaggi del tuo corpo, il tuo maestro interiore.</li>
+      </ul>
+    </div>
+  </section>
+  <!-- Tre mondi -->
+  <section id="tre-mondi" class="bg-slate-50">
+    <div class="container mx-auto px-4 py-16">
+      <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">Cos'è la salute? </h2>
+      <p class="text-slate-600 mt-2 max-w-3xl">Percorso PosturaCorretta, è un viaggio alla scoperta di nuovi punti di vista, da cui osservare il mondo della guarigione e della salute.</p>
+      <div class="mt-8 grid md:grid-cols-3 gap-6">
+        <div class="p-6 rounded-2xl bg-white border border-slate-200 shadow-soft">
+          <div class="w-10 h-10 rounded-lg bg-pc-red/10 grid place-items-center mb-3">🩺</div>
+          <h3 class="font-bold text-pc-red ">Curare una patologia</h3>
+          <b class="font-bold text-pc-red ">STOP AL DOLORE</b>
+          <p class="text-slate-600 mt-2">Agisci quando il problema è presente: triage, cura, riabilitazione. Collaboriamo con professionisti della salute.</p>
+          <ul class="mt-3 text-sm text-slate-700 list-disc list-inside">
+            <li>Fase acuta / emergenza</li>
+            <li>Valutazione e percorso sanitario</li>
+            <li>Continuità con il benessere</li>
+          </ul>
+          <a href="#iscriviti" class="mt-4 inline-flex text-pc-red font-semibold">Trova supporto →</a>
+        </div>
+        <div class="p-6 rounded-2xl bg-white border border-slate-200 shadow-soft">
+          <div class="w-10 h-10 rounded-lg bg-pc-green/10 grid place-items-center mb-3">🌿</div>
+          <h3 class="font-bold text-pc-green">Prendersi cura del proprio benessere</h3>
+          <b class="font-bold text-pc-green ">BENESSERE INTEGRATO</b>
+          <p class="text-slate-600 mt-2">Programmi per sostenere e migliorare la salute: allenamento, recupero, nutrizione, aspetti emotivi/mentali.</p>
+          <ul class="mt-3 text-sm text-slate-700 list-disc list-inside">
+            <li>Sport e routine</li>
+            <li>Alimentazione e integrazione</li>
+            <li>Equilibrio emotivo ed energetico</li>
+          </ul>
+          <a href="#iscriviti" class="mt-4 inline-flex text-pc-green font-semibold">Scopri i percorsi →</a>
+        </div>
+        <div class="p-6 rounded-2xl bg-white border border-slate-200 shadow-soft">
+          <div class="w-10 h-10 rounded-lg bg-pc-blue/10 grid place-items-center mb-3">📘</div>
+          <h3 class="font-bold text-pc-blue">Mantenere funzionanti i sistemi del corpo</h3>
+          <b class="font-bold text-pc-blue ">POSTURA E FISIOLOGIA</b>
+          <p class="text-slate-600 mt-2">Impari come funzionano i sistemi, come riattivarli e come scegliere i professionisti giusti. Punto di partenza: <strong>Igiene Posturale</strong>.</p>
+          <ul class="mt-3 text-sm text-slate-700 list-disc list-inside">
+            <li>Le basi di fisiologia</li>
+            <li>Metodiche posturali</li>
+            <li>Routine quotidiane</li>
+          </ul>
+          <a href="#igiene" class="mt-4 inline-flex text-pc-blue font-semibold">Inizia da Igiene Posturale →</a>
+        </div-->
+      </div>
+    </div>
+  </section>
+  <!-- Grid cards (block layout) -->
+  <section id="tre-mondi" class="bg-slate-50">
+    <div class="container mx-auto px-4 py-16">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- 1. Profilo e Diario -->
+        <a href="/profilo" class="block group bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-lg transition" aria-label="Profilo e Diario">
+          <div class="relative h-48 sm:h-56 bg-center bg-cover"
+           style="background-image:url('https://source.unsplash.com/1600x900/?journal,notebook,writing,health');">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/45 via-black/10 to-transparent"></div>
+            <div class="absolute bottom-3 left-3 right-3">
+              <span class="inline-flex items-center rounded-full bg-white/20 backdrop-blur px-3 py-1 text-xs font-semibold text-white ring-1 ring-white/30">Base personale</span>
+            </div>
+          </div>
+          <div class="p-5">
+            <h3 class="mt-1 text-2xl font-extrabold leading-tight">Profilo e Diario</h3>
+            <p class="mt-2 text-slate-600">Registra attività, dolore, abitudini. Tieni traccia del percorso e condividi con i professionisti.</p>
+            <span class="mt-4 inline-flex items-center gap-2 text-pc-blue font-semibold">
+              Inizia →
+            </span>
+          </div>
+        </a>
+        <!-- 2. Stop al Dolore -->
+        <a href="/stop-al-dolore" class="block group bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-lg transition" aria-label="Stop al Dolore">
+          <div class="relative h-48 sm:h-56 bg-center bg-cover"
+           style="background-image:url('https://source.unsplash.com/1600x900/?physiotherapy,pain,rehabilitation,clinic');">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-black/15 to-transparent"></div>
+            <div class="absolute bottom-3 left-3 right-3">
+              <span class="inline-flex items-center rounded-full bg-white/20 backdrop-blur px-3 py-1 text-xs font-semibold text-white ring-1 ring-white/30">Percorso Rosso</span>
+            </div>
+          </div>
+          <div class="p-5">
+            <h3 class="mt-1 text-2xl font-extrabold leading-tight">Stop al Dolore</h3>
+            <p class="mt-2 text-slate-600">Patologie, traumi, dolore cronico: protocolli e rete di professionisti per curarti in modo mirato.</p>
+            <span class="mt-4 inline-flex items-center gap-2 text-red-700 font-semibold">Inizia →</span>
+          </div>
+        </a>
+        <!-- 3. Benessere Integrato -->
+        <a href="/benessere-integrato" class="block group bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-lg transition" aria-label="Benessere Integrato">
+          <div class="relative h-48 sm:h-56 bg-center bg-cover"
+           style="background-image:url('https://source.unsplash.com/1600x900/?wellness,healthy,lifestyle,breath');">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/45 via-black/10 to-transparent"></div>
+            <div class="absolute bottom-3 left-3 right-3">
+              <span class="inline-flex items-center rounded-full bg-white/20 backdrop-blur px-3 py-1 text-xs font-semibold text-white ring-1 ring-white/30">Percorso Verde</span>
+            </div>
+          </div>
+          <div class="p-5">
+            <h3 class="mt-1 text-2xl font-extrabold leading-tight">Benessere Integrato</h3>
+            <p class="mt-2 text-slate-600">Salute quotidiana, ritmi e abitudini: strumenti integrati tra corpo, mente e relazioni.</p>
+            <span class="mt-4 inline-flex items-center gap-2 text-green-700 font-semibold">Inizia →</span>
+          </div>
+        </a>
+        <!-- 4. Postura e Fisiologia -->
+        <a href="/postura-e-fisiologia" class="block group bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-lg transition" aria-label="Postura e Fisiologia">
+          <div class="relative h-48 sm:h-56 bg-center bg-cover"
+           style="background-image:url('https://source.unsplash.com/1600x900/?anatomy,posture,physiology,spine');">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/45 via-black/10 to-transparent"></div>
+            <div class="absolute bottom-3 left-3 right-3">
+              <span class="inline-flex items-center rounded-full bg-white/20 backdrop-blur px-3 py-1 text-xs font-semibold text-white ring-1 ring-white/30">Accademia</span>
+            </div>
+          </div>
+          <div class="p-5">
+            <h3 class="mt-1 text-2xl font-extrabold leading-tight">Postura e Fisiologia</h3>
+            <p class="mt-2 text-slate-600">Come funziona il corpo: metodiche posturali e riattivazione dei sistemi fisiologici.</p>
+            <span class="mt-4 inline-flex items-center gap-2 text-pc-blue font-semibold">Inizia →</span>
+          </div>
+        </a>
+        <!-- 5. Flowpulse -->
+        <a href="https://flowpulse.net" target="_blank" class="block group bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-lg transition" aria-label="Flowpulse">
+          <div class="relative h-48 sm:h-56 bg-center bg-cover"
+           style="background-image:url('https://source.unsplash.com/1600x900/?productivity,workflow,planning,workspace');">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/45 via-black/10 to-transparent"></div>
+            <div class="absolute bottom-3 left-3 right-3">
+              <span class="inline-flex items-center rounded-full bg-white/20 backdrop-blur px-3 py-1 text-xs font-semibold text-white ring-1 ring-white/30">Equilibrio</span>
+            </div>
+          </div>
+          <div class="p-5">
+            <h3 class="mt-1 text-2xl font-extrabold leading-tight">Flowpulse</h3>
+            <p class="mt-2 text-slate-600">Equilibrio tra salute, lavoro e formazione. Progetti, routine e crescita personale.</p>
+            <span class="mt-4 inline-flex items-center gap-2 text-yellow-700 font-semibold">Inizia →</span>
+          </div>
+        </a>
+        <!-- 6. Inside Adventure -->
+        <a href="/inside-adventure" class="block group bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-lg transition" aria-label="Inside Adventure">
+          <div class="relative h-48 sm:h-56 bg-center bg-cover"
+           style="background-image:url('https://source.unsplash.com/1600x900/?neuroscience,brain,network,data');">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/45 via-black/10 to-transparent"></div>
+            <div class="absolute bottom-3 left-3 right-3">
+              <span class="inline-flex items-center rounded-full bg-white/20 backdrop-blur px-3 py-1 text-xs font-semibold text-white ring-1 ring-white/30">Ricerca</span>
+            </div>
+          </div>
+          <div class="p-5">
+            <h3 class="mt-1 text-2xl font-extrabold leading-tight">Inside Adventure</h3>
+            <p class="mt-2 text-slate-600">Modelli tra salute, informatica e neuroscienze: corpo, emozioni e coscienza.</p>
+            <span class="mt-4 inline-flex items-center gap-2 text-purple-700 font-semibold">Inizia →</span>
+          </div>
+        </a>
+        <!-- 7. Il Giardino del Corpo -->
+        <a href="/giardino-del-corpo" class="block group bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-lg transition" aria-label="Il Giardino del Corpo">
+          <div class="relative h-48 sm:h-56 bg-center bg-cover"
+           style="background-image:url('https://source.unsplash.com/1600x900/?forest,stars,cosmos,nature,macrocosm');">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/45 via-black/10 to-transparent"></div>
+            <div class="absolute bottom-3 left-3 right-3">
+              <span class="inline-flex items-center rounded-full bg-white/20 backdrop-blur px-3 py-1 text-xs font-semibold text-white ring-1 ring-white/30">Evoluzione</span>
+            </div>
+          </div>
+          <div class="p-5">
+            <h3 class="mt-1 text-2xl font-extrabold leading-tight">Il Giardino del Corpo</h3>
+            <p class="mt-2 text-slate-600">Rapporto macrocosmo–microcosmo e crescita dell’essere umano tra scienza e spiritualità.</p>
+            <span class="mt-4 inline-flex items-center gap-2 text-emerald-700 font-semibold">Inizia →</span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+  <!-- Accademia -->
+  <!--section id="accademia" class="bg-white">
+    <div class="container mx-auto px-4 py-16 grid md:grid-cols-2 gap-10 items-center">
+      <div>
+        <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">Accademia Postura e Fisiologia</h2>
+        <p class="text-slate-600 mt-3">Formiamo insegnanti dell’educazione posturale e fisiologica. Grazie all’AI, portiamo l’accademia online, con materiali aggiornati e comunità di pratica.</p>
+        <ul class="mt-4 space-y-2 text-slate-700">
+          <li>✓ Corso base: <strong>Igiene Posturale</strong> (4 lezioni)</li>
+          <li>✓ Moduli: respirazione, mobilità, catene, ergonomia</li>
+          <li>✓ Percorsi: autonomia, 1:1, gruppo, centri accreditati</li>
+        </ul>
+        <div class="mt-6 flex gap-3">
+          <a id="igiene" href="#iscriviti" class="inline-flex items-center rounded-xl bg-pc-blue text-white px-5 py-3 font-semibold shadow-soft">Iscriviti a Igiene Posturale</a>
+          <a href="#modalita" class="inline-flex items-center rounded-xl bg-white border border-slate-200 px-5 py-3 font-semibold hover:bg-slate-50">Vedi come funziona</a>
+        </div>
+      </div>
+      <div class="p-6 rounded-2xl bg-white border border-slate-200 shadow-soft">
+        <div class="grid grid-cols-2 gap-4 text-sm">
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+            <div class="text-xs font-semibold text-pc-red">Rosso</div>
+            <div class="font-semibold">Stop al dolore</div>
+            <p class="text-slate-600 mt-1">Affrontare la fase acuta dolori e patologie.</p>
+          </div>
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+            <div class="text-xs font-semibold text-pc-green">Verde</div>
+            <div class="font-semibold">Benessere Integrato</div>
+            <p class="text-slate-600 mt-1">Costruire il tuo percorso per la salute.</p>
+          </div>
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+            <div class="text-xs font-semibold text-pc-blue">Blu</div>
+            <div class="font-semibold">Postura e fisiologia</div>
+            <p class="text-slate-600 mt-1">Conoscenza, esperienza, costruzione di abitudini.</p>
+          </div>
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+            <div class="text-xs font-semibold text-slate-500">Oltre la postura</div>
+            <div class="font-semibold">Formazione</div>
+            <p class="text-slate-600 mt-1">Diventare insegnanti e lavorare sullo stile di vita.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section-->
+  <!-- Modalità -->
+  <section id="modalita" class="bg-slate-50">
+    <div class="container mx-auto px-4 py-16">
+      <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">Come funziona</h2>
+      <div class="mt-8 grid md:grid-cols-4 gap-6">
+        <div class="p-6 rounded-2xl bg-white border border-slate-200">
+          <div class="text-xs font-semibold text-pc-blue">Per chi vuole:</div>
+          <h3 class="font-bold mt-1">Iniziare il percorso</h3>
+          <p class="text-slate-600 mt-1">
+            Scopri da dove partire: scegli se iniziare in autonomia, con un professionista, in gruppo o in presenza. Il primo passo verso la tua salute.
+          </p>
+        </div>
+        <div class="p-6 rounded-2xl bg-white border border-slate-200">
+          <div class="text-xs font-semibold text-pc-blue">Per chi vuole diventare:</div>
+          <h3 class="font-bold mt-1">Insegnante o tutor</h3>
+          <p class="text-slate-600 mt-1">
+            Segui il percorso formativo e accompagnare persone o gruppi. Costruisci la tua competenza dopo aver seguito il percorso.
+          </p>
+        </div>
+        <div class="p-6 rounded-2xl bg-white border border-slate-200">
+          <div class="text-xs font-semibold text-pc-blue">Per chi vuole portare:</div>
+          <h3 class="font-bold mt-1">Il percorso nel centro</h3>
+          <p class="text-slate-600 mt-1">
+            Per valorizzare i tuoi servizi, avere clienti in target, che comprendono e valorizzano il tuo lavoro. Per favorire le collaborazioni tra professionisti, e gestire i percorsi dei clienti in modo integrato.
+          </p>
+        </div>
+        <div class="p-6 rounded-2xl bg-white border border-slate-200">
+          <div class="text-xs font-semibold text-pc-blue">Per i professionisti che vogliono:</div>
+          <h3 class="font-bold mt-1">Diventare Creator</h3>
+          <p class="text-slate-600 mt-1">
+            Se condividi i valori posturacorretta, fai conoscere il tuo lavoro, i tuoi servizi, la tua professione, le metodiche che utilizzi, e le scuole che te le hanno insegnate.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- Social proof -->
+  <section class="bg-white">
+    <div class="container mx-auto px-4 py-16">
+      <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">Storie vere, risultati concreti</h2>
+      <div class="mt-8 grid md:grid-cols-3 gap-6">
+        <figure class="p-6 bg-white rounded-2xl border border-slate-200 shadow-soft">
+          <blockquote class="text-slate-700">“Il collegamento tra educazione, fisioterapia e routine quotidiane mi ha cambiato il modo di lavorare.”</blockquote>
+          <figcaption class="mt-3 text-sm text-slate-500">Sara, 41 — HR Manager</figcaption>
+        </figure>
+        <figure class="p-6 bg-white rounded-2xl border border-slate-200 shadow-soft">
+          <blockquote class="text-slate-700">“Con 10′ al giorno e 4 lezioni ho meno rigidità e più energia al PC.”</blockquote>
+          <figcaption class="mt-3 text-sm text-slate-500">Luca, 38 — imprenditore</figcaption>
+        </figure>
+        <figure class="p-6 bg-white rounded-2xl border border-slate-200 shadow-soft">
+          <blockquote class="text-slate-700">“La mappa Rosso-Verde-Blu chiarisce a chi rivolgersi e quando.”</blockquote>
+          <figcaption class="mt-3 text-sm text-slate-500">Elena, 33 — designer</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+  <!-- CTA Wide -->
+  <section id="start" class="bg-gradient-to-br from-pc-blue to-indigo-600 text-white">
+    <div class="container mx-auto px-4 py-14 text-center">
+      <h2 class="text-2xl md:text-3xl font-extrabold">Scopri da dove partire</h2>
+      <p class="mt-2 opacity-90">Rispondi a 3 domande e ti suggeriamo il primo passo giusto per te.</p>
+      <div class="mt-6">
+        <a href="#iscriviti" class="inline-flex items-center justify-center rounded-xl bg-white text-pc-blue px-6 py-3 font-semibold shadow-soft hover:opacity-90">Inizia il tuo percorso</a>
+      </div>
+    </div>
+  </section>
+  <!-- Per chi -->
+  <section class="bg-slate-50">
+    <div class="container mx-auto px-4 py-16">
+      <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">Quando è consigliato?</h2>
+      <div class="mt-8 grid md:grid-cols-3 gap-6">
+        <div class="p-6 rounded-2xl bg-white border border-slate-200">
+          <h3 class="font-bold">Famiglie</h3>
+          <p class="text-slate-600 mt-1">L'Educazione alla saltue inizia dalla famiglia abitudini sane fin da piccoli, ti aiutano per tutta la vita.</p>
+        </div>
+        <div class="p-6 rounded-2xl bg-white border border-slate-200">
+          <h3 class="font-bold">La Scuola</h3>
+          <p class="text-slate-600 mt-1">A scuola dovremmo imparare come funziona il nostro corpo e come mantenerlo in salute.</p>
+        </div>
+        <div class="p-6 rounded-2xl bg-white border border-slate-200">
+          <h3 class="font-bold">Associazioni, Sport</h3>
+          <p class="text-slate-600 mt-1">Allenatori istruttori insieme alle performance, dovrebbero pensare all'educazione.</p>
+        </div>
+        <div class="p-6 rounded-2xl bg-white border border-slate-200">
+          <h3 class="font-bold">Lavoro</h3>
+          <p class="text-slate-600 mt-1">Nel mondo del lavoro, è fondamentale integrare l'educazione alla salute e al benessere.</p>
+        </div>
+        <div class="p-6 rounded-2xl bg-white border border-slate-200">
+          <h3 class="font-bold">Fragilità e caregiver</h3>
+          <p class="text-slate-600 mt-1">Anziani, disabili, malati: supporto educativo e continuità con la cura.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- Form -->
+  <section id="iscriviti" class="bg-white">
+    <div class="container mx-auto px-4 py-16 grid md:grid-cols-2 gap-10 items-start">
+      <div>
+        <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">Parla con noi • Inizia ora</h2>
+        <p class="text-slate-600 mt-2">Raccontaci da dove parti: ti indirizziamo al primo passo (Igiene Posturale, professionista, gruppo o percorso personalizzato).</p>
+        <ul class="mt-6 space-y-2 text-slate-700 text-sm">
+          <li>✓ Risposta entro 24h lavorative</li>
+          <li>✓ Mini-routine da 10′ in omaggio</li>
+          <li>✓ Indicazioni su Rosso/Verde/Blu</li>
+        </ul>
+      </div>
+      <form id="lead-form" class="p-6 rounded-2xl bg-slate-50 border border-slate-200 shadow-soft space-y-4" onsubmit="return handleSubmit(event)">
+        <div class="grid sm:grid-cols-2 gap-4">
+          <div>
+            <label class="text-sm font-medium">Nome</label>
+            <input required name="nome" class="mt-1 w-full px-3 py-2 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-pc-blue" />
+          </div>
+          <div>
+            <label class="text-sm font-medium">Cognome</label>
+            <input required name="cognome" class="mt-1 w-full px-3 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-pc-blue" />
+          </div>
+        </div>
+        <div>
+          <label class="text-sm font-medium">Email</label>
+          <input required type="email" name="email" class="mt-1 w-full px-3 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-pc-blue" />
+        </div>
+        <div>
+          <label class="text-sm font-medium">Telefono (opzionale)</label>
+          <input name="telefono" class="mt-1 w-full px-3 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-pc-blue" />
+        </div>
+        <div>
+          <label class="text-sm font-medium">Qual è la tua priorità?</label>
+          <select name="priorita" class="mt-1 w-full px-3 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-pc-blue">
+            <option>Stop al dolore (Rosso)</option>
+            <option>Benessere integrato (Verde)</option>
+            <option>Educazione — Postura & Fisiologia (Blu)</option>
+          </select>
+        </div>
+        <div>
+          <label class="inline-flex items-center gap-2 text-sm">
+            <input required type="checkbox" class="rounded border-slate-300" />
+            Acconsento al trattamento dei dati per essere ricontattato.
+          </label>
+        </div>
+        <button type="submit" class="w-full inline-flex items-center justify-center rounded-xl bg-pc-blue text-white px-6 py-3 font-semibold shadow-soft hover:opacity-95">
+          Invia richiesta
+        </button>
+        <p id="form-msg" class="hidden text-sm mt-2"></p>
+      </form>
+    </div>
+  </section>
+  <!-- Footer -->
+  <footer class="bg-white border-t border-slate-200">
+    <div class="container mx-auto px-4 py-10 text-sm text-slate-600">
+      <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-3">
+            <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-pc-blue to-indigo-600"></div>
+            <span class="font-semibold">PosturaCorretta</span>
+            <span class="text-xs text-slate-400">v3 preview</span>
+          </div>
+          <p class="mt-2 text-xs">© <span id="year"></span> PosturaCorretta — Tutti i diritti riservati.</p>
+        </div>
+        <div class="flex items-center gap-4">
+          <a class="hover:text-pc-blue" href="#tre-mondi">I tre mondi</a>
+          <a class="hover:text-pc-blue" href="#accademia">Accademia</a>
+          <a class="hover:text-pc-blue" href="#iscriviti">Inizia ora</a>
+          <a class="hover:text-pc-blue" href="#">Privacy</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <!-- Sticky CTA (mobile) -->
+  <div class="md:hidden fixed bottom-3 inset-x-3 z-50">
+    <a href="#iscriviti" class="w-full inline-flex items-center justify-center rounded-xl bg-pc-blue text-white px-6 py-3 font-semibold shadow-soft">Scopri il tuo percorso</a>
+  </div>
+</div>
+<%# ---- SCRIPT DI PAGINA ---- %>
+<script>
+  document.getElementById('year').textContent = new Date().getFullYear();
+  function handleSubmit(e){
+    e.preventDefault();
+    const form = e.target, msg = document.getElementById('form-msg');
+    const data = Object.fromEntries(new FormData(form));
+    console.log('Lead form data', data); // TODO: integra endpoint reale
+    form.reset();
+    msg.classList.remove('hidden');
+    msg.textContent = 'Grazie! Ti contatteremo a breve per indirizzarti al percorso più adatto.';
+    msg.className = 'text-green-700 bg-green-50 border border-green-200 rounded-lg px-3 py-2';
+    return false;
+  }
+</script>

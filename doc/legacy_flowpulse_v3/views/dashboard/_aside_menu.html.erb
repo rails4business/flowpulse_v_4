@@ -1,0 +1,92 @@
+<% if Current.user&.superadmin? && Current.user.superadmin_mode_active? %>
+  <form action="#" method="GET" class="md:hidden mb-2">
+    <label for="sidebar-search" class="sr-only">Search</label>
+    <div class="relative">
+      <div
+        class="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none"
+      >
+        <svg
+          class="w-5 h-5 text-gray-500 dark:text-gray-400"
+          fill="currentColor"
+          viewBox="0 0 20 20"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            fill-rule="evenodd"
+            clip-rule="evenodd"
+            d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+          ></path>
+        </svg>
+      </div>
+      <input
+        type="text"
+        name="search"
+        id="sidebar-search"
+        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full pl-10 p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+        placeholder="Search"
+      />
+    </div>
+  </form>
+  <ul class="space-y-1">
+<li>
+  <%= link_to "Domini e ruoli", account_profile_path,
+      class: "block py-2 px-4 text-sm hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-400 dark:hover:text-white" %>
+</li>
+<li>
+  <%= link_to "I miei Servizi", myservices_path,
+      class: "block py-2 px-4 text-sm hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-400 dark:hover:text-white" %>
+</li>
+<li>
+  <%= link_to "Iscrizioni", enrollments_path,
+      class: "block py-2 px-4 text-sm hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-400 dark:hover:text-white" %>
+</li>
+<li>
+  <%= link_to "Partecipazioni", bookings_path,
+      class: "block py-2 px-4 text-sm hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-400 dark:hover:text-white" %>
+</li>
+
+<li>
+  <%= link_to "Certificati", certificates_path,
+      class: "block py-2 px-4 text-sm hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-400 dark:hover:text-white" %>
+</li>
+
+</ul>
+
+    <!--- menu helper--->
+  <ul class="space-y-1">
+    <% current_group = nil %>
+    <li>
+  <%= link_to "I miei invitati", account_leads_path,
+      class: "block py-2 px-4 text-sm hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-400 dark:hover:text-white" %>
+</li>
+
+
+
+    <% main_menu_superadmin_items.each do |item| %>
+      <% next if item[:if] && !item[:if].call %>
+
+      <% if item[:group].present? && item[:group] != current_group %>
+        <% current_group = item[:group] %>
+        <li class="mt-3 mb-1 px-2 text-[11px] uppercase tracking-wide text-gray-400 dark:text-gray-500">
+          <%= current_group %>
+        </li>
+      <% end %>
+
+      <li>
+        <%= link_to item[:path], class: nav_link_classes(nav_active?(item[:path])) do %>
+          <span class="text-md"><%= item[:icon] %> &nbsp;</span>
+          <span><%= item[:label] %></span>
+        <% end %>
+      </li>
+    <% end %>
+  </ul>
+
+<% end %>
+<!--Percorsi - Ciclo -sequenza per costruire un elemento - Commitment
+Albero - Progetto
+Rete relazioni collegamenti
+Vettoriali 3d
+mappe xy 2 d
+Programma - cosa fare prima o dopo - tempistica chi fa cosa e quando
+Progetto tutti i pezzi | cosa fare -> Programma ordine in cui fare i pezzi | quando fare -> Sequenza | Come fare ciclo
+-->

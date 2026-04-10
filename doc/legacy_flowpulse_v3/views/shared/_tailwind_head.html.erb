@@ -1,0 +1,74 @@
+<style>
+  html.ms-icons-loading .material-symbols-outlined {
+    visibility: hidden;
+  }
+</style>
+<script>
+  document.documentElement.classList.add("ms-icons-loading");
+  (() => {
+    const unlock = () => document.documentElement.classList.remove("ms-icons-loading");
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(unlock).catch(unlock);
+    } else {
+      window.addEventListener("load", unlock, { once: true });
+    }
+    // Fallback: avoid icons remaining hidden in edge cases.
+    setTimeout(unlock, 800);
+  })();
+</script>
+
+<% if content_for?(:head) %>
+      <%= yield :head %>
+    <% else %>
+ 
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: {
+          "primary": "#1754cf",
+          "background-light": "#f6f6f8",
+          "background-dark": "#111621",
+          "surface-light": "#ffffff",
+          "surface-dark": "#1a2233",
+        },
+        fontFamily: {
+          "display": ["Inter", "sans-serif"]
+        },
+        borderRadius: {
+          "DEFAULT": "0.25rem",
+          "lg": "0.5rem",
+          "xl": "0.75rem",
+          "full": "9999px"
+        },
+      },
+    },
+  }
+</script>
+<style>
+  body {
+    font-family: "Inter", sans-serif;
+  }
+  .material-symbols-outlined {
+    font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+    font-size: 20px;
+  }
+  .calendar-select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: none;
+    padding-right: 0;
+  }
+  .calendar-select::-ms-expand {
+    display: none;
+  }
+</style>
+   <% end %>

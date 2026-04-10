@@ -1,0 +1,272 @@
+<%= render "shared/brand_custom_pc_home_nav" %>
+<% active_tab = params[:tab].to_s.presence_in(%w[insegnanti salute creator]) || "insegnanti" %>
+<% active_section = params[:section].to_s.presence_in(%w[insegnanti centri metodiche dicono]) || "insegnanti" %>
+<%
+  page_theme_classes =
+    case active_tab
+    when "creator"
+      { main: "bg-violet-50/40", panel: "border-violet-100 bg-violet-50/60", accent: "text-violet-600" }
+    when "salute"
+      { main: "bg-teal-50/40", panel: "border-teal-100 bg-teal-50/60", accent: "text-teal-700" }
+    else
+      { main: "bg-blue-50/40", panel: "border-blue-100 bg-blue-50/60", accent: "text-blue-600" }
+    end
+%>
+<%
+  header_title, header_desc, ambito_title, ambito_desc, ambito_icon, ambito_badge_text, ambito_badge_classes =
+    case active_tab
+    when "creator"
+      [
+        "Creator canale youtube <span class=\"#{page_theme_classes[:accent]}\">posturacorretta</span>",
+        "Creator che realizzano contenuti video del modulo Igiene Posturale.",
+        "Canale contenuti: YouTube",
+        "In questa sezione trovi i creator video. Aprendo la card puoi vedere subito il video del canale YouTube.",
+        "smart_display",
+        "Canale YouTube attivo",
+        "bg-violet-50 text-violet-700 border-violet-200"
+      ]
+    when "salute"
+      [
+        "Professionisti <span class=\"#{page_theme_classes[:accent]}\">Percorso Salute</span>",
+        "Un unico percorso guidato per costruire step by step la strategia migliore: stop al dolore, percorso terapeutico e benessere integrato.",
+        "Percorso attivo: Salute guidata",
+        "Da qui l'utente viene orientato nelle varie tappe con il supporto dei professionisti piu adatti a ogni fase.",
+        "conversion_path",
+        "Tappe del percorso attive",
+        "bg-teal-50 text-teal-700 border-teal-200"
+      ]
+    else
+      [
+        "Percorso <span class=\"#{page_theme_classes[:accent]}\">Postura e Fisiologia</span>",
+        "In questa fase gli insegnanti sono abilitati solo sul modulo Igiene Posturale.",
+        "Modulo attivo: Igiene Posturale",
+        "Questi insegnanti sono attivi per il modulo introduttivo. I moduli successivi verranno sbloccati progressivamente in base al percorso.",
+        "check_circle",
+        "Abilitazione verificata",
+        "bg-blue-50 text-blue-700 border-blue-200"
+      ]
+    end
+%>
+<main class="<%= page_theme_classes[:main] %>">
+  <section class="max-w-[1200px] mx-auto px-6 py-4 md:py-12 space-y-8">
+    <div class="flex flex-nowrap gap-2 overflow-x-auto pb-1 whitespace-nowrap">
+      <%= link_to insegnanti_path(tab: "insegnanti"), class: "inline-flex h-[26px] items-center gap-1 rounded-full border px-3 text-[11px] font-bold uppercase tracking-wide leading-none transition-colors #{active_tab == "insegnanti" ? "border-blue-500 bg-blue-50 text-blue-700" : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"}" do %>
+        <span class="material-symbols-outlined text-[13px] leading-none">school</span>
+        Accademia
+      <% end %>
+      <%= link_to insegnanti_path(tab: "creator"), class: "inline-flex h-[26px] items-center gap-1 rounded-full border px-3 text-[11px] font-bold uppercase tracking-wide leading-none transition-colors #{active_tab == "creator" ? "border-violet-500 bg-violet-50 text-violet-700" : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"}" do %>
+        <span class="material-symbols-outlined text-[13px] leading-none">smart_display</span>
+        Creator <span class="hidden md:flex">YouTube</span>
+      <% end %>
+      <span class="inline-flex h-[26px] items-center gap-1 rounded-full border border-slate-200 bg-slate-100 px-3 text-[11px] font-bold uppercase tracking-wide leading-none text-slate-400 opacity-80 cursor-not-allowed select-none" aria-disabled="true" title="Attivazione futura">
+        <span class="material-symbols-outlined text-[13px] leading-none">lock</span>
+        Percorso salute
+      </span>
+    </div>
+
+    <div class="grid lg:grid-cols-2 gap-10 items-start">
+      <div class="space-y-4 pt-2">
+        <% if active_tab == "salute" %>
+          <div class="inline-flex items-center gap-2 rounded-xl border border-teal-100 bg-teal-50/70 p-1.5">
+            <span class="material-symbols-outlined text-[15px] text-teal-700 pl-1">conversion_path</span>
+            <div class="flex items-center gap-1">
+              <button type="button" class="rounded-lg bg-white px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-rose-700 border border-rose-200">Stop al dolore</button>
+              <button type="button" class="rounded-lg bg-white px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-amber-700 border border-amber-200">Percorso terapeutico</button>
+              <button type="button" class="rounded-lg bg-white px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-emerald-700 border border-emerald-200">Benessere integrato</button>
+            </div>
+          </div>
+        <% end %>
+        <h1 class="text-3xl md:text-4xl font-black text-slate-900 leading-tight"><%= header_title.html_safe %></h1>
+        <p class="text-lg text-slate-600 leading-relaxed"><%= header_desc %></p>
+        <% if active_tab == "insegnanti" %>
+          <div class="inline-flex items-center gap-2 rounded-xl border border-blue-100 bg-blue-50/70 p-1.5">
+            <span class="material-symbols-outlined text-[15px] text-blue-600 pl-1">school</span>
+            <div class="flex items-center gap-1">
+              <%= link_to "Insegnanti", rete_professionale_path(section: "insegnanti", tab: "insegnanti"), class: "rounded-lg px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide #{active_section == "insegnanti" ? "bg-white text-blue-700 border border-blue-200" : "text-slate-500 hover:bg-white/70"}" %>
+              <%= link_to "Centri", rete_professionale_path(section: "centri", tab: "insegnanti"), class: "rounded-lg px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide #{active_section == "centri" ? "bg-white text-blue-700 border border-blue-200" : "text-slate-500 hover:bg-white/70"}" %>
+              <%= link_to "Metodiche", rete_professionale_path(section: "metodiche", tab: "insegnanti"), class: "rounded-lg px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide #{active_section == "metodiche" ? "bg-white text-blue-700 border border-blue-200" : "text-slate-500 hover:bg-white/70"}" %>
+              <%= link_to "Dicono di noi", rete_professionale_path(section: "dicono", tab: "insegnanti"), class: "rounded-lg px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide #{active_section == "dicono" ? "bg-white text-blue-700 border border-blue-200" : "text-slate-500 hover:bg-white/70"}" %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+
+      <div class="rounded-3xl border p-6 md:p-7 shadow-sm <%= page_theme_classes[:panel] %>">
+        <div class="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Ambito didattico</div>
+        <p class="mt-2 text-slate-700 font-semibold"><%= ambito_title %></p>
+        <p class="mt-2 text-sm text-slate-500"><%= ambito_desc %></p>
+        <div class="mt-4 inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[11px] font-bold uppercase tracking-wide <%= ambito_badge_classes %>">
+          <span class="material-symbols-outlined text-[14px]"><%= ambito_icon %></span>
+          <%= ambito_badge_text %>
+        </div>
+      </div>
+    </div>
+
+    <%
+      card_tab_key =
+        case active_tab
+        when "creator" then "creator_youtube"
+        when "salute" then "percorso_salute"
+        else "accademia"
+        end
+      visible_professionisti =
+        if card_tab_key == "accademia" && active_section != "insegnanti"
+          []
+        else
+          @professionisti.select { |prof| prof["tabs"].to_a.include?(card_tab_key) }
+        end
+      link_icon_map = {
+        "instagram" => "photo_camera",
+        "youtube" => "smart_display",
+        "whatsapp" => "chat",
+        "website" => "language",
+        "linkedin" => "work",
+        "facebook" => "thumb_up",
+        "tiktok" => "movie",
+        "email" => "mail",
+        "phone" => "call"
+      }
+    %>
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+      <% visible_professionisti.each do |prof| %>
+        <article class="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md transition-shadow cursor-pointer" data-teacher-video="<%= prof["video"] %>" data-teacher-name="<%= prof["name"] %>">
+          <div class="absolute inset-x-0 top-0 h-1 <%= prof["top_bar_class"] || "bg-slate-300" %>"></div>
+          <div class="flex items-start gap-3">
+            <img src="<%= prof["avatar"] %>" alt="<%= prof["name"] %>" class="w-14 h-14 rounded-full object-cover border border-white shadow-sm" />
+            <div class="min-w-0">
+              <h3 class="text-lg font-black text-slate-900 leading-tight"><%= prof["name"] %></h3>
+              <p class="text-sm text-slate-500 mt-0.5"><%= prof["subtitle"] %></p>
+              <span class="block text-[11px] font-semibold <%= prof["role_class"] || "text-slate-600" %>"><%= prof["role_label"] %></span>
+            </div>
+          </div>
+          <% if prof["badges"].present? %>
+            <div class="mt-3 flex flex-wrap gap-2">
+              <% prof["badges"].each do |badge| %>
+                <% if active_tab == "insegnanti" && active_section == "insegnanti" && prof["certificazioni"].present? && badge["label"].to_s.downcase == "igiene posturale" %>
+                  <% next %>
+                <% end %>
+                <span class="inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide border <%= badge["classes"] || "bg-slate-100 text-slate-700 border-slate-200" %>">
+                  <% if badge["icon"].present? %>
+                    <span class="material-symbols-outlined text-[12px] mr-1"><%= badge["icon"] %></span>
+                  <% end %>
+                  <%= badge["label"] %>
+                </span>
+              <% end %>
+            </div>
+          <% end %>
+          <% if prof["description"].present? %>
+            <p class="mt-3 text-sm text-slate-600"><%= prof["description"] %></p>
+          <% end %>
+          <% if active_tab == "insegnanti" && active_section == "insegnanti" && prof["certificazioni"].present? %>
+            <div class="mt-3 space-y-1.5">
+              <% prof["certificazioni"].each do |cert| %>
+                <% next unless cert["slug"] == "igiene_posturale" %>
+                <div class="flex flex-wrap items-center gap-2 text-[11px]">
+                  <% if cert["attestato_url"].present? %>
+                    <a href="<%= cert["attestato_url"] %>" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 rounded-full border border-blue-200 bg-blue-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-blue-700 hover:bg-blue-100">
+                      <span class="material-symbols-outlined text-[12px]">workspace_premium</span>
+                      <%= cert["nome"] %>
+                    </a>
+                  <% end %>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+          <% if prof["links"].present? %>
+            <div class="mt-3 flex items-center gap-2">
+              <% prof["links"].each do |link| %>
+                <% next unless link["url"].present? %>
+                <%
+                  link_type = link["type"].to_s
+                  raw_url = link["url"].to_s.strip
+                  href =
+                    case link_type
+                    when "email"
+                      raw_url.start_with?("mailto:") ? raw_url : "mailto:#{raw_url}"
+                    when "whatsapp"
+                      if raw_url.start_with?("http://", "https://")
+                        raw_url
+                      else
+                        number = raw_url.gsub(/\D/, "")
+                        "https://wa.me/#{number}"
+                      end
+                    else
+                      raw_url
+                    end
+                %>
+                <a href="<%= href %>" target="_blank" rel="noopener noreferrer" class="inline-flex items-center rounded-lg border border-slate-200 bg-white px-2 py-1 text-slate-600 hover:bg-slate-50" title="<%= link_type.humanize %>">
+                  <span class="material-symbols-outlined text-[16px]"><%= link_icon_map[link["type"]] || "link" %></span>
+                </a>
+              <% end %>
+            </div>
+          <% end %>
+          <div class="mt-4 flex items-center gap-2">
+            <a href="#" class="inline-flex items-center rounded-lg bg-primary px-3 py-2 text-xs font-bold text-white hover:bg-primary/90">Vedi profilo</a>
+            <a href="#" class="inline-flex items-center rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50">Richiedi contatto</a>
+          </div>
+        </article>
+      <% end %>
+    </div>
+
+    <div class="pt-2">
+      <%= link_to dashboard_home_path(tab: "academy"), class: "inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50" do %>
+        <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+        Torna alla dashboard
+      <% end %>
+    </div>
+  </section>
+</main>
+
+<div id="teacherVideoModal" class="fixed inset-0 z-[80] hidden items-center justify-center bg-slate-900/70 p-4">
+  <div class="w-full max-w-3xl rounded-2xl border border-slate-200 bg-white shadow-2xl overflow-hidden">
+    <div class="flex items-center justify-between px-4 py-3 border-b border-slate-100">
+      <h3 id="teacherVideoTitle" class="text-sm font-bold text-slate-800">Video insegnante</h3>
+      <button id="teacherVideoCloseBtn" type="button" class="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-50">Chiudi</button>
+    </div>
+    <div class="p-3">
+      <div class="relative h-0 pb-[56.25%] overflow-hidden rounded-xl bg-slate-100">
+        <iframe id="teacherVideoFrame" class="absolute top-0 left-0 h-full w-full" src="" title="Video insegnante" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  (() => {
+    const modal = document.getElementById("teacherVideoModal");
+    const frame = document.getElementById("teacherVideoFrame");
+    const title = document.getElementById("teacherVideoTitle");
+    const closeBtn = document.getElementById("teacherVideoCloseBtn");
+
+    if (!modal || !frame || !title || !closeBtn) return;
+
+    const closeModal = () => {
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+      frame.src = "";
+      document.body.classList.remove("overflow-hidden");
+    };
+
+    document.querySelectorAll("[data-teacher-video]").forEach((card) => {
+      card.addEventListener("click", (e) => {
+        if (e.target.closest("a, button")) return;
+        const src = card.getAttribute("data-teacher-video");
+        const teacherName = card.getAttribute("data-teacher-name") || "Insegnante";
+        if (!src) return;
+        title.textContent = `Video di ${teacherName}`;
+        frame.src = `${src}?autoplay=1&rel=0`;
+        modal.classList.remove("hidden");
+        modal.classList.add("flex");
+        document.body.classList.add("overflow-hidden");
+      });
+    });
+
+    closeBtn.addEventListener("click", closeModal);
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) closeModal();
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") closeModal();
+    });
+  })();
+</script>

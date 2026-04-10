@@ -1,0 +1,124 @@
+<%# app/views/posts/_child_card.html.erb %>
+<%# Locals attesi: child_taxbranch %>
+<% tax  = child_taxbranch %>
+<% post = tax&.post %>
+
+<%# --- SAFE ATTRS --- %>
+<% title = post&.title.presence || "(Senza titolo)" %>
+<% desc  = post&.description.presence %>
+
+<%# Supporta sia url_media_content che il vecchio url_media_content (typo) %>
+<% raw_url_media_content =
+     (post.respond_to?(:url_media_content) && post.url_media_content.presence) ||
+     (post.respond_to?(:url_media_content)   && post.url_media_content.presence)
+%>
+
+<%# --- HELPERS INLINE PER EMBED / THUMB --- %>
+<%
+  def youtube_id_from(url)
+    return nil if url.blank?
+    u = URI.parse(url) rescue nil
+    return nil unless u&.host
+    if u.host.include?("youtu.be")
+      u.path.split("/").last
+    elsif u.host.include?("youtube.com")
+      params = Rack::Utils.parse_query(u.query)
+      return params["v"] if params["v"].present?
+      # anche /embed/VIDEOID
+      parts = u.path.split("/")
+      parts[2] if parts[1] == "embed" && parts[2].present?
+    end
+  end
+
+  def vimeo_id_from(url)
+    return nil if url.blank?
+    u = URI.parse(url) rescue nil
+    return nil unless u&.host&.include?("vimeo.com")
+    u.path.split("/").last
+  end
+
+  def build_embed_url(url)
+    return nil if url.blank?
+    if (id = youtube_id_from(url))
+      "https://www.youtube.com/embed/#{id}"
+    elsif (vid = vimeo_id_from(url))
+      "https://player.vimeo.com/video/#{vid}"
+    else
+      url # fallback: mostra come iframe generico (se consentito) o ignora
+    end
+  end
+
+  def youtube_thumb(url)
+    if (id = youtube_id_from(url))
+      "https://i.ytimg.com/vi/#{id}/hqdefault.jpg"
+    end
+  end
+%>
+
+<% embed_url = build_embed_url(raw_url_media_content) %>
+<% thumb_url = youtube_thumb(raw_url_media_content) %>
+
+<div class="group relative overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm hover:shadow-md transition dark:bg-slate-900 dark:border-slate-800">
+  <%# Click area ampia (se esiste il post) %>
+  <% if post.present? %>
+    <% link_target = post_entry_link(post, taxbranch: tax) %>
+    <% if link_target.present? %>
+      <%= link_to link_target, class: "absolute inset-0 z-[1]" do %><% end %>
+    <% end %>
+  <% end %>
+
+  <%# MEDIA: se c'è un video YouTube/Vimeo, mostro thumb; in mancanza di thumb, embed responsivo; altrimenti placeholder %>
+  <div class="aspect-video w-full bg-slate-50 dark:bg-slate-800">
+    <% if thumb_url.present? %>
+      <img src="<%= thumb_url %>" alt="" class="h-full w-full object-cover" loading="lazy">
+    <% elsif embed_url.present? %>
+      <iframe
+        src="<%= embed_url %>"
+        class="h-full w-full"
+        frameborder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen
+        title="<%= title %>"></iframe>
+    <% else %>
+      <div class="flex h-full items-center justify-center text-slate-400">
+        <svg class="h-8 w-8" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M4 6.5A2.5 2.5 0 0 1 6.5 4h11A2.5 2.5 0 0 1 20 6.5v11A2.5 2.5 0 0 1 17.5 20h-11A2.5 2.5 0 0 1 4 17.5v-11Z" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M10 8h7M7 12h10M7 16h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="p-4">
+    <div class="flex items-start justify-between gap-3">
+      <div>
+        <h3 class="text-base font-semibold text-slate-900 group-hover:underline dark:text-slate-100">
+          <%= title %>
+        </h3>
+        <% if desc.present? %>
+          <p class="mt-1 line-clamp-2 text-sm text-slate-600 dark:text-slate-400"><%= desc %></p>
+        <% end %>
+      </div>
+
+      <%# Etichetta con numero figli %>
+      <% if tax.respond_to?(:children_count) && tax.children_count.to_i > 0 %>
+        <span class="shrink-0 inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ring-1 ring-inset ring-slate-200 text-slate-700 dark:text-slate-300 dark:ring-slate-700">
+          <%= tax.children_count %>
+        </span>
+      <% end %>
+    </div>
+
+    <div class="mt-4 flex items-center gap-2">
+      <% if post.present? %>
+        <% link_target = post_entry_link(post, taxbranch: tax) %>
+        <% if link_target.present? %>
+          <%= link_to "Inizia",
+                      link_target,
+                      class: "inline-flex items-center rounded-lg border border-slate-200 bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:border-slate-700" %>
+        <% end %>
+
+      
+      <% end %>
+    </div>
+  </div>
+</div>

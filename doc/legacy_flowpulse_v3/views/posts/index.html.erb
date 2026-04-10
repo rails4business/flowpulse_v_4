@@ -1,0 +1,114 @@
+<!-- app/views/posts/index.html.erb -->
+<% content_for :title, "Elenco Post" %>
+
+<div class="flex items-center justify-between mb-4">
+  <h1 class="text-2xl font-bold">Elenco Post</h1>
+  <%= link_to "Nuovo Post", new_post_path, class: "inline-flex items-center px-3 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700" %>
+</div>
+
+<!-- Filtri -->
+<div class="bg-white border rounded-xl p-4 mb-4">
+  <%= form_with url: posts_path, method: :get, local: true, class: "grid md:grid-cols-5 gap-3 items-end" do |f| %>
+    <div>
+      <label class="block text-sm font-medium mb-1">Categoria</label>
+      <%= f.select :taxbranch_id,
+            options_for_select(
+              [["Tutte", ""]] + @taxbranches.map { |t| [t.slug_label, t.id] },
+              params[:taxbranch_id]
+            ),
+            {},
+            class: "w-full border rounded-lg px-3 py-2" %>
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium mb-1">Stato pubblicazione</label>
+      <%= f.select :status,
+            options_for_select(
+              [
+                ["Tutti", ""],
+                ["Bozza",      "draft"],
+                ["Pubblicato", "published"],
+                ["Archiviato", "archived"]
+              ],
+              params[:status]
+            ),
+            {},
+            class: "w-full border rounded-lg px-3 py-2" %>
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium mb-1">Dopo (published_at ≥)</label>
+      <%= f.date_field :after, value: params[:after], class: "w-full border rounded-lg px-3 py-2" %>
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium mb-1">Prima (published_at ≤)</label>
+      <%= f.date_field :before, value: params[:before], class: "w-full border rounded-lg px-3 py-2" %>
+    </div>
+
+    <div class="md:pt-6">
+      <%= f.submit "Filtra", class: "w-full md:w-auto inline-flex items-center px-3 py-2 rounded-lg bg-slate-800 text-white hover:bg-slate-900" %>
+      <%= link_to "Reset", posts_path, class: "ml-2 text-slate-600 hover:underline" %>
+    </div>
+  <% end %>
+</div>
+
+<!-- Tabella -->
+<div class="overflow-x-auto bg-white border rounded-xl">
+  <table class="min-w-full text-sm">
+    <thead class="bg-slate-100 text-slate-700">
+      <tr>
+        <th class="py-3 px-4 text-left font-medium"><%= sortable("title", "Titolo") %></th>
+        <th class="py-3 px-4 text-left font-medium"><%= sortable("tax", "Categoria") %></th>
+        <th class="py-3 px-4 text-left font-medium"><%= sortable("status", "Stato") %></th>
+        <th class="py-3 px-4 text-left font-medium"><%= sortable("published_at", "Pubblicato il") %></th>
+        <th class="py-3 px-4 text-left font-medium"><%= sortable("created_at", "Creato il") %></th>
+        <th class="py-3 px-4 text-right font-medium">Azioni</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @posts.each do |post| %>
+        <tr class="border-t hover:bg-slate-50">
+          <td class="py-3 px-4 align-top">
+            <div class="font-medium">
+              <%= link_to(post.title.presence || "(senza titolo)", post_path(post), class: "hover:underline") %>
+            </div>
+            <% if post.description.present? %>
+              <div class="text-slate-500 line-clamp-2">
+                <%= truncate(strip_tags(post.description), length: 120) %>
+              </div>
+            <% end %>
+          </td>
+
+          <td class="py-3 px-4 align-top">
+            <%= post.taxbranch&.slug_label || "—" %>
+          </td>
+
+          <td class="py-3 px-4 align-top">
+            <%= status_badge(post) %>
+          </td>
+
+          <td class="py-3 px-4 align-top whitespace-nowrap">
+            <%= fmt_datetime(post.taxbranch_published_at) %>
+          </td>
+
+          <td class="py-3 px-4 align-top whitespace-nowrap">
+            <%= fmt_datetime(post.created_at) %>
+          </td>
+
+          <td class="py-3 px-4 align-top text-right">
+            <%= link_to "Modifica", edit_post_path(post), class: "text-blue-600 hover:underline" %>
+            <span class="mx-1 text-slate-400">·</span>
+            <%= link_to "Elimina", post_path(post),
+                    data: { turbo_method: :delete, turbo_confirm: "Eliminare questo post?" },
+                    class: "text-red-600 hover:underline" %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+
+<div class="mt-4">
+  <%= paginate @posts if respond_to?(:paginate) %>
+</div>

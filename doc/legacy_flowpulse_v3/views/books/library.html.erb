@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Libreria</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-slate-50 text-slate-900">
+  <%= render "shared/brand_custom_pc_home_nav" %>
+  <main class="max-w-5xl mx-auto px-6 py-12">
+    <div class="mb-6 flex items-start justify-between gap-4">
+      <div>
+        <h1 class="text-3xl font-bold tracking-tight">Libreria</h1>
+        <p class="text-sm text-slate-500 mt-2">Seleziona un libro per aprire indice e capitoli.</p>
+      </div>
+      <% if @superadmin_library %>
+        <%= link_to "Gestisci libri", superadmin_books_path, class: "inline-flex items-center rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold hover:bg-slate-100" %>
+      <% end %>
+    </div>
+
+    <% if @superadmin_library %>
+      <div class="mb-6 flex flex-wrap items-center gap-2">
+        <%= link_to "Vista pubblica",
+                    books_path(view: "public"),
+                    class: "px-3 py-2 rounded-lg text-sm font-semibold #{@library_view == "public" ? "bg-slate-900 text-white" : "bg-white border border-slate-300 text-slate-700"}" %>
+        <%= link_to "Vista superadmin",
+                    books_path(view: "admin", tab: @library_tab),
+                    class: "px-3 py-2 rounded-lg text-sm font-semibold #{@library_view == "admin" ? "bg-slate-900 text-white" : "bg-white border border-slate-300 text-slate-700"}" %>
+      </div>
+    <% end %>
+
+    <% if @superadmin_library && @library_view == "admin" %>
+      <div class="mb-6 flex flex-wrap gap-2">
+        <%= link_to "Attivi (#{@active_books.size})", books_path(view: "admin", tab: "active"), class: "px-3 py-2 rounded-lg text-sm font-semibold #{@library_tab == "active" ? "bg-slate-900 text-white" : "bg-white border border-slate-300 text-slate-700"}" %>
+        <%= link_to "Non attivi (#{@inactive_books.size})", books_path(view: "admin", tab: "inactive"), class: "px-3 py-2 rounded-lg text-sm font-semibold #{@library_tab == "inactive" ? "bg-slate-900 text-white" : "bg-white border border-slate-300 text-slate-700"}" %>
+        <%= link_to "Da creare (#{@books_to_create.size})", books_path(view: "admin", tab: "to_create"), class: "px-3 py-2 rounded-lg text-sm font-semibold #{@library_tab == "to_create" ? "bg-slate-900 text-white" : "bg-white border border-slate-300 text-slate-700"}" %>
+      </div>
+    <% end %>
+
+    <% if @books.any? %>
+      <% if @superadmin_library && @library_view == "admin" && @library_tab == "to_create" %>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <% @books.each do |candidate| %>
+            <div class="block rounded-2xl border border-amber-300 bg-amber-50 p-5">
+              <div class="flex items-start justify-between gap-3">
+                <h2 class="text-lg font-semibold text-amber-900"><%= candidate[:title] %></h2>
+                <span class="text-xs px-2 py-1 rounded bg-amber-200 text-amber-900">da creare</span>
+              </div>
+              <div class="mt-3 text-sm text-amber-900/90 space-y-1">
+                <p>cartella: <span class="font-mono"><%= candidate[:folder_md] %></span></p>
+                <p>indice: <span class="font-mono"><%= candidate[:index_file] %></span></p>
+                <p>slug: <span class="font-mono"><%= candidate[:slug] %></span></p>
+              </div>
+              <div class="mt-4">
+                <%= link_to "Crea libro",
+                            new_superadmin_book_path(book: {
+                              slug: candidate[:slug],
+                              title: candidate[:title],
+                              folder_md: candidate[:folder_md],
+                              index_file: candidate[:index_file],
+                              active: true,
+                              access_mode: "free"
+                            }),
+                            class: "inline-flex items-center rounded-lg bg-amber-600 px-3 py-2 text-sm font-semibold text-white hover:bg-amber-700" %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% elsif @superadmin_library && @library_view == "admin" %>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <% @books.each do |book| %>
+            <a href="<%= book_path(book_slug: book.slug) %>" class="block rounded-2xl border border-slate-200 bg-white p-5 hover:border-slate-400 transition-colors">
+              <div class="flex items-start justify-between gap-3">
+                <h2 class="text-lg font-semibold"><%= book.title %></h2>
+                <% if book.active? %>
+                  <span class="text-xs px-2 py-1 rounded bg-emerald-100 text-emerald-800">attivo</span>
+                <% else %>
+                  <span class="text-xs px-2 py-1 rounded bg-slate-200 text-slate-700">inattivo</span>
+                <% end %>
+              </div>
+              <% if book.description.present? %>
+                <p class="text-sm text-slate-600 mt-2"><%= truncate(book.description, length: 170) %></p>
+              <% end %>
+              <div class="mt-4 text-xs text-slate-500 space-y-1">
+                <p>slug: <span class="font-mono"><%= book.slug %></span></p>
+                <p>cartella: <span class="font-mono"><%= book.folder_md.presence || "-" %></span></p>
+                <p>indice: <span class="font-mono"><%= book.index_file.presence || "-" %></span></p>
+              </div>
+            </a>
+          <% end %>
+        </div>
+      <% else %>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <% @books.each do |book| %>
+            <%= link_to book_path(book_slug: book.slug), class: "group block" do %>
+              <div class="mx-auto w-[230px]">
+                <% if book.cover_image.attached? %>
+                  <div class="relative h-[320px] rounded-r-2xl rounded-l-sm border-l-4 border-white/10 shadow-2xl transition-transform duration-300 group-hover:-translate-y-1 group-hover:rotate-1 overflow-hidden bg-slate-900">
+                    <%= image_tag book.cover_image, class: "h-full w-full object-cover" %>
+                  </div>
+                <% else %>
+                  <div class="relative h-[320px] rounded-r-2xl rounded-l-sm bg-[linear-gradient(135deg,#2563eb_0%,#1e3a8a_100%)] border-l-4 border-white/10 shadow-2xl transition-transform duration-300 group-hover:-translate-y-1 group-hover:rotate-1">
+                    <div class="absolute inset-0 p-6 flex flex-col text-center">
+                      <span class="material-symbols-outlined text-white/55 text-4xl mb-6">menu_book</span>
+                      <h2 class="text-white text-xl font-semibold leading-tight"><%= book.title %></h2>
+                      <% if book.description.present? %>
+                        <p class="text-white/80 text-xs mt-4"><%= truncate(book.description, length: 120) %></p>
+                      <% end %>
+                      <div class="mt-auto text-white/70 text-[11px] uppercase tracking-[0.2em]">Apri libro</div>
+                    </div>
+                    <div class="absolute right-0 top-0 h-full w-[10px] bg-gradient-to-l from-black/20 to-transparent"></div>
+                  </div>
+                <% end %>
+                <div class="w-[76px] h-5 bg-black/20 blur-2xl rounded-full mx-auto mt-2"></div>
+              </div>
+            <% end %>
+          <% end %>
+        </div>
+      <% end %>
+    <% else %>
+      <div class="rounded-xl border border-amber-300 bg-amber-50 p-4 text-amber-800">
+        <% if @superadmin_library && @library_view == "admin" && @library_tab == "to_create" %>
+          Nessuna cartella nuova da proporre in <span class="font-mono">config/data/books</span>.
+        <% else %>
+          Nessun libro trovato per questa vista.
+        <% end %>
+      </div>
+    <% end %>
+  </main>
+</body>
+</html>

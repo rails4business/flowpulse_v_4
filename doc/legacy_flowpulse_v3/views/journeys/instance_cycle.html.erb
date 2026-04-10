@@ -1,0 +1,120 @@
+<% content_for :title, "Cicli · #{@journey.title}" %>
+
+<div class="max-w-6xl mx-auto px-6 py-8 space-y-8">
+  <header class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+    <div>
+      <p class="text-xs uppercase tracking-widest text-slate-400">Template journey</p>
+      <h1 class="text-3xl font-bold text-slate-900">
+        <%= @journey.title %> · cicli programmati
+      </h1>
+      <p class="text-sm text-slate-600 mt-1">
+        Genera istanze operative di questo template e pianifica nuove date per ogni ciclo.
+      </p>
+    </div>
+
+    <div class="flex flex-col gap-2 items-end">
+      <%= button_to "➕ Nuovo cycle",
+          clone_cycle_journey_path(@journey),
+          method: :post,
+          class: "inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-white text-sm font-semibold shadow-sm hover:bg-emerald-500",
+          data: { turbo_confirm: "Creare una nuova istanza basata su questo template?" } %>
+      <%= link_to "← Torna al template", journey_path(@journey), class: "text-xs text-slate-500 hover:text-slate-700" %>
+    </div>
+  </header>
+
+  <section class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6">
+    <h2 class="text-lg font-semibold text-slate-900 mb-3">Timeline del template</h2>
+    <% if @template_events.any? %>
+      <ol class="space-y-2 text-sm text-slate-600">
+        <% @template_events.each do |event| %>
+          <li class="flex items-center gap-3">
+            <span class="inline-flex flex-col items-center text-xs text-slate-500 bg-slate-100 rounded-lg px-2 py-1">
+              <strong class="text-base text-slate-900"><%= event.date_start ? l(event.date_start, format: "%d") : "--" %></strong>
+              <%= event.date_start ? l(event.date_start, format: "%b") : "" %>
+            </span>
+            <div>
+              <p class="font-medium text-slate-800"><%= eventdate_label(event) %></p>
+              <p class="text-xs"><%= eventdate_period(event) %></p>
+            </div>
+          </li>
+        <% end %>
+      </ol>
+    <% else %>
+      <p class="text-sm text-slate-500">Questo template non ha ancora eventi pianificati.</p>
+    <% end %>
+  </section>
+
+  <section class="bg-white border border-slate-200 rounded-2xl shadow-sm">
+    <% if @instance_cycles.any? %>
+      <table class="min-w-full text-sm">
+        <thead class="bg-slate-50 text-xs font-semibold uppercase text-slate-500">
+          <tr>
+            <th class="px-4 py-3 text-left">Cycle</th>
+            <th class="px-4 py-3 text-left">Stato</th>
+            <th class="px-4 py-3 text-left">Ultima attività</th>
+            <th class="px-4 py-3 text-left">Eventi</th>
+            <th class="px-4 py-3 text-right">Azioni</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          <% @instance_cycles.each do |cycle| %>
+            <% cloned_count = cycle.eventdates.where("eventdates.meta ? :key", key: "cloned_from_template_id").count %>
+            <tr class="hover:bg-slate-50/70">
+              <td class="px-4 py-3 align-top">
+                <div class="font-semibold text-slate-900"><%= cycle.title.presence || "Cycle ##{cycle.id}" %></div>
+                <p class="text-xs text-slate-500">
+                  Creato <%= l(cycle.created_at, format: :short) %>
+                </p>
+              </td>
+              <td class="px-4 py-3 align-top text-xs text-slate-600">
+                <span class="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 font-semibold">
+                  <%= cycle.human_stage %>
+                </span>
+              </td>
+              <td class="px-4 py-3 align-top text-xs text-slate-600">
+                <% last_event = cycle.eventdates.order(date_start: :desc).first %>
+                <% if last_event.present? %>
+                  <div class="font-semibold text-slate-900"><%= eventdate_label(last_event) %></div>
+                  <p class="text-[11px] text-slate-500"><%= eventdate_period(last_event) %></p>
+                <% else %>
+                  <span class="text-slate-400">Nessuna data</span>
+                <% end %>
+              </td>
+              <td class="px-4 py-3 align-top text-xs text-slate-600">
+                <strong><%= cycle.eventdates.count %></strong> eventi<br>
+                <%= cycle.commitments.count %> commitments
+              </td>
+              <td class="px-4 py-3 align-top text-right text-xs">
+                <div class="inline-flex flex-col gap-2 items-end">
+                  <%= link_to "Apri cycle",
+                      journey_path(cycle),
+                      class: "inline-flex items-center rounded-md border border-slate-200 bg-white px-3 py-1 font-semibold text-slate-700 hover:bg-slate-100" %>
+                  <%= link_to "Nuova data",
+                      new_journey_eventdate_path(cycle),
+                      class: "inline-flex items-center rounded-md border border-blue-200 bg-blue-50 px-3 py-1 font-semibold text-blue-700 hover:bg-blue-100" %>
+                  <% if cloned_count.zero? %>
+                    <%= button_to "Start (duplica date)",
+                        replicate_template_events_journey_path(cycle),
+                        method: :post,
+                        class: "inline-flex items-center rounded-md border border-emerald-200 bg-emerald-50 px-3 py-1 font-semibold text-emerald-700 hover:bg-emerald-100",
+                        data: { turbo_confirm: "Duplicare tutte le date dal template su questo cycle?" } %>
+                  <% else %>
+                    <%= button_to "Stop (rimuovi dupliche)",
+                        clear_template_events_journey_path(cycle),
+                        method: :delete,
+                        class: "inline-flex items-center rounded-md border border-red-200 bg-red-50 px-3 py-1 font-semibold text-red-700 hover:bg-red-100",
+                        data: { turbo_confirm: "Rimuovere le date duplicate da questo cycle?" } %>
+                  <% end %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    <% else %>
+      <div class="flex flex-col items-center justify-center py-16 text-center text-sm text-slate-500">
+        Non sono ancora stati creati cycle per questo template.
+      </div>
+    <% end %>
+  </section>
+</div>

@@ -1,0 +1,161 @@
+<%# app/views/posts/show.html+book.erb %>
+<% content_for :title, @post.title.presence || "Indice del libro" %>
+
+<%#= render "shared/nav_partial_post" %>
+
+<%
+  taxbranch = @post.taxbranch
+  children  = taxbranch&.children&.ordered || Taxbranch.none
+  chapter_entries = children.includes(:post)
+
+  total_chapters = chapter_entries.count { |tb| tb.slug_category != "header_chapter_book" }
+
+  domain         = Current.domain || taxbranch&.header_domain
+  domain_name    = domain&.title.presence || domain&.host
+  domain_home    = begin
+                     domain ? root_url(host: domain.host) : root_path
+                   rescue
+                     root_path
+                   end
+
+  author_email =
+    if @post.lead&.respond_to?(:user) && @post.lead.user&.respond_to?(:email)
+      @post.lead.user.email.presence
+    elsif @post.lead&.respond_to?(:email)
+      @post.lead.email.presence
+    end
+%>
+
+<body class="bg-slate-50 text-slate-800 antialiased px-4 sm:px-8 lg:px-0 print:p-0 dark:bg-slate-950 dark:text-slate-100">
+  <div class="max-w-3xl lg:max-w-4xl mx-auto print:max-w-[38rem] print:px-0">
+  <!-- HEADER -->
+  <header class="mx-auto max-w-3xl lg:max-w-4xl px-4 sm:px-8 lg:px-0 py-8 space-y-4">
+    <div class="space-y-2">
+      <h1 class="text-3xl font-bold text-slate-900 dark:text-slate-100">
+        <%= @post.title.presence || taxbranch&.display_label || "Libro" %>
+      </h1>
+      <% if @post.description.present? %>
+        <p class="text-base text-slate-600 leading-relaxed dark:text-slate-300">
+          <%= @post.description %>
+        </p>
+      <% end %>
+      <div class="text-sm text-slate-500 dark:text-slate-400">
+        <span class="font-semibold text-slate-700 dark:text-slate-200"><%= @post.lead&.full_name || "Autore n/d" %></span>
+        <% if author_email.present? %>
+          · <%= author_email %>
+        <% end %>
+        · <%= pluralize(total_chapters, "capitolo") %>
+      </div>
+    </div>
+
+    <div class="mt-4 flex flex-wrap items-center gap-3 no-print">
+      <% if domain %>
+        <%= link_to "↩︎ Torna a #{domain_name}",
+                    domain_home,
+                    class: "rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800" %>
+      <% end %>
+     
+    </div>
+  </header>
+
+  <!-- SUMMARY -->
+<% if @post.content_md.present? %>
+  <section class="mx-auto max-w-3xl lg:max-w-4xl px-4 sm:px-8 lg:px-0 pb-4">
+    <div class="rounded-2xl bg-white border border-slate-200 shadow-sm p-6 dark:bg-slate-900 dark:border-slate-800">
+      <div class="space-y-3 text-sm text-slate-700 leading-relaxed dark:text-slate-200">
+        <%= markdown(@post.content_md.presence)  %>
+      </div>
+    </div>
+  </section>
+  <% end %>
+
+  <!-- CONTENT -->
+  <main class="mx-auto max-w-3xl lg:max-w-4xl px-4 sm:px-8 lg:px-0 pb-16 space-y-4">
+    <% if chapter_entries.any? %>
+      <% chapter_entries.each do |entry| %>
+        <% if entry.slug_category == "header_chapter_book" %>
+          <section class="pt-8 border-t border-slate-200 dark:border-slate-800">
+            <h2 class="text-xl font-bold text-slate-900 dark:text-slate-100">
+              <%= entry.slug_label.presence || entry.display_label || entry.post&.title || "Parte" %>
+            </h2>
+            <% description = entry.post&.description.presence || entry.notes %>
+            <% if description.present? %>
+              <p class="mt-1 text-slate-600 italic dark:text-slate-300"><%= description %></p>
+            <% end %>
+          </section>
+        <% else %>
+          <% chapter_post = entry.post %>
+          <article class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            <h3 class="text-sm font-semibold text-slate-900 dark:text-slate-100">
+              <% if chapter_post.present? %>
+                <%= link_to chapter_post.title.presence || entry.slug_label.presence || entry.display_label || "Capitolo",
+                            post_entry_link(chapter_post, taxbranch: entry),
+                            class: "hover:underline" %>
+              <% else %>
+                <%= entry.slug_label.presence || entry.display_label || "Capitolo" %>
+              <% end %>
+            </h3>
+            <% if chapter_post&.description.present? %>
+              <p class="mt-1 text-sm text-slate-600 dark:text-slate-300"><%= chapter_post.description %></p>
+            <% end %>
+          </article>
+        <% end %>
+      <% end %>
+    <% else %>
+      <section class="rounded-2xl border border-dashed border-slate-300 bg-white p-6 text-center text-slate-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400">
+        Nessun capitolo collegato al libro. Aggiungi taxbranch figli con categoria “chapter” o “chapter_header”.
+      </section>
+    <% end %>
+  </main>
+
+  <% if taxbranch&.service.present? %>
+    <section class="mx-auto max-w-3xl lg:max-w-4xl px-4 sm:px-8 lg:px-0 pb-12">
+      <% if taxbranch.visibility == "participants_only" %>
+        <div class="rounded-2xl border border-slate-200 bg-white p-6 text-sm text-slate-700 shadow-sm dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200">
+          <p class="mb-3 font-semibold">Tariffe disponibili</p>
+          <%= link_to "Vai alle tariffe",
+                      pricing_post_path(@post),
+                      class: "inline-flex items-center justify-center rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500" %>
+        </div>
+      <% else %>
+        <h2 class="text-xl font-bold text-slate-900 dark:text-slate-100 mb-4">Servizi</h2>
+        <div class="grid gap-4 sm:grid-cols-2">
+          <% [taxbranch.service].compact.each do |service| %>
+            <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+              <div class="mb-3 overflow-hidden rounded-lg bg-slate-100 dark:bg-slate-800 aspect-square">
+                <% if service.image_url.present? %>
+                  <img src="<%= service.image_url %>" alt="<%= service.name %>" class="h-full w-full object-cover" />
+                <% else %>
+                  <div class="flex h-full items-center justify-center text-slate-300 dark:text-slate-600">
+                    <svg class="h-10 w-10" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+                      <rect x="12" y="12" width="40" height="40" rx="12" stroke="currentColor" stroke-width="2"></rect>
+                      <circle cx="32" cy="32" r="10" stroke="currentColor" stroke-width="2"></circle>
+                    </svg>
+                  </div>
+                <% end %>
+              </div>
+              <h3 class="text-lg font-semibold text-slate-900 dark:text-slate-100"><%= service.name %></h3>
+              <% if service.description.present? %>
+                <p class="mt-1 text-sm text-slate-600 dark:text-slate-300"><%= service.description %></p>
+              <% end %>
+              <% if service.price_enrollment_euro.present? %>
+                <p class="mt-2 text-sm font-semibold text-slate-800 dark:text-slate-200">
+                  <% if service.price_enrollment_euro.to_f.zero? %>
+                    Gratuito
+                  <% else %>
+                    <%= number_to_currency(service.price_enrollment_euro, unit: "€") %>
+                  <% end %>
+                </p>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    </section>
+  <% end %>
+
+  
+
+  <turbo-frame id="sheet_modal"></turbo-frame>
+  </div>
+</body>

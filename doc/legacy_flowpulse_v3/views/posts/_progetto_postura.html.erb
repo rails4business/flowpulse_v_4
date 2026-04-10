@@ -1,0 +1,194 @@
+<!--section
+              class="flex flex-col lg:flex-row gap-20 py-12 border-t border-[#e7edf3] dark:border-slate-800 pt-24" id="progetto"
+            -->
+            <main class="bg-blue-50 pt-8" id="progetto">
+            <div class="max-w-[1200px] mx-auto px-6 space-y-24 py-20" >
+            <section
+              class=" flex flex-col lg:flex-row gap-20 -mt-6" 
+            >
+              <div class="flex-1 space-y-10">
+                <div class="space-y-4">
+                  <h3 class="text-3xl md:text-4xl font-black italic font-serif tracking-tight leading-tight text-slate-900 dark:text-white">
+                    Rubrica Progetto
+                  </h3>
+                  <p
+                    class="text-lg text-slate-600 dark:text-slate-400 leading-relaxed"
+                  >
+                     
+                    <ul> 
+                        <li>
+                            Sei interessato al percorso? 
+                      </li>
+                        <li>
+                           Vuoi seguire lo sviluppo del progetto? 
+                      </li>
+                      <li>
+                          Sei un professionista? Vuoi entrare a farne parte?
+                      </li>
+                    </ul>
+                  
+                  </p>
+                </div>
+                <div  class="relative space-y-8 pl-8 before:content-[''] before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-[2px] before:bg-slate-200 dark:before:bg-slate-700">
+                  <% scope = Taxbranch.find_by(slug: "playlist/progetto")&.children&.ordered&.reorder(position: :desc) || [] %>
+                  <% published = scope.select { |t|
+                       t.public_node? &&
+                       t.published? &&
+                       t.published_at.present? &&
+                       t.published_at <= Time.current &&
+                       t.post&.persisted? &&
+                       t.post&.title.present?
+                     } %>
+                  <% upcoming_candidates = scope.select { |t|
+                       t.public_node? &&
+                       t.scheduled_eventdate&.date_end.present? &&
+                       t.scheduled_eventdate.date_end >= Time.current &&
+                       (t.published_at.blank? || t.published_at > Time.current) &&
+                       t.post&.persisted? &&
+                       t.post&.title.present?
+                     } %>
+                  <% upcoming = upcoming_candidates.min_by { |t| t.scheduled_eventdate.date_end } %>
+                  <% items = [] %>
+                  <% if upcoming.present? %>
+                    <% items << upcoming %>
+                    <% items.concat(published.reject { |t| t == upcoming }.first(2)) %>
+                  <% else %>
+                    <% items.concat(published.first(3)) %>
+                  <% end %>
+
+                  <% items.each_with_index do |tax, idx| %>
+                    <% post = tax.post %>
+                    <% is_published = published.include?(tax) %>
+                    <% in_arrivo = (tax == upcoming && !is_published) %>
+                    <% badge_text =
+                         if in_arrivo
+                           "In Arrivo"
+                         else
+                           I18n.l(tax.published_at, format: "%d %b %Y", locale: :it)
+                         end %>
+  <% link_url =
+       if post&.url_media_content.present?
+         post.url_media_content
+       elsif post&.persisted?
+         post_path(post)
+       else
+         "#"
+       end %>
+  <% external = link_url.start_with?("http") %>
+
+                    <div class="relative <%= is_published ? "opacity-60" : "" %>">
+                      <div
+                        class="absolute -left-[27px] size-4 rounded-full <%= is_published ? "bg-slate-300 dark:bg-slate-600" : "bg-primary shadow-md" %> border-4 border-white dark:border-slate-900"
+                      ></div>
+                      <%= link_to post do %>
+                        <div class="flex gap-3">
+                          <div class="space-y-1 min-w-0">
+                            <span class="text-xs font-bold uppercase tracking-wider text-primary">Puntata <%= tax.position.presence || (idx + 1) %> • <%= badge_text %></span>
+                            <h4 class="font-semibold text-xl">
+                              <%= post&.title.presence || tax.slug_label %>
+                            </h4>
+                            <% if post&.description.present? %>
+                              <p class="text-sm text-slate-500">
+                                <%= post.description %>
+                              </p>
+                            <% end %>
+                          </div>
+                        </div>
+                      <% end %>
+                    </div>
+                  <% end %>
+
+                </div>
+                <% if (upcoming.present? && published.size >= 2) || (upcoming.blank? && published.size >= 3) %>
+                  <%= link_to "Vedi tutte",
+                              post_path(Taxbranch.find_by(slug: "playlist/progetto")&.post || @post),
+                              class: "inline-flex items-center rounded-xl bg-slate-900 px-6 py-3 text-white font-bold hover:opacity-90 transition-opacity" %>
+                <% end %>
+              </div>
+              <div
+                class=" flex-1 flex flex-col items-center justify-center p-8 lg:p-12 bg-blue-50 dark:bg-slate-900/40 rounded-[3rem]"
+              >
+                <div class="w-full max-w-[360px]">
+                  <div class="flex items-center justify-between mb-6">
+                    <div>
+                      <p
+                        class="text-xs font-bold uppercase tracking-[0.2em] text-primary"
+                      >
+                        Libro guida - COMING SOON
+                      </p>
+                    </div>
+                  </div>
+                  <div class="book-container w-full max-w-[340px] mx-auto">
+                    <div
+                      class="relative w-[240px] h-[340px] bg-[linear-gradient(135deg,#2563eb_0%,#1e3a8a_100%)] rounded-r-2xl rounded-l-sm shadow-2xl transform rotate-y-12 rotate-3 hover:rotate-0 transition-all duration-500 flex items-center justify-center border-l-4 border-white/10"
+                    >
+                      <div class="text-center p-6">
+                        <span
+                          class="material-symbols-outlined text-white/50 text-4xl mb-4"
+                          >menu_book</span
+                        >
+                        <h3
+                          class="text-white text-2xl font-semibold leading-tight mb-2"
+                        >
+                          Il Corpo,<br />un mondo da scoprire
+                        </h3>
+                        <p
+                          class="text-white/70 text-xs uppercase tracking-widest mt-8"
+                        >
+                          Guida del percorso + Mappa del progetto
+                        </p>
+                      </div>
+                      <div
+                        class="absolute right-0 top-0 h-full w-[10px] bg-gradient-to-l from-black/20 to-transparent"
+                      ></div>
+                    </div>
+                    <div
+                      class="w-[70px] h-6 bg-black/20 blur-2xl rounded-full mx-auto mt-2 transform -rotate-x-12 opacity-60"
+                    ></div>
+                  </div>
+                  <ul
+                    class="space-y-2 text-sm text-slate-600 dark:text-slate-400"
+                  >
+                    <li class="flex items-center gap-2">
+                      <span
+                        class="material-symbols-outlined text-base text-primary"
+                        >check</span
+                      >
+                      Guida al percorso per gli utenti.
+                    </li>
+                    <li class="flex items-center gap-2">
+                      <span
+                        class="material-symbols-outlined text-base text-primary"
+                        >check</span
+                      >
+                      Guida al percorso per i professionisti.
+                    </li>
+                    <li class="flex items-center gap-2">
+                      <span
+                        class="material-symbols-outlined text-base text-primary"
+                        >check</span
+                      >
+                      Mappa completa del progetto per i professionisti.
+                    </li>
+                   
+                  </ul>
+                  <div class="flex flex-col sm:flex-row gap-4 w-full mt-8">
+                    <!--button
+                      class="flex-1 py-4 bg-primary text-white font-bold rounded-xl shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all flex items-center justify-center gap-2"
+                    >
+                      <span class="material-symbols-outlined text-lg"
+                        >shopping_cart</span
+                      >
+                      Ordina
+                    </button-->
+                     <%= link_to books_path,  class: "text-center flex-1 py-4 border border-primary/30 text-primary font-bold rounded-xl hover:bg-primary/10 transition-all" do %>
+                        Scopri di più
+                      <% end %>
+                    
+                   
+                  </div>
+                </div>
+              </div>
+            </section>
+            </div>
+            </main>

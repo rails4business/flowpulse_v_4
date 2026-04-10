@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html class="dark" lang="it">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <%= csrf_meta_tags %>
+    <title><%= content_for?(:title) ? yield(:title) : "GeneraImpresa" %></title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+    <%= yield :head %>
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: "#137fec",
+              "background-light": "#f6f7f8",
+              "background-dark": "#101922",
+            },
+            fontFamily: {
+              display: ["Manrope", "sans-serif"],
+            },
+            borderRadius: {
+              DEFAULT: "0.25rem",
+              lg: "0.5rem",
+              xl: "0.75rem",
+              full: "9999px",
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      .material-symbols-outlined {
+        font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+      }
+      .bg-grid {
+        background-image: radial-gradient(circle, #283039 1px, transparent 1px);
+        background-size: 30px 30px;
+      }
+      .subway-line-glow {
+        filter: drop-shadow(0 0 4px currentColor);
+      }
+    </style>
+  </head>
+  <body class="bg-background-light dark:bg-background-dark font-display text-white">
+    <div class="flex min-h-screen w-full">
+      <aside id="gi-left" class="w-[360px] border-r border-[#283039] flex flex-col bg-background-light dark:bg-background-dark p-4 shrink-0">
+        <% current_tab = params[:tab].presence || "generaimpresa" %>
+        <div class="mb-4 flex items-center gap-2">
+          <% domain_persisted = @domain&.persisted? %>
+          <% dashboard_target = Current.domain&.taxbranch.present? ? superadmin_taxbranch_path(Current.domain.taxbranch) : (@taxbranch.present? ? superadmin_taxbranch_path(@taxbranch) : superadmin_taxbranches_path) %>
+          <%= link_to dashboard_target,
+                      title: "Dashboard",
+                      "aria-label": "Dashboard",
+                      class: "group relative flex items-center justify-center rounded-full px-3 py-1 text-xs font-semibold #{current_page?(dashboard_target) ? 'bg-primary text-white' : 'bg-white/10 text-slate-200 hover:bg-white/20'}" do %>
+            <span class="material-symbols-outlined text-[16px]">dashboard</span>
+            <span class="pointer-events-none absolute -bottom-8 left-1/2 z-20 hidden -translate-x-1/2 rounded bg-[#0f172a] px-2 py-1 text-[10px] font-semibold text-white shadow-lg group-hover:block">
+              Dashboard
+            </span>
+          <% end %>
+          <%= link_to generaimpresa_superadmin_taxbranch_path(@taxbranch, tab: current_tab),
+                      class: "flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold #{current_page?(generaimpresa_superadmin_taxbranch_path(@taxbranch, tab: current_tab)) ? 'bg-primary text-white' : 'bg-white/10 text-slate-200 hover:bg-white/20'}" do %>
+            <span class="material-symbols-outlined text-[16px]">account_tree</span>
+            Impresa
+          <% end %>
+          <% domain_target = domain_persisted ? superadmin_domain_path(@domain) : superadmin_domains_path %>
+          <%= link_to domain_target,
+                      class: "flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold #{domain_persisted && current_page?(domain_target) ? 'bg-primary text-white' : 'bg-white/10 text-slate-200 hover:bg-white/20'}" do %>
+            <span class="material-symbols-outlined text-[16px]">inventory_2</span>
+            Domain
+          <% end %>
+        </div>
+
+        <div class="flex items-start gap-3 mb-4">
+          <span class="material-symbols-outlined text-primary">account_tree</span>
+          <div>
+            <h1 class="text-white text-base font-bold leading-normal">
+              <%= @taxbranch.display_label %>
+            </h1>
+            <p class="text-[#9dabb9] text-xs font-normal">GeneraImpresa Workspace</p>
+            <% if domain_persisted %>
+              <%= link_to @domain.host,
+                          superadmin_domain_path(@domain),
+                          class: "text-xs text-blue-300 hover:underline" %>
+            <% end %>
+          </div>
+        </div>
+
+        <div class="text-xs uppercase tracking-wider text-[#9dabb9] mb-2">Nodi</div>
+        <div class="overflow-y-auto pr-2" style="max-height: calc(100vh - 160px);">
+          <ul class="space-y-1">
+            <%= render partial: "superadmin/taxbranches/tree_simple",
+                       locals: { node: @taxbranch } %>
+          </ul>
+        </div>
+      </aside>
+
+      <main class="flex-1 overflow-hidden bg-background-light dark:bg-background-dark text-slate-900 dark:text-white">
+        <div id="gi-layout" class="flex h-full w-full">
+          <section id="gi-center" class="flex-1 overflow-y-auto p-6">
+            <nav class="text-xs text-slate-500 dark:text-slate-400 mb-3" aria-label="breadcrumb">
+              <% if @taxbranch.respond_to?(:path) %>
+                <% path = @taxbranch.path.to_a %>
+              <% else %>
+                <% path = @taxbranch.ancestors.to_a + [@taxbranch] %>
+              <% end %>
+              <% if Current.domain&.taxbranch %>
+                <% start = Current.domain.taxbranch %>
+                <% idx = path.index(start) %>
+                <% path = idx ? path[idx..] : path %>
+              <% end %>
+              <% path.each_with_index do |branch, i| %>
+                <% if i == path.size - 1 %>
+                  <span class="font-semibold text-slate-900 dark:text-white"><%= branch.display_label %></span>
+                <% else %>
+                  <%= link_to branch.display_label,
+                              generaimpresa_superadmin_taxbranch_path(branch),
+                              class: "hover:underline" %>
+                  <span class="mx-1 text-slate-400">/</span>
+                <% end %>
+              <% end %>
+            </nav>
+            <div class="mb-4"></div>
+        <% current_tab = action_name == "rails4b" ? "rails4b" : (params[:tab].presence || "generaimpresa") %>
+            <div class="mb-4 flex items-center gap-2">
+              <%= link_to "GeneraImpresa",
+                          generaimpresa_superadmin_taxbranch_path(@taxbranch, tab: "generaimpresa"),
+                          class: "inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold #{current_tab == 'generaimpresa' ? 'bg-primary text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200'}" %>
+              <%= link_to "Post",
+                          generaimpresa_superadmin_taxbranch_path(@taxbranch, tab: "post"),
+                          class: "inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold #{current_tab == 'post' ? 'bg-primary text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200'}" %>
+              <%= link_to "Network",
+                          generaimpresa_superadmin_taxbranch_path(@taxbranch, tab: "network"),
+                          class: "inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold #{current_tab == 'network' ? 'bg-primary text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200'}" %>
+              <%= link_to "Rails4b",
+                          rails4b_superadmin_taxbranch_path(@taxbranch),
+                          class: "inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold #{current_tab == 'rails4b' ? 'bg-primary text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200'}" %>
+            </div>
+
+            <% if current_tab == "generaimpresa" %>
+              <div class="rounded-xl border border-slate-200 bg-white dark:bg-slate-900 p-5 shadow-sm mb-6">
+                <% if @taxbranch.generaimpresa_md.present? %>
+                  <div class="prose prose-slate max-w-none dark:prose-invert">
+                    <%= markdown(@taxbranch.generaimpresa_md) %>
+                  </div>
+                <% else %>
+                  <p class="text-sm text-slate-500">Nessun contenuto ancora.</p>
+                <% end %>
+              </div>
+            <% elsif current_tab == "post" %>
+              <div class="mb-4 flex items-center justify-between">
+                <div>
+                  <h2 class="text-lg font-bold text-slate-900 dark:text-white">Post pubblico</h2>
+                  <p class="text-xs text-slate-500">Visibile agli utenti</p>
+                </div>
+                <%= link_to "Apri Post",
+                            post_superadmin_taxbranch_path(@taxbranch),
+                            class: "inline-flex items-center rounded-md border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800" %>
+              </div>
+
+              <div class="rounded-xl border border-slate-200 bg-white dark:bg-slate-900 p-5 shadow-sm">
+                <% if @taxbranch.post.present? %>
+                  <%= render "posts/show", post: @taxbranch.post, taxbranch: @taxbranch %>
+                <% else %>
+                  <p class="text-sm text-slate-500">Nessun post associato.</p>
+                <% end %>
+              </div>
+            <% elsif current_tab == "rails4b" %>
+              <%= yield %>
+            <% else %>
+              <div class="rounded-xl border border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/60 p-2">
+                <div id="taxbranch-graph" class="h-[70vh] w-full"></div>
+              </div>
+            <% end %>
+          </section>
+        </div>
+      </main>
+    </div>
+    <% if current_tab == "network" %>
+      <script>
+        (() => {
+          const container = document.getElementById("taxbranch-graph");
+          if (!container || !window.vis) return;
+          const nodesData = <%= raw(ERB::Util.json_escape(@graph_nodes.to_json)) %>;
+          const edgesData = <%= raw(ERB::Util.json_escape(@graph_edges.to_json)) %>;
+          const nodes = new vis.DataSet(nodesData);
+          const edges = new vis.DataSet(edgesData);
+          const network = new vis.Network(container, { nodes, edges }, {
+            physics: { stabilization: true },
+            interaction: { hover: true },
+            nodes: { shape: "dot", size: 10, font: { color: "#e5e7eb" } },
+            edges: { color: { color: "#4b5563" }, smooth: true }
+          });
+          const rootId = <%= @graph_root_id.to_json %>;
+          if (rootId) {
+            nodes.update({ id: rootId, color: { background: "#137fec", border: "#137fec" }, size: 14 });
+            network.once("stabilizationIterationsDone", () => {
+              network.focus(rootId, { scale: 1.1, animation: { duration: 600, easingFunction: "easeInOutQuad" } });
+              network.selectNodes([rootId]);
+            });
+          }
+          network.on("click", (params) => {
+            const id = params.nodes[0];
+            if (!id) return;
+            const node = nodes.get(id);
+            if (node && node.url) window.location = node.url;
+          });
+        })();
+      </script>
+    <% end %>
+  </body>
+</html>

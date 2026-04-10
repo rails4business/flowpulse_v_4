@@ -1,0 +1,98 @@
+<% commitments = eventdate.commitments.ordered %>
+
+<section class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+  <div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+    <div>
+      <h2 class="text-xl font-semibold text-slate-900">Commitment collegati</h2>
+      <p class="text-sm text-slate-500">Sequenza di task e ruoli operativi per questo evento.</p>
+    </div>
+    <div class="flex flex-wrap gap-2">
+      <%= link_to "➕ Nuovo commitment", new_eventdate_commitment_path(eventdate), class: "inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500" %>
+      <% if eventdate.journey.present? %>
+        <%= link_to "📚 Journey commitment", journey_commitments_path(eventdate.journey), class: "inline-flex items-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50" %>
+      <% end %>
+    </div>
+  </div>
+
+  <% if commitments.any? %>
+    <div class="mt-6 rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+      <table class="min-w-full text-sm">
+        <thead class="bg-slate-50 text-xs font-semibold uppercase text-slate-500">
+          <tr>
+            <th class="px-4 py-2 text-left">Ruolo</th>
+            <th class="px-4 py-2 text-left">Tipo / Area</th>
+            <th class="px-4 py-2 text-left">Durata</th>
+            <th class="px-4 py-2 text-left">Priorità</th>
+            <th class="px-4 py-2 text-right">Azioni</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 bg-white">
+          <% commitments.each do |commitment| %>
+            <tr class="hover:bg-slate-50/70">
+              <td class="px-4 py-3 align-top">
+                <div class="font-semibold text-slate-900">
+                  <%= commitment.role_name.presence || "Commitment ##{commitment.id}" %>
+                </div>
+                <div class="text-xs text-slate-500">
+                  Pos. <%= commitment.position.presence || "-" %> · x<%= commitment.role_count.presence || 1 %>
+                </div>
+                <% if commitment.notes.present? %>
+                  <p class="text-xs text-slate-500 mt-1"><%= truncate(commitment.notes, length: 80) %></p>
+                <% end %>
+              </td>
+              <td class="px-4 py-3 align-top text-xs text-slate-600 space-y-1">
+                <span class="inline-flex items-center rounded-full bg-amber-50 px-2 py-0.5 font-semibold text-amber-700">
+                  <%= commitment.commitment_kind.to_s.humanize %>
+                </span>
+                <% if commitment.area.present? %>
+                  <div>Area: <%= commitment.area %></div>
+                <% end %>
+                <% if commitment.taxbranch.present? %>
+                  <div class="text-[11px] text-slate-500">
+                    <%= commitment.taxbranch.display_label %>
+                  </div>
+                <% end %>
+              </td>
+              <td class="px-4 py-3 align-top text-xs text-slate-600">
+                <% if commitment.duration_minutes.present? %>
+                  <div class="font-semibold text-slate-900"><%= commitment.duration_minutes %> min</div>
+                <% end %>
+                <% if commitment.commitment_kind.present? %>
+                  <div>Step #<%= commitment.position.presence || "-" %></div>
+                <% end %>
+              </td>
+              <td class="px-4 py-3 align-top text-xs text-slate-600">
+                <div class="space-y-1">
+                  <% if commitment.importance.present? %>
+                    <div>Importance: <strong><%= commitment.importance %></strong></div>
+                  <% end %>
+                  <% if commitment.urgency.present? %>
+                    <div>Urgency: <strong><%= commitment.urgency %></strong></div>
+                  <% end %>
+                  <% if commitment.energy.present? %>
+                    <div>Energy: <strong><%= commitment.energy %></strong></div>
+                  <% end %>
+                </div>
+              </td>
+              <td class="px-4 py-3 align-top text-right text-xs">
+                <div class="inline-flex flex-col gap-2 items-end">
+                  <%= link_to "Mostra",
+                      commitment,
+                      class: "inline-flex items-center rounded-md border border-slate-200 bg-white px-3 py-1 font-medium text-slate-700 hover:bg-slate-100" %>
+                  <%= link_to "Modifica",
+                      edit_commitment_path(commitment),
+                      class: "inline-flex items-center rounded-md border border-slate-200 bg-white px-3 py-1 font-medium text-slate-700 hover:bg-slate-100" %>
+                  <%= link_to "Nuovo booking",
+                      new_booking_path(eventdate_id: eventdate.id, commitment_id: commitment.id),
+                      class: "inline-flex items-center rounded-md border border-emerald-200 bg-emerald-50 px-3 py-1 font-medium text-emerald-700 hover:bg-emerald-100" %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <p class="mt-6 text-sm text-slate-500">Nessun commitment collegato. Aggiungine uno per pianificare le attività di questo evento.</p>
+  <% end %>
+</section>

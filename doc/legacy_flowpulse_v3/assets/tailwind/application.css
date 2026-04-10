@@ -1,0 +1,276 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Beautiful Typography - Simplified for reliability */
+@layer components {
+  :is(.prose-lite, .prose, .prose-slate) {
+    color: #334155;
+    /* slate-700 for softer text */
+    max-width: 65ch;
+    font-size: 1.125rem;
+    /* 18px base */
+    line-height: 1.8;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* Headings - Serif for elegance if desired, or just bold sans */
+  :is(.prose-lite, .prose, .prose-slate) h1 {
+    color: #0f172a;
+    /* slate-900 */
+    font-weight: 800;
+    font-size: 2.25em;
+    margin-top: 0;
+    margin-bottom: 0.8em;
+    line-height: 1.1;
+    letter-spacing: -0.025em;
+  }
+
+  :is(.prose-lite, .prose, .prose-slate) h2 {
+    color: #1e293b;
+    /* slate-800 */
+    font-weight: 700;
+    font-size: 1.75em;
+    margin-top: 2em;
+    margin-bottom: 0.8em;
+    line-height: 1.3;
+    padding-bottom: 0.3em;
+    border-bottom: 1px solid #e2e8f0;
+    /* subtle divider */
+  }
+
+  /* Lead paragraph */
+  :is(.prose-lite, .prose, .prose-slate) .lead {
+    color: #4b5563;
+    font-size: 1.25em;
+    line-height: 1.6;
+    margin-top: 1.2em;
+    margin-bottom: 1.2em;
+  }
+
+  /* Dark Mode Support */
+  .dark :is(.prose-lite, .prose, .prose-slate) {
+    color: #cbd5e1;
+    /* slate-300 */
+  }
+
+  .dark :is(.prose-lite, .prose, .prose-slate) h1,
+  .dark :is(.prose-lite, .prose, .prose-slate) h2,
+  .dark :is(.prose-lite, .prose, .prose-slate) h3,
+  .dark :is(.prose-lite, .prose, .prose-slate) h4,
+  .dark :is(.prose-lite, .prose, .prose-slate) strong,
+  .dark :is(.prose-lite, .prose, .prose-slate) code,
+  .dark :is(.prose-lite, .prose, .prose-slate) thead th {
+    color: #f1f5f9;
+    /* slate-100 */
+  }
+
+  .dark :is(.prose-lite, .prose, .prose-slate) a {
+    color: #60a5fa;
+    /* blue-400 */
+  }
+
+  .dark :is(.prose-lite, .prose, .prose-slate) blockquote {
+    color: #94a3b8;
+    /* slate-400 */
+    border-left-color: #475569;
+    background: #1e293b;
+    /* slate-800 */
+  }
+
+  .dark :is(.prose-lite, .prose, .prose-slate) code {
+    background-color: #1e293b;
+    /* slate-800 */
+    color: #e2e8f0;
+  }
+
+  .dark :is(.prose-lite, .prose, .prose-slate) pre {
+    background-color: #0f172a;
+    /* slate-900 */
+    border: 1px solid #1e293b;
+  }
+
+  .dark :is(.prose-lite, .prose, .prose-slate) thead {
+    border-bottom-color: #475569;
+  }
+
+  .dark :is(.prose-lite, .prose, .prose-slate) tbody tr {
+    border-bottom-color: #334155;
+  }
+
+  :is(.prose-lite, .prose, .prose-slate) h3 {
+    color: #1e293b;
+    font-weight: 600;
+    font-size: 1.4em;
+    margin-top: 1.6em;
+    margin-bottom: 0.6em;
+    line-height: 1.4;
+  }
+
+  :is(.prose-lite, .prose, .prose-slate) h4 {
+    color: #1e293b;
+    font-weight: 600;
+    font-size: 1.15em;
+    margin-top: 1.4em;
+    margin-bottom: 0.5em;
+    line-height: 1.5;
+  }
+
+  /* Paragraphs */
+  :is(.prose-lite, .prose, .prose-slate) p {
+    margin-top: 1.25em;
+    margin-bottom: 1.25em;
+  }
+
+  /* Links */
+  :is(.prose-lite, .prose, .prose-slate) a {
+    color: #2563eb;
+    text-decoration: none;
+    font-weight: 500;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.2s;
+  }
+
+  :is(.prose-lite, .prose, .prose-slate) a:hover {
+    color: #1d4ed8;
+    border-bottom-color: #1d4ed8;
+  }
+
+  /* Strong */
+  :is(.prose-lite, .prose, .prose-slate) strong {
+    color: #0f172a;
+    font-weight: 600;
+  }
+
+  /* Lists */
+  :is(.prose-lite, .prose, .prose-slate) ul {
+    list-style-type: disc;
+    margin-top: 1.25em;
+    margin-bottom: 1.25em;
+    padding-left: 1.625em;
+  }
+
+  :is(.prose-lite, .prose, .prose-slate) ol {
+    list-style-type: decimal;
+    margin-top: 1.25em;
+    margin-bottom: 1.25em;
+    padding-left: 1.625em;
+  }
+
+  :is(.prose-lite, .prose, .prose-slate) li {
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+    padding-left: 0.375em;
+    /* Breathing room for bullets */
+  }
+
+  :is(.prose-lite, .prose, .prose-slate) li::marker {
+    color: #94a3b8;
+    /* lighter markers */
+  }
+
+  /* Blockquotes - Elegant and distinct */
+  :is(.prose-lite, .prose, .prose-slate) blockquote {
+    font-weight: 400;
+    font-style: italic;
+    color: #475569;
+    border-left-width: 0.25rem;
+    border-left-color: #cbd5e1;
+    quotes: "\201C" "\201D" "\2018" "\2019";
+    margin-top: 2em;
+    margin-bottom: 2em;
+    padding-left: 1.25em;
+    background: #f8fafc;
+    /* very subtle bg */
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+    border-radius: 0 0.375rem 0.375rem 0;
+  }
+
+  /* Code - Distinct inline code */
+  :is(.prose-lite, .prose, .prose-slate) code {
+    color: #0f172a;
+    font-weight: 600;
+    font-size: 0.875em;
+    background-color: #f1f5f9;
+    padding: 0.2em 0.4em;
+    border-radius: 0.25rem;
+  }
+
+  :is(.prose-lite, .prose, .prose-slate) code::before,
+  :is(.prose-lite, .prose, .prose-slate) code::after {
+    content: none;
+    /* Clean look without backticks */
+  }
+
+  /* Code blocks */
+  :is(.prose-lite, .prose, .prose-slate) pre {
+    color: #e2e8f0;
+    background-color: #1e293b;
+    overflow-x: auto;
+    font-weight: 400;
+    font-size: 0.875em;
+    line-height: 1.7;
+    margin-top: 1.7em;
+    margin-bottom: 1.7em;
+    border-radius: 0.5rem;
+    padding: 1em 1.25em;
+  }
+
+  :is(.prose-lite, .prose, .prose-slate) pre code {
+    background-color: transparent;
+    border-width: 0;
+    border-radius: 0;
+    padding: 0;
+    color: inherit;
+    font-size: inherit;
+  }
+
+  /* Images & Media */
+  :is(.prose-lite, .prose, .prose-slate) img,
+  :is(.prose-lite, .prose, .prose-slate) video {
+    margin-top: 2em;
+    margin-bottom: 2em;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+
+  /* Tables */
+  :is(.prose-lite, .prose, .prose-slate) table {
+    width: 100%;
+    table-layout: auto;
+    text-align: left;
+    margin-top: 2em;
+    margin-bottom: 2em;
+    font-size: 0.9em;
+  }
+
+  :is(.prose-lite, .prose, .prose-slate) thead {
+    border-bottom-width: 2px;
+    border-bottom-color: #cbd5e1;
+  }
+
+  :is(.prose-lite, .prose, .prose-slate) thead th {
+    color: #0f172a;
+    font-weight: 600;
+    padding-bottom: 0.5em;
+  }
+
+  :is(.prose-lite, .prose, .prose-slate) tbody tr {
+    border-bottom-width: 1px;
+    border-bottom-color: #e2e8f0;
+  }
+
+  :is(.prose-lite, .prose, .prose-slate) tbody td {
+    padding: 0.75em 0.5em;
+  }
+
+  /* Horizontal rule */
+  :is(.prose-lite, .prose, .prose-slate) hr {
+    border-color: #e2e8f0;
+    border-top-width: 1px;
+    margin-top: 3em;
+    margin-bottom: 3em;
+  }
+}

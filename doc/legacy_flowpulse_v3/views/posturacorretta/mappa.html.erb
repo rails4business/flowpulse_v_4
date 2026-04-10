@@ -1,0 +1,552 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Mappa PosturaCorretta</title>
+
+    <style>
+      :root {
+        --bg: #0b1e2d;
+
+        --blue: #2563eb;
+        --orange: #f59e0b;
+        --violet: #7c3aed;
+        --neutral: #3f8fd1;
+        --red: #ef4444;
+        --green: #22c55e;
+
+        --line: rgba(255, 255, 255, 0.92);
+        --text: rgba(255, 255, 255, 0.95);
+        --text-soft: rgba(255, 255, 255, 0.75);
+      }
+
+      body {
+        margin: 0;
+        min-height: 100svh;
+        display: grid;
+        place-items: center;
+        background: var(--bg);
+        font-family:
+          system-ui,
+          -apple-system,
+          Segoe UI,
+          Roboto,
+          Helvetica,
+          Arial;
+        cursor: pointer;
+      }
+
+      svg {
+        width: min(980px, 96vw);
+        height: auto;
+        display: block;
+      }
+
+      .academy {
+        fill: var(--text-soft);
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        font-size: 30px;
+      }
+
+      .t-center {
+        fill: var(--text);
+        font-weight: 800;
+        font-size: 24px;
+      }
+      .t-center-sub {
+        fill: var(--text-soft);
+        font-weight: 600;
+        font-size: 14px;
+      }
+
+      .t-style {
+        fill: var(--text);
+        font-weight: 700;
+        font-size: 20px;
+      }
+      .t-style-sub {
+        fill: var(--text-soft);
+        font-weight: 600;
+        font-size: 13px;
+      }
+
+      .t-salute {
+        fill: var(--text);
+        font-weight: 700;
+        font-size: 18px;
+      }
+      .t-salute-sub {
+        fill: var(--text-soft);
+        font-weight: 600;
+        font-size: 12px;
+      }
+
+      .t-cura {
+        fill: var(--text);
+        font-weight: 700;
+        font-size: 16px;
+      }
+      .t-cura-sub {
+        fill: var(--text-soft);
+        font-weight: 600;
+        font-size: 11px;
+      }
+
+      .link {
+        stroke: var(--line);
+        stroke-width: 5;
+        stroke-linecap: round;
+        fill: none;
+      }
+
+      .ring {
+        stroke: rgba(255, 255, 255, 0.9);
+        stroke-width: 6;
+      }
+
+      @media (max-width: 520px) {
+        .academy {
+          font-size: 20px;
+        }
+        .t-center {
+          font-size: 20px;
+        }
+        .t-style {
+          font-size: 16px;
+        }
+        .t-salute {
+          font-size: 14px;
+        }
+        .t-cura {
+          font-size: 13px;
+        }
+        .t-center-sub,
+        .t-style-sub,
+        .t-salute-sub,
+        .t-cura-sub {
+          font-size: 12px;
+        }
+        .link {
+          stroke-width: 3;
+        }
+        .ring {
+          stroke-width: 5;
+        }
+      }
+
+      .close {
+        position: fixed;
+        top: 16px;
+        right: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.35);
+        background: rgba(255, 255, 255, 0.12);
+        color: #fff;
+        padding: 10px 14px;
+        border-radius: 999px;
+        font-size: 14px;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        cursor: pointer;
+      }
+
+      .node-clickable {
+        cursor: pointer;
+      }
+      .node-label {
+        pointer-events: none;
+      }
+      .node-clickable .ring {
+        transition: stroke-width 0.15s ease;
+      }
+      .node-clickable:hover .ring {
+        stroke-width: 8;
+      }
+
+      .overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        z-index: 40;
+      }
+      .overlay.open {
+        display: flex;
+      }
+      .modal-close {
+        border: 1px solid rgba(15, 23, 42, 0.18);
+        background: #fff;
+        border-radius: 999px;
+        padding: 6px 12px;
+        cursor: pointer;
+        font-weight: 700;
+      }
+      .media-modal {
+        width: min(760px, 100%);
+        background: #fff;
+        border-radius: 18px;
+        border: 1px solid rgba(15, 23, 42, 0.08);
+        box-shadow: 0 20px 50px rgba(2, 6, 23, 0.25);
+        overflow: hidden;
+      }
+      .modal-head {
+        padding: 16px 18px;
+        border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .modal-title {
+        margin: 0;
+        color: #0f172a;
+        font-size: 18px;
+        font-weight: 800;
+      }
+      .modal-body {
+        padding: 16px 18px 18px;
+      }
+      .media-nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 12px;
+      }
+      .media-back {
+        border: 1px solid rgba(15, 23, 42, 0.18);
+        border-radius: 999px;
+        background: #fff;
+        color: #0f172a;
+        font-weight: 800;
+        padding: 8px 12px;
+        cursor: pointer;
+      }
+      .media-tabs {
+        display: inline-flex;
+        gap: 8px;
+        padding: 4px;
+        border-radius: 999px;
+        background: #eef2ff;
+        border: 1px solid rgba(99, 102, 241, 0.28);
+      }
+      .media-tab-btn {
+        border: 0;
+        border-radius: 999px;
+        background: transparent;
+        color: #334155;
+        font-weight: 800;
+        padding: 8px 14px;
+        cursor: pointer;
+      }
+      .media-tab-btn.active {
+        background: #1e293b;
+        color: #fff;
+      }
+      .media-panels {
+        display: grid;
+        gap: 12px;
+      }
+      .media-panel {
+        display: none;
+      }
+      .media-panel.active {
+        display: block;
+      }
+      .media-card {
+        margin: 0;
+        border: 1px solid rgba(15, 23, 42, 0.1);
+        border-radius: 12px;
+        overflow: hidden;
+        background: #fff;
+      }
+      .media-card img {
+        width: 100%;
+        max-height: min(58vh, 520px);
+        object-fit: contain;
+        display: block;
+        background: #f8fafc;
+      }
+      .media-cap {
+        margin: 0;
+        padding: 8px 10px;
+        font-size: 12px;
+        color: #334155;
+        border-top: 1px solid rgba(15, 23, 42, 0.08);
+      }
+    </style>
+  </head>
+
+  <body>
+    <button class="close" type="button" aria-label="Chiudi e torna alla home">
+      Chiudi
+    </button>
+    <svg viewBox="0 0 900 600" role="img" aria-label="Mappa PosturaCorretta">
+      <defs>
+        <clipPath id="logoRounded">
+          <rect x="560" y="230" width="150" height="56" rx="8" ry="8" />
+        </clipPath>
+      </defs>
+      <text x="560" y="150" text-anchor="start" class="academy">Il Corpo</text>
+      <text x="560" y="180" text-anchor="start" class="academy">un mondo</text>
+      <text x="560" y="210" text-anchor="start" class="academy">
+        da scoprire
+      </text>
+      <text x="560" y="230" text-anchor="start" class="t-cura-sub">
+        Accademia
+      </text>
+
+      <image
+        href="https://ik.imagekit.io/posturacorretta/logo_pc.png?updatedAt=1747835132622"
+        x="560"
+        y="230"
+        width="150"
+        height="56"
+        preserveAspectRatio="xMinYMid meet"
+        clip-path="url(#logoRounded)"
+      />
+
+      <!--
+    Layout con più respiro sui rami:
+    Centro: (450, 230)
+    Stile:  (332, 386)
+    Salute: (500, 420)
+
+    Rosso:  (640, 335)
+    Verde:  (650, 450)
+  -->
+
+      <!-- LINEE -->
+      <!-- Centro -> Stile -->
+      <path class="link" d="M 396 302 L 377 327" />
+      <!-- Centro -> Salute -->
+      <path class="link" d="M 473 317 L 483 354" />
+      <!-- Stile -> Salute -->
+      <path class="link" d="M 405 401 L 433 406" />
+
+      <!-- Salute -> satelliti -->
+      <path class="link" d="M 500 420 L 602 334" />
+      <path class="link" d="M 500 420 L 635 420" />
+      <path class="link" d="M 500 420 L 602 506" />
+
+      <!-- CENTRO -->
+      <g id="nodePostura" class="node-clickable" aria-label="Vai al percorso Postura e Fisiologia">
+        <circle id="circlePostura" cx="450" cy="230" r="90" fill="var(--blue)" />
+        <circle cx="450" cy="230" r="90" fill="transparent" class="ring" />
+        <text x="450" y="190" text-anchor="middle" class="t-center node-label">
+          Postura e
+        </text>
+        <text x="450" y="218" text-anchor="middle" class="t-center node-label">
+          Fisiologia
+        </text>
+        <text x="450" y="238" text-anchor="middle" class="t-center-sub node-label">
+          Il Percorso educativo
+        </text>
+        <text x="450" y="254" text-anchor="middle" class="t-center-sub node-label">
+          per capire come
+        </text>
+        <text x="450" y="270" text-anchor="middle" class="t-center-sub node-label">
+          funziona il tuo corpo
+        </text>
+        <text x="450" y="286" text-anchor="middle" class="t-center-sub node-label">
+          e come riattivarlo.
+        </text>
+      </g>
+
+      <!-- STILE DI VITA -->
+      <g id="nodeStile" class="node-clickable" aria-label="Vai a scala">
+        <circle id="circleStile" cx="332" cy="386" r="74" fill="var(--violet)" />
+        <circle cx="332" cy="386" r="74" fill="transparent" class="ring" />
+        <text x="332" y="372" text-anchor="middle" class="t-style node-label">
+          Stile di vita
+        </text>
+
+        <text x="332" y="392" text-anchor="middle" class="t-style-sub node-label">
+          Su cosa
+        </text>
+        <text x="332" y="407" text-anchor="middle" class="t-style-sub node-label">
+          possiamo agire
+        </text>
+        <text x="332" y="422" text-anchor="middle" class="t-style-sub node-label">
+          ogni giorno?
+        </text>
+      </g>
+
+      <!-- SALUTE -->
+      <g id="nodeSalute" class="node-clickable" aria-label="Vai alle 5 aree della salute">
+        <circle id="circleSalute" cx="500" cy="420" r="68" fill="var(--neutral)" />
+        <circle cx="500" cy="420" r="68" fill="transparent" class="ring" />
+        <text x="500" y="396" text-anchor="middle" class="t-salute node-label">
+          Percorso
+        </text>
+        <text x="500" y="418" text-anchor="middle" class="t-salute node-label">Salute</text>
+        <text x="500" y="435" text-anchor="middle" class="t-salute-sub node-label">
+          Gestisci
+        </text>
+        <text x="500" y="450" text-anchor="middle" class="t-salute-sub node-label">
+          la tua salute
+        </text>
+      </g>
+
+      <!-- CURA PATOLOGIA -->
+      <circle cx="602" cy="334" r="42" fill="var(--red)" />
+      <circle cx="602" cy="334" r="42" fill="transparent" class="ring" />
+      <text x="602" y="322" text-anchor="middle" class="t-cura">Cura</text>
+      <text x="602" y="348" text-anchor="middle" class="t-cura-sub">
+        Patologia
+      </text>
+
+      <!-- PREVENZIONE -->
+      <circle cx="635" cy="420" r="42" fill="var(--orange)" />
+      <circle cx="635" cy="420" r="42" fill="transparent" class="ring" />
+      <text x="635" y="425" text-anchor="middle" class="t-cura-sub">
+        Prevenzione
+      </text>
+
+      <!-- CURA DELLA SALUTE -->
+      <circle cx="602" cy="506" r="42" fill="var(--green)" />
+      <circle cx="602" cy="506" r="42" fill="transparent" class="ring" />
+      <text x="602" y="494" text-anchor="middle" class="t-cura">Cura</text>
+
+      <text x="602" y="510" text-anchor="middle" class="t-cura-sub">del</text>
+      <text x="602" y="525" text-anchor="middle" class="t-cura-sub">
+        benessere
+      </text>
+    </svg>
+
+    <div id="stileOverlay" class="overlay" role="dialog" aria-modal="true" aria-labelledby="stileTitle">
+      <div class="modal media-modal">
+        <div class="modal-head">
+          <h2 id="stileTitle" class="modal-title">Stile di vita</h2>
+          <button id="stileClose" class="modal-close" type="button">Chiudi</button>
+        </div>
+        <div class="modal-body">
+          <div class="media-nav">
+            <button id="stileBack" class="media-back" type="button">Torna</button>
+            <div class="media-tabs" role="tablist" aria-label="Scegli immagine">
+              <button id="tabScala" class="media-tab-btn active" type="button" role="tab" aria-selected="true">
+                Scala
+              </button>
+              <button id="tabFlowpulse" class="media-tab-btn" type="button" role="tab" aria-selected="false">
+                FlowPulse
+              </button>
+            </div>
+          </div>
+          <div class="media-panels">
+            <figure id="panelScala" class="media-card media-panel active">
+              <img src="/html/posturacorretta/scala.png" alt="Scala Stile di vita" loading="lazy" />
+              <figcaption class="media-cap">Scala</figcaption>
+            </figure>
+            <figure id="panelFlowpulse" class="media-card media-panel">
+              <img src="/html/posturacorretta/flowpulse.png" alt="FlowPulse" loading="lazy" />
+              <figcaption class="media-cap">FlowPulse</figcaption>
+            </figure>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      (() => {
+        const goHome = () => {
+          window.location.href = "/";
+        };
+        const goPercorso = () => {
+          window.location.href = `${window.location.origin}/#percorso`;
+        };
+        const goAree = () => {
+          window.location.href = "<%= posturacorretta_aree_path %>";
+        };
+        const closeBtn = document.querySelector(".close");
+        if (closeBtn) {
+          closeBtn.addEventListener("click", (event) => {
+            event.stopPropagation();
+            goHome();
+          });
+        }
+
+        const circlePostura = document.getElementById("circlePostura");
+        const circleStile = document.getElementById("circleStile");
+        const nodeSalute = document.getElementById("nodeSalute");
+        const mapSvg = document.querySelector("svg");
+        const stileOverlay = document.getElementById("stileOverlay");
+        const stileClose = document.getElementById("stileClose");
+        const stileBack = document.getElementById("stileBack");
+        const tabScala = document.getElementById("tabScala");
+        const tabFlowpulse = document.getElementById("tabFlowpulse");
+        const panelScala = document.getElementById("panelScala");
+        const panelFlowpulse = document.getElementById("panelFlowpulse");
+        const openStileModal = () => {
+          setMediaTab("scala");
+          stileOverlay?.classList.add("open");
+        };
+        const closeStileModal = () => stileOverlay?.classList.remove("open");
+        const setMediaTab = (tab) => {
+          const isScala = tab === "scala";
+          tabScala?.classList.toggle("active", isScala);
+          tabFlowpulse?.classList.toggle("active", !isScala);
+          tabScala?.setAttribute("aria-selected", isScala ? "true" : "false");
+          tabFlowpulse?.setAttribute("aria-selected", isScala ? "false" : "true");
+          panelScala?.classList.toggle("active", isScala);
+          panelFlowpulse?.classList.toggle("active", !isScala);
+        };
+
+        circlePostura?.addEventListener("click", (event) => {
+          event.stopPropagation();
+          goPercorso();
+        });
+
+        circleStile?.addEventListener("click", (event) => {
+          event.stopPropagation();
+          openStileModal();
+        });
+
+        nodeSalute?.addEventListener("click", (event) => {
+          event.stopPropagation();
+          goAree();
+        });
+
+        // Fallback robusto: riconosce click dentro i cerchi anche quando il target SVG cambia.
+        if (mapSvg) {
+          mapSvg.addEventListener("click", (event) => {
+            if (stileOverlay?.classList.contains("open")) return;
+            const ctm = mapSvg.getScreenCTM();
+            if (!ctm) return;
+            const pt = mapSvg.createSVGPoint();
+            pt.x = event.clientX;
+            pt.y = event.clientY;
+            const p = pt.matrixTransform(ctm.inverse());
+
+            const inPostura = Math.hypot(p.x - 450, p.y - 230) <= 90;
+            const inStile = Math.hypot(p.x - 332, p.y - 386) <= 74;
+            const inSalute = Math.hypot(p.x - 500, p.y - 420) <= 68;
+
+            if (inPostura) {
+              event.preventDefault();
+              goPercorso();
+              return;
+            }
+            if (inStile) {
+              event.preventDefault();
+              openStileModal();
+              return;
+            }
+            if (inSalute) {
+              event.preventDefault();
+              goAree();
+            }
+          });
+        }
+
+        stileClose?.addEventListener("click", closeStileModal);
+        stileBack?.addEventListener("click", closeStileModal);
+        tabScala?.addEventListener("click", () => setMediaTab("scala"));
+        tabFlowpulse?.addEventListener("click", () => setMediaTab("flowpulse"));
+        setMediaTab("scala");
+      })();
+    </script>
+  </body>
+</html>

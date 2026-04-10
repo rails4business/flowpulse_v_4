@@ -1,0 +1,144 @@
+<% item ||= {} %>
+<% occurred_at = item[:activity_occurred_at].presence || item[:next_at] %>
+<% weekday_it = %w[Domenica Lunedi Martedi Mercoledi Giovedi Venerdi Sabato][occurred_at&.wday.to_i] if occurred_at.present? %>
+<% mode_label = case item[:delivery_mode].to_s
+                when "autonomia" then "In autonomia"
+                when "professionista" then "Con professionista"
+                else item[:mode_label].to_s.humanize
+                end %>
+<% location_label = item[:delivery_location].presence %>
+<% location_label = (item[:delivery_channel].to_s == "online" ? "Online" : "A domicilio") if location_label.blank? %>
+<% format_label = item[:delivery_format].presence || "Singolo" %>
+<% location_icon = item[:delivery_channel].to_s == "online" ? "wifi" : (location_label.to_s.downcase.include?("domicilio") ? "home_pin" : "apartment") %>
+<% format_icon = format_label.to_s.downcase.include?("singolo") ? "person" : "groups" %>
+<% has_professional = item[:delivery_has_professional] == true %>
+<% person_label = item[:delivery_person_label].presence || (has_professional ? "Insegnante" : "Modalita") %>
+<% delivery_name = item[:delivery_instructor_name].presence || "In autonomia" %>
+<% delivery_role = item[:delivery_instructor_role].presence || mode_label.presence || "Percorso personale" %>
+<% status_border = item[:status_key] == :completed ? "border-emerald-200 bg-emerald-50/10 ring-2 ring-emerald-200/50" : "border-emerald-200 bg-emerald-50/10 ring-2 ring-primary ring-offset-2" %>
+<% read_url = local_assigns[:read_url] %>
+<% show_activity_url = local_assigns[:show_activity_url] %>
+<% retry_url = local_assigns[:retry_url] %>
+<% related_links = Array(local_assigns[:related_links]) %>
+<% eventdate = item[:eventdate] %>
+<% eventdate_at = eventdate&.date_start %>
+<% event_weekday_it = %w[Domenica Lunedi Martedi Mercoledi Giovedi Venerdi Sabato][eventdate_at&.wday.to_i] if eventdate_at.present? %>
+<% right_col_class = eventdate_at.present? ? "grid-cols-[1fr_178px]" : "grid-cols-[1fr_82px]" %>
+
+<div class="grid <%= right_col_class %> gap-6 items-stretch relative">
+  <div class="flex-1 min-w-0">
+    <div class="rounded-2xl border <%= status_border %> transition-all overflow-hidden flex flex-col md:flex-row">
+      <div class="p-3 bg-white flex gap-3 md:items-center md:justify-between">
+        <div class="flex-1 min-w-0">
+          <h3 class="text-base font-bold text-slate-800 mb-1 leading-snug flex items-center gap-1">
+            <% if item[:status_key] == :completed %>
+              <span class="material-symbols-outlined text-[14px] text-emerald-600">check_circle</span>
+            <% else %>
+              <span class="material-symbols-outlined text-[14px] text-amber-600">schedule</span>
+            <% end %>
+            <%= item[:title] %>
+          </h3>
+          <p class="text-xs text-slate-500 line-clamp-2 leading-relaxed"><%= item[:subtitle] %></p>
+          <% if related_links.present? %>
+            <div class="mt-2 flex flex-wrap items-center gap-1.5">
+              <% related_links.each do |link_item| %>
+                <% next if link_item[:url].blank? || link_item[:label].blank? %>
+                <%= link_to link_item[:label], link_item[:url], class: "inline-flex items-center rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[10px] font-semibold text-slate-600 hover:bg-slate-50" %>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+        <div class="hidden md:flex md:shrink-0 md:pl-6 md:ml-6 md:border-l md:border-slate-200 items-center gap-3 text-xs text-slate-500 font-medium">
+          <div class="flex items-center gap-2 text-[13px] font-semibold text-slate-600" title="Modalita">
+            <% if has_professional %>
+              <img src="https://i.pravatar.cc/150?u=<%= item[:taxbranch]&.id || item.object_id %>" alt="Insegnante" class="w-8 h-8 rounded-full object-cover border border-white shadow-sm">
+            <% else %>
+              <span class="material-symbols-outlined text-[18px] text-slate-400">laptop_mac</span>
+            <% end %>
+            <span class="leading-tight">
+              <span class="block text-[10px] font-bold uppercase text-slate-500"><%= person_label %></span>
+              <span class="block text-[12px] font-semibold text-slate-700"><%= delivery_name %></span>
+              <span class="block text-[11px] font-medium text-slate-500"><%= delivery_role %></span>
+            </span>
+          </div>
+          <div class="flex flex-col items-start gap-1 pl-3 border-l border-slate-200 min-w-[110px]">
+            <div class="flex items-center gap-1.5" title="Luogo">
+              <span class="material-symbols-outlined text-[16px] text-slate-400"><%= location_icon %></span>
+              <span><%= location_label %></span>
+            </div>
+            <div class="flex items-center gap-1.5" title="Formato">
+              <span class="material-symbols-outlined text-[16px] text-slate-400"><%= format_icon %></span>
+              <span><%= format_label %></span>
+            </div>
+          </div>
+          <div class="flex flex-col items-stretch gap-1.5 pl-3 border-l border-slate-200 min-w-[92px]">
+            <% if read_url.present? %>
+              <%= link_to "Mostra", read_url, class: "inline-flex items-center justify-center rounded-md border border-slate-300 bg-white px-2 py-0.5 text-[10px] font-semibold text-slate-700 hover:bg-slate-50" %>
+            <% end %>
+            <% if show_activity_url.present? && show_activity_url != read_url %>
+              <%= link_to "Apri activity", show_activity_url, class: "inline-flex items-center justify-center rounded-md border border-slate-300 bg-white px-2 py-0.5 text-[10px] font-semibold text-slate-700 hover:bg-slate-50" %>
+            <% end %>
+            <% if retry_url.present? %>
+              <%= link_to "Ripeti", retry_url, data: { turbo_method: :post }, class: "inline-flex items-center justify-center rounded-md border border-slate-300 bg-white px-2 py-0.5 text-[10px] font-semibold text-slate-700 hover:bg-slate-50" %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+      <div class="px-4 py-3 bg-slate-50/50 border-t border-slate-100 flex items-center md:hidden">
+        <div class="w-full flex flex-wrap items-center gap-1.5 text-xs">
+          <% if read_url.present? %>
+            <%= link_to "Mostra", read_url, class: "inline-flex items-center rounded-md border border-slate-300 bg-white px-2 py-0.5 text-[10px] font-semibold text-slate-700 hover:bg-slate-50" %>
+          <% end %>
+          <% if show_activity_url.present? && show_activity_url != read_url %>
+            <%= link_to "Apri activity", show_activity_url, class: "inline-flex items-center rounded-md border border-slate-300 bg-white px-2 py-0.5 text-[10px] font-semibold text-slate-700 hover:bg-slate-50" %>
+          <% end %>
+          <% if retry_url.present? %>
+            <%= link_to "Ripeti", retry_url, data: { turbo_method: :post }, class: "inline-flex items-center rounded-md border border-slate-300 bg-white px-2 py-0.5 text-[10px] font-semibold text-slate-700 hover:bg-slate-50" %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="relative z-10 h-full flex items-center justify-start">
+    <% if eventdate_at.present? %>
+      <div class="flex items-stretch gap-2">
+        <div class="bg-white p-2 rounded-2xl border border-slate-100 shadow-sm min-w-[82px]">
+          <% if occurred_at.present? %>
+            <div class="flex flex-col items-center text-center leading-tight">
+              <span class="text-[9px] font-bold uppercase tracking-wider text-emerald-600">ACTIVITY</span>
+              <span class="text-xs font-bold uppercase tracking-wider text-slate-500"><%= I18n.l(occurred_at, format: "%b", locale: :it).upcase %></span>
+              <span class="text-2xl font-black text-slate-700"><%= occurred_at.day %></span>
+              <span class="text-[9px] font-medium uppercase text-slate-500"><%= weekday_it.to_s.upcase %></span>
+              <span class="text-[9px] font-semibold text-slate-500 mt-0.5"><%= I18n.l(occurred_at, format: "%H:%M", locale: :it) %></span>
+            </div>
+          <% else %>
+            <span class="material-symbols-outlined text-slate-300">event_busy</span>
+          <% end %>
+        </div>
+        <div class="bg-white p-2 rounded-2xl border border-slate-100 shadow-sm min-w-[82px]">
+          <div class="flex flex-col items-center text-center leading-tight">
+            <span class="text-[9px] font-bold uppercase tracking-wider text-blue-600">EVENT</span>
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-500"><%= I18n.l(eventdate_at, format: "%b", locale: :it).upcase %></span>
+            <span class="text-2xl font-black text-slate-700"><%= eventdate_at.day %></span>
+            <span class="text-[9px] font-medium uppercase text-slate-500"><%= event_weekday_it.to_s.upcase %></span>
+            <span class="text-[9px] font-semibold text-slate-500 mt-0.5"><%= I18n.l(eventdate_at, format: "%H:%M", locale: :it) %></span>
+          </div>
+        </div>
+      </div>
+    <% else %>
+      <div class="bg-white p-2 rounded-2xl border border-slate-100 shadow-sm min-w-[82px]">
+        <% if occurred_at.present? %>
+          <div class="flex flex-col items-center text-center leading-tight">
+            <span class="text-[9px] font-bold uppercase tracking-wider text-emerald-600">ACTIVITY</span>
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-500"><%= I18n.l(occurred_at, format: "%b", locale: :it).upcase %></span>
+            <span class="text-2xl font-black text-slate-700"><%= occurred_at.day %></span>
+            <span class="text-[9px] font-medium uppercase text-slate-500"><%= weekday_it.to_s.upcase %></span>
+            <span class="text-[9px] font-semibold text-slate-500 mt-0.5"><%= I18n.l(occurred_at, format: "%H:%M", locale: :it) %></span>
+          </div>
+        <% else %>
+          <span class="material-symbols-outlined text-slate-300">event_busy</span>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>

@@ -1,0 +1,181 @@
+<% selected_eventdate_id = commitment.eventdate_id || params[:eventdate_id] || params[:event_id] %>
+<% selected_eventdate = Eventdate.find_by(id: selected_eventdate_id) %>
+<% commitment.eventdate ||= selected_eventdate if selected_eventdate %>
+<% journey   = commitment.journey || selected_eventdate&.journey || @journey %>
+<% lead      = journey&.lead || selected_eventdate&.lead || Current.user&.lead %>
+<% commitment.taxbranch_id ||= selected_eventdate&.taxbranch_id %>
+<% eventdate_scope =
+     if journey.present?
+       journey.ordered_eventdates
+     elsif lead.present?
+       Eventdate.where(lead: lead).order(date_start: :desc)
+     else
+       Eventdate.none
+     end.limit(50) %>
+
+<%= form_with(model: (journey ? [journey, commitment] : commitment), local: true, class: "space-y-6 max-w-4xl mx-auto") do |form| %>
+  <% if commitment.errors.any? %>
+    <div class="bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3">
+      <p class="font-semibold text-sm">Correggi <%= pluralize(commitment.errors.count, "errore") %> per salvare:</p>
+      <ul class="mt-2 list-disc list-inside text-sm space-y-1">
+        <% commitment.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <!-- Header & Context -->
+  <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+    <div class="p-6 border-b border-slate-100 bg-slate-50/50 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div>
+        <div class="flex items-center gap-2 mb-1">
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-400">
+            <%= commitment.persisted? ? "Modifica" : "Nuova Attività" %>
+          </span>
+          <% if journey %>
+             <span class="inline-flex items-center rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-medium text-blue-700">
+               Journey #<%= journey.id %>
+             </span>
+          <% end %>
+        </div>
+        <h1 class="text-xl font-bold text-slate-900">
+          <%= commitment.role_name.presence || "Attività senza nome" %>
+        </h1>
+      </div>
+
+      <div class="flex items-center gap-6 text-sm">
+        <% if journey %>
+          <div class="flex flex-col">
+            <span class="text-[10px] uppercase text-slate-400 font-semibold">Journey</span>
+            <span class="font-medium text-slate-700"><%= journey.title %></span>
+          </div>
+        <% end %>
+        
+        <div class="flex flex-col">
+          <span class="text-[10px] uppercase text-slate-400 font-semibold">Evento</span>
+           <% if selected_eventdate %>
+             <%= form.hidden_field :eventdate_id, value: selected_eventdate.id %>
+             <span class="font-medium text-slate-700">
+                <%= selected_eventdate.description.truncate(30) %>
+             </span>
+           <% elsif eventdate_scope.exists? %>
+              <%= form.collection_select :eventdate_id,
+                    eventdate_scope,
+                    :id,
+                    ->(e) { "#{l(e.date_start, format: :short) rescue "-"} · #{e.location.presence || "Senza location"}" },
+                    { include_blank: "Seleziona evento..." },
+                    class: "mt-1 block w-48 rounded-md border-slate-300 py-1 text-xs focus:border-blue-500 focus:ring-blue-500",
+                    required: true %>
+           <% else %>
+             <span class="text-slate-400 italic">Nessun evento</span>
+           <% end %>
+        </div>
+      </div>
+    </div>
+
+    <div class="p-6 space-y-8">
+      <!-- Main Info -->
+      <section class="grid gap-6 md:grid-cols-2">
+        <div class="col-span-2 md:col-span-1 space-y-4">
+          <div>
+            <label class="block text-sm font-semibold text-slate-900 mb-1.5">Descrizione / Ruolo</label>
+            <%= form.text_field :role_name,
+                  placeholder: "Es. Sviluppo Frontend, Meeting Clienti...",
+                  class: "block w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-3 py-2" %>
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-slate-900 mb-1.5">Destinazione (Taxbranch)</label>
+            <%= form.select :taxbranch_id, 
+                  grouped_options_for_select(@grouped_taxbranch_options || {}, commitment.taxbranch_id),
+                  { include_blank: "Seleziona destinazione..." },
+                  class: "block w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" %>
+            <p class="text-xs text-slate-500 mt-1">Collega l'attività a un dominio, servizio o branch specifico.</p>
+          </div>
+        </div>
+
+        <div class="col-span-2 md:col-span-1 space-y-4">
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-semibold text-slate-900 mb-1.5">Tipo</label>
+              <%= form.select :commitment_kind,
+                    Commitment.commitment_kinds.keys.map { |k| [k.titleize, k] },
+                    { prompt: "-" },
+                    class: "block w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" %>
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-slate-900 mb-1.5">Area</label>
+               <%= form.select :area,
+                  [ "Utente", "Prodotti/Servizi", "Brand/Posizionamento", "Organizzazione", "Produzione", "Amministrazione", "Tech/Dev", "Monitoraggio" ],
+                  { include_blank: "-" },
+                  class: "block w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" %>
+            </div>
+          </div>
+           <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-semibold text-slate-900 mb-1.5">Durata (min)</label>
+              <%= form.number_field :duration_minutes, step: 15, class: "block w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" %>
+            </div>
+             <div>
+              <label class="block text-sm font-semibold text-slate-900 mb-1.5">Quantità</label>
+              <%= form.number_field :role_count, min: 1, class: "block w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" %>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <hr class="border-slate-100">
+
+      <!-- Budget & Notes -->
+      <section class="grid gap-6 md:grid-cols-2">
+         <div class="space-y-4">
+           <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wide">Note & Dettagli</h3>
+           <%= form.text_area :notes,
+                 rows: 4,
+                 placeholder: "Aggiungi istruzioni, link o dettagli operativi...",
+                 class: "block w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" %>
+           
+           <div class="pt-2">
+              <label class="block text-sm font-semibold text-slate-900 mb-2">Priorità (1-10)</label>
+              <div class="flex items-center gap-3">
+                <span class="text-xs text-slate-500">Bassa</span>
+                <%= form.range_field :importance, in: 1..10, class: "w-full accent-blue-600" %>
+                <span class="text-xs text-slate-500">Alta</span>
+              </div>
+           </div>
+         </div>
+
+         <div class="space-y-4 bg-slate-50 rounded-xl p-4 border border-slate-100">
+           <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wide">Budget / Compenso</h3>
+           <div>
+             <label class="block text-sm font-medium text-slate-700 mb-1">Importo Euro (€)</label>
+              <div class="relative">
+                <span class="absolute left-3 top-2 text-slate-400">€</span>
+                <%= form.number_field :compensation_euro, step: 0.01, class: "block w-full rounded-lg border-slate-300 pl-7 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" %>
+              </div>
+           </div>
+           <div>
+             <label class="block text-sm font-medium text-slate-700 mb-1">Importo Dash (Đ)</label>
+             <div class="relative">
+                <span class="absolute left-3 top-2 text-slate-400">Đ</span>
+                <%= form.number_field :compensation_dash, step: 0.000001, class: "block w-full rounded-lg border-slate-300 pl-8 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" %>
+             </div>
+             <p class="text-xs text-slate-400 mt-1">Stima: 1 Dash ≈ 20 €</p>
+           </div>
+         </div>
+      </section>
+    </div>
+    
+    <div class="bg-slate-50 px-6 py-4 border-t border-slate-200 flex items-center justify-end gap-3">
+        <%= link_to "Annulla",
+              journey ? journey_path(journey) : journeys_path,
+              class: "px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors" %>
+        <%= form.submit (commitment.persisted? ? "Salva Modifiche" : "Crea Attività"),
+              class: "px-6 py-2 rounded-lg bg-blue-600 text-white font-semibold text-sm shadow-sm hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all cursor-pointer" %>
+    </div>
+  </div>
+<% end %>
+
+<%= javascript_tag do %>
+  // Simple enhancement to update range output if needed, though visually simplified here
+<% end %>

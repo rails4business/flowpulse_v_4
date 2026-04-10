@@ -1,0 +1,41 @@
+<%= render 'shared/nav_partial' %>
+
+
+<!-- Da sistemare la nav e vedere di filtrare per etichette o creare i gate con i posts per i vari formati! 
+E poi vedere come creare il percorso con gli eventi e il resto -->
+
+<!-- app/views/pages/home.html.erb -->
+<div class="max-w-6xl mx-auto p-6">
+ <header class="mb-6">
+  <% if @taxbranch_node.present? %>
+    <nav class="text-sm text-slate-500 mb-2">
+      <% if Current.domain&.taxbranch %>
+      <%= taxbranch_breadcrumb(@taxbranch_node, starting_node: Current.domain.taxbranch) %>
+    <% else %>
+      <%= taxbranch_breadcrumb(@taxbranch_node) %>
+    <% end %>
+    </nav>
+  <% end %>
+  <h1 class="text-3xl font-bold"><%= @taxbranch.slug_label %></h1>
+  <% if (desc = Current.domain&.description).present? %>
+    <p class="text-slate-600 mt-2"><%= desc %></p>
+  <% end %>
+</header> 
+
+<%#= Current.domain.id %>
+
+
+<% if authenticated? %>
+<%#= Current.session&.id %>
+<% end %>
+
+  <% if @children.any? %>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <% @children.each do |child| %>
+        <%= render "pages/child_card", child: child %>
+      <% end %>
+    </div>
+  <% else %>
+    <p class="text-slate-500">Non ci sono elementi.</p>
+  <% end %>
+</div>

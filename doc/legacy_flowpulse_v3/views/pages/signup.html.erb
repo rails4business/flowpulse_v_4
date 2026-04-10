@@ -1,0 +1,83 @@
+<!-- app/views/pages/signup.html.erb -->
+<div class="max-w-xl mx-auto p-8 bg-white shadow-lg rounded-2xl border border-slate-200">
+  <h1 class="text-3xl font-bold text-slate-800 mb-2">Registrazione</h1>
+  <p class="text-slate-600 mb-8">
+    Crea il tuo profilo. L’account sarà approvato manualmente dal referente.
+  </p>
+
+  <% if @lead.errors.any? %>
+    <div class="mb-6 rounded-xl border border-red-300 bg-red-50 p-4 text-red-800 shadow-sm">
+      <p class="font-semibold mb-2">⚠️ Ci sono errori nel form:</p>
+      <ul class="list-disc pl-6 space-y-1 text-sm">
+        <% @lead.errors.full_messages.each do |m| %>
+          <li><%= m %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <%= form_with model: @lead, url: leads_path, class: "space-y-6" do |f| %>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+      <div>
+        <%= f.label :name, "Nome", class: "block text-sm font-medium text-slate-700 mb-1" %>
+        <%= f.text_field :name,
+              class: "w-full rounded-lg border border-slate-300 focus:border-blue-500 focus:ring focus:ring-blue-200/50 px-3 py-2 shadow-sm transition" %>
+      </div>
+      <div>
+        <%= f.label :surname, "Cognome", class: "block text-sm font-medium text-slate-700 mb-1" %>
+        <%= f.text_field :surname,
+              class: "w-full rounded-lg border border-slate-300 focus:border-blue-500 focus:ring focus:ring-blue-200/50 px-3 py-2 shadow-sm transition" %>
+      </div>
+    </div>
+
+    <div>
+      <%= f.label :username, "Username", class: "block text-sm font-medium text-slate-700 mb-1" %>
+      <%= f.text_field :username,
+            class: "w-full rounded-lg border border-slate-300 focus:border-blue-500 focus:ring focus:ring-blue-200/50 px-3 py-2 shadow-sm transition",
+            required: true %>
+      <p class="text-xs text-slate-500 mt-1">Scegli il tuo username che resterà come identificativo.</p>
+    </div>
+
+    <div>
+      <%= f.label :email, "Email", class: "block text-sm font-medium text-slate-700 mb-1" %>
+      <%= f.email_field :email,
+            class: "w-full rounded-lg border border-slate-300 focus:border-blue-500 focus:ring focus:ring-blue-200/50 px-3 py-2 shadow-sm transition",
+            required: true %>
+    </div>
+
+    <div>
+      <%= f.label :phone, "Telefono (opzionale)", class: "block text-sm font-medium text-slate-700 mb-1" %>
+      <%= f.telephone_field :phone,
+            class: "w-full rounded-lg border border-slate-300 focus:border-blue-500 focus:ring focus:ring-blue-200/50 px-3 py-2 shadow-sm transition" %>
+    </div>
+
+     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <div>
+      <%= f.label :password, "Password", class: "block text-sm font-medium text-slate-700" %>
+      <%= f.password_field :password, class: "mt-1 w-full rounded-lg border-slate-300", required: true %>
+    </div>
+    <div>
+      <%= f.label :password_confirmation, "Conferma password", class: "block text-sm font-medium text-slate-700" %>
+      <%= f.password_field :password_confirmation, class: "mt-1 w-full rounded-lg border-slate-300", required: true %>
+    </div>
+
+    <% if @ref_lead %>
+      <div class="mt-2 rounded-md border border-emerald-300 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
+        Referente: <span class="font-semibold"><%= @ref_lead.username %></span>
+      </div>
+      <%= f.hidden_field :referral_lead_id, value: @ref_lead.id %>
+    <% end %>
+
+    <% if @parent_lead %>
+      <%= f.hidden_field :parent_id, value: @parent_lead.id %>
+    <% end %>
+
+    <div class="pt-4">
+      <%= f.submit "Registrami",
+            class: "w-full sm:w-auto inline-flex justify-center items-center gap-2 px-6 py-2.5
+                     rounded-lg bg-blue-600 text-white font-semibold shadow-md
+                     hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400
+                     transition" %>
+    </div>
+  <% end %>
+</div>

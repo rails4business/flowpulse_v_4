@@ -1,0 +1,121 @@
+<%= form_with(model: enrollment, class: "contents") do |form| %>
+  <% if enrollment.errors.any? %>
+    <div id="error_explanation" class="bg-red-50 text-red-500 px-3 py-2 font-medium rounded-md mt-3">
+      <h2><%= pluralize(enrollment.errors.count, "error") %> prohibited this enrollment from being saved:</h2>
+
+      <ul class="list-disc ml-6">
+        <% enrollment.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="my-5">
+    <%= form.label :service_id %>
+    <%= form.text_field :service_id, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": enrollment.errors[:service_id].none?, "border-red-400 focus:outline-red-600": enrollment.errors[:service_id].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :journey_id %>
+    <%= form.text_field :journey_id, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": enrollment.errors[:journey_id].none?, "border-red-400 focus:outline-red-600": enrollment.errors[:journey_id].any?}] %>
+  </div>
+
+  <% journey_for_roles = Journey.find_by(id: (enrollment.journey_id || params[:journey_id])) %>
+  <div class="my-5">
+    <%= form.label :journey_role, "Ruolo Journey" %>
+    <% roles = Array(journey_for_roles&.journey_roles) %>
+    <% if roles.any? %>
+      <%= form.select :journey_role,
+            options_for_select(roles, enrollment.journey_role),
+            { include_blank: "—" },
+            class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": enrollment.errors[:journey_role].none?, "border-red-400 focus:outline-red-600": enrollment.errors[:journey_role].any?}] %>
+    <% else %>
+      <%= form.text_field :journey_role, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": enrollment.errors[:journey_role].none?, "border-red-400 focus:outline-red-600": enrollment.errors[:journey_role].any?}] %>
+    <% end %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :contact_id %>
+    <%= form.text_field :contact_id, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": enrollment.errors[:contact_id].none?, "border-red-400 focus:outline-red-600": enrollment.errors[:contact_id].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :role_name %>
+    <%= form.text_field :role_name, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": enrollment.errors[:role_name].none?, "border-red-400 focus:outline-red-600": enrollment.errors[:role_name].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :participant_role, "Ruolo di ingresso" %>
+    <%= form.text_field :participant_role, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": enrollment.errors[:participant_role].none?, "border-red-400 focus:outline-red-600": enrollment.errors[:participant_role].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :target_role, "Ruolo atteso in uscita" %>
+    <%= form.text_field :target_role, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": enrollment.errors[:target_role].none?, "border-red-400 focus:outline-red-600": enrollment.errors[:target_role].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :certified_at, "Certificato il" %>
+    <%= form.datetime_local_field :certified_at,
+          value: enrollment.certified_at&.strftime("%Y-%m-%dT%H:%M"),
+          class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": enrollment.errors[:certified_at].none?, "border-red-400 focus:outline-red-600": enrollment.errors[:certified_at].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :status %>
+    <%= form.number_field :status, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": enrollment.errors[:status].none?, "border-red-400 focus:outline-red-600": enrollment.errors[:status].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :mode %>
+    <%= form.number_field :mode, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": enrollment.errors[:mode].none?, "border-red-400 focus:outline-red-600": enrollment.errors[:mode].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :phase, "Fase" %>
+    <%= form.select :phase,
+          Enrollment.phases.keys.map { |p| [p.humanize, p] },
+          { include_blank: "—" },
+          class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": enrollment.errors[:phase].none?, "border-red-400 focus:outline-red-600": enrollment.errors[:phase].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :request_kind %>
+    <%= form.number_field :request_kind, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": enrollment.errors[:request_kind].none?, "border-red-400 focus:outline-red-600": enrollment.errors[:request_kind].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :requested_by_lead_id %>
+    <%= form.text_field :requested_by_lead_id, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": enrollment.errors[:requested_by_lead_id].none?, "border-red-400 focus:outline-red-600": enrollment.errors[:requested_by_lead_id].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :invited_by_lead_id %>
+    <%= form.text_field :invited_by_lead_id, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": enrollment.errors[:invited_by_lead_id].none?, "border-red-400 focus:outline-red-600": enrollment.errors[:invited_by_lead_id].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :price_euro %>
+    <%= form.text_field :price_euro, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": enrollment.errors[:price_euro].none?, "border-red-400 focus:outline-red-600": enrollment.errors[:price_euro].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :price_dash %>
+    <%= form.text_field :price_dash, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": enrollment.errors[:price_dash].none?, "border-red-400 focus:outline-red-600": enrollment.errors[:price_dash].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :notes %>
+    <%= form.textarea :notes, rows: 4, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": enrollment.errors[:notes].none?, "border-red-400 focus:outline-red-600": enrollment.errors[:notes].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :meta %>
+    <%= form.text_field :meta, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": enrollment.errors[:meta].none?, "border-red-400 focus:outline-red-600": enrollment.errors[:meta].any?}] %>
+  </div>
+
+  <div class="inline">
+    <%= form.submit class: "w-full sm:w-auto rounded-md px-3.5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white inline-block font-medium cursor-pointer" %>
+  </div>
+<% end %>

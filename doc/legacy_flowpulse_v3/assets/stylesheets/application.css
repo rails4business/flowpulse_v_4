@@ -1,0 +1,71 @@
+/*
+ * This is a manifest file that'll be compiled into application.css.
+ *
+ * With Propshaft, assets are served efficiently without preprocessing steps. You can still include
+ * application-wide styles in this file, but keep in mind that CSS precedence will follow the standard
+ * cascading order, meaning styles declared later in the document or manifest will override earlier ones,
+ * depending on specificity.
+ *
+ * Consider organizing styles into separate files for maintainability.
+ */
+
+@import "actiontext.css";
+@import "rouge/themes/github.css";
+
+.prose h2,
+.prose-slate h2,
+.prose-lite h2,
+.body-prose h2,
+.playlist-prose h2 {
+  font-size: 2em;
+  font-weight: 700;
+  line-height: 1.25;
+  margin-top: 1.6em;
+  margin-bottom: 0.6em;
+}
+
+.prose h3,
+.prose-slate h3,
+.prose-lite h3,
+.body-prose h3,
+.playlist-prose h3 {
+  font-size: 1.75em;
+  font-weight: 800;
+  line-height: 1.25;
+  margin-top: 1.4em;
+  margin-bottom: 0.5em;
+}
+
+.prose p,
+.prose-slate p,
+.prose-lite p,
+.body-prose p,
+.playlist-prose p {
+  font-size: 1.2625em;
+}
+
+/* Keep list markers visible in markdown/rich content blocks */
+.body-prose ul {
+  list-style-type: disc !important;
+  list-style-position: outside !important;
+  padding-left: 1.625em !important;
+  margin-top: 1.25em;
+  margin-bottom: 1.25em;
+}
+
+.body-prose ol {
+  list-style-type: decimal !important;
+  list-style-position: outside !important;
+  padding-left: 1.625em !important;
+  margin-top: 1.25em;
+  margin-bottom: 1.25em;
+}
+
+.body-prose li {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+.body-prose li::marker {
+  color: #64748b;
+}

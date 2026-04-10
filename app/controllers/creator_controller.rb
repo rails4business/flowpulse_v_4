@@ -1,7 +1,14 @@
 class CreatorController < ApplicationController
   before_action :require_creator
 
-  def map_index
+  def carta_nautica
+    @ports = Current.session.user.profile.ports.order(created_at: :desc)
+    return unless params[:add_port].present? && params[:x].present? && params[:y].present?
+
+    @port = Current.session.user.profile.ports.new(
+      x: params[:x],
+      y: params[:y]
+    )
   end
 
   def branch_map

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html class="dark" lang="it">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <%= csrf_meta_tags %>
+    <title><%= content_for?(:title) ? yield(:title) : "Mapservices" %></title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+      rel="stylesheet"
+    />
+    <%= yield :head %>
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: "#137fec",
+              "background-light": "#f6f7f8",
+              "background-dark": "#101922",
+            },
+            fontFamily: {
+              display: ["Manrope", "sans-serif"],
+            },
+            borderRadius: {
+              DEFAULT: "0.25rem",
+              lg: "0.5rem",
+              xl: "0.75rem",
+              full: "9999px",
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      .material-symbols-outlined {
+        font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+      }
+      .bg-grid {
+        background-image: radial-gradient(circle, #283039 1px, transparent 1px);
+        background-size: 30px 30px;
+      }
+      .subway-line-glow {
+        filter: drop-shadow(0 0 4px currentColor);
+      }
+    </style>
+  </head>
+  <body class="bg-background-light dark:bg-background-dark font-display text-white">
+    <div class="flex min-h-screen w-full">
+      <aside class="w-64 border-r border-[#283039] flex flex-col bg-background-light dark:bg-background-dark p-4 shrink-0">
+        <div class="mb-4 flex items-center gap-2">
+          <% domain_persisted = @domain&.persisted? %>
+          <% dashboard_target = @domain&.taxbranch.present? ? superadmin_taxbranch_path(@domain.taxbranch) : (Current.domain&.taxbranch.present? ? superadmin_taxbranch_path(Current.domain.taxbranch) : superadmin_taxbranches_path) %>
+          <%= link_to dashboard_target,
+                      title: "Dashboard",
+                      "aria-label": "Dashboard",
+                      class: "group relative flex items-center justify-center rounded-full px-3 py-1 text-xs font-semibold #{current_page?(dashboard_target) ? 'bg-primary text-white' : 'bg-white/10 text-slate-200 hover:bg-white/20'}" do %>
+            <span class="material-symbols-outlined text-[16px]">dashboard</span>
+            <span class="pointer-events-none absolute -bottom-8 left-1/2 z-20 hidden -translate-x-1/2 rounded bg-[#0f172a] px-2 py-1 text-[10px] font-semibold text-white shadow-lg group-hover:block">
+              Dashboard
+            </span>
+          <% end %>
+          <% impresa_target = (@domain&.taxbranch.present? ? generaimpresa_superadmin_taxbranch_path(@domain.taxbranch, tab: params[:tab].presence || 'generaimpresa') : superadmin_taxbranches_path) %>
+          <%= link_to impresa_target,
+                      class: "flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold #{(@domain&.taxbranch.present? && current_page?(impresa_target)) ? 'bg-primary text-white' : 'bg-white/10 text-slate-200 hover:bg-white/20'}" do %>
+            <span class="material-symbols-outlined text-[16px]">account_tree</span>
+            Impresa
+          <% end %>
+          <% domain_target = domain_persisted ? superadmin_domain_path(@domain) : superadmin_domains_path %>
+          <%= link_to domain_target,
+                      class: "flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold #{domain_persisted && current_page?(domain_target) ? 'bg-primary text-white' : 'bg-white/10 text-slate-200 hover:bg-white/20'}" do %>
+            <span class="material-symbols-outlined text-[16px]">inventory_2</span>
+            Domain
+          <% end %>
+        </div>
+        <%= render "shared/generaimpresa_aside" %>
+      </aside>
+
+      <main class="flex-1 overflow-y-auto p-6 bg-background-light dark:bg-background-dark text-slate-900 dark:text-white">
+        <%= yield %>
+      </main>
+    </div>
+  </body>
+</html>

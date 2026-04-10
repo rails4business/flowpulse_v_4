@@ -1,12 +1,16 @@
 Rails.application.routes.draw do
   resource :profile, only: %i[new create edit update] do
     patch :request_creator
+    patch :request_professional
   end
   resources :profiles, only: [] do
     patch :toggle_creator, on: :member
+    patch :toggle_professional, on: :member
   end
   namespace :admin do
     resources :creator_requests, only: :index
+    resources :profiles, only: :index
+    resources :users, only: :index
   end
   resource :registration, only: %i[new create]
   resource :session
@@ -21,10 +25,14 @@ Rails.application.routes.draw do
   # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 
-  get "creator/map_index", to: "creator#map_index", as: :creator_map_index
+  get "creator/carta_nautica", to: "creator#carta_nautica", as: :creator_carta_nautica
   get "creator/branch_map", to: "creator#branch_map", as: :creator_branch_map
   get "creator/journey", to: "creator#journey", as: :creator_journey
   get "creator/value_architecture", to: "creator#value_architecture", as: :creator_value_architecture
+
+  namespace :creator do
+    resources :ports, only: [:new, :create, :edit, :update, :destroy]
+  end
 
   get "traveler/impegno", to: "traveler#impegno", as: :traveler_impegno
   get "traveler/ticket_calendar", to: "traveler#ticket_calendar", as: :traveler_ticket_calendar

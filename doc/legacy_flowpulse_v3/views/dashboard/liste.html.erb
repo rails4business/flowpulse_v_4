@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Liste — Obiettivi, Progetti, Servizi, Routine, Tipi slot, Template</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind = window.tailwind || {}; tailwind.config = { theme: { extend: { colors: { pc_border:'#e5e7eb' }}}}</script>
+  <style>.card{box-shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.06)} .btn{padding:.25rem .5rem;border-radius:.375rem;border:1px solid #e5e7eb} .chip{padding:.15rem .4rem;border:1px solid rgba(0,0,0,.06);border-radius:.375rem;font-size:.68rem}</style>
+</head>
+<body class="bg-white">
+<div class="max-w-5xl mx-auto p-4 md:p-6">
+  <header class="flex items-center justify-between mb-4">
+    <h1 class="text-xl font-semibold">Liste</h1>
+    <a href="#" onclick="alert('Apri weekplanner.html per usare la griglia. I dati sono condivisi tramite localStorage.');" class="btn">← Apri weekplanner</a>
+  </header>
+
+  <div class="grid md:grid-cols-2 gap-4">
+    <!-- OBIETTIVI (a gruppi) -->
+    <section class="border rounded card">
+      <div class="px-4 py-3 border-b font-medium flex items-center justify-between">
+        <span>🗓️ Obiettivi</span>
+        <!-- Aggiungi nuovo gruppo -->
+        <div class="flex items-center gap-2">
+          <input id="newGoalGroupInput" class="border rounded px-2 py-1 text-sm" placeholder="Nuovo gruppo (es. 📺 Contenuti)"/>
+          <button class="btn" onclick="addGoalGroup()">+ Gruppo</button>
+        </div>
+      </div>
+      <div class="p-4" id="goals"></div>
+    </section>
+
+    <!-- PROGETTI -->
+    <section class="border rounded card">
+      <div class="px-4 py-3 border-b font-medium">📁 Progetti</div>
+      <div class="p-4" id="projects"></div>
+    </section>
+
+    <!-- SERVIZI -->
+    <section class="border rounded card">
+      <div class="px-4 py-3 border-b font-medium">🧩 Servizi</div>
+      <div class="p-4" id="services"></div>
+    </section>
+
+    <!-- ROUTINE (nome, descrizione) -->
+    <section class="border rounded card">
+      <div class="px-4 py-3 border-b font-medium">🔁 Routine (nome + descrizione)</div>
+      <div class="p-4" id="routines"></div>
+    </section>
+
+    <!-- TIPI SLOT (nome) -->
+    <section class="border rounded card">
+      <div class="px-4 py-3 border-b font-medium">🏷️ Tipi di slot (nome)</div>
+      <div class="p-4" id="slottypes"></div>
+    </section>
+
+    <!-- TEMPLATE SLOT -->
+    <section class="border rounded card">
+      <div class="px-4 py-3 border-b font-medium">📦 Slot template</div>
+      <div class="p-4" id="templates"></div>
+    </section>
+  </div>
+</div>
+
+<script>
+  const K = {
+    objectives:'weekplanner:objectives',
+    objectivesNames:'weekplanner:objectives_names', // <-- Nomi visuali gruppi
+    projects:'weekplanner:projects',
+    services:'weekplanner:services',
+    routines:'weekplanner:routines',
+    slotTypes:'weekplanner:slot_types',
+    templates:'weekplanner:slot_templates'
+  };
+
+  // ======= Default seed =======
+  const DEFAULT_OBJECTIVES = {
+    routine:[
+      '🧠 Routine e organizzazione personale',
+      'Rimettere giù tutte le routine quotidiane e settimanali',
+      'Sistemare tutto il calendario e chiudere i cerchi',
+      'Definire giorni e slot precisi (🩺/💼/📚/🌿)'
+    ],
+    servizi_contenuti:[
+      '🌐 Avanzare parte online: accesso a contenuti e corsi',
+      'Servizi online e dal vivo pronti',
+      'Revisione obiettivi, calendario e piano produzione contenuti'
+    ],
+    contabilita:[
+      '💰 Sistemare tutta la parte contabile',
+      'Preparare documenti e note per il commercialista (altrimenti mi sgrida 😅)'
+    ],
+    calendario:[
+      '📅 Presentazioni ai professionisti',
+      'Materiale igiene posturale',
+      'Elenco professionisti da contattare',
+      'Appuntamenti di presentazione'
+    ],
+    spostamenti:[
+      '🚗 Costa Valle Imagna ↔ Torre de Busi',
+      'Punti di appoggio/collaborazioni',
+      'Base operativa che faccia anche da casa',
+      'Bar, agriturismi, professionisti salute/benessere'
+    ],
+    corsi:[
+      '🎓 PosturaCorretta alla scrivania',
+      '👁️ Il tuo punto di vista sulla salute',
+      '🧘 Igiene Posturale (online autonomia + bozza insegnanti)'
+    ],
+    taxonomy:[
+      '🧩 Sistemare e completare la taxonomia (struttura logica)'
+    ],
+    appuntamenti:[
+      '💌 Posticipare Cantù centro fecondità (novembre → gennaio)'
+    ],
+    festeggiamenti:[
+      '🏡 Ponna: andare da Monica e festeggiare 😘'
+    ]
+  };
+
+  // Mappa nomi display per i gruppi (separata per permettere rinomina senza toccare le chiavi)
+  const DEFAULT_OBJECTIVES_NAMES = {
+    routine:'🧠 Routine e organizzazione',
+    servizi_contenuti:'🌐 Servizi e contenuti',
+    contabilita:'💰 Contabilità',
+    calendario:'📅 Calendario Nov–Dic',
+    spostamenti:'🚗 Spostamenti e sopralluoghi',
+    corsi:'🎓 Corsi e materiali',
+    taxonomy:'🧩 Taxonomia',
+    appuntamenti:'💌 Posticipare appuntamenti',
+    festeggiamenti:'🏡 Ponna Festeggiare'
+  };
+
+  const DEFAULT_PROJECTS  = [
+    {id:'p1',name:'Igiene Posturale — corso online'},
+    {id:'p2',name:'PosturaCorretta alla scrivania'},
+    {id:'p3',name:'Il tuo punto di vista sulla salute'}
+  ];
+  const DEFAULT_SERVICES  = [
+    {id:'s1',role:'Tutor',step:'Presentazione',service:'Gruppo Igiene Posturale'},
+    {id:'s2',role:'Professionista',step:'Valutazione',service:'Visita PosturaCorretta'},
+    {id:'s3',role:'Insegnante',step:'Lezione 1',service:'Igiene Posturale (gruppo)'}
+  ];
+  const DEFAULT_ROUTINES  = [
+    {id:'r1',name:'Mobilità mattina',description:"10' mobilità + 5' respiro"},
+    {id:'r2',name:'Scrittura focus',description:"15' journaling + 15' pianificazione"}
+  ];
+  const DEFAULT_SLOT_TYPES= [
+    {id:'st1',name:'salute'},
+    {id:'st2',name:'lavoro'},
+    {id:'st3',name:'formazione'},
+    {id:'st4',name:'tempo libero'}
+  ];
+  const DEFAULT_TEMPLATES = [
+    {
+      id:'t1',
+      label:"Mattina salute (60')",
+      start:'09:00', end:'10:00', slot_type:'salute',
+      items:[
+        {category:'routine',  title:'Mobilità + respiro', start:'09:00', end:'09:30'},
+        {category:'progetti', title:'Script IP',          start:'09:30', end:'10:00'}
+      ]
+    },
+    {
+      id:'t2',
+      label:'Blocco contenuti (90\')',
+      start:'15:00', end:'16:30', slot_type:'formazione',
+      items:[
+        {category:'progetti', title:'Video PosturaCorretta', start:'15:00', end:'15:45'},
+        {category:'servizi',  title:'Caricamento & pianificazione', start:'15:45', end:'16:30'}
+      ]
+    }
+  ];
+
+  // ===== LocalStorage utils =====
+  function load(k,fb){ const raw=localStorage.getItem(k); try{return raw?JSON.parse(raw):fb}catch{return fb} }
+  function save(k,v){ localStorage.setItem(k, JSON.stringify(v)) }
+
+  // Stato
+  let objectives = load(K.objectives, structuredClone(DEFAULT_OBJECTIVES));
+  let objectivesNames = load(K.objectivesNames, structuredClone(DEFAULT_OBJECTIVES_NAMES));
+  let projects   = load(K.projects,   structuredClone(DEFAULT_PROJECTS));
+  let services   = load(K.services,   structuredClone(DEFAULT_SERVICES));
+  let routines   = load(K.routines,   structuredClone(DEFAULT_ROUTINES));
+  let slotTypes  = load(K.slotTypes,  structuredClone(DEFAULT_SLOT_TYPES));
+  let templates  = load(K.templates,  structuredClone(DEFAULT_TEMPLATES));
+
+  // ===== Helpers DOM =====
+  function el(tag, attrs={}, html=''){ const e=document.createElement(tag); Object.entries(attrs).forEach(([k,v])=>e.setAttribute(k,v)); e.innerHTML=html; return e }
+  function mount(id, node){ const c=document.getElementById(id); c.innerHTML=''; c.appendChild(node) }
+  const slugify = (s)=> s.toLowerCase().trim().replace(/[^\p{L}\p{N}]+/gu,'_').replace(/^_+|_+$/g,'') || 'gruppo';
+
+  // ===== Obiettivi: gestione gruppi =====
+  function addGoalGroup(){
+    const inp = document.getElementById('newGoalGroupInput');
+    const label = (inp.value || '').trim();
+    if(!label) return;
+    let key = slugify(label);
+    // gestisci collisioni chiave
+    let i=1, base=key;
+    while(objectives[key]){ key = `${base}_${i++}` }
+    objectives[key] = [];
+    objectivesNames[key] = label;
+    save(K.objectives, objectives);
+    save(K.objectivesNames, objectivesNames);
+    inp.value='';
+    renderGoals();
+  }
+
+  function renameGoalGroup(key){
+    const current = objectivesNames[key] || key;
+    const next = prompt('Rinomina gruppo obiettivi:', current);
+    if(next && next.trim()){
+      objectivesNames[key] = next.trim();
+      save(K.objectivesNames, objectivesNames);
+      renderGoals();
+    }
+  }
+
+  function deleteGoalGroup(key){
+    if(!confirm('Eliminare questo gruppo e tutti i suoi sotto-obiettivi?')) return;
+    delete objectives[key];
+    delete objectivesNames[key];
+    save(K.objectives, objectives);
+    save(K.objectivesNames, objectivesNames);
+    renderGoals();
+  }
+
+  // === OBIETTIVI (a gruppi) ===
+  function renderGoals(){
+    // garantisci che i gruppi presenti in objectives abbiano un nome visuale
+    Object.keys(objectives).forEach(k=>{
+      if(!objectivesNames[k]) objectivesNames[k]=k;
+    });
+    save(K.objectivesNames, objectivesNames);
+
+    const wrap = el('div');
+
+    // Ordina per nome visuale
+    const entries = Object.entries(objectives).sort((a,b)=>{
+      const an = (objectivesNames[a[0]]||a[0]).toLowerCase();
+      const bn = (objectivesNames[b[0]]||b[0]).toLowerCase();
+      return an.localeCompare(bn);
+    });
+
+    entries.forEach(([k,arr])=>{
+      const box = el('div', {class:'mb-4 border rounded p-3'});
+      // header con rename/elimina
+      const head = el('div',{class:'flex items-center justify-between mb-2'});
+      const title = el('div',{class:'font-medium'}, objectivesNames[k]||k);
+      const actions = el('div',{class:'flex items-center gap-2'});
+      const btnRename = el('button',{class:'btn'},'✏️ Rinomina');
+      btnRename.onclick = ()=> renameGoalGroup(k);
+      const btnDel = el('button',{class:'btn text-red-600'},'🗑️ Elimina');
+      btnDel.onclick = ()=> deleteGoalGroup(k);
+      actions.append(btnRename, btnDel);
+      head.append(title, actions);
+      box.append(head);
+
+      const ul = el('ul', {class:'space-y-1'});
+      arr.forEach((t,i)=>{
+        const li = el('li', {class:'flex items-center gap-2'});
+        li.append(el('input',{type:'checkbox',class:'rounded'}));
+        li.append(el('span', {class:'text-sm flex-1'}, t));
+        const del = el('button', {class:'btn text-red-600'}, '−');
+        del.onclick=()=>{ arr.splice(i,1); save(K.objectives, objectives); renderGoals() };
+        li.append(del); ul.append(li);
+      });
+      const addRow = el('div', {class:'mt-2 flex gap-2'});
+      const inp = el('input',{class:'w-full border rounded px-2 py-1 text-sm',placeholder:'Aggiungi sotto-obiettivo...'});
+      const add = el('button',{class:'btn'},'+ Aggiungi');
+      add.onclick=()=>{ const v=inp.value.trim(); if(!v) return; arr.push(v); inp.value=''; save(K.objectives, objectives); renderGoals() };
+      addRow.append(inp, add);
+      box.append(ul, addRow); wrap.append(box);
+    });
+
+    mount('goals', wrap);
+  }
+
+  // === PROGETTI ===
+  function renderProjects(){
+    const wrap = el('div');
+    const row = el('div',{class:'flex gap-2 mb-3'});
+    const inp = el('input',{class:'border rounded px-2 py-1 text-sm w-full',placeholder:'Nuovo progetto...'});
+    const add = el('button',{class:'btn'},'+ Aggiungi');
+    add.onclick=()=>{ const v=inp.value.trim(); if(!v) return; projects.push({id:crypto.randomUUID(), name:v}); save(K.projects, projects); renderProjects() };
+    row.append(inp, add); wrap.append(row);
+    const ul = el('ul',{class:'space-y-1'});
+    projects.forEach(p=>{
+      const li=el('li',{class:'flex items-center justify-between border rounded px-2 py-1 text-sm'});
+      li.append(el('span',{}, p.name));
+      const del=el('button',{class:'btn text-red-600'},'−'); del.onclick=()=>{ projects = projects.filter(x=>x.id!==p.id); save(K.projects, projects); renderProjects() };
+      li.append(del); ul.append(li);
+    });
+    wrap.append(ul); mount('projects', wrap);
+  }
+
+  // === SERVIZI ===
+  function renderServices(){
+    const wrap = el('div');
+    const row = el('div',{class:'grid grid-cols-6 gap-2 mb-3'});
+    const r = el('input',{class:'border rounded px-2 py-1 text-sm col-span-2',placeholder:'Ruolo'});
+    const s = el('input',{class:'border rounded px-2 py-1 text-sm col-span-2',placeholder:'Commitment'});
+    const n = el('input',{class:'border rounded px-2 py-1 text-sm col-span-2',placeholder:'Nome servizio'});
+    const add = el('button',{class:'btn col-span-6'},'+ Aggiungi');
+    add.onclick=()=>{ const rv=r.value.trim(), sv=s.value.trim(), nv=n.value.trim(); if(!rv||!sv||!nv) return; services.push({id:crypto.randomUUID(), role:rv, step:sv, service:nv}); r.value=s.value=n.value=''; save(K.services, services); renderServices() };
+    row.append(r,s,n,add); wrap.append(row);
+    const ul = el('ul',{class:'space-y-1'});
+    services.forEach(x=>{
+      const li=el('li',{class:'flex items-center justify-between border rounded px-2 py-1 text-sm'});
+      li.append(el('span',{}, `<strong>${x.role}</strong> • ${x.step} • ${x.service}`));
+      const del=el('button',{class:'btn text-red-600'},'−'); del.onclick=()=>{ services = services.filter(sv=>sv.id!==x.id); save(K.services, services); renderServices() };
+      li.append(del); ul.append(li);
+    });
+    wrap.append(ul); mount('services', wrap);
+  }
+
+  // === ROUTINE ===
+  function renderRoutines(){
+    const wrap = el('div');
+    const row = el('div',{class:'grid grid-cols-5 gap-2 mb-3'});
+    const n = el('input',{class:'border rounded px-2 py-1 text-sm col-span-2',placeholder:'Nome routine'});
+    const d = el('input',{class:'border rounded px-2 py-1 text-sm col-span-3',placeholder:'Descrizione'});
+    const add = el('button',{class:'btn col-span-5'},'+ Aggiungi');
+    add.onclick=()=>{ const nv=n.value.trim(), dv=d.value.trim(); if(!nv) return; routines.push({id:crypto.randomUUID(), name:nv, description:dv}); n.value=d.value=''; save(K.routines, routines); renderRoutines() };
+    row.append(n,d,add); wrap.append(row);
+    const ul = el('ul',{class:'space-y-1'});
+    routines.forEach(r=>{
+      const li=el('li',{class:'flex items-center justify-between border rounded px-2 py-1 text-sm'});
+      li.append(el('span',{}, `<strong>${r.name}</strong> — ${r.description||''}`));
+      const del=el('button',{class:'btn text-red-600'},'−'); del.onclick=()=>{ routines = routines.filter(x=>x.id!==r.id); save(K.routines, routines); renderRoutines() };
+      li.append(del); ul.append(li);
+    });
+    wrap.append(ul); mount('routines', wrap);
+  }
+
+  // === SLOT TYPES ===
+  function renderSlotTypes(){
+    const wrap = el('div');
+    const row = el('div',{class:'grid grid-cols-4 gap-2 mb-3'});
+    const n = el('input',{class:'border rounded px-2 py-1 text-sm col-span-3',placeholder:'Nome (es. salute, lavoro, formazione, tempo libero)'});
+    const add = el('button',{class:'btn col-span-1'},'+ Aggiungi');
+    add.onclick=()=>{ const v=n.value.trim(); if(!v) return; slotTypes.push({id:crypto.randomUUID(), name:v}); n.value=''; save(K.slotTypes, slotTypes); renderSlotTypes() };
+    row.append(n,add); wrap.append(row);
+    const ul = el('ul',{class:'space-y-1'});
+    slotTypes.forEach(t=>{
+      const li=el('li',{class:'flex items-center justify-between border rounded px-2 py-1 text-sm'});
+      li.append(el('span',{}, t.name));
+      const del=el('button',{class:'btn text-red-600'},'−'); del.onclick=()=>{ slotTypes = slotTypes.filter(x=>x.id!==t.id); save(K.slotTypes, slotTypes); renderSlotTypes() };
+      li.append(del); ul.append(li);
+    });
+    wrap.append(ul); mount('slottypes', wrap);
+  }
+
+  // === TEMPLATES ===
+  function renderTemplates(){
+    const wrap = el('div');
+
+    // riga di creazione template base (senza items)
+    const grid = el('div',{class:'grid grid-cols-6 gap-2 mb-3'});
+    const lbl = input('Etichetta','col-span-2');
+    const st  = inputTime('09:00');
+    const en  = inputTime('10:00');
+    const tp  = input('Tipo (es. salute)','col-span-1');
+    const add = button('+ Aggiungi','btn col-span-1');
+    add.onclick=()=>{
+      const L=lbl.value.trim(), S=st.value, E=en.value, T=(tp.value||'servizi').trim();
+      if(!L||S>=E) return;
+      templates.push({id:crypto.randomUUID(), label:L, start:S, end:E, slot_type:T, items:[]});
+      save(K.templates, templates);
+      renderTemplates();
+    };
+    grid.append(lbl,st,en,tp,add); wrap.append(grid);
+
+    // elenco
+    const ul = el('ul',{class:'space-y-1'});
+    templates.forEach(t=>{
+      const li=el('li',{class:'border rounded px-2 py-2 text-sm space-y-2'});
+      const head=el('div',{class:'flex items-center justify-between'}, `<span><strong>${t.label}</strong> — ${t.start}–${t.end} • ${t.slot_type}</span>`);
+      const del=button('−','btn text-red-600'); del.onclick=()=>{ templates = templates.filter(x=>x.id!==t.id); save(K.templates, templates); renderTemplates() };
+      head.appendChild(del); li.appendChild(head);
+
+      const addRow = el('div',{class:'grid grid-cols-6 gap-2'});
+      const cat = select(['routine','progetti','servizi']);
+      const ttl = input('Titolo','col-span-2');
+      const ist = inputTime('09:00');
+      const ien = inputTime('09:30');
+      const addIt = button('+ Programma','btn col-span-1');
+      addIt.onclick=()=>{
+        if(!ttl.value.trim()||ist.value>=ien.value) return;
+        t.items=t.items||[];
+        t.items.push({category:cat.value, title:ttl.value.trim(), start:ist.value, end:ien.value});
+        save(K.templates, templates); renderTemplates();
+      };
+      addRow.append(cat,ttl,ist,ien,addIt); li.appendChild(addRow);
+
+      const itUl = el('ul',{class:'space-y-1'});
+      (t.items||[]).forEach((it,idx)=>{
+        const r=el('li',{class:'flex items-center justify-between border rounded px-2 py-1'});
+        r.innerHTML = `<span>${it.start}–${it.end} — ${it.title} <em class="text-slate-500">(${it.category})</em></span>`;
+        const rm=button('−','btn text-red-600'); rm.onclick=()=>{ t.items.splice(idx,1); save(K.templates, templates); renderTemplates() };
+        r.appendChild(rm); itUl.appendChild(r);
+      });
+      li.appendChild(itUl);
+
+      ul.appendChild(li);
+    });
+    wrap.appendChild(ul); mount('templates', wrap);
+
+    // helpers
+    function input(ph, cls=''){ const i=document.createElement('input'); i.className=`border rounded px-2 py-1 text-sm ${cls}`; i.placeholder=ph; return i }
+    function inputTime(v){ const i=document.createElement('input'); i.type='time'; i.className='border rounded px-2 py-1 text-sm'; i.value=v; return i }
+    function button(txt, cls='btn'){ const b=document.createElement('button'); b.className=cls; b.textContent=txt; return b }
+    function select(opts){ const s=document.createElement('select'); s.className='border rounded px-2 py-1 text-sm'; s.innerHTML=opts.map(o=>`<option>${o}</option>`).join(''); return s }
+  }
+
+  // initial render
+  renderGoals(); renderProjects(); renderServices(); renderRoutines(); renderSlotTypes(); renderTemplates();
+</script>
+</body>
+</html>

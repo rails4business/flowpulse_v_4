@@ -1,0 +1,266 @@
+<% step = local_assigns.fetch(:item) %>
+<% requires_membership = local_assigns.fetch(:requires_membership, false) %>
+
+<% children = Array(step[:children]) %>
+<% progress = step[:step_progress_percent].to_i.clamp(0, 100) %>
+<% total_lessons = [step[:step_progress_total].to_i, children.size, 1].max %>
+<% done_lessons = [[step[:step_progress_completed].to_i, 0].max, total_lessons].min %>
+
+<% status_classes = if step[:status_key] == :completed
+                      'bg-emerald-100 text-emerald-700'
+                    elsif step[:status_key] == :scheduled
+                      'bg-blue-100 text-blue-700'
+                    elsif step[:status_key] == :in_progress
+                      'bg-amber-100 text-amber-700'
+                    else
+                      'bg-slate-200 text-slate-600'
+                    end %>
+
+<% module_cover = "https://ik.imagekit.io/posturacorretta/immagini_brand/igiene-posturale.png?updatedAt=1763752348993" %>
+<% step_slug = step[:taxbranch]&.slug.to_s %>
+<% hide_enroll_cta = step_slug.include?("iscrizione-all-accademia") %>
+
+<% item_prefix_for = lambda do |node, idx|
+     category = node[:taxbranch]&.slug_category.to_s
+     case category
+     when 'questionnaire', 'test'
+       'Questionario'
+     when 'post', 'program_course', 'playlist', 'lesson', 'module_academy', 'module_accademy', 'academy_module'
+       "Lezione #{idx}"
+     else
+       category.present? ? category.tr('_', ' ').capitalize : "Step #{idx}"
+     end
+   end %>
+
+<% item_border_for = lambda do |node|
+     case node[:status_key]
+     when :completed then 'border-emerald-200 bg-emerald-50/10'
+     when :scheduled then 'border-blue-200 bg-blue-50/10'
+     when :in_progress then 'border-amber-200 bg-amber-50/10'
+     else 'border-slate-200 bg-white hover:border-blue-300 hover:shadow-md'
+     end
+   end %>
+
+<div class="space-y-6">
+  <section class="space-y-6">
+    <div class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+      <div class="p-4 md:p-5">
+        <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+          <div class="flex items-start gap-4 min-w-0">
+            <div class="w-16 h-16 rounded-full bg-white shrink-0 relative ring-2 ring-slate-200/80 p-1">
+              <div class="w-full h-full rounded-full overflow-hidden bg-slate-100">
+                <img src="<%= module_cover %>"
+                     alt="<%= step[:title] %>"
+                     class="w-full h-full object-cover rounded-full origin-center"
+                     style="transform: scale(2.35); clip-path: circle(24% at 50% 50%);"
+                     loading="lazy"
+                     onerror="this.classList.add('hidden'); this.parentElement.nextElementSibling.classList.remove('hidden');">
+              </div>
+              <div class="hidden absolute inset-1 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 text-white items-center justify-center flex">
+                <span class="material-symbols-outlined text-[32px]">accessibility_new</span>
+              </div>
+            </div>
+
+            <div class="min-w-0">
+              <div class="text-xs uppercase tracking-[0.25em] text-slate-400">PosturaCorretta</div>
+              <h3 class="text-2xl md:text-3xl font-black tracking-tight mt-1 text-slate-900"><%= step[:title] %></h3>
+              <p class="text-sm text-slate-400 mt-2"><%= step[:subtitle].presence || "Modulo Academy" %></p>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="mt-5">
+          <div class="flex flex-col md:flex-row md:items-center gap-4">
+            <% if hide_enroll_cta %>
+              
+            <% elsif step[:link_post].present? && !requires_membership %>
+              <%= link_to "Iscriviti al modulo",
+                          ensure_post_activities_path(step[:link_post], in_dashboard: 1, tab: "academy"),
+                          data: { turbo_method: :post },
+                          class: "w-full md:w-auto inline-flex items-center justify-center text-sm px-4 py-2.5 rounded-xl bg-primary text-white font-bold hover:bg-primary/90 transition-colors" %>
+            <% elsif step[:taxbranch].present? && !requires_membership %>
+              <%= link_to "Iscriviti al modulo", new_taxbranch_activity_path(step[:taxbranch]), class: "w-full md:w-auto inline-flex items-center justify-center text-sm px-4 py-2.5 rounded-xl bg-primary text-white font-bold hover:bg-primary/90 transition-colors" %>
+            <% else %>
+              <button type="button" class="w-full md:w-auto text-sm px-4 py-2.5 rounded-xl bg-primary/70 text-white font-bold cursor-default">Iscriviti al modulo</button>
+            <% end %>
+
+            <div class="w-full md:flex-1">
+              <div class="flex items-center justify-between text-xs text-slate-400">
+                <div>Avanzamento (lezioni svolte)</div>
+                <div>
+                  <span><%= done_lessons %></span>/<span><%= total_lessons %></span>
+                  <span>lezioni</span>
+                </div>
+              </div>
+              <div class="mt-2 h-2 rounded-full bg-slate-100 overflow-hidden">
+                <div class="h-2 bg-slate-200/90" style="width:<%= progress %>%"></div>
+              </div>
+            </div>
+
+            <span class="text-[10px] font-bold px-2 py-1 rounded-lg border bg-white text-slate-600 uppercase tracking-wide">
+              Modalita: <%= step[:mode_label].presence || 'da definire' %>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="border-t border-slate-100 bg-white">
+        <div class="p-4 space-y-4">
+          <% if children.any? %>
+            <div class="space-y-1">
+              <% children.each_with_index do |child, idx| %>
+                <% item_index = idx + 1 %>
+                <% item_prefix = item_prefix_for.call(child, item_index) %>
+                <% item_border = item_border_for.call(child) %>
+                <% item_done = child[:status_key] == :completed %>
+                <% delivery_name = child[:delivery_instructor_name].presence || "Da definire" %>
+                <% delivery_role = child[:delivery_instructor_role].presence || (child[:mode_label].presence || "Professionista") %>
+                <% delivery_location = child[:delivery_location].presence || "In Centro" %>
+                <% delivery_format = child[:delivery_format].presence || "Gruppo 8-12" %>
+                <% location_icon = child[:delivery_channel].to_s == "online" ? "wifi" : (delivery_location.to_s.downcase.include?("domicilio") ? "home_pin" : "apartment") %>
+                <% format_icon = delivery_format.to_s.downcase.include?("singolo") ? "person" : "groups" %>
+                <% has_delivery = child[:delivery_available] == true %>
+                <% has_professional = child[:delivery_has_professional] == true %>
+                <% person_label = child[:delivery_person_label].presence || (has_professional ? "Insegnante" : "Modalita") %>
+
+                <div class="group relative pl-4 pb-8 last:pb-0">
+                  <div class="absolute left-[27px] top-0 bottom-0 w-px bg-slate-200 group-last:bottom-auto group-last:h-[20px]"></div>
+
+                  <div class="grid grid-cols-[1fr_82px] gap-6 items-stretch relative">
+                    <div class="flex-1 min-w-0">
+                      <% card_inner = capture do %>
+                        <div class="rounded-2xl border <%= item_border %> transition-all overflow-hidden flex flex-col md:flex-row">
+                          <div class="p-3 bg-white flex gap-3 md:items-center md:justify-between">
+                            <div class="flex-1 min-w-0">
+                              <div class="flex items-center justify-between gap-2 mb-1">
+                                <span class="text-[10px] uppercase tracking-wider font-bold text-slate-500"><%= item_prefix %></span>
+                              </div>
+                              <h5 class="text-base font-bold text-slate-800 mb-1 leading-snug flex items-center gap-1">
+                                <% if item_done %>
+                                  <span class="material-symbols-outlined text-[14px] text-emerald-600">check_circle</span>
+                                <% else %>
+                                  <span class="material-symbols-outlined text-[14px] text-slate-300">radio_button_unchecked</span>
+                                <% end %>
+                                <%= child[:title] %>
+                              </h5>
+                              <p class="text-xs text-slate-500 line-clamp-2 leading-relaxed"><%= child[:subtitle] %></p>
+                            </div>
+
+                            <% if has_delivery %>
+                            <div class="hidden md:flex md:shrink-0 md:pl-6 md:ml-6 md:border-l md:border-slate-200 items-center gap-3 text-xs text-slate-500 font-medium">
+                              <div class="flex items-center gap-2 text-[13px] font-semibold text-slate-600" title="Modalita">
+                                <% if has_professional %>
+                                  <img src="https://i.pravatar.cc/150?u=<%= child[:taxbranch]&.id || child.object_id %>" alt="Insegnante" class="w-8 h-8 rounded-full object-cover border border-white shadow-sm">
+                                <% else %>
+                                  <span class="material-symbols-outlined text-[18px] text-slate-400">laptop_mac</span>
+                                <% end %>
+                                <span class="leading-tight">
+                                  <span class="block text-[10px] font-bold uppercase text-slate-500"><%= person_label %></span>
+                                  <span class="block text-[12px] font-semibold text-slate-700"><%= delivery_name %></span>
+                                  <span class="block text-[11px] font-medium text-slate-500"><%= delivery_role %></span>
+                                </span>
+                              </div>
+                              <div class="flex flex-col items-start gap-1 pl-3 border-l border-slate-200 min-w-[110px]">
+                                <div class="flex items-center gap-1.5" title="Luogo">
+                                  <span class="material-symbols-outlined text-[16px] text-slate-400"><%= location_icon %></span>
+                                  <span><%= delivery_location %></span>
+                                </div>
+                                <div class="flex items-center gap-1.5" title="Formato">
+                                  <span class="material-symbols-outlined text-[16px] text-slate-400"><%= format_icon %></span>
+                                  <span><%= delivery_format %></span>
+                                </div>
+                              </div>
+                            </div>
+                            <% end %>
+                          </div>
+
+                          <% if has_delivery %>
+                          <div class="px-4 py-3 bg-slate-50/50 border-t border-slate-100 flex items-center md:hidden">
+                            <div class="w-full flex items-center gap-3 text-xs text-slate-500 font-medium">
+                              <div class="flex items-center gap-2 text-[13px] font-semibold text-slate-600" title="Modalita">
+                                <% if has_professional %>
+                                  <img src="https://i.pravatar.cc/150?u=<%= child[:taxbranch]&.id || child.object_id %>" alt="Insegnante" class="w-8 h-8 rounded-full object-cover border border-white shadow-sm">
+                                <% else %>
+                                  <span class="material-symbols-outlined text-[18px] text-slate-400">laptop_mac</span>
+                                <% end %>
+                                <span class="leading-tight">
+                                  <span class="block text-[10px] font-bold uppercase text-slate-500"><%= person_label %></span>
+                                  <span class="block text-[12px] font-semibold text-slate-700"><%= delivery_name %></span>
+                                  <span class="block text-[11px] font-medium text-slate-500"><%= delivery_role %></span>
+                                </span>
+                              </div>
+                              <div class="flex flex-col items-start gap-1 pl-3 border-l border-slate-200 min-w-[110px]">
+                                <div class="flex items-center gap-1.5" title="Luogo">
+                                  <span class="material-symbols-outlined text-[16px] text-slate-400"><%= location_icon %></span>
+                                  <span><%= delivery_location %></span>
+                                </div>
+                                <div class="flex items-center gap-1.5" title="Formato">
+                                  <span class="material-symbols-outlined text-[16px] text-slate-400"><%= format_icon %></span>
+                                  <span><%= delivery_format %></span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <% end %>
+                        </div>
+                      <% end %>
+
+                      <% if child[:link_post].present? && !requires_membership %>
+                        <%= link_to ensure_post_activities_path(child[:link_post], in_dashboard: 1, tab: "academy"), data: { turbo_method: :post }, class: "block" do %>
+                          <%= card_inner %>
+                        <% end %>
+                      <% elsif child[:taxbranch].present? && !requires_membership %>
+                        <%= link_to new_taxbranch_activity_path(child[:taxbranch]), class: "block" do %>
+                          <%= card_inner %>
+                        <% end %>
+                      <% else %>
+                        <div class="opacity-90">
+                          <%= card_inner %>
+                        </div>
+                      <% end %>
+                    </div>
+
+                    <div class="relative z-10 h-full flex items-center justify-center bg-white p-2 rounded-2xl border border-slate-100 shadow-sm">
+                      <% completed_at = child[:activity_occurred_at].presence || child[:next_at] %>
+                      <% if child[:status_key] == :completed && completed_at.present? %>
+                        <div class="flex flex-col items-center text-center leading-tight">
+                          <span class="text-xs font-bold uppercase tracking-wider text-slate-500"><%= I18n.l(completed_at, format: "%b", locale: :it).upcase %></span>
+                          <span class="text-2xl font-black text-slate-700"><%= completed_at.day %></span>
+                          <span class="text-[9px] font-medium uppercase text-slate-500"><%= I18n.l(completed_at, format: "%A", locale: :it).upcase %></span>
+                          <span class="text-[9px] font-semibold text-slate-500 mt-0.5"><%= I18n.l(completed_at, format: "%H:%M", locale: :it) %></span>
+                        </div>
+                      <% elsif child[:activity_status_label].present? %>
+                        <span class="inline-flex items-center rounded-lg px-2 py-1 text-[10px] font-bold uppercase
+                          <%= child[:activity_status].to_s == 'reviewed' ? 'bg-blue-100 border border-blue-200 text-blue-700' : 'bg-amber-100 border border-amber-200 text-amber-700' %>">
+                          <%= child[:activity_status_label] %>
+                        </span>
+                      <% elsif child[:next_at].present? %>
+                        <div class="flex flex-col items-center text-center leading-tight">
+                          <span class="text-xs font-bold uppercase tracking-wider text-slate-500"><%= I18n.l(child[:next_at], format: "%b", locale: :it).upcase %></span>
+                          <span class="text-2xl font-black text-slate-700"><%= child[:next_at].day %></span>
+                          <span class="text-[9px] font-medium uppercase text-slate-500"><%= I18n.l(child[:next_at], format: "%A", locale: :it).upcase %></span>
+                          <span class="text-[9px] font-semibold text-slate-500 mt-0.5"><%= I18n.l(child[:next_at], format: "%H:%M", locale: :it) %></span>
+                        </div>
+                      <% elsif child[:status_key] == :scheduled %>
+                        <span class="inline-flex items-center rounded-lg bg-amber-100/50 border border-amber-200 px-2 py-1 text-[10px] font-bold uppercase text-amber-700">Prenotato</span>
+                      <% elsif child[:status_key] == :in_progress %>
+                        <span class="inline-flex items-center rounded-lg bg-blue-100/60 border border-blue-200 px-2 py-1 text-[10px] font-bold uppercase text-blue-700">Apri</span>
+                      <% else %>
+                        <span class="material-symbols-outlined text-slate-300">lock</span>
+                      <% end %>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          <% else %>
+            <div class="rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-5 text-sm text-slate-500">
+              Nessun contenuto associato a questo modulo.
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>

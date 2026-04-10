@@ -1,83 +1,248 @@
-<% content_for :title, "Richieste creator" %>
+<% content_for :title, "Richieste accessi" %>
 
 <section class="dashboard-shell">
   <div class="app-layout">
     <%= render "shared/app_sidebar" %>
 
-    <div class="dashboard-card">
+    <div class="dashboard-card admin-page">
       <p class="eyebrow">Superadmin</p>
-      <h1>Richieste creator</h1>
+      <h1>Richieste accessi</h1>
       <p>
-        Qui puoi vedere le richieste creator in attesa e abilitare manualmente i profili.
+        Questa e' la pagina operativa principale per confermare i pagamenti e attivare creator o professional per un anno.
       </p>
 
-      <div class="status-stack">
-        <div class="status-card">
-          <span class="dashboard-label">In attesa</span>
-          <strong><%= @requested_profiles.count %></strong>
-        </div>
-
-        <div class="status-card">
-          <span class="dashboard-label">Creator attivi</span>
-          <strong><%= @enabled_profiles.count %></strong>
-        </div>
-      </div>
-
-      <div class="admin-section">
-        <h2>Da approvare</h2>
-
-        <% if @requested_profiles.any? %>
-          <div class="admin-list">
-            <% @requested_profiles.each do |profile| %>
-              <article class="admin-list-item">
-                <div class="admin-list-copy">
-                  <strong><%= profile.display_name %></strong>
-                  <p>@<%= profile.slug %></p>
-                  <p><%= profile.user.email_address %></p>
-                </div>
-
-                <div class="admin-list-actions">
-                  <%= button_to "Abilita creator", toggle_creator_profile_path(profile, enabled: true), method: :patch, class: "btn btn-primary" %>
-                </div>
-              </article>
-            <% end %>
-          </div>
-        <% else %>
-          <div class="status-card">
-            <strong>Nessuna richiesta creator in attesa.</strong>
-          </div>
+      <div class="dashboard-tabs">
+        <%= link_to admin_creator_requests_path(scope: @scope, status: "requested"), class: ["dashboard-tab-link", (@status == "requested" ? "active" : nil)].compact.join(" ") do %>
+          <span>Richieste</span>
+          <small>
+            <%= @scope == "professional" ? @requested_professionals.count : (@scope == "creator" ? @requested_profiles.count : @requested_profiles.count + @requested_professionals.count) %>
+          </small>
+        <% end %>
+        <%= link_to admin_creator_requests_path(scope: @scope, status: "enabled"), class: ["dashboard-tab-link", (@status == "enabled" ? "active" : nil)].compact.join(" ") do %>
+          <span>Attivi</span>
+          <small>
+            <%= @scope == "professional" ? @enabled_professionals.count : (@scope == "creator" ? @enabled_profiles.count : @enabled_profiles.count + @enabled_professionals.count) %>
+          </small>
+        <% end %>
+        <%= link_to admin_creator_requests_path(scope: @scope, status: "inactive"), class: ["dashboard-tab-link", (@status == "inactive" ? "active" : nil)].compact.join(" ") do %>
+          <span>Scaduti</span>
+          <small>
+            <%= @scope == "professional" ? @inactive_professional_profiles.count : (@scope == "creator" ? @inactive_creator_profiles.count : @inactive_creator_profiles.count + @inactive_professional_profiles.count) %>
+          </small>
         <% end %>
       </div>
 
-      <div class="admin-section">
-        <h2>Gia' abilitati</h2>
-
-        <% if @enabled_profiles.any? %>
-          <div class="admin-list">
-            <% @enabled_profiles.each do |profile| %>
-              <article class="admin-list-item">
-                <div class="admin-list-copy">
-                  <strong><%= profile.display_name %></strong>
-                  <p>@<%= profile.slug %></p>
-                  <p><%= profile.user.email_address %></p>
-                </div>
-
-                <div class="admin-list-actions">
-                  <%= button_to "Disabilita creator",
-                        toggle_creator_profile_path(profile, enabled: false),
-                        method: :patch,
-                        class: "btn btn-secondary",
-                        form: { data: { turbo_confirm: "Sei sicuro di voler disabilitare creator per questo profilo?" } } %>
-                </div>
-              </article>
-            <% end %>
-          </div>
-        <% else %>
-          <div class="status-card">
-            <strong>Nessun creator attivo.</strong>
-          </div>
-        <% end %>
+      <div class="dashboard-tabs dashboard-tabs-subtle">
+        <%= link_to "Tutti", admin_creator_requests_path(scope: "all", status: @status), class: ["dashboard-tab-link", (@scope == "all" ? "active" : nil)].compact.join(" ") %>
+        <%= link_to "Creator", admin_creator_requests_path(scope: "creator", status: @status), class: ["dashboard-tab-link", (@scope == "creator" ? "active" : nil)].compact.join(" ") %>
+        <%= link_to "Professional", admin_creator_requests_path(scope: "professional", status: @status), class: ["dashboard-tab-link", (@scope == "professional" ? "active" : nil)].compact.join(" ") %>
       </div>
+
+      <% if @status == "requested" && (@scope == "all" || @scope == "creator") %>
+        <div class="admin-section">
+          <h2>Creator richiesti</h2>
+          <% if @requested_profiles.any? %>
+            <div class="admin-compact-list">
+              <% @requested_profiles.each do |profile| %>
+                <article class="admin-compact-item">
+                  <div class="admin-compact-main admin-compact-main-inline">
+                    <strong><%= profile.display_name %></strong>
+                    <span>@<%= profile.slug %></span>
+                  </div>
+                  <div class="admin-compact-col">
+                    <span><%= profile.user.email_address %></span>
+                  </div>
+                  <div class="admin-compact-col">
+                    <span><%= profile.creator_requested_compact_label.present? ? "Richiesta del #{profile.creator_requested_compact_label}" : "Richiesta aperta" %></span>
+                  </div>
+                  <div class="admin-compact-col">
+                    <span class="admin-inline-badge admin-inline-badge-creator">Creator</span>
+                  </div>
+                  <div class="admin-compact-actions">
+                    <%= button_to "Attiva", toggle_creator_profile_path(profile, enabled: true), method: :patch, class: "btn btn-primary" %>
+                  </div>
+                </article>
+              <% end %>
+            </div>
+          <% else %>
+            <div class="status-card">
+              <strong>Nessuna richiesta creator in attesa.</strong>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+
+      <% if @status == "enabled" && (@scope == "all" || @scope == "creator") %>
+        <div class="admin-section">
+          <h2>Creator attivi</h2>
+          <% if @enabled_profiles.any? %>
+            <div class="admin-compact-list">
+              <% @enabled_profiles.each do |profile| %>
+                <article class="admin-compact-item">
+                  <div class="admin-compact-main admin-compact-main-inline">
+                    <strong><%= profile.display_name %></strong>
+                    <span>@<%= profile.slug %></span>
+                  </div>
+                  <div class="admin-compact-col">
+                    <span><%= profile.user.email_address %></span>
+                  </div>
+                  <div class="admin-compact-col">
+                    <span><%= profile.creator_active_range_compact_label %></span>
+                  </div>
+                  <div class="admin-compact-col">
+                    <span class="admin-inline-badge admin-inline-badge-creator">Creator</span>
+                  </div>
+                  <div class="admin-compact-actions">
+                    <%= button_to "Disabilita",
+                          toggle_creator_profile_path(profile, enabled: false),
+                          method: :patch,
+                          class: "btn btn-secondary btn-admin-muted",
+                          form: { data: { turbo_confirm: "Sei sicuro di voler disabilitare creator per questo profilo?" } } %>
+                  </div>
+                </article>
+              <% end %>
+            </div>
+          <% else %>
+            <div class="status-card">
+              <strong>Nessun creator attivo.</strong>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+
+      <% if @status == "inactive" && (@scope == "all" || @scope == "creator") %>
+        <div class="admin-section">
+          <h2>Creator scaduti</h2>
+          <% if @inactive_creator_profiles.any? %>
+            <div class="admin-compact-list">
+              <% @inactive_creator_profiles.each do |profile| %>
+                <article class="admin-compact-item admin-compact-item-static">
+                  <div class="admin-compact-main admin-compact-main-inline">
+                    <strong><%= profile.display_name %></strong>
+                    <span>@<%= profile.slug %></span>
+                  </div>
+                  <div class="admin-compact-col">
+                    <span><%= profile.user.email_address %></span>
+                  </div>
+                  <div class="admin-compact-col">
+                    <span><%= profile.creator_active_range_compact_label %></span>
+                  </div>
+                  <div class="admin-compact-col">
+                    <span class="admin-inline-badge admin-inline-badge-creator">Creator</span>
+                  </div>
+                </article>
+              <% end %>
+            </div>
+          <% else %>
+            <div class="status-card">
+              <strong>Nessun creator scaduto da mostrare.</strong>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+
+      <% if @status == "requested" && (@scope == "all" || @scope == "professional") %>
+        <div class="admin-section">
+          <h2>Professional richiesti</h2>
+          <% if @requested_professionals.any? %>
+            <div class="admin-compact-list">
+              <% @requested_professionals.each do |profile| %>
+                <article class="admin-compact-item">
+                  <div class="admin-compact-main admin-compact-main-inline">
+                    <strong><%= profile.display_name %></strong>
+                    <span>@<%= profile.slug %></span>
+                  </div>
+                  <div class="admin-compact-col">
+                    <span><%= profile.user.email_address %></span>
+                  </div>
+                  <div class="admin-compact-col">
+                    <span><%= profile.professional_requested_compact_label.present? ? "Richiesta del #{profile.professional_requested_compact_label}" : "Richiesta aperta" %></span>
+                  </div>
+                  <div class="admin-compact-col">
+                    <span class="admin-inline-badge admin-inline-badge-professional">Professional</span>
+                  </div>
+                  <div class="admin-compact-actions">
+                    <%= button_to "Attiva", toggle_professional_profile_path(profile, enabled: true), method: :patch, class: "btn btn-primary" %>
+                  </div>
+                </article>
+              <% end %>
+            </div>
+          <% else %>
+            <div class="status-card">
+              <strong>Nessuna richiesta professional in attesa.</strong>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+
+      <% if @status == "enabled" && (@scope == "all" || @scope == "professional") %>
+        <div class="admin-section">
+          <h2>Professional attivi</h2>
+          <% if @enabled_professionals.any? %>
+            <div class="admin-compact-list">
+              <% @enabled_professionals.each do |profile| %>
+                <article class="admin-compact-item">
+                  <div class="admin-compact-main admin-compact-main-inline">
+                    <strong><%= profile.display_name %></strong>
+                    <span>@<%= profile.slug %></span>
+                  </div>
+                  <div class="admin-compact-col">
+                    <span><%= profile.user.email_address %></span>
+                  </div>
+                  <div class="admin-compact-col">
+                    <span><%= profile.professional_active_range_compact_label %></span>
+                  </div>
+                  <div class="admin-compact-col">
+                    <span class="admin-inline-badge admin-inline-badge-professional">Professional</span>
+                  </div>
+                  <div class="admin-compact-actions">
+                    <%= button_to "Disabilita",
+                          toggle_professional_profile_path(profile, enabled: false),
+                          method: :patch,
+                          class: "btn btn-secondary btn-admin-muted",
+                          form: { data: { turbo_confirm: "Sei sicuro di voler disabilitare professional per questo profilo?" } } %>
+                  </div>
+                </article>
+              <% end %>
+            </div>
+          <% else %>
+            <div class="status-card">
+              <strong>Nessun professional attivo.</strong>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+
+      <% if @status == "inactive" && (@scope == "all" || @scope == "professional") %>
+        <div class="admin-section">
+          <h2>Professional scaduti</h2>
+          <% if @inactive_professional_profiles.any? %>
+            <div class="admin-compact-list">
+              <% @inactive_professional_profiles.each do |profile| %>
+                <article class="admin-compact-item admin-compact-item-static">
+                  <div class="admin-compact-main admin-compact-main-inline">
+                    <strong><%= profile.display_name %></strong>
+                    <span>@<%= profile.slug %></span>
+                  </div>
+                  <div class="admin-compact-col">
+                    <span><%= profile.user.email_address %></span>
+                  </div>
+                  <div class="admin-compact-col">
+                    <span><%= profile.professional_active_range_compact_label %></span>
+                  </div>
+                  <div class="admin-compact-col">
+                    <span class="admin-inline-badge admin-inline-badge-professional">Professional</span>
+                  </div>
+                </article>
+              <% end %>
+            </div>
+          <% else %>
+            <div class="status-card">
+              <strong>Nessun professional scaduto da mostrare.</strong>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
     </div>
   </div>
 </section>

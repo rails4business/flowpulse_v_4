@@ -1,0 +1,37 @@
+<% sections    = day.children.ordered %>
+<% sheet_node  = day.link_child || day %>
+
+  <div class="flex items-center gap-3">
+   
+      <span class="inline-flex h-10 px-4  items-center justify-center rounded-full bg-slate-900 text-white font-semibold text-sm">
+         Giorno <%= index + 1 %>
+      </span>
+     
+
+    <!--span class="text-xs text-slate-400">ID: <%#= day.id %></span-->
+     <% if sections.any? %>
+        <div class="flex-1 space-y-3 border-l-2 border-slate-200 pl-4">
+          <% sections.each_with_index do |section, s_idx| %>
+            <% section_sheet = section.link_child || section %>
+            <%= render partial: "posts/course_sheet_preview",
+                      locals: {
+                        sheet_node: section_sheet,
+                        lead: lead,
+                        label: section_sheet.slug_label.presence || section_sheet.display_label || "Scheda #{s_idx + 1}",
+                        context_badge: "Sezione #{s_idx + 1}"
+                      } %>
+          <% end %>
+        </div>
+      <% else %>
+        <%= render partial: "posts/course_sheet_preview",
+                  locals: {
+                    sheet_node: sheet_node,
+                    lead: lead,
+                    label: sheet_node.slug_label.presence || sheet_node.display_label || "Scheda giorno #{index + 1}",
+                    context_badge: "Giorno #{index + 1}"
+                  } %>
+      <% end %>
+  </div>
+
+ 
+

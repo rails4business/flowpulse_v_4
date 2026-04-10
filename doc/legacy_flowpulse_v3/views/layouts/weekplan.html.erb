@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html class="light" lang="<%= domain_language %>">
+  <head>
+    <title><%= domain_title %></title>
+    <% if domain_description.present? %>
+      <meta name="description" content="<%= domain_description %>">
+    <% end %>
+    <% if domain_favicon_url.present? %>
+      <link rel="icon" href="<%= domain_favicon_url %>">
+    <% end %>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <%= render "shared/tailwind_head" %>
+    <%= yield :head %>
+    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+  <body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-display min-h-screen">
+    <%= yield %>
+  </body>
+</html>

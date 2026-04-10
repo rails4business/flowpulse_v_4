@@ -1,0 +1,426 @@
+<!doctype html>
+<html lang="it">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Indice – <%= @book&.title || "Libro" %></title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            display: ["Inter", "sans-serif"],
+            sans: ["Inter", "sans-serif"],
+          },
+          colors: {
+            pcBlue: "#1287E6",
+            pcOrange: "#F39A2E",
+            pcPurple: "#B56BFF",
+            pcRed: "#E53935",
+            pcGreen: "#2EAD4A",
+            ink: "#111827",
+            "warm-gold": "#c9a227",
+            "accent-blue": "#2b6cb0",
+            "editorial-text": "#1a202c",
+          },
+          borderRadius: {
+            xl2: "26px",
+            xl4: "44px",
+          },
+        },
+      },
+    };
+  </script>
+
+  <style>
+    @media print {
+      .no-print {
+        display: none !important;
+      }
+
+      .print-pagebreak {
+        page-break-after: always;
+      }
+
+      .print-shadow-none {
+        box-shadow: none !important;
+      }
+
+      body {
+        background: white !important;
+      }
+    }
+  </style>
+</head>
+
+  <body class="bg-[#1a1a1a] text-slate-800 h-screen w-screen overflow-hidden flex items-center justify-center p-0 md:p-0 m-0">
+
+    <!-- Scene Container -->
+    <div class="relative w-full max-w-full h-[100dvh] md:h-[90vh] flex items-center justify-center perspective-[1500px]">
+    
+    <div id="index-nav" class="absolute bottom-10 md:bottom-auto md:-top-6 left-0 right-0 text-center text-xs uppercase tracking-[0.4em] text-white mix-blend-exclusion z-50 flex items-center justify-center gap-4"></div>
+    
+    <div class="absolute top-4 left-4 md:top-0 md:left-16 flex items-center gap-4 text-xs uppercase tracking-[0.3em] text-white mix-blend-exclusion z-50">
+      <a class="hover:text-white/80 transition font-bold" href="/books">Esci</a>
+      <% if Current.user&.superadmin? && Current.user.superadmin_mode_active? %>
+        <span class="border border-white/40 px-2 py-1 rounded">Admin BSC</span>
+      <% end %>
+    </div>
+      
+      <!-- Book -->
+      <div id="book" class="relative w-full max-w-[400px] h-full max-h-[500px] md:max-h-[600px] transform-style-3d transition-transform duration-1000">
+        <!-- Pages will be injected here -->
+      </div>
+
+    </div>
+
+    <!-- Controls/Instructions -->
+    <div class="fixed bottom-4 left-1/2 -translate-x-1/2 text-white/30 text-[10px] font-sans tracking-widest uppercase pointer-events-none z-40 hidden md:block">
+      Clicca per sfogliare
+    </div>
+    
+    <!-- Background Elements -->
+    <div class="fixed inset-0 -z-10 bg-[#2d2d2d]">
+      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-warm-gold/5 blur-[120px] rounded-full"></div>
+    </div>
+
+  <!-- Common Script -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+  
+  <style>
+    .perspective-[1500px] { perspective: 1500px; }
+    .transform-style-3d { transform-style: preserve-3d; }
+    .my-backface-hidden { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+    .my-rotate-y-180 { transform: rotateY(-180deg); }
+
+    .access-badge {
+      position: relative;
+    }
+    .access-badge::after {
+      content: attr(data-tip);
+      position: absolute;
+      left: calc(100% + 6px);
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(15, 23, 42, 0.95);
+      color: #fff;
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 6px;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.15s ease;
+    }
+    .access-badge:hover::after {
+      opacity: 1;
+    }
+    
+    /* Page Styling */
+    .page {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      transform-origin: left center;
+      transition: transform 0.8s cubic-bezier(0.645, 0.045, 0.355, 1);
+      transform-style: preserve-3d;
+      cursor: pointer;
+    }
+
+    .page.flipped {
+      transform: rotateY(-180deg);
+    }
+
+    /* Z-index logic will be handled by JS or simple css for small number of pages */
+    
+    .front, .back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      background-color: #f8f5f2;
+      box-shadow: inset 0 0 30px rgba(0,0,0,0.05);
+      backface-visibility: hidden;
+      overflow: hidden;
+    }
+
+    .back {
+      transform: rotateY(180deg);
+      background-color: #f0ebe5; /* Slightly darker for back of page */
+    }
+
+    /* Spine shadows */
+    .front::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      padding-left: 10px;
+      background: linear-gradient(to right, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0) 100%);
+    }
+    .back::after {
+      content: '';
+      position: absolute;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      padding-right: 10px;
+      background: linear-gradient(to left, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0) 100%);
+    }
+
+  </style>
+
+  <script>
+    const book = document.getElementById('book');
+    let pages = [];
+
+    // --- TEMPLATES ---
+    const createCover = () => {
+      const div = document.createElement('div');
+      div.className = 'page z-[100]'; 
+      div.id = 'page-cover';
+      div.innerHTML = `
+        <div class="front bg-[linear-gradient(135deg,#2563eb_0%,#1e3a8a_100%)] rounded-r-md border-r-4 border-white/10 shadow-xl flex flex-col p-4 md:p-6">
+             <div class="absolute top-0 bottom-0 left-0 w-8 bg-black/10 z-20"></div>
+             <div class="w-full flex justify-center mb-12 opacity-80 mt-10">
+                <span class="material-symbols-outlined text-white/50 text-6xl">menu_book</span>
+             </div>
+             <div class="text-center mb-auto">
+               <p class="font-display text-xs font-bold tracking-[0.4em] uppercase text-white/70 mb-6">Indice dei Contenuti</p>
+               <h1 class="font-display text-4xl sm:text-5xl font-semibold leading-[1.1] tracking-[-0.033em] text-white mb-6">
+                 Il Corpo,<br>
+                 <span class="text-2xl sm:text-3xl font-semibold block mt-2 text-white/90">un mondo da scoprire</span>
+               </h1>
+             </div>
+             <div class="text-center mt-auto border-t border-white/10 pt-6">
+                <img src="https://ik.imagekit.io/posturacorretta/logo_pc.png?updatedAt=1747835132622" alt="PosturaCorretta Logo" class="w-32 h-auto mx-auto opacity-80 rounded-lg">
+             </div>
+             <div class="absolute right-0 top-0 h-full w-[10px] bg-gradient-to-l from-black/20 to-transparent"></div>
+        </div>
+        <div class="back bg-[#1e3a8a] rounded-l-md border-l-4 border-white/10 shadow-xl p-8 flex items-center justify-center"></div>
+      `;
+      return div;
+    };
+
+    const createIndexPage = (items, pageIndex, totalIndexPages) => {
+       const div = document.createElement('div');
+       div.className = `page z-[${99 - pageIndex}]`;
+       div.id = `page-index-${pageIndex}`;
+
+       let contentHtml = '<div class="space-y-1">';
+       items.forEach(item => {
+         const type = (item.type || '').toLowerCase();
+         // Use strict type checking since we have high quality data in YAML
+         const isHeader = item.header || type === 'head' || type === 'section';
+         const access = (item.access || '').toLowerCase();
+         let accessBadge = '';
+           if (adminMode) {
+           const badgeMap = {
+             hidden: { label: 'H', cls: 'bg-rose-600 text-white', tip: 'hidden' },
+             draft: { label: 'D', cls: 'bg-slate-500 text-white', tip: 'draft' },
+             free: { label: 'F', cls: 'bg-emerald-600 text-white', tip: 'free' },
+             registered: { label: 'R', cls: 'bg-amber-500 text-white', tip: 'registered' },
+             reg_hide: { label: 'Rh', cls: 'bg-orange-600 text-white', tip: 'reg_hide' },
+             payment: { label: 'P', cls: 'bg-indigo-600 text-white', tip: 'payment' },
+             pay_hide: { label: 'Ph', cls: 'bg-fuchsia-700 text-white', tip: 'pay_hide' }
+           };
+           const badge = badgeMap[access];
+           if (badge) {
+             accessBadge = `<span class="access-badge mr-2 inline-flex items-center justify-center w-4 h-4 rounded-full text-[9px] font-bold ${badge.cls}" data-tip="${badge.tip}">${badge.label}</span>`;
+           }
+         }
+         
+         if (isHeader) {
+            // "Section" type is the major divider (Uppercase)
+            // "Head" type is the minor divider (Lowercase)
+            const isSection = type === 'section';
+             
+            if (isSection) {
+                // SECTION: Uppercase, Bold, Inter.
+                contentHtml += `
+                 <div class="mt-2 mb-1 pt-1 border-t border-slate-200/50 first:border-0 first:pt-0 first:mt-0">
+                   <h2 class="font-display text-[15px] font-black text-ink leading-tight uppercase tracking-wider">${accessBadge}${item.title}</h2>
+                 </div>
+               `;
+            } else {
+                // HEAD: Bold, Inter.
+                contentHtml += `
+                 <div class="mt-1.5 mb-0.5">
+                   <h2 class="font-display text-[13px] font-bold text-slate-700 leading-tight">${accessBadge}${item.title}</h2>
+                 </div>
+               `;
+            }
+         } else {
+           // CHAPTER: Font display, medium.
+           const href = `/books/${bookSlug}/${item.slug}`;
+            contentHtml += `
+              <a class="group block cursor-pointer hover:bg-black/5 px-2 py-[1px] -mx-2 rounded transition-colors" href="${href}">
+                <div class="flex items-baseline">
+                  ${accessBadge}
+                  ${item.chapter_number ? `<span class="text-slate-400 font-mono text-[10px] w-4 text-right mr-2 shrink-0">${item.chapter_number}.</span>` : ''}
+                  <h3 class="font-display text-[13px] font-medium group-hover:text-pcBlue transition-colors text-slate-700 leading-snug">${item.title}</h3>
+                </div>
+              </a>
+            `;
+          }
+       });
+       contentHtml += '</div>';
+
+       div.innerHTML = `
+        <div class="front bg-[#f8f5f2] rounded-r-md shadow-md p-4 md:p-6 overflow-hidden">
+           <div class="h-full flex flex-col relative z-10">
+              <h2 class="font-sans text-[10px] font-bold tracking-widest uppercase text-slate-400 mb-4 border-b border-slate-200 pb-1">Indice</h2>
+              <div class="flex-1 overflow-y-auto pr-2 scrollbar-hide">
+                ${contentHtml}
+              </div>
+              <div class="text-center mt-2 text-[10px] font-mono text-slate-300">
+                ${pageIndex + 1}
+              </div>
+           </div>
+           <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cream-paper.png')] opacity-30 pointer-events-none mix-blend-multiply z-0"></div>
+        </div>
+        <div class="back bg-[#f0ebe5] rounded-l-md shadow-md p-8 flex items-center justify-center"></div>
+       `;
+       return div;
+    };
+    
+    const setupFlipInteraction = (onStateChange) => {
+        const allPages = Array.from(document.querySelectorAll('.page'));
+        allPages.forEach((page, index) => {
+            page.style.zIndex = allPages.length - index;
+            page.addEventListener('click', (e) => {
+                // Prevent click if clicking inside a link
+                if (e.target.closest('a')) return;
+
+                if (page.classList.contains('flipped')) {
+                    // FLIP BACK
+                    page.classList.remove('flipped');
+                    setTimeout(() => { page.style.zIndex = allPages.length - index; }, 400); 
+                } else {
+                    // FLIP FORWARD
+                    page.style.zIndex = allPages.length + index;
+                    page.classList.add('flipped');
+                }
+                
+                // Invoke callback to update state
+                setTimeout(onStateChange, 50);
+            });
+        });
+    };
+    
+    const getIndexPageParam = () => {
+        const url = new URL(window.location);
+        const raw = url.searchParams.get('page');
+        if (raw === '0') return 0;
+        const num = parseInt(raw || '1', 10);
+        return Number.isFinite(num) && num > 0 ? num : 1;
+    };
+
+    const openIndexPageFromParams = (totalIndexPages) => {
+        const page = Math.min(totalIndexPages, getIndexPageParam());
+        const allPages = Array.from(document.querySelectorAll('.page'));
+        for (let i = 0; i < page; i += 1) {
+            const p = allPages[i];
+            if (p && !p.classList.contains('flipped')) {
+                p.style.zIndex = allPages.length + i;
+                p.classList.add('flipped');
+            }
+        }
+        return page;
+    };
+
+    const setupIndexNav = (currentPage, totalIndexPages) => {
+        const nav = document.getElementById('index-nav');
+        if (!nav) return;
+        
+        const visiblePage = Math.max(1, currentPage); 
+        const prev = Math.max(1, visiblePage - 1);
+        const next = Math.min(totalIndexPages, visiblePage + 1);
+        
+        const url = new URL(window.location);
+        if (currentPage === 0) {
+             url.searchParams.set('page', '0');
+        } else {
+             url.searchParams.set('page', currentPage);
+        }
+        history.replaceState(null, '', url);
+
+        nav.innerHTML = `
+          <a class="hover:text-white/90 transition text-xl px-2 font-bold" href="/books/${bookSlug}?page=${prev}">←</a>
+          <span class="text-white/70 font-bold mx-2">INDICE ${visiblePage} / ${totalIndexPages}</span>
+          <a class="hover:text-white/90 transition text-xl px-2 font-bold" href="/books/${bookSlug}?page=${next}">→</a>
+        `;
+    };
+
+    const initBook = (data) => {
+        // 1. Cover
+        const cover = createCover();
+        book.appendChild(cover);
+        pages.push(cover);
+
+        // 2. Index Pages
+        const validData = data.filter(i => i); 
+        const INDEX_ITEMS_PER_PAGE = 18; 
+        const totalIndexPages = Math.ceil(validData.length / INDEX_ITEMS_PER_PAGE);
+
+        for (let i = 0; i < totalIndexPages; i++) {
+            const chunk = validData.slice(i * INDEX_ITEMS_PER_PAGE, (i + 1) * INDEX_ITEMS_PER_PAGE);
+            const page = createIndexPage(chunk, i, totalIndexPages);
+            book.appendChild(page);
+            pages.push(page);
+        }
+        
+        const handleStateChange = () => {
+             const flippedCount = document.querySelectorAll('.page.flipped').length;
+             setupIndexNav(flippedCount, totalIndexPages);
+        };
+
+        setupFlipInteraction(handleStateChange);
+        
+        const initialPage = openIndexPageFromParams(totalIndexPages);
+        setupIndexNav(initialPage, totalIndexPages);
+    };
+    // INIT
+    const adminMode = <%= (Current.user&.superadmin? && Current.user.superadmin_mode_active?).to_json %>;
+    const bookSlug = <%= @book.slug.to_json.html_safe %>;
+    const tocData = <%= @toc.to_json.html_safe %>;
+    initBook(tocData);
+    
+  </script>
+<!--
+<div class="bg-editorial-text/95 dark:bg-slate-900/95 backdrop-blur-xl rounded-2xl p-4 lg:p-5 shadow-2xl flex items-center justify-between border border-white/10">
+<div class="hidden sm:flex items-center gap-4">
+<div class="relative">
+<img alt="Thumbnail" class="w-10 rounded shadow-lg" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCsDjlq0R7MfKq4JVjRl-3GPacU5Qw9Rc-AGNyaLApdnrp7Mpi2wORJkg8lSBufi54e19d5Juzlnd8oUNOtUALHQ4RxzW3VSzwiJQTV1BAcqssTP2gj14vtlc3YGq7qQSj7eaYeKFtqtCSwZAkqLSCJnAJd1DS3CFJnw7TNoaeE8JXWW3hD_rz7ztEzZ2k0ptTz0fsJgGTCrAcdoIxT1ICTpquxDQBMC9VtSXEWQQurqNoTmYshXnCoodFGIkOgZwxxRl27f5jYHgo">
+<span class="absolute -top-2 -right-2 size-4 bg-community-orange rounded-full flex items-center justify-center text-[8px] text-white font-black animate-bounce">+1</span>
+</div>
+<div>
+<p class="text-white text-[10px] uppercase tracking-widest font-black">Edizione Early-Access</p>
+<p class="text-primary text-[10px] italic font-bold">Include accesso alle Live &amp; Video Deep-dives</p>
+</div>
+</div>
+<div class="flex items-center gap-6 lg:gap-10">
+<div class="text-right">
+<span class="text-[10px] text-slate-500 line-through block leading-none">€39.90</span>
+<span class="text-2xl font-black text-white tabular-nums">€31.90</span>
+</div>
+<button class="bg-primary hover:bg-primary/90 text-white font-sans text-[10px] uppercase tracking-[0.2em] px-8 lg:px-10 py-4 rounded-xl font-black transition-all shadow-xl active:scale-95 flex items-center gap-3">
+<span class="material-symbols-outlined text-lg">bolt</span>
+                        Pre-ordina Ora
+                    </button>
+</div>
+</div>
+-->
+</body>
+
+</html>

@@ -1,0 +1,62 @@
+<div id="<%= dom_id payment %>" class="w-full sm:w-auto my-5 space-y-5">
+  <div>
+    <strong class="block font-medium mb-1">Contact:</strong>
+    <%= payment.mycontact_id %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Payable:</strong>
+    <%= payment.payable_id %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Method:</strong>
+    <%= payment.method %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Status:</strong>
+    <%= payment.status %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Amount euro:</strong>
+    <%= payment.amount_euro %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Amount dash:</strong>
+    <%= payment.amount_dash %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Currency:</strong>
+    <%= payment.currency %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">External:</strong>
+    <%= payment.external_id %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Paid at:</strong>
+    <%= payment.paid_at %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Kind:</strong>
+    <%= payment.kind %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Refund amount euro:</strong>
+    <%= payment.refund_amount_euro %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Refund due at:</strong>
+    <%= payment.refund_due_at %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Parent payment:</strong>
+    <%= payment.parent_payment_id %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Notes:</strong>
+    <%= payment.notes %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Meta:</strong>
+    <%= payment.meta %>
+  </div>
+</div>

@@ -1,0 +1,75 @@
+<% content_for :nav do %>
+  <%= render "shared/taxbranch_nav", taxbranch: @taxbranch %>
+<% end %>
+
+<div class="mb-6">
+  <h1 class="text-2xl font-bold text-slate-900">Import/Export Taxbranch</h1>
+  <p class="mt-1 text-sm text-slate-600">
+    Nodo attivo: <strong><%= @taxbranch.display_label %></strong> (ID <%= @taxbranch.id %>)
+  </p>
+  <p class="mt-1 text-xs text-slate-500">
+    Export: subtree completo. Import: i nodi vengono inseriti sotto questo taxbranch.
+  </p>
+</div>
+
+<div class="grid gap-6 lg:grid-cols-2">
+  <section class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+    <h2 class="text-sm font-semibold text-slate-800">Export</h2>
+    <p class="mt-1 text-xs text-slate-500">
+      Esporta il subtree del taxbranch in CSV (include anche i post collegati).
+    </p>
+
+    <div class="mt-4 flex flex-wrap gap-3">
+      <%= link_to "Esporta Taxbranch (CSV)",
+                  export_superadmin_taxbranch_path(@taxbranch),
+                  target: "_blank",
+                  data: { turbo: false },
+                  class: "inline-flex items-center rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800" %>
+    </div>
+  </section>
+
+  <section class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+    <h2 class="text-sm font-semibold text-slate-800">Import Taxbranch</h2>
+    <p class="mt-1 text-xs text-slate-500">
+      Importa un CSV unico (taxbranch + post). Il parent fisso è questo taxbranch.
+    </p>
+
+    <%= form_with url: import_superadmin_taxbranch_path(@taxbranch),
+                  method: :post,
+                  local: true,
+                  html: { multipart: true },
+                  class: "mt-4 grid gap-4" do |f| %>
+      <div>
+        <label class="block text-xs font-medium text-slate-600">File CSV</label>
+        <%= f.file_field :file, class: "mt-1 block w-full text-sm" %>
+      </div>
+
+      <div class="grid gap-4 md:grid-cols-2">
+        <div>
+          <label class="block text-xs font-medium text-slate-600">Parent fisso</label>
+          <input type="text" value="<%= @taxbranch.display_label %> (ID <%= @taxbranch.id %>)" disabled
+                 class="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm" />
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-600">Lead ID (default)</label>
+          <%= f.number_field :lead_id,
+                             value: @default_lead_id,
+                             class: "mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" %>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-xs font-medium text-slate-600">Duplicati</label>
+        <%= f.select :duplicate_mode,
+                     [["Salta", "skip"], ["Aggiorna", "update"], ["Errore", "error"]],
+                     {},
+                     class: "mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" %>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <%= f.submit "Importa Taxbranch",
+                     class: "inline-flex items-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/90" %>
+      </div>
+    <% end %>
+  </section>
+</div>

@@ -18,21 +18,26 @@
           <span class="dashboard-label">Stato creator</span>
           <strong><%= @profile.creator_status_label %></strong>
         </div>
+
+        <div class="status-card">
+          <span class="dashboard-label">Stato professional</span>
+          <strong><%= @profile.professional_status_label %></strong>
+        </div>
       </div>
 
       <% if @profile.creator? %>
         <div class="request-creator-box request-creator-box-success">
           <p class="request-price">Creator attivo</p>
           <p>
-            L'accesso creator e' abilitato. Ora puoi creare branch, mappe e trail del tuo spazio.
+            L'accesso creator e' abilitato fino al <%= @profile.creator_active_until_label %>. Ora puoi creare branch, mappe e trail del tuo spazio.
           </p>
         </div>
       <% elsif !@profile.creator? && !@profile.creator_requested? %>
         <div class="request-creator-box">
-          <p class="request-price">Piano creator: EUR 29</p>
+          <p class="request-price">€79 / anno</p>
           <p>
             Se vuoi creare branch e mappe puoi richiedere il piano creator.
-            L'attivazione avverra' dopo conferma e pagamento.
+            L'attivazione annuale avverra' dopo conferma e pagamento.
           </p>
           <%= button_to "Richiedi piano creator", request_creator_profile_path, method: :patch, class: "btn btn-primary btn-block" %>
         </div>
@@ -41,6 +46,31 @@
           <p class="request-price">Richiesta creator inviata</p>
           <p>
             La richiesta e' stata registrata. Il piano creator verra' attivato dopo conferma e pagamento.
+          </p>
+        </div>
+      <% end %>
+
+      <% if @profile.professional? %>
+        <div class="request-creator-box request-creator-box-success">
+          <p class="request-price">Professional attivo</p>
+          <p>
+            L'accesso professional e' abilitato fino al <%= @profile.professional_active_until_label %>. Ora puoi gestire servizi, formazione e proposte di percorso.
+          </p>
+        </div>
+      <% elsif !@profile.professional? && !@profile.professional_requested? %>
+        <div class="request-creator-box">
+          <p class="request-price">€149 / anno</p>
+          <p>
+            Se vuoi attivare l'area professionale puoi richiedere il piano professional.
+            L'attivazione annuale avverra' dopo conferma e pagamento.
+          </p>
+          <%= button_to "Richiedi piano professional", request_professional_profile_path, method: :patch, class: "btn btn-primary btn-block" %>
+        </div>
+      <% elsif @profile.professional_requested? %>
+        <div class="request-creator-box">
+          <p class="request-price">Richiesta professional inviata</p>
+          <p>
+            La richiesta e' stata registrata. Il piano professional verra' attivato dopo conferma e pagamento.
           </p>
         </div>
       <% end %>

@@ -1,0 +1,45 @@
+<% content_for :title, "Conferma contatto referenziato" %>
+
+<div class="mx-auto max-w-3xl space-y-6">
+  <div>
+    <h1 class="font-bold text-3xl text-slate-900">Conferma il collegamento</h1>
+    <p class="text-slate-600 text-sm mt-2">
+      Stai collegando il Lead <strong><%= Current.user&.lead&.full_name %></strong>
+      al contatto selezionato. Controlla i dati prima di confermare.
+    </p>
+  </div>
+
+  <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-slate-700">
+      <p>
+        <span class="font-medium text-slate-900 block">Nome</span>
+        <%= @datacontact.full_name.presence || "-" %>
+      </p>
+      <p>
+        <span class="font-medium text-slate-900 block">Data di nascita</span>
+        <%= @datacontact.date_of_birth ? l(@datacontact.date_of_birth) : "-" %>
+      </p>
+      <p>
+        <span class="font-medium text-slate-900 block">Email</span>
+        <%= @datacontact.email.presence || "-" %>
+      </p>
+      <p>
+        <span class="font-medium text-slate-900 block">Telefono</span>
+        <%= @datacontact.phone.presence || "-" %>
+      </p>
+    </div>
+
+    <%= link_to "Modifica i dati del contatto",
+          edit_datacontact_path(@datacontact),
+          class: "inline-flex items-center text-sm text-blue-600 hover:underline" %>
+  </div>
+
+  <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+    <%= render "form_edit_conferma", mycontact: @mycontact, datacontact: @datacontact %>
+  </div>
+
+  <div class="flex justify-between text-sm">
+    <%= link_to "← Torna indietro", new_mycontact_path, class: "text-slate-500 hover:text-slate-700" %>
+    <%= link_to "Vedi tutti i contatti", mycontacts_path, class: "text-slate-500 hover:text-slate-700" %>
+  </div>
+</div>

@@ -1,0 +1,10 @@
+<% wrapper_class = "prose prose-slate body-prose text-left dark:bg-slate-950 dark:prose-invert [&_ul]:list-disc [&_ul]:list-outside [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:list-outside [&_ol]:pl-6 [&_li]:my-2" %>
+<% wrapper_class = "#{wrapper_class} #{local_assigns[:wrapper_class]}" if local_assigns[:wrapper_class].present? %>
+<div class="<%= wrapper_class %>">
+    <% if @post.content_md.present? %>
+      <%= markdown(@post.content_md) %>
+    <% elsif @post.respond_to?(:content) && @post.content.present? %>
+      <%= @post.content %>
+   
+    <% end %>
+  </div>

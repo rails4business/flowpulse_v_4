@@ -10,7 +10,7 @@ Gli step ancora aperti o attuali stanno in:
 
 Step attuale:
 
-- [`todo/planning_develop_step_0003.md`](todo/planning_develop_step_0003.md)
+- [`todo/planning_develop_step_0004.md`](todo/planning_develop_step_0004.md)
 
 ## Todo Next
 
@@ -20,7 +20,7 @@ Le direzioni gia' emerse ma non ancora trasformate in step operativo stanno in:
 
 Prime note:
 
-- [`todonext/planning_branch_future_notes.md`](todonext/planning_branch_future_notes.md)
+- [`todonext/planning_develop_step_0005.md`](todonext/planning_develop_step_0005.md)
 
 ## Done
 
@@ -32,3 +32,4 @@ Step completati:
 
 - [`done/planning_develop_step_0001.md`](done/planning_develop_step_0001.md)
 - [`done/planning_develop_step_0002.md`](done/planning_develop_step_0002.md)
+- [`done/planning_develop_step_0003.md`](done/planning_develop_step_0003.md)

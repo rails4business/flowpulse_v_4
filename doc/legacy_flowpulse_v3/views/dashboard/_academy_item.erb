@@ -1,0 +1,22 @@
+<% step = local_assigns.fetch(:item) %>
+<% requires_membership = local_assigns.fetch(:requires_membership, false) %>
+<% depth = local_assigns.fetch(:depth, 0).to_i %>
+<% module_categories = %w[academy_module module_academy module_accademy] %>
+<% is_module = module_categories.include?(step[:taxbranch]&.slug_category.to_s) %>
+
+<% if is_module %>
+  <%= render "dashboard/academy_module", item: step, requires_membership: requires_membership %>
+<% else %>
+  <%= render "dashboard/academy_path", item: step, requires_membership: requires_membership %>
+  <% if step[:children].present? %>
+    <% module_children = step[:children].select { |child| module_categories.include?(child[:taxbranch]&.slug_category.to_s) } %>
+
+    <% if module_children.present? %>
+      <div class="mt-3 flex gap-3 overflow-x-auto pb-2 <%= depth.positive? ? 'pl-3' : '' %>">
+        <% module_children.each do |child| %>
+          <%= render "dashboard/academy_module", item: child, requires_membership: requires_membership %>
+        <% end %>
+      </div>
+    <% end %>
+  <% end %>
+<% end %>

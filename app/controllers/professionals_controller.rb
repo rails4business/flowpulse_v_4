@@ -1,4 +1,6 @@
 class ProfessionalsController < ApplicationController
+  before_action :require_professional
+
   def index
   end
 
@@ -10,4 +12,9 @@ class ProfessionalsController < ApplicationController
 
   def titles
   end
+
+  private
+    def require_professional
+      redirect_to dashboard_path, alert: "Accesso professional non abilitato." unless Current.session.user.profile&.professional?
+    end
 end

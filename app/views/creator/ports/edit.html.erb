@@ -1,0 +1,19 @@
+<% content_for :title, "Modifica Approdo" %>
+
+<section class="dashboard-shell">
+  <div class="app-layout">
+    <%= render "shared/app_sidebar" %>
+
+    <div class="dashboard-card">
+      <p class="eyebrow">Creator</p>
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h1>Modifica: <%= @port.name %></h1>
+        <%= button_to "Elimina Porto", creator_port_path(@port), method: :delete, form: { data: { turbo_confirm: "Sei sicuro di voler eliminare totalmente questo nodo?" } }, class: "btn btn-danger", style: "background: #dc3545; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px;" %>
+      </div>
+
+      <div class="dashboard-actions" style="margin-top: 2rem; background: #fff; padding: 2rem; border-radius: 8px; border: 1px solid #eee;">
+        <%= render "form", port: @port %>
+      </div>
+    </div>
+  </div>
+</section>

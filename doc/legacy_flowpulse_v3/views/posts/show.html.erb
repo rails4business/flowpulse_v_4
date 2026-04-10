@@ -1,0 +1,56 @@
+<%= render 'shared/nav_partial_post' %>
+
+<body class="min-h-screen flex flex-col bg-slate-50 text-slate-900 antialiased ">
+
+  <!-- Contenuto principale -->
+  <main class="flex-grow">
+    <div class="max-w-6xl mx-auto p-6">
+      <% if @taxbranch&.generaimpresa_md.present? && @post&.mermaid.present? %>
+        <div class="mb-6">
+          <%= render "shared/mermaid_diagram",
+                    mermaid: @post.mermaid,
+                    badge: "Genera Impresa",
+                    title: "Blueprint di campagna",
+                    subtitle: @taxbranch.display_label,
+                    hint: "Il diagramma viene letto da mermaid.js" %>
+        </div>
+      <% end %>
+      <% if @children.any? %>
+      
+        <% visible_children = @children.where(status: :published, visibility: :public_node).where("published_at IS NULL OR published_at <= ?", Time.current).where.not(home_nav: true) %>
+
+        <% if visible_children.any? %>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <% visible_children.each do |child_tax| %>
+              <%= render "posts/child_card", child_taxbranch: child_tax %>
+            <% end %>
+          </div>
+        <% else %>
+          <p class="text-slate-500 text-sm">
+         <%= @children.where(status: :published, visibility: :public_node).where("published_at IS NULL OR published_at <= ?", Time.current).where.not(home_nav: true).ids %>
+            Non ci sono elementi pubblicati e visibili.
+          </p>
+        <% end %>
+      <% else %>
+        <p class="text-slate-500">Non ci sono elementi.</p>
+      <% end %>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-200 bg-white py-6 text-center text-slate-700">
+    <div class="max-w-3xl mx-auto px-4">
+      <div class="flex flex-col items-center justify-center space-y-3">
+        <a href="#" target="_blank" rel="noopener" class="flex items-center">
+          <p class="mt-2 text-xs italic text-slate-500 flex items-center gap-2">
+            👉 Sostieni il progetto: fai una donazione con
+            <img src="https://ik.imagekit.io/posturacorretta/dash-dash-logo.png"
+                 alt="Dash Digital Cash Logo"
+                 class="h-6 w-auto">
+          </p>
+        </a>
+      </div>
+    </div>
+  </footer>
+
+</body>

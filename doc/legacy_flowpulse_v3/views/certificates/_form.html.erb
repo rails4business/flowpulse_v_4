@@ -1,0 +1,91 @@
+<%= form_with(model: certificate, class: "contents") do |form| %>
+  <% if certificate.errors.any? %>
+    <div id="error_explanation" class="bg-red-50 text-red-500 px-3 py-2 font-medium rounded-md mt-3">
+      <h2><%= pluralize(certificate.errors.count, "error") %> prohibited this certificate from being saved:</h2>
+
+      <ul class="list-disc ml-6">
+        <% certificate.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="my-5">
+    <%= form.label :lead_id %>
+    <%= form.text_field :lead_id, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": certificate.errors[:lead_id].none?, "border-red-400 focus:outline-red-600": certificate.errors[:lead_id].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :datacontact_id %>
+    <%= form.text_field :datacontact_id, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": certificate.errors[:datacontact_id].none?, "border-red-400 focus:outline-red-600": certificate.errors[:datacontact_id].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :enrollment_id %>
+    <%= form.text_field :enrollment_id, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": certificate.errors[:enrollment_id].none?, "border-red-400 focus:outline-red-600": certificate.errors[:enrollment_id].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :service_id %>
+    <%= form.text_field :service_id, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": certificate.errors[:service_id].none?, "border-red-400 focus:outline-red-600": certificate.errors[:service_id].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :journey_id %>
+    <%= form.text_field :journey_id, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": certificate.errors[:journey_id].none?, "border-red-400 focus:outline-red-600": certificate.errors[:journey_id].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :taxbranch_id %>
+    <%= form.text_field :taxbranch_id, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": certificate.errors[:taxbranch_id].none?, "border-red-400 focus:outline-red-600": certificate.errors[:taxbranch_id].any?}] %>
+  </div>
+
+  <% if Certificate.column_names.include?("domain_membership_id") %>
+    <div class="my-5">
+      <%= form.label :domain_membership_id %>
+      <%= form.text_field :domain_membership_id, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": certificate.errors[:domain_membership_id].none?, "border-red-400 focus:outline-red-600": certificate.errors[:domain_membership_id].any?}] %>
+    </div>
+  <% end %>
+
+  <% if Certificate.column_names.include?("domain_id") %>
+    <div class="my-5">
+      <%= form.label :domain_id %>
+      <%= form.text_field :domain_id, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": certificate.errors[:domain_id].none?, "border-red-400 focus:outline-red-600": certificate.errors[:domain_id].any?}] %>
+    </div>
+  <% end %>
+
+  <div class="my-5">
+    <%= form.label :role_name %>
+    <%= form.text_field :role_name, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": certificate.errors[:role_name].none?, "border-red-400 focus:outline-red-600": certificate.errors[:role_name].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :status %>
+    <%= form.number_field :status, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": certificate.errors[:status].none?, "border-red-400 focus:outline-red-600": certificate.errors[:status].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :issued_at %>
+    <%= form.datetime_field :issued_at, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": certificate.errors[:issued_at].none?, "border-red-400 focus:outline-red-600": certificate.errors[:issued_at].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :expires_at %>
+    <%= form.datetime_field :expires_at, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": certificate.errors[:expires_at].none?, "border-red-400 focus:outline-red-600": certificate.errors[:expires_at].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :issued_by_enrollment_id %>
+    <%= form.text_field :issued_by_enrollment_id, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": certificate.errors[:issued_by_enrollment_id].none?, "border-red-400 focus:outline-red-600": certificate.errors[:issued_by_enrollment_id].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :meta %>
+    <%= form.text_field :meta, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": certificate.errors[:meta].none?, "border-red-400 focus:outline-red-600": certificate.errors[:meta].any?}] %>
+  </div>
+
+  <div class="inline">
+    <%= form.submit class: "w-full sm:w-auto rounded-md px-3.5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white inline-block font-medium cursor-pointer" %>
+  </div>
+<% end %>

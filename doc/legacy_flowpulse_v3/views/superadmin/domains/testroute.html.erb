@@ -1,0 +1,94 @@
+<% content_for :title, "TestRoute · #{@domain.title.presence || @domain.host}" %>
+
+
+
+
+
+
+<div class="space-y-6">
+  
+<%= turbo_frame_tag "modal" %>
+
+<div data-controller="modals">
+
+  <% if @route_items.present? %>
+    <% selected_journeys = params.fetch(:selected_journeys, {}).to_unsafe_h rescue {} %>
+    <div class="">
+      <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+        <div>
+          <h2 class="text-lg font-semibold text-white">Tragitto selezionato</h2>
+          <p class="text-xs text-[#9dabb9]">Sequenza services ↔ railservice selezionata dalla mappa.</p>
+        </div>
+        <span class="text-xs text-[#9dabb9]"><%= @route_items.size %> step</span>
+      </div>
+      <div class="relative">
+        <div class="pointer-events-none absolute inset-y-0 left-0 w-4 bg-gradient-to-r from-[#101922] to-transparent"></div>
+        <div class="pointer-events-none absolute inset-y-0 right-0 w-4 bg-gradient-to-l from-[#101922] to-transparent"></div>
+        <div class="flex items-start gap-0 overflow-x-auto pb-4 px-2 snap-x snap-mandatory scroll-smooth">
+          <% @route_items.each do |item| %>
+            <div class="relative flex-none px-2 min-w-[240px] group snap-center">
+              <!-- 🚅 Visual Rail Line -->
+              <!-- Positioned to align with the center of the top card (approx 60px down or centered in the first block) -->
+              <!-- Using calc to span the full width including the padding gaps -->
+              <div class="absolute top-[42px] left-0 w-full h-[4px] bg-[#283039] -z-10 group-first:rounded-l-full group-last:rounded-r-full"></div>
+
+              <% if item[:type] == :service %>
+                <% service = item[:record] %>
+                <% function_journeys = service.journeys.select(&:journey_function?) %>
+                <% selected_journey_id = selected_journeys[service.id.to_s] %>
+                <% selected_journey = function_journeys.find { |j| j.id.to_s == selected_journey_id.to_s } if selected_journey_id.present? %>
+                <% selected_journey ||= service.journey_function_active || service.journey_function_active_template || function_journeys.max_by(&:updated_at) %>
+                <div class="flex flex-col gap-3">
+                  <div class="relative z-10">
+                    <%= render "superadmin/domains/route_service_card", 
+                               service: service,
+                               domain: @domain,
+                               route: params[:route],
+                               function_journeys: function_journeys,
+                               selected_journey: selected_journey,
+                               selected_journeys: selected_journeys %>
+                  </div>
+                  <% if selected_journey.present? %>
+                    <%= render "superadmin/domains/journey_steps",
+                               journey: selected_journey,
+                               modal_id: "eventdate-journey-#{selected_journey.id}" %>
+                  <% end %>
+                </div>
+              <% else %>
+                <% journey = item[:record] %>
+                <div class="flex flex-col gap-3">
+                  <div class="relative z-10">
+                    <%= render "superadmin/domains/route_rail_card",
+                               journey: journey,
+                               service_lookup: @service_lookup,
+                               station_lookup: @station_lookup %>
+                  </div>
+                  <%= render "superadmin/domains/journey_steps",
+                             journey: journey,
+                             modal_id: "eventdate-journey-#{journey.id}" %>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  <% else %>
+    <!-- 📭 Empty State -->
+    <div class="flex flex-col items-center justify-center py-20 text-center">
+      <div class="flex h-20 w-20 items-center justify-center rounded-full bg-[#101922] border border-[#283039] mb-6">
+        <span class="material-symbols-outlined text-4xl text-[#9dabb9]">map</span>
+      </div>
+      <h2 class="text-2xl font-bold text-white mb-2">Nessun tragitto selezionato</h2>
+      <p class="text-[#9dabb9] max-w-md mx-auto mb-8">
+        Seleziona un Service di partenza e uno di arrivo dalla mappa "Mapservices" per visualizzare i Rails che li collegano.
+      </p>
+      
+      <%= link_to mapservice_superadmin_domain_path(@domain), 
+                  class: "inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-primary text-white font-medium hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20" do %>
+        <span>Vai alla Mappa</span>
+        <span class="material-symbols-outlined text-lg">arrow_forward</span>
+      <% end %>
+    </div>
+  <% end %>
+</div>

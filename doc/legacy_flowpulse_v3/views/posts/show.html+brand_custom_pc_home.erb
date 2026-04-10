@@ -1,0 +1,1043 @@
+<% content_for :head do %>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: "#3f8cff",
+              "background-light": "#fcfcfd",
+              "background-dark": "#191022",
+              "card-light": "#ffffff",
+              "card-dark": "#261a33",
+            },
+            fontFamily: {
+              display: ["Lexend", "sans-serif"],
+              sans: ["Lexend", "sans-serif"],
+            },
+            borderRadius: {
+              DEFAULT: "0.125rem",
+              lg: "0.25rem",
+              xl: "0.5rem",
+              full: "0.75rem",
+            },
+          },
+        },
+      };
+    </script>
+    <style type="text/tailwindcss">
+      .material-symbols-outlined {
+        font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+      }
+      body {
+        font-family: "Lexend", sans-serif;
+        -webkit-font-smoothing: antialiased;
+        background: #fcfcfd;
+      }
+      details summary::-webkit-details-marker {
+        display: none;
+      }
+      details > summary {
+        list-style: none;
+      }
+      .custom-scrollbar::-webkit-scrollbar {
+        height: 4px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: #e7edf3;
+        border-radius: 10px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #3f8cff;
+        border-radius: 10px;
+      }
+      .dark .custom-scrollbar::-webkit-scrollbar-track {
+        background: #1e293b;
+      }
+      .no-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+      .book-container {
+        perspective: 2000px;
+      }
+      .book {
+        transform-style: preserve-3d;
+        transform: rotateY(-25deg) rotateX(10deg);
+        transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+      }
+      .book:hover {
+        transform: rotateY(-10deg) rotateX(5deg);
+      }
+      .book-spine {
+        transform: rotateY(-90deg) translateZ(1px);
+        transform-origin: left;
+        box-shadow: inset -10px 0 20px rgba(0, 0, 0, 0.3);
+      }
+      .book-pages {
+        transform: translateZ(-20px);
+        background: linear-gradient(
+          to right,
+          #f0f0f0 0%,
+          #ffffff 10%,
+          #f0f0f0 20%,
+          #ffffff 30%,
+          #f0f0f0 40%,
+          #ffffff 50%,
+          #f0f0f0 60%,
+          #ffffff 70%,
+          #f0f0f0 80%,
+          #ffffff 90%,
+          #f0f0f0 100%
+        );
+      }
+    </style>
+    <style>
+      .clip-diagonal {
+        clip-path: polygon(100% 0, 0 0, 100% 100%);
+      }
+    </style>
+    <style>
+      .cta {
+        min-height: max(884px, 100dvh);
+      }
+    </style>
+<% end %>
+
+          <%= render "shared/brand_custom_pc_home_nav" %>
+          <%
+            posture_hub_taxbranch = Taxbranch.includes(:post).find_by(id: 127)
+            posture_cards = if posture_hub_taxbranch.present?
+              posture_hub_taxbranch.children.includes(:post).ordered.filter_map do |child|
+                child_post = child.post
+                next if child_post.blank?
+
+                {
+                  taxbranch: child,
+                  post: child_post,
+                  title: child_post.title.presence || child.slug_label.presence || "Postura",
+                  excerpt: child_post.description.to_s.strip.presence || child.slug_label.to_s.strip.presence,
+                  image_url: post_image_url(child_post) || posture_fallback_image_url,
+                  media_url: post_media_url(child_post)
+                }
+              end
+            else
+              []
+            end
+          %>
+          <main class="bg-white">
+   <div class=" max-w-[1200px] mx-auto px-6 space-y-24 py-12" id="home">
+  <section class="mb-20">
+<div class="grid lg:grid-cols-2 gap-12 items-center">
+<div class="space-y-6">
+<div class="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-bold uppercase tracking-wider">
+<span class="material-symbols-outlined text-sm">verified</span>
+                        L'Accademia PosturaCorretta
+                    </div>
+<h2 class="text-4xl md:text-5xl font-black leading-[1.1] tracking-[-0.033em] text-[#111518] dark:text-white">
+  Con la postura <span class="text-primary">riattiva la tua fisiologia</span>
+</h2>
+
+<p class="text-lg text-slate-600 dark:text-slate-400 leading-relaxed max-w-xl">
+Non esistono solo muscoli e articolazioni. 
+Con il percorso <b>Postura e Fisiologia</b> impari a conoscere e riattivare i tuoi sistemi fisiologici attraverso un’esperienza pratica e progressiva.
+</p>
+
+<p class="text-slate-600 dark:text-slate-400">
+È un percorso di <b>educazione alla salute</b> che ti aiuta a comprendere il tuo corpo e migliorare lo stile di vita.  
+Puoi seguirlo come cammino autonomo oppure integrarlo con altri percorsi della salute (cura, prevenzione, benessere).
+</p>
+
+<p class="text-slate-700 font-medium">
+Qui a fianco trovi la mappa dell’Accademia.
+</p>
+
+
+
+<div class="flex flex-wrap gap-4 pt-4">
+<a href="#percorso" class="bg-primary text-white px-8 py-4 rounded-full font-bold text-lg flex items-center gap-2 shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 transition-all transform hover:-translate-y-0.5 hover:bg-primary/90">
+                           Scopri il percorso <span class="material-symbols-outlined">arrow_forward</span>
+</a>
+<!--button class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-8 py-4 rounded-xl font-bold text-lg">
+                            Vai all'accademia
+                        </button-->
+</div>
+</div>
+<div class="relative">
+<div class="absolute -top-10 -left-10  w-72 h-72 bg-primary/20 rounded-full blur-3xl"></div>
+<a href="<%= posturacorretta_mappa_path %>" class="block">
+  <div class="relative bg-slate-200 dark:bg-slate-800 rounded-3xl overflow-hidden aspect-[5/5] shadow-2xl border-4 border-white dark:border-slate-900">
+    <%= image_tag "posturacorretta/mappa_posturacorretta.png", alt: "Mappa posturacorretta", class: "w-full h-full object-cover" %>
+  </div>
+</a>
+<div class="absolute -bottom-12 -left-6 bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-800 flex items-center gap-4">
+<div class="bg-green-500/20 text-green-500 p-3 rounded-full">
+<span class="material-symbols-outlined">analytics</span>
+</div>
+<div>
+<p class="text-xs font-bold text-slate-500 uppercase">Chi ci ha scelto?</p>
+<p class="text-xl font-black">+<%= Lead.count %> Utenti</p>
+</div>
+</div>
+</div>
+  </div>
+</section>
+<script>
+  (() => {
+    const openModal = (id) => {
+      const modal = document.querySelector(`[data-modal="${id}"]`);
+      if (!modal) return;
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+      document.body.classList.add("overflow-hidden");
+    };
+
+    const closeModal = (modal) => {
+      if (!modal) return;
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+      document.body.classList.remove("overflow-hidden");
+    };
+
+    document.addEventListener("click", (e) => {
+      const trigger = e.target.closest("[data-modal-open]");
+      if (!trigger) return;
+      e.preventDefault();
+      e.stopPropagation();
+      openModal(trigger.dataset.modalOpen);
+    });
+
+    document.addEventListener("click", (e) => {
+      const closeTrigger = e.target.closest("[data-modal-close]");
+      if (!closeTrigger) return;
+      e.preventDefault();
+      const modal = closeTrigger.closest("[data-modal]");
+      closeModal(modal);
+    });
+
+    document.addEventListener("click", (e) => {
+      const projectLink = e.target.closest("[data-modal-project-link]");
+      if (!projectLink) return;
+      const modal = projectLink.closest("[data-modal]");
+      closeModal(modal);
+    });
+
+    document.querySelectorAll("[data-modal]").forEach((modal) => {
+      modal.addEventListener("click", (e) => {
+        if (e.target === modal) closeModal(modal);
+      });
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key !== "Escape") return;
+      document.querySelectorAll("[data-modal]").forEach((modal) => closeModal(modal));
+    });
+  })();
+</script>
+
+<% if posture_cards.present? %>
+  <section class="py-4" id="posture-editorial">
+    <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+      <div class="max-w-2xl space-y-3">
+        <div class="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500">
+          <span class="material-symbols-outlined text-[16px]">self_improvement</span>
+          Sessione posture
+        </div>
+        <h3 class="text-3xl md:text-4xl font-black tracking-[-0.03em] text-slate-900">
+          Di che postura hai bisogno?
+        </h3>
+        <p class="max-w-xl text-base leading-relaxed text-slate-600">
+          Piccoli focus per ascoltare il corpo, riconoscere dove senti piu bisogno e scegliere la postura da cui iniziare oggi.
+        </p>
+      </div>
+
+      <% if posture_hub_taxbranch&.post.present? %>
+        <%= link_to post_path(posture_hub_taxbranch.post),
+                    class: "inline-flex items-center gap-2 self-start rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:border-slate-300 hover:bg-slate-50" do %>
+          Vedi tutte le posture
+          <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+        <% end %>
+      <% end %>
+    </div>
+
+    <div class="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+      <% posture_cards.first(6).each do |card| %>
+        <%= link_to post_path(card[:post]), class: "group block overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-slate-200/70" do %>
+          <div class="relative aspect-[4/3] overflow-hidden bg-slate-100">
+            <% if card[:media_url].present? && (yt = extract_youtube_info(card[:media_url])) %>
+              <img
+                src="<%= card[:image_url].presence || youtube_thumb(card[:media_url]) || posture_fallback_image_url %>"
+                alt="<%= card[:title] %>"
+                class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+              >
+              <div class="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent"></div>
+              <div class="absolute bottom-4 left-4 inline-flex items-center gap-2 rounded-full bg-white/92 px-3 py-1.5 text-xs font-bold text-slate-900 shadow-sm">
+                <span class="material-symbols-outlined text-[16px]">play_arrow</span>
+                Video postura
+              </div>
+            <% elsif card[:image_url].present? %>
+              <img
+                src="<%= card[:image_url] %>"
+                alt="<%= card[:title] %>"
+                class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+              >
+            <% else %>
+              <img
+                src="<%= posture_fallback_image_url %>"
+                alt="<%= card[:title] %>"
+                class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+              >
+            <% end %>
+          </div>
+
+          <div class="space-y-3 px-5 py-5">
+            <div class="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.16em] text-slate-500">
+              Postura
+            </div>
+            <h4 class="text-xl font-black leading-tight text-slate-900 group-hover:text-primary transition-colors">
+              <%= card[:title] %>
+            </h4>
+            <p class="line-clamp-3 text-sm leading-relaxed text-slate-600">
+              <%= card[:excerpt] %>
+            </p>
+            <div class="inline-flex items-center gap-2 text-sm font-semibold text-slate-900">
+              Scopri di piu
+              <span class="material-symbols-outlined text-[16px] transition-transform group-hover:translate-x-1">arrow_forward</span>
+            </div>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+  </section>
+<% end %>
+
+</div>
+</main>
+          <!---
+          
+          <div class="bg-[#faf9fb] border-b border-slate-100" id="onboarding-section">
+<div class="max-w-[840px] mx-auto py-16 px-6">
+<div class="flex items-center gap-8">
+<div class="relative">
+<div class="size-24 rounded-full bg-white border-2 flex items-center justify-center text-slate-300 transition-all duration-500 overflow-hidden border-solid border-primary/20 bg-primary/5" id="profile-image-container">
+<span class="material-symbols-outlined text-4xl hidden" id="profile-placeholder-icon">account_circle</span>
+<span class="text-4xl font-bold text-primary" id="profile-initial">M</span>
+</div>
+<div class="absolute -bottom-1 -right-1 size-7 bg-white rounded-full border border-slate-100 flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-xs text-slate-400">edit</span>
+</div>
+</div>
+<div class="flex-1 flex flex-col gap-1">
+<label class="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400" for="user-name-input">Inizia il tuo percorso</label>
+<div class="relative" id="user-input-container">
+<input autocomplete="off" class="bg-transparent border-none p-0 text-4xl font-light tracking-tight focus:ring-0 placeholder-slate-300 w-full" id="user-name-input" oninput="updateProfile(this.value)" placeholder="Come ti chiami?" type="text">
+</div>
+<div class="hidden" id="user-display-name">
+<h1 class="text-4xl font-light tracking-tight text-[#141118]">
+                                Benvenuto, <span class="font-semibold text-primary" id="final-name">m</span>
+</h1>
+</div>
+</div>
+</div>
+</div>
+</div>
+          --->
+<%= render "accademia" %>
+<%#= render "orientamento_e_iscrizione_accademia" %>
+<%= render "percorso_educativo" %>
+<%#= render "percorso_educativo_completo" %>
+
+
+  <main class="bg-background-light">
+   <div class=" max-w-[1200px] mx-auto px-6 space-y-24 py-12" id="home">
+
+<% content_for :modals do %>
+  <div class="fixed inset-0 z-[1000] hidden items-center justify-center bg-black/60 p-4" data-modal="protagonista-persone">
+    <div class="w-full max-w-xl rounded-2xl bg-white p-6 shadow-xl dark:bg-slate-900">
+      <div class="flex items-start justify-between gap-4">
+        <h4 class="text-lg font-bold">Allievi</h4>
+        <button type="button" class="text-slate-500 hover:text-slate-800" data-modal-close>✕</button>
+      </div>
+      <p class="mt-4 text-sm text-slate-600 dark:text-slate-300">
+        Le persone non cercano solo soluzioni rapide, ma vogliono capire cosa sta succedendo al loro corpo e come costruire un percorso che duri nel tempo. Con l’educazione alla salute imparano a <strong>leggere i segnali</strong>, a conoscere la fisiologia e a <strong>partecipare attivamente</strong> al proprio percorso.
+      </p>
+      <div class="mt-5">
+        <a href="#progetto" data-modal-project-link class="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-xs font-semibold text-white hover:bg-primary/90">
+          Vai al progetto
+          <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+        </a>
+      </div>
+    </div>
+  </div>
+  <div class="fixed inset-0 z-[1000] hidden items-center justify-center bg-black/60 p-4" data-modal="protagonista-professionista">
+    <div class="w-full max-w-xl rounded-2xl bg-white p-6 shadow-xl dark:bg-slate-900">
+      <div class="flex items-start justify-between gap-4">
+        <h4 class="text-lg font-bold">Insegnanti</h4>
+        <button type="button" class="text-slate-500 hover:text-slate-800" data-modal-close>✕</button>
+      </div>
+      <p class="mt-4 text-sm text-slate-600 dark:text-slate-300">
+        Restano specialisti nel proprio ambito, ma acquisiscono la capacità di insegnare l’attivazione della fisiologia.
+        L’Accademia PosturaCorretta offre un linguaggio comune e linee guida pratiche.
+      </p>
+      <div class="mt-5">
+        <a href="#progetto" data-modal-project-link class="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-xs font-semibold text-white hover:bg-primary/90">
+          Vai al progetto
+          <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+        </a>
+      </div>
+    </div>
+  </div>
+  <div class="fixed inset-0 z-[1000] hidden items-center justify-center bg-black/60 p-4" data-modal="protagonista-centri">
+    <div class="w-full max-w-xl rounded-2xl bg-white p-6 shadow-xl dark:bg-slate-900">
+      <div class="flex items-start justify-between gap-4">
+        <h4 class="text-lg font-bold">Centri</h4>
+        <button type="button" class="text-slate-500 hover:text-slate-800" data-modal-close>✕</button>
+      </div>
+      <p class="mt-4 text-sm text-slate-600 dark:text-slate-300">
+        I centri diventano spazi dove i percorsi prendono forma: servizi, educazione, incontri ed eventi. <strong>Luoghi di riferimento</strong> sul territorio, dove persone, professionisti e scuole possono collaborare in modo strutturato. Per erogare servizi, ospitare gruppi, trovare un riferimento sul territorio, ospitare la formazione.
+      </p>
+      <div class="mt-5">
+        <a href="#progetto" data-modal-project-link class="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-xs font-semibold text-white hover:bg-primary/90">
+          Vai al progetto
+          <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+        </a>
+      </div>
+    </div>
+  </div>
+  <div class="fixed inset-0 z-[1000] hidden items-center justify-center bg-black/60 p-4" data-modal="protagonista-scuole">
+    <div class="w-full max-w-xl rounded-2xl bg-white p-6 shadow-xl dark:bg-slate-900">
+      <div class="flex items-start justify-between gap-4">
+        <h4 class="text-lg font-bold">Metodiche</h4>
+        <button type="button" class="text-slate-500 hover:text-slate-800" data-modal-close>✕</button>
+      </div>
+      <p class="mt-4 text-sm text-slate-600 dark:text-slate-300">
+        Esistono molte professioni, metodiche e discipline, ognuna con una propria identità e un proprio ruolo. PosturaCorretta parte da un principio semplice: lo studio della fisiologia dell’uomo è una <strong>base comune</strong>, indipendente dall’approccio o dalla specializzazione. Per questo crea uno spazio di dialogo, integrazione e ricerca, in cui le diverse professioni e scuole possono incontrarsi, farsi conoscere e collaborare, senza perdere la propria identità. L’educazione alla salute permette alle persone e ai professionisti di fare scelte più consapevoli: prima si condividono i principi fondamentali, poi ognuno può scegliere il percorso, la metodologia o il professionista più adatto. Le basi sono comuni. Le strade possono essere diverse.
+      </p>
+      <div class="mt-5">
+        <a href="#progetto" data-modal-project-link class="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-xs font-semibold text-white hover:bg-primary/90">
+          Vai al progetto
+          <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+        </a>
+      </div>
+    </div>
+  </div>
+<% end %>
+         <%#= render 'accademia', post: @post %>
+         
+<!--section class="bg-blue-50 dark:bg-slate-900/60 border border-slate-200/70 dark:border-slate-800/70 rounded-3xl shadow-xl px-8 py-12 md:px-12 md:py-16 max-w-6xl mx-auto">
+<div class="max-w-5xl mx-auto">
+<div class="grid grid-cols-12 gap-12 lg:gap-20">
+<div class="col-span-12 lg:col-span-5">
+<h2 class="text-sm font-bold text-primary uppercase tracking-[0.2em] mb-8">Inizia il tuo percorso</h2>
+<div class="space-y-6">
+<p class="text-2xl lg:text-3xl font-bold text-[#0e141b] dark:text-white leading-tight">
+                            Speri di cambiare la situazione con l'ennesimo esame?
+                        </p>
+<p class="text-2xl lg:text-3xl font-bold text-[#4e6a8d] dark:text-slate-400 leading-tight">
+                            Del tuo problema non hai ancora capito niente?
+                        </p>
+<p class="text-2xl lg:text-3xl font-black text-[#111518] dark:text-white leading-[1.1] underline decoration-primary decoration-4 underline-offset-4">
+                            Non ottieni risultati?
+                        </p>
+</div>
+</div>
+<div class="col-span-12 lg:col-span-7 bg-white dark:bg-slate-900 p-8 lg:p-12 rounded-3xl editorial-shadow border border-slate-50 dark:border-slate-800">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-y-8 gap-x-12">
+<div class="flex items-start gap-4">
+<div class="size-10 shrink-0 flex items-center justify-center rounded-xl bg-primary/10 text-primary">
+<span class="material-symbols-outlined text-2xl">rule</span>
+</div>
+<div>
+<h4 class="font-bold text-[#0e141b] dark:text-white">Semplici test</h4>
+<p class="text-xs text-slate-500 mt-1">Valuta la tua condizione in 5 minuti.</p>
+</div>
+</div>
+<div class="flex items-start gap-4">
+<div class="size-10 shrink-0 flex items-center justify-center rounded-xl bg-primary/10 text-primary">
+<span class="material-symbols-outlined text-2xl">map</span>
+</div>
+<div>
+<h4 class="font-bold text-[#0e141b] dark:text-white">Linee guida e mappe</h4>
+<p class="text-xs text-slate-500 mt-1">Percorsi chiari, senza confusione.</p>
+</div>
+</div>
+<div class="flex items-start gap-4">
+<div class="size-10 shrink-0 flex items-center justify-center rounded-xl bg-primary/10 text-primary">
+<span class="material-symbols-outlined text-2xl">support_agent</span>
+</div>
+<div>
+<h4 class="font-bold text-[#0e141b] dark:text-white">Tutor a cui chiedere aiuto</h4>
+<p class="text-xs text-slate-500 mt-1">Sempre al tuo fianco nel percorso.</p>
+</div>
+</div>
+<div class="flex items-start gap-4">
+<div class="size-10 shrink-0 flex items-center justify-center rounded-xl bg-primary/10 text-primary">
+<span class="material-symbols-outlined text-2xl">psychology_alt</span>
+</div>
+<div>
+<h4 class="font-bold text-[#0e141b] dark:text-white">Consigli sul percorso</h4>
+<p class="text-xs text-slate-500 mt-1">Adattati al tuo stile di vita.</p>
+</div>
+</div>
+<div class="flex items-start gap-4">
+<div class="size-10 shrink-0 flex items-center justify-center rounded-xl bg-primary/10 text-primary">
+<span class="material-symbols-outlined text-2xl">groups_3</span>
+</div>
+<div>
+<h4 class="font-bold text-[#0e141b] dark:text-white">Team di professionisti</h4>
+<p class="text-xs text-slate-500 mt-1">Trasformiamo i clinici in un team.</p>
+</div>
+</div>
+<div class="flex items-start gap-4">
+<div class="size-10 shrink-0 flex items-center justify-center rounded-xl bg-primary/10 text-primary">
+<span class="material-symbols-outlined text-2xl">sync_saved_locally</span>
+</div>
+<div>
+<h4 class="font-bold text-[#0e141b] dark:text-white">Strumenti aggiornati</h4>
+<p class="text-xs text-slate-500 mt-1">Servizi per restare sempre informati.</p>
+</div>
+</div>
+<div class="flex items-start gap-4">
+<div class="size-10 shrink-0 flex items-center justify-center rounded-xl bg-primary/10 text-primary">
+<span class="material-symbols-outlined text-2xl">insights</span>
+</div>
+<div>
+<h4 class="font-bold text-[#0e141b] dark:text-white">Tracciamento progressi</h4>
+<p class="text-xs text-slate-500 mt-1">Monitora ogni tuo miglioramento.</p>
+</div>
+</div>
+</div>
+<div class="mt-16 pt-10 border-t border-slate-100 dark:border-slate-800 text-center">
+<blockquote class="text-2xl font-light italic text-[#0e141b] dark:text-slate-200 mb-10">
+                            "L’educazione alla salute, parte dalla postura!"
+                        </blockquote>
+<button class="w-full md:w-auto inline-flex items-center justify-center gap-3 bg-primary text-white px-10 py-5 rounded-2xl text-lg font-bold hover:scale-[1.02] transition-all shadow-xl shadow-primary/30">
+<span>Inizia ora: Test della mobilità articolare</span>
+<span class="material-symbols-outlined">arrow_forward</span>
+</button>
+<p class="text-xs text-slate-400 mt-6 font-medium">Gratuito per i nuovi membri • Richiede circa 4 minuti</p>
+</div>
+</div>
+</div>
+</div>
+</section-->
+
+            <!--section
+              class="space-y-10 py-12 border-t border-[#e7edf3] dark:border-slate-800 pt-16" id="professionisti-centri"
+            >
+              <div
+                class="flex flex-col md:flex-row md:items-end justify-between gap-6"
+              >
+                <div class="space-y-2">
+                  <h3 class="text-3xl font-black">Professionisti e centri accreditati</h3>
+                  <p class="text-slate-600 dark:text-slate-400 max-w-xl">
+                    Cerca specialisti qualificati nella nostra rete nazionale
+                    per iniziare in presenza l'accademia sulla postura.
+                  </p>
+                </div>
+                <div class="w-full md:max-w-xs">
+                  <label class="flex flex-col h-12 w-full">
+                    <div
+                      class="flex w-full flex-1 items-stretch rounded-lg h-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700"
+                    >
+                      <div
+                        class="text-[#4d7399] flex items-center justify-center pl-4"
+                      >
+                        <span class="material-symbols-outlined"
+                          >location_on</span
+                        >
+                      </div>
+                      <input
+                        class="form-input flex w-full min-w-0 flex-1 border-none bg-transparent focus:ring-0 px-4 text-sm"
+                        placeholder="Città o CAP"
+                        value=""
+                      />
+                      <button class="bg-primary text-white px-4 rounded-r-lg">
+                        <span class="material-symbols-outlined">search</span>
+                      </button>
+                    </div>
+                  </label>
+                </div>
+              </div>
+              <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                <div
+                  class="lg:col-span-8 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-700 p-8 flex items-center justify-center overflow-hidden h-[500px] relative"
+                >
+                  <iframe
+                    src="https://www.google.com/maps/embed?pb=..."
+                    width="100%"
+                    height="100%"
+                    style="border: 0"
+                    loading="lazy"
+                    allowfullscreen
+                  >
+                  </iframe>
+
+                  <div class="absolute bottom-6 left-6 flex flex-col gap-2">
+                    <div
+                      class="flex items-center gap-2 bg-white/90 dark:bg-slate-800/90 backdrop-blur-md px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm"
+                    >
+                      <div
+                        class="size-2 rounded-full bg-primary animate-pulse"
+                      ></div>
+                      <span class="text-xs font-bold"
+                        >128 Professionisti Online</span
+                      >
+                    </div>
+                  </div>
+                </div>
+                <div class="lg:col-span-4 h-full">
+                  <div
+                    class="bg-[linear-gradient(135deg,#3f8cff_0%,#5f7df2_100%)] rounded-3xl p-8 h-full flex flex-col justify-between text-white relative overflow-hidden group"
+                  >
+                    <div class="relative z-10 space-y-4">
+                   
+                    <div class="space-y-2">
+  
+
+  <p class="font-bold text-white text-lg leading-relaxed ">
+      Perché un fisioterapista difficilmente sviluppa gli stessi problemi
+  che vede ogni giorno nei suoi pazienti?
+  </p>
+
+
+    <p class="text-white/80 leading-relaxed mb-2">
+       Perché conosce il valore del corpo e ha strumenti concreti
+  per prendersene cura.
+  <br />
+  Senza educazione alla salute, le persone faticano a percepire
+  questo valore e a orientarsi nelle scelte quotidiane.
+    </p>
+  <!-- Accordion nativo: NO JS -->
+  <!--details class="group">
+    <summary
+      class="cursor-pointer select-none inline-flex items-center gap-2 text-sm font-semibold text-white/90 hover:text-white"
+    >
+      Leggi di più
+      <span
+        class="material-symbols-outlined text-base transition-transform duration-200 group-open:rotate-180"
+        >expand_more</span
+      >
+    </summary>
+
+    <div class="mt-2 text-white/80 leading-relaxed">
+       <br />
+  Con PosturaCorretta trasformi il percorso dei tuoi clienti:
+  cresce la consapevolezza, aumenta la continuità nel tempo
+  e diventa più naturale investire le proprie risorse
+  in modo mirato e sostenibile. 
+<p class="text-white/80 leading-relaxed">
+    Entra a far parte della nostra rete di professionisti e centri accreditati
+    per far conoscere il tuo metodo e i tuoi servizi,
+    lavorando con persone in linea con il tuo approccio.
+  </p>
+<ul class="mt-6 space-y-3">
+  <li class="flex items-start gap-3 text-sm">
+    <span class="material-symbols-outlined text-violet-200 text-lg">
+      check_circle
+    </span>
+    Pazienti e utenti in linea con il tuo metodo
+  </li>
+
+  <li class="flex items-start gap-3 text-sm">
+    <span class="material-symbols-outlined text-violet-200 text-lg">
+      check_circle
+    </span>
+    Collaborazioni con professionisti complementari
+  </li>
+
+  <li class="flex items-start gap-3 text-sm">
+    <span class="material-symbols-outlined text-violet-200 text-lg">
+      check_circle
+    </span>
+    Profilo professionale dedicato e visibile sulla piattaforma
+  </li>
+
+  <li class="flex items-start gap-3 text-sm">
+    <span class="material-symbols-outlined text-violet-200 text-lg">
+      check_circle
+    </span>
+    Accesso all’Accademia e ai materiali formativi
+  </li>
+
+  <li class="flex items-start gap-3 text-sm">
+    <span class="material-symbols-outlined text-violet-200 text-lg">
+      check_circle
+    </span>
+    Strumenti per la gestione del percorso e del lavoro con le persone
+  </li>
+</ul>
+    </div>
+  </details>
+</div>
+
+                      
+
+                    </div>
+                    <h4 class="text-2xl font-bold leading-tight mt-4">
+SEI UN PROFESSIONISTA?</h4>
+                    <button
+                      class="relative z-10 w-full py-4 bg-white text-primary font-bold rounded-xl shadow-lg hover:scale-[1.02] transition-transform mt-4"
+                    >
+                      Unisciti alla nostra rete
+                    </button>
+                    <div
+                      class="absolute -top-12 -right-12 size-48 bg-white/5 rounded-full blur-3xl"
+                    ></div>
+                    <div
+                      class="absolute -bottom-12 -left-12 size-48 bg-black/10 rounded-full blur-3xl"
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            </section-->
+            <!--section class="space-y-8 pt-16" id="eventi">
+              <div class="flex items-center justify-between">
+                <h3 class="text-3xl font-bold">Eventi in Arrivo</h3>
+                <a
+                  class="text-primary font-bold flex items-center gap-1"
+                  href="#"
+                  >Vedi Tutti
+                  <span class="material-symbols-outlined"
+                    >chevron_right</span
+                  ></a
+                >
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-6">
+<!-- Event Card 1 -->
+<!--div class="group bg-white dark:bg-gray-800 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-shadow duration-300 border border-gray-100 dark:border-gray-700">
+<div class="h-48 bg-gray-200 overflow-hidden relative">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Yoga session in a sunny park with green trees" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCUn2dTaUOHGrzRhW1NTRzEGHdg2SMA3TWNm4-VEQ3bnNCeDP5S0Zl6UpnFIHgK5preIGe15xnfHgFPInKay6MHENC_s8WUyWqZSbqiO3HVCXqAe2ZCRsCkHOuSSGzzpeue2IeohJwBWKxaaoxnK6jkvTF5-75rAbCr0Um22iFhVW2rgv511P6jP_3RMT798eEJcQNKD0oqSkxPY27NVjf3u15MAoiPIshO-9Y4TLgFFoXmhgSFHfsMkXP-AuLGblkdg6do64RuKSE">
+ <div class="absolute bg-white bottom-4 left-4 bg-primary/10 text-primary p-2 rounded-xl text-center min-w-[50px]">
+                      <p class="text-xs font-bold uppercase">Ott</p>
+                      <p class="text-2xl font-black leading-none">24</p>
+                    </div>
+                    <div class="absolute bottom-4 right-4 bg-white/90 backdrop-blur-md px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wide text-green-700">
+                       <p class="text-xs font-bold uppercase">Lun</p>
+                        <p class="text-xs font-bold uppercase">10:00 </p>
+                         <p class="text-xs font-bold uppercase">11:00</p>            
+                     
+                                </div>
+<div class="absolute top-4 right-4 bg-white/90 backdrop-blur-md px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wide text-green-700">
+                                    Workshop
+                                </div>
+
+                                <div class="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-1 py-1 rounded-lg text-md font-bold uppercase tracking-wide text-green-700">
+                                    <p class="text-md font-bold uppercase">2026</p>
+                                    
+                                
+                                </div>
+                                
+</div>
+<div class="p-6 flex flex-col gap-4">
+<div class="space-y-2">
+                    <h4 class="text-xl font-bold group-hover:text-primary transition-colors">
+                      Milan Live Workshop
+                    </h4>
+                    <div class="flex items-center gap-2 text-slate-500 text-sm">
+                      <span class="material-symbols-outlined text-sm">location_on</span>
+                      <span>Studio 22, Milano, Italia</span>
+                    </div>
+                  </div>
+                  <p class="text-gray-600 dark:text-gray-400 text-sm line-clamp-2">Tre giorni immersivi per riscoprire le radici del movimento naturale attraverso l'esplorazione e la pratica.</p>
+                  <button class="mt-2 w-full py-3 border border-[#e7edf3] dark:border-slate-700 font-bold rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+                    Iscriviti al Workshop
+                  </button>
+</div>
+</div>
+<!-- Event Card 2 -->
+<!--div class="group bg-white dark:bg-gray-800 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-shadow duration-300 border border-gray-100 dark:border-gray-700">
+<div class="h-48 bg-gray-200 overflow-hidden relative">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Group of people stretching in a peaceful forest setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAhLBnoWnmATP4TDXq9zF0HbhM0SOAEjiochrzl-KmcFZzfMQy9ApOflUq1PJ4Fad8D-xFrKsZxrr0jGXQrZG2xnYg7HdxpvmyWQ0fpZU0JBL0slPTkUyR4lC9Z88x33um3m3iyQbXLp8ZXW7z0oquU-kt44v9hcEymCKibvUorkwf6KPwzcKyz1-tMclTKnDjnVgCNqwLdoGuEQqa3z4xddz4bA7Ox9G7_LoRlBpGb1cauiT8MGUJJ4N8E9Ob7z1mV5ERhR3uU_-c">
+<div class="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wide text-purple-700">
+                                    Ritiro
+                                </div>
+</div>
+<div class="p-6 flex flex-col gap-4">
+<div class="flex justify-between items-center text-sm text-gray-500">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-base">calendar_month</span> 12-14 Novembre</span>
+<span class="flex items-center gap-1" data-location="Toscana"><span class="material-symbols-outlined text-base">location_on</span> Toscana</span>
+</div>
+<h3 class="text-xl font-bold text-[#111518] dark:text-white leading-tight">Weekend "Roots &amp; Spine"</h3>
+<p class="text-gray-600 dark:text-gray-400 text-sm line-clamp-2">Tre giorni immersivi per riscoprire le radici del movimento naturale attraverso l'esplorazione e la pratica.</p>
+<button class="mt-2 w-full py-2.5 rounded-xl border border-gray-300 text-gray-700 hover:border-purple-600 hover:text-purple-600 dark:text-white dark:hover:text-purple-400 font-bold text-sm transition-all">
+                                    Scopri Programma
+                                </button>
+</div>
+</div>
+<!-- Event Card 3 -->
+<!--div class="group bg-white dark:bg-gray-800 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-shadow duration-300 border border-gray-100 dark:border-gray-700">
+<div class="h-48 bg-gray-200 overflow-hidden relative">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Healthy organic food served at a wellness event" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDbBWfFSHlTsssEDpJd36VHcgehfQ2bjy2OVP1JBkemBEQFvkcVqTrixVMxflWK7FA10E-KpeFuhxbIchtEO8tk4y2Fn36JIWHCXFmMl91KS9CQ03EkI0-DZgZ_RRJaGROmoqDtPHkZ9GhWJL2qqf2D0ZQ9uP7Efu9rVpfOaPzFHMNi0Jfo9ofhscUL62vQfPhl2hH3HXlIFT1SlzlaEf91M4ruqauUsTkvBKhrYtOWESwsd4d-6VQldJ-KQYWabqTGtHrgspl8SZ4">
+<div class="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wide text-orange-700">
+                                    Seminario
+                                </div>
+</div>
+<div class="p-6 flex flex-col gap-4">
+<div class="flex justify-between items-center text-sm text-gray-500">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-base">calendar_month</span> 05 Dicembre</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-base">videocam</span> Online</span>
+</div>
+<h3 class="text-xl font-bold text-[#111518] dark:text-white leading-tight">Nutrizione e Infiammazione</h3>
+<p class="text-gray-600 dark:text-gray-400 text-sm line-clamp-2">Come l'alimentazione influenza la salute delle articolazioni e la postura cronica. Con la Dott.ssa Bianchi.</p>
+<button class="mt-2 w-full py-2.5 rounded-xl border border-gray-300 text-gray-700 hover:border-orange-500 hover:text-orange-500 dark:text-white dark:hover:text-orange-400 font-bold text-sm transition-all">
+                                    Iscriviti Gratis
+                                </button>
+</div>
+</div>
+</div>
+              
+            </section-->
+<!--section class="mb-20">
+<div class="grid lg:grid-cols-2 gap-12 items-center">
+<div class="space-y-6">
+<div class="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-bold uppercase tracking-wider">
+<span class="material-symbols-outlined text-sm">verified</span>
+                        Le cose semplici sono le più efficaci.
+                    </div>
+<h2 class="text-4xl md:text-5xl font-black leading-[1.1] tracking-[-0.033em] text-[#111518] dark:text-white">
+                       Affianca <span class="text-primary">l'educazione alla salute,</span> al farmaco
+</h2>
+
+ <p class="text-lg text-slate-600 dark:text-slate-400 leading-relaxed max-w-xl">
+ La cura delle patologie è fondamentale.
+L’educazione alla salute rende il percorso più efficace nel tempo. 
+</p>
+
+<p class="text-slate-600 dark:text-slate-400">
+ Aiutiamo professionisti e persone a creare percorsi di cura e benessere per migliorare la salute e la qualità della vita.
+</p>
+
+<p>Lo facciamo:</p>
+<ul class="mt-2 list-disc pl-5 text-slate-600 dark:text-slate-400 space-y-1">
+  <li>Proponendo linee guida che facilitano la creazione di percorsi integrati.</li>
+  <li>Proponendo il percorso posturacorretta che può essere affiancato ai percorsi di cura, benessere e per migliorare la qualità della vita.</li>
+</ul>
+
+
+
+
+<div class="flex flex-wrap gap-4 pt-4">
+<a href="#percorso" class="bg-primary text-white px-8 py-4 rounded-full font-bold text-lg flex items-center gap-2 shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 transition-all transform hover:-translate-y-0.5 hover:bg-primary/90">
+                           Scopri di più <span class="material-symbols-outlined">arrow_forward</span>
+</a>
+<button class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-8 py-4 rounded-xl font-bold text-lg">
+                            Vai all'accademia
+                        </button-->
+<!--/div>
+</div>
+<div class="relative">
+<div class="absolute -top-10 -left-10 w-72 h-72 bg-primary/20 rounded-full blur-3xl"></div>
+<a href="<%= posturacorretta_mappa_path %>" class="block">
+  <div class="relative bg-slate-200 dark:bg-slate-800 rounded-3xl overflow-hidden aspect-[5/5] shadow-2xl border-4 border-white dark:border-slate-900">
+    <img src="<%= image_path('posturacorretta/pentagono_5_aree.png') %>" alt="Pentagono 5 aree della salute" class="w-full h-full object-cover">
+  </div>
+</a>
+<div class="absolute -bottom-12 -right-6 bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-800 flex items-center gap-4">
+<div class="bg-green-500/20 text-green-500 p-3 rounded-full">
+<span class="material-symbols-outlined">analytics</span>
+</div>
+<div>
+<p class="text-xs font-bold text-slate-500 uppercase">Chi ci ha scelto?</p>
+<p class="text-xl font-black">+<%= Lead.count %> Utenti</p>
+</div>
+</div>
+</div>
+  </div>
+</section-->
+            </div>
+          </main>
+
+           <%= render "progetto_postura" %>
+          <!--section
+            class="bg-primary/5 dark:bg-slate-900/50 py-24 border-y border-slate-100 dark:border-slate-800"
+          >
+            <div
+              class="max-w-7xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center"
+            >
+              <div>
+                <h2
+                  class="text-3xl md:text-4xl font-black text-[#111518] dark:text-white mb-6 leading-[1.1]"
+                >
+                  Join 50,000+ People <br />Improving Their Posture.
+                </h2>
+                <p class="text-slate-600 dark:text-slate-400 text-lg mb-8">
+                  Get weekly exercise plans, ergonomic product reviews, and
+                  expert advice delivered directly to your inbox.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-3">
+                  <input
+                    class="flex-1 px-6 py-4 rounded-xl border-slate-200 dark:border-slate-800 dark:bg-slate-900 focus:ring-primary focus:border-primary"
+                    placeholder="Your email address"
+                    type="email"
+                  />
+                  <button
+                    class="bg-primary hover:bg-primary/90 text-white px-8 py-4 rounded-xl font-bold shadow-lg shadow-primary/20 transition-all"
+                  >
+                    Subscribe Now
+                  </button>
+                </div>
+                <p class="mt-4 text-xs text-slate-400">
+                  We respect your privacy. Unsubscribe at any time.
+                </p>
+              </div>
+              <div class="relative">
+                <div
+                  class="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-xl relative z-10"
+                >
+                  <div class="flex items-center gap-4 mb-6">
+                    <div class="w-12 h-12 rounded-full overflow-hidden">
+                      <img
+                        alt="Doctor profile"
+                        data-alt="Portrait of a smiling professional physical therapist"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuAaC_C-8Pa01L2j6kmJEqFLRDgmrw1ExUQFR8tI92mCJQYPHAtKSxPOBZTLdI75h-dNQ346dfCuD8C2fxd7-H5eRaOpTFUxoUKORwLtNXH0Cdf92GvDR1kmrSHp1g2EGSSq9M5E8A_SDANoTvT_NSLyBoKZw2PELuf0bTNJG6mP0w4A2-U4pYC5UpjHyOvNTAEMM0FF5TEHnCzTuvYv4t95Sum2aoS0ev7g4HC8jy6Gvt-jsoM36OxfgLvBYPRZ4aEzGi7AuPq5NNs"
+                      />
+                    </div>
+                    <div>
+                      <h5 class="font-bold text-slate-900 dark:text-white">
+                        Dr. Sarah Mitchell
+                      </h5>
+                      <p
+                        class="text-xs text-slate-500 uppercase font-bold tracking-widest"
+                      >
+                        Chief Physiotherapist
+                      </p>
+                    </div>
+                  </div>
+                  <p class="italic text-slate-600 dark:text-slate-400 mb-6">
+                    "Correcting your posture isn't about being perfect; it's
+                    about building awareness of how your body moves through
+                    space every day."
+                  </p>
+                  <div class="flex gap-1 text-primary">
+                    <span class="material-icons text-sm">star</span>
+                    <span class="material-icons text-sm">star</span>
+                    <span class="material-icons text-sm">star</span>
+                    <span class="material-icons text-sm">star</span>
+                    <span class="material-icons text-sm">star</span>
+                  </div>
+                </div>
+                <div
+                  class="absolute -top-4 -right-4 w-24 h-24 bg-primary/20 rounded-full blur-2xl"
+                ></div>
+                <div
+                  class="absolute -bottom-4 -left-4 w-32 h-32 bg-primary/20 rounded-full blur-3xl"
+                ></div>
+              </div>
+            </div>
+          </section-->
+          
+    
+          <footer
+            class="bg-white dark:bg-background-dark border-t border-[#e7edf3] dark:border-slate-800 py-16"
+          >
+            <div
+              class="max-w-[1200px] mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12"
+            >
+             
+              <div class="space-y-4">
+                <div class="flex items-center">
+                  <img
+                    src="https://ik.imagekit.io/posturacorretta/logo_pc_scontornato.png?updatedAt=1747975596766"
+                    alt="PosturaCorretta"
+                    class="h-4 md:h-4 lg:h-6 w-auto"
+                  />
+                </div>
+                <p class="text-sm text-slate-500">
+                  Dedicati all'educazione posturale e al benessere del corpo dal 2018.
+                </p>
+                <a href="https://www.dash.org/" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-3 px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                  <span class="text-[10px] bg-slate-200 dark:bg-slate-800 px-1.5 py-0.5 rounded text-slate-500 uppercase font-bold tracking-wider">Accettiamo</span>
+                  <div class="flex items-center gap-1.5">
+                    <img src="https://ik.imagekit.io/posturacorretta/dash-dash-logo.png" alt="Dash" class="h-4 w-auto drop-shadow-sm">
+                    <span class="text-xs font-bold text-[#008de4] tracking-tight">Dash Digital Cash</span>
+                  </div>
+                </a>
+              </div>
+              <div>
+                <h5 class="font-bold mb-4">Piattaforma</h5>
+                <ul class="space-y-2 text-sm text-slate-500">
+                  <li><a class="text-slate-300 cursor-not-allowed" href="#">Accademia</a></li>
+                  <li>
+                    <a class="text-slate-300 cursor-not-allowed" href="#"
+                      >Crea il tuo percorso</a
+                    >
+                  </li>
+                  <li>
+                    <a class="text-slate-300 cursor-not-allowed" href="#">E-Book Store</a>
+                  </li>
+                </ul>
+              </div>
+              <div>
+                <h5 class="font-bold mb-4">Risorse</h5>
+                <ul class="space-y-2 text-sm text-slate-500">
+                  <li><a class="text-slate-300 cursor-not-allowed" href="#">Blog</a></li>
+                  <li><a class="text-slate-300 cursor-not-allowed" href="#">Eventi</a></li>
+                  <li><a class="text-slate-300 cursor-not-allowed" href="#">Ricerca</a></li>
+                </ul>
+              </div>
+              <div>
+                <h5 class="font-bold mb-4">Supporto</h5>
+                <ul class="space-y-2 text-sm text-slate-500">
+                  <li><a class="text-slate-300 cursor-not-allowed" href="#">Contatti</a></li>
+                  <li><a class="text-slate-300 cursor-not-allowed" href="#">FAQ</a></li>
+                  <li>
+                    <a class="text-slate-300 cursor-not-allowed" href="#">Privacy Policy</a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+           
+          </footer>
+   
+      <!--- ---->
+    </main>
+    <script>
+      (() => {
+        const modal = document.querySelector("[data-advanced-modal]");
+        const openBtn = document.querySelector("[data-advanced-open]");
+        const closeBtns = document.querySelectorAll("[data-advanced-close]");
+        if (!modal || !openBtn) return;
+
+        const openModal = () => {
+          modal.classList.remove("hidden");
+          modal.classList.add("flex");
+        };
+        const closeModal = () => {
+          modal.classList.add("hidden");
+          modal.classList.remove("flex");
+        };
+
+        openBtn.addEventListener("click", openModal);
+        closeBtns.forEach((btn) => btn.addEventListener("click", closeModal));
+        modal.addEventListener("click", (event) => {
+          if (event.target === modal) closeModal();
+        });
+        document.addEventListener("keydown", (event) => {
+          if (event.key === "Escape") closeModal();
+        });
+      })();
+    </script>
+  </body>
+
+  </header>
+  
+
+
+  
+
+<!----->

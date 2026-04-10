@@ -1,0 +1,357 @@
+<% referent_options =
+     (@referent_leads || []).map do |lead|
+       [ lead.full_name.presence || lead.email || "Lead ##{lead.id}", lead.id ]
+     end %>
+
+<%
+  step_flow = params[:step_taxbranch_id].present?
+  required_fields =
+    if step_flow
+      Taxbranch.find_by(id: params[:step_taxbranch_id])&.completion_required_fields.presence || %w[first_name last_name email phone]
+    else
+      []
+    end
+
+  wizard_steps = [
+    { title: "Chi sei", fields: %w[first_name last_name], hint: "Nome e cognome per riconoscerti correttamente." },
+    { title: "Come contattarti", fields: %w[email phone], hint: "Email e telefono per continuare e sbloccare il colloquio." },
+    { title: "Residenza", fields: %w[billing_address city province], hint: "Indirizzo e residenza." },
+    { title: "Dati anagrafici", fields: %w[date_of_birth place_of_birth fiscal_code], hint: "Dati utili per completare correttamente il profilo." }
+  ]
+
+  initial_step_index =
+    if params[:wizard_step].present?
+      params[:wizard_step].to_i.clamp(0, wizard_steps.size - 1)
+    elsif step_flow
+      wizard_steps.index do |step|
+        step[:fields].any? do |field|
+          required_fields.include?(field) && datacontact.public_send(field).blank?
+        rescue NoMethodError
+          false
+        end
+      end || 0
+    else
+      0
+    end
+
+  completion_percent =
+    if step_flow && required_fields.present?
+      completed = required_fields.count do |field|
+        datacontact.public_send(field).present?
+      rescue NoMethodError
+        false
+      end
+      ((completed.to_f / required_fields.size) * 100).round
+    else
+      0
+    end
+%>
+
+<%= form_with(model: datacontact, class: step_flow ? "" : "space-y-8") do |form| %>
+  <% if params[:step_taxbranch_id].present? %>
+    <%= hidden_field_tag :step_taxbranch_id, params[:step_taxbranch_id] %>
+  <% end %>
+  <% if params[:activity_id].present? %>
+    <%= hidden_field_tag :activity_id, params[:activity_id] %>
+  <% end %>
+  <% if params[:return_to].present? %>
+    <%= hidden_field_tag :return_to, params[:return_to] %>
+  <% end %>
+  <% if step_flow %>
+    <%= hidden_field_tag :wizard_step, initial_step_index, id: "datacontact-wizard-step" %>
+  <% end %>
+
+  <% if datacontact.errors.any? %>
+    <div id="error_explanation" class="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-red-700">
+      <h2 class="text-sm font-semibold">
+        <%= pluralize(datacontact.errors.count, "errore") %> non permette di salvare i dati:
+      </h2>
+      <ul class="mt-2 list-disc pl-5 text-sm">
+        <% datacontact.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <%= form.hidden_field :lead_id, value: datacontact.lead_id.presence || Current.user&.lead&.id %>
+
+  <% if step_flow %>
+    <section class="mx-auto max-w-2xl rounded-[24px] border border-slate-200 bg-white p-5 shadow-sm md:p-7">
+      <div class="flex items-center justify-between gap-3">
+        <div>
+          <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Completa profilo</p>
+          <h2 class="mt-1 text-2xl font-bold text-slate-900">Dati essenziali</h2>
+        </div>
+        <div class="text-right">
+          <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Avanzamento</p>
+          <p class="mt-1 text-sm font-semibold text-slate-900"><%= completion_percent %>%</p>
+        </div>
+      </div>
+
+      <div class="mt-4 h-1.5 overflow-hidden rounded-full bg-slate-100">
+        <div class="h-full rounded-full bg-slate-900 transition-all duration-500" style="width: <%= completion_percent %>%"></div>
+      </div>
+
+      <div class="mt-4 flex items-center gap-2 text-xs text-slate-500">
+        <% wizard_steps.each_with_index do |step, idx| %>
+          <% current = idx == initial_step_index %>
+          <% complete = step[:fields].all? { |field| !required_fields.include?(field) || datacontact.public_send(field).present? rescue false } %>
+          <span class="inline-flex h-7 min-w-7 items-center justify-center rounded-full px-2 <%= complete ? "bg-slate-900 text-white" : current ? "border border-slate-300 bg-white text-slate-900" : "bg-slate-100 text-slate-500" %>">
+            <%= complete ? "✓" : idx + 1 %>
+          </span>
+        <% end %>
+      </div>
+
+      <% if params[:return_to].present? %>
+        <div class="mt-4">
+          <a href="<%= params[:return_to] %>" class="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-900">
+            <span class="material-symbols-outlined text-[16px]">arrow_back</span>
+            Dashboard
+          </a>
+        </div>
+      <% end %>
+
+      <div class="mt-6 space-y-6" data-profile-wizard="1" data-initial-step="<%= initial_step_index %>">
+            <section data-profile-step="0" class="space-y-5">
+              <div>
+                <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Step 1 di 4</p>
+                <h3 class="mt-1 text-xl font-semibold text-slate-900">Chi sei</h3>
+              </div>
+              <div class="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <%= form.label :first_name, "Nome", class: "block text-sm font-semibold text-slate-700" %>
+                  <%= form.text_field :first_name, required: required_fields.include?("first_name"), autocomplete: "given-name", class: "mt-1 block w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 focus:border-sky-400 focus:bg-white focus:ring-0" %>
+                </div>
+                <div>
+                  <%= form.label :last_name, "Cognome", class: "block text-sm font-semibold text-slate-700" %>
+                  <%= form.text_field :last_name, required: required_fields.include?("last_name"), autocomplete: "family-name", class: "mt-1 block w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 focus:border-sky-400 focus:bg-white focus:ring-0" %>
+                </div>
+              </div>
+            </section>
+
+            <section data-profile-step="1" class="hidden space-y-5">
+              <div>
+                <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Step 2 di 4</p>
+                <h3 class="mt-1 text-xl font-semibold text-slate-900">Come contattarti</h3>
+              </div>
+              <div class="space-y-4">
+                <div>
+                  <%= form.label :email, "Email", class: "block text-sm font-semibold text-slate-700" %>
+                  <%= form.email_field :email, required: required_fields.include?("email"), autocomplete: "email", class: "mt-1 block w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 focus:border-sky-400 focus:bg-white focus:ring-0" %>
+                </div>
+                <div>
+                  <%= form.label :phone, "Telefono", class: "block text-sm font-semibold text-slate-700" %>
+                  <%= form.telephone_field :phone, required: required_fields.include?("phone"), autocomplete: "tel", class: "mt-1 block w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 focus:border-sky-400 focus:bg-white focus:ring-0" %>
+                </div>
+              </div>
+            </section>
+
+            <section data-profile-step="2" class="hidden space-y-5">
+              <div>
+                <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Step 3 di 4</p>
+                <h3 class="mt-1 text-xl font-semibold text-slate-900">Residenza</h3>
+              </div>
+              <div class="grid gap-4 sm:grid-cols-2">
+                <div class="sm:col-span-2">
+                  <%= form.label :billing_address, "Via e numero civico", class: "block text-sm font-semibold text-slate-700" %>
+                  <%= form.text_field :billing_address, required: required_fields.include?("billing_address"), autocomplete: "street-address", class: "mt-1 block w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 focus:border-sky-400 focus:bg-white focus:ring-0" %>
+                </div>
+                <div>
+                  <%= form.label :city, "Citta", class: "block text-sm font-semibold text-slate-700" %>
+                  <%= form.text_field :city, required: required_fields.include?("city"), autocomplete: "address-level2", class: "mt-1 block w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 focus:border-sky-400 focus:bg-white focus:ring-0" %>
+                </div>
+                <div>
+                  <%= form.label :province, "Provincia", class: "block text-sm font-semibold text-slate-700" %>
+                  <%= form.text_field :province, required: required_fields.include?("province"), autocomplete: "address-level1", class: "mt-1 block w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 focus:border-sky-400 focus:bg-white focus:ring-0" %>
+                </div>
+              </div>
+            </section>
+
+            <section data-profile-step="3" class="hidden space-y-5">
+              <div>
+                <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Step 4 di 4</p>
+                <h3 class="mt-1 text-xl font-semibold text-slate-900">Dati anagrafici</h3>
+                <p class="mt-1 text-sm text-slate-500">Questi dati servono per completare correttamente il profilo e la documentazione amministrativa.</p>
+              </div>
+              <div class="grid gap-4 sm:grid-cols-2">
+                <div class="sm:col-span-2">
+                  <%= form.label :date_of_birth, "Data di nascita", class: "block text-sm font-semibold text-slate-700" %>
+                  <%= form.date_field :date_of_birth, required: required_fields.include?("date_of_birth"), class: "mt-1 block w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 focus:border-sky-400 focus:bg-white focus:ring-0" %>
+                </div>
+                <div>
+                  <%= form.label :place_of_birth, "Luogo di nascita", class: "block text-sm font-medium text-slate-700" %>
+                  <%= form.text_field :place_of_birth, required: required_fields.include?("place_of_birth"), class: "mt-1 block w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 focus:border-sky-400 focus:bg-white focus:ring-0" %>
+                </div>
+                <div>
+                  <%= form.label :fiscal_code, "Codice fiscale", class: "block text-sm font-medium text-slate-700" %>
+                  <%= form.text_field :fiscal_code, required: required_fields.include?("fiscal_code"), class: "mt-1 block w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm uppercase text-slate-900 focus:border-sky-400 focus:bg-white focus:ring-0" %>
+                </div>
+                <div class="sm:col-span-2">
+                  <%= form.label :socials, "Link social / sito", class: "block text-sm font-medium text-slate-700" %>
+                  <%= form.text_area :socials, rows: 3, placeholder: "https://www.sito.it, https://instagram.com/@utente", class: "mt-1 block w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 focus:border-sky-400 focus:bg-white focus:ring-0" %>
+                </div>
+              </div>
+            </section>
+          </div>
+
+      <div class="mt-6 flex flex-col gap-3 border-t border-slate-100 pt-5 sm:flex-row sm:items-center sm:justify-between">
+            <button type="button" data-profile-prev class="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">
+              <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+              Indietro
+            </button>
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+              <button type="submit" name="wizard_action" value="next_step" data-profile-next class="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white hover:bg-slate-800">
+                Continua
+                <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+              </button>
+              <%= form.submit "Completa profilo", data: { profile_submit: true }, class: "hidden inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white hover:bg-slate-800" %>
+            </div>
+          </div>
+      </div>
+    </section>
+
+    <script>
+      (() => {
+        const root = document.querySelector("[data-profile-wizard='1']");
+        if (!root || root.dataset.bound === "1") return;
+        root.dataset.bound = "1";
+
+        const sections = Array.from(root.querySelectorAll("[data-profile-step]"));
+        const nextButton = document.querySelector("[data-profile-next]");
+        const prevButton = document.querySelector("[data-profile-prev]");
+        const submitButton = document.querySelector("[data-profile-submit='true']");
+        const wizardStepInput = document.getElementById("datacontact-wizard-step");
+        let currentStep = Number(root.dataset.initialStep || 0);
+        currentStep = Number.isFinite(currentStep) ? currentStep : 0;
+        currentStep = Math.max(0, Math.min(currentStep, sections.length - 1));
+
+        const render = () => {
+          sections.forEach((section, index) => {
+            section.classList.toggle("hidden", index !== currentStep);
+            const fields = section.querySelectorAll("input, select, textarea");
+            fields.forEach((field) => {
+              if (field.id === "datacontact-wizard-step") return;
+              field.disabled = index !== currentStep;
+            });
+          });
+          if (wizardStepInput) wizardStepInput.value = String(currentStep);
+          if (prevButton) prevButton.classList.toggle("invisible", currentStep === 0);
+          if (nextButton) nextButton.classList.toggle("hidden", currentStep === sections.length - 1);
+          if (submitButton) submitButton.classList.toggle("hidden", currentStep !== sections.length - 1);
+        };
+
+        const validateCurrentStep = () => {
+          const fields = sections[currentStep]?.querySelectorAll("input, select, textarea") || [];
+          return Array.from(fields).every((field) => field.reportValidity());
+        };
+
+        nextButton?.addEventListener("click", () => {
+          if (!validateCurrentStep()) return;
+          if (wizardStepInput) wizardStepInput.value = String(currentStep);
+        });
+
+        prevButton?.addEventListener("click", () => {
+          currentStep = Math.max(0, currentStep - 1);
+          render();
+        });
+
+        render();
+      })();
+    </script>
+  <% else %>
+    <section class="border border-slate-200 rounded-xl p-4">
+      <h3 class="mb-4 text-base font-semibold text-slate-800">Dati anagrafici</h3>
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div>
+          <%= form.label :first_name, "Nome", class: "block text-sm font-medium text-slate-700" %>
+          <%= form.text_field :first_name, class: "mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500" %>
+        </div>
+        <div>
+          <%= form.label :last_name, "Cognome", class: "block text-sm font-medium text-slate-700" %>
+          <%= form.text_field :last_name, class: "mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500" %>
+        </div>
+        <div>
+          <%= form.label :date_of_birth, "Data di nascita", class: "block text-sm font-medium text-slate-700" %>
+          <%= form.datetime_field :date_of_birth, class: "mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500" %>
+        </div>
+        <div>
+          <%= form.label :place_of_birth, "Luogo di nascita", class: "block text-sm font-medium text-slate-700" %>
+          <%= form.text_field :place_of_birth, class: "mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500" %>
+        </div>
+        <div>
+          <%= form.label :fiscal_code, "Codice fiscale", class: "block text-sm font-medium text-slate-700" %>
+          <%= form.text_field :fiscal_code, class: "mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm uppercase focus:ring-2 focus:ring-blue-500" %>
+        </div>
+        <div>
+          <%= form.label :vat_number, "Partita IVA", class: "block text-sm font-medium text-slate-700" %>
+          <%= form.text_field :vat_number, class: "mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500" %>
+        </div>
+      </div>
+    </section>
+
+    <section class="border border-slate-200 rounded-xl p-4">
+      <h3 class="mb-4 text-base font-semibold text-slate-800">Contatti</h3>
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div class="sm:col-span-2">
+          <%= form.label :email, "Email", class: "block text-sm font-medium text-slate-700" %>
+          <%= form.email_field :email, class: "mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500" %>
+        </div>
+        <div class="sm:col-span-2">
+          <%= form.label :phone, "Telefono", class: "block text-sm font-medium text-slate-700" %>
+          <%= form.telephone_field :phone, class: "mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500" %>
+        </div>
+        <div class="sm:col-span-2">
+          <%= form.label :socials, "Link social / sito", class: "block text-sm font-medium text-slate-700" %>
+          <%= form.text_area :socials, rows: 3, placeholder: "https://www.sito.it, https://instagram.com/@utente", class: "mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500" %>
+          <p class="mt-1 text-xs text-slate-500">Un link per riga o separati da virgola.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="border border-slate-200 rounded-xl p-4">
+      <h3 class="mb-4 text-base font-semibold text-slate-800">Dati di fatturazione</h3>
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div class="sm:col-span-2">
+          <%= form.label :billing_name, "Intestatario", class: "block text-sm font-medium text-slate-700" %>
+          <%= form.text_field :billing_name, class: "mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500" %>
+        </div>
+        <div class="sm:col-span-2">
+          <%= form.label :billing_address, "Indirizzo", class: "block text-sm font-medium text-slate-700" %>
+          <%= form.text_field :billing_address, class: "mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500" %>
+        </div>
+        <div>
+          <%= form.label :billing_zip, "CAP", class: "block text-sm font-medium text-slate-700" %>
+          <%= form.text_field :billing_zip, class: "mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500" %>
+        </div>
+        <div>
+          <%= form.label :billing_city, "Città", class: "block text-sm font-medium text-slate-700" %>
+          <%= form.text_field :billing_city, class: "mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500" %>
+        </div>
+        <div class="sm:col-span-2">
+          <%= form.label :billing_country, "Paese", class: "block text-sm font-medium text-slate-700" %>
+          <%= form.text_field :billing_country, class: "mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500" %>
+        </div>
+      </div>
+    </section>
+
+    <section class="border border-slate-200 rounded-xl p-4">
+      <h3 class="mb-4 text-base font-semibold text-slate-800">Referente & note</h3>
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div>
+          <%= form.label :referent_lead_id, "Referente (Lead)", class: "block text-sm font-medium text-slate-700" %>
+          <%= form.select :referent_lead_id, options_for_select(referent_options, datacontact.referent_lead_id), { include_blank: "Seleziona il referente" }, class: "mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500" %>
+          <p class="mt-1 text-xs text-slate-500">Chi gestisce questo contatto (es. genitore, tutor).</p>
+        </div>
+        <div class="sm:col-span-2">
+          <%= form.label :meta, "Note (JSON)", class: "block text-sm font-medium text-slate-700" %>
+          <%= form.text_area :meta, rows: 4, placeholder: '{"note": "appunti vari"}', class: "mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm font-mono focus:ring-2 focus:ring-blue-500" %>
+        </div>
+      </div>
+    </section>
+
+    <div class="flex justify-end">
+      <%= form.submit "Salva dati contatto", class: "cursor-pointer rounded-md bg-blue-600 px-4 py-2.5 font-medium text-white hover:bg-blue-500" %>
+    </div>
+  <% end %>
+<% end %>

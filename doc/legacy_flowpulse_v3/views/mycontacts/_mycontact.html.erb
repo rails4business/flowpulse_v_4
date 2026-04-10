@@ -1,0 +1,18 @@
+<div id="<%= dom_id mycontact %>" class="w-full sm:w-auto my-5 space-y-5">
+  <div>
+    <strong class="block font-medium mb-1">Contatto:</strong>
+    <%= [mycontact.datacontact.full_name.presence || "Contatto ##{mycontact.datacontact.id}", mycontact.datacontact.email].compact.join(" · ") %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Status contact:</strong>
+    <%= mycontact.status_contact %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Approved by referent at:</strong>
+    <%= mycontact.approved_by_referent_at %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Original:</strong>
+    <%= mycontact.original? ? "Yes" : "No" %>
+  </div>
+</div>

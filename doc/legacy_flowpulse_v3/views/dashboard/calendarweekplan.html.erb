@@ -1,0 +1,350 @@
+<% content_for :title, "📊 Dashboard Post" %>
+
+<% content_for :aside do %>
+  <%= render "dashboard/aside_menu" %>
+<% end %>
+
+<style>
+  #superadmin-weekplanner .card { box-shadow: 0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06); }
+  #superadmin-weekplanner .chip { padding: .15rem .4rem; border: 1px solid rgba(0,0,0,.06); border-radius: .375rem; font-size: .68rem; }
+  #superadmin-weekplanner .btn { padding: .25rem .5rem; border-radius: .375rem; border: 1px solid #e5e7eb; }
+  .modal-open { overflow: hidden; }
+  #superadmin-weekplanner .bg-pc_bg { background-color: #f8fafc; }
+  #superadmin-weekplanner .bg-pc_routine { background-color: #93c5fd; }
+  #superadmin-weekplanner .bg-pc_progetti { background-color: #facc15; }
+  #superadmin-weekplanner .bg-pc_servizi { background-color: #86efac; }
+  #superadmin-weekplanner .bg-pc_pubblici { background-color: #f87171; }
+  #superadmin-weekplanner .bg-pc_routine\/80 { background-color: rgba(147, 197, 253, .8); }
+  #superadmin-weekplanner .bg-pc_progetti\/80 { background-color: rgba(250, 204, 21, .8); }
+  #superadmin-weekplanner .bg-pc_servizi\/80 { background-color: rgba(134, 239, 172, .8); }
+  #superadmin-weekplanner .bg-pc_pubblici\/80 { background-color: rgba(248, 113, 113, .8); }
+</style>
+
+<div id="superadmin-weekplanner" class="max-w-[1200px] mx-auto p-4 md:p-6">
+  <div class="mb-3">
+    <%= link_to "Invita un amico", new_session_path(tab: "signup", ref: Current.user.lead.username), class: "btn" %>
+  </div>
+
+  <header class="flex items-center justify-between gap-3 mb-3">
+    <h1 class="text-xl font-semibold">Planner settimanale</h1>
+    <div class="flex flex-wrap items-center gap-3 text-sm">
+      <label class="flex items-center gap-2"><input id="toggleGuides" type="checkbox" class="rounded" checked> Guide orarie</label>
+      <div class="flex items-center gap-2">
+        <span class="text-slate-500">Filtri:</span>
+        <label class="flex items-center gap-1"><input type="checkbox" class="catFilter rounded" value="routine" checked> Routine</label>
+        <label class="flex items-center gap-1"><input type="checkbox" class="catFilter rounded" value="progetti" checked> Progetti</label>
+        <label class="flex items-center gap-1"><input type="checkbox" class="catFilter rounded" value="servizi" checked> Servizi</label>
+        <label class="flex items-center gap-1"><input type="checkbox" class="catFilter rounded" value="pubblici" checked> Eventi pubblici</label>
+      </div>
+      <%= link_to "Apri liste ➜", dashboard_liste_path, class: "btn hover:bg-slate-50" %>
+    </div>
+  </header>
+
+  <div class="flex flex-wrap gap-2 text-xs mb-4">
+    <span class="chip bg-pc_routine/80">Routine</span>
+    <span class="chip bg-pc_progetti/80">Progetti</span>
+    <span class="chip bg-pc_servizi/80">Ruoli / Servizi</span>
+    <span class="chip bg-pc_pubblici/80">Eventi pubblici</span>
+  </div>
+
+  <div id="planner" class="relative border rounded-lg overflow-x-auto overflow-hidden shadow-sm" style="border-color:#e5e7eb">
+    <div id="daysHeader" class="grid" style="grid-template-columns:repeat(7,minmax(160px,1fr));"></div>
+    <div id="gridBody" class="grid" style="grid-template-columns:repeat(7,minmax(160px,1fr));"></div>
+  </div>
+
+  <div id="modal" class="fixed inset-0 hidden z-50">
+    <div class="absolute inset-0 bg-black/30" data-close></div>
+    <div class="relative mx-auto mt-16 w-[min(880px,92vw)] bg-white rounded-xl border border-slate-200 card">
+      <div class="px-4 py-3 border-b flex items-center justify-between">
+        <h3 id="mTitle" class="font-semibold">Dettagli slot</h3>
+        <button class="btn" data-close>✕</button>
+      </div>
+      <div class="p-4 space-y-4">
+        <div id="mSummary" class="text-sm"></div>
+        <div class="grid md:grid-cols-3 gap-3">
+          <div class="border rounded p-3">
+            <div class="font-medium mb-2">Programmi nello slot</div>
+            <ul id="mPrograms" class="space-y-1 text-sm"></ul>
+            <div class="mt-2 flex gap-2">
+              <button class="btn" id="mAddProg">+ Nuovo programma</button>
+            </div>
+          </div>
+          <div class="border rounded p-3">
+            <div class="font-medium mb-2">Aggiungi rapido</div>
+            <div class="space-y-2 text-sm">
+              <div>
+                <label class="block text-xs mb-1">Da Progetti</label>
+                <select id="quickProject" class="w-full border rounded px-2 py-1"></select>
+                <button class="btn mt-1" id="btnAddProject">↳ Inserisci</button>
+              </div>
+              <div>
+                <label class="block text-xs mb-1">Da Servizi</label>
+                <select id="quickService" class="w-full border rounded px-2 py-1"></select>
+                <button class="btn mt-1" id="btnAddService">↳ Inserisci</button>
+              </div>
+              <div>
+                <label class="block text-xs mb-1">Da Routine</label>
+                <select id="quickRoutine" class="w-full border rounded px-2 py-1"></select>
+                <button class="btn mt-1" id="btnAddRoutine">↳ Inserisci</button>
+              </div>
+            </div>
+          </div>
+          <div class="border rounded p-3">
+            <div class="font-medium mb-2">Slot</div>
+            <div class="grid grid-cols-2 gap-2 text-sm">
+              <label>Inizio <input id="mStart" type="time" class="w-full border rounded px-2 py-1"></label>
+              <label>Fine <input id="mEnd" type="time" class="w-full border rounded px-2 py-1"></label>
+              <label class="col-span-2">Tipo slot
+                <select id="mType" class="w-full border rounded px-2 py-1"></select>
+              </label>
+              <div class="col-span-2 flex gap-2">
+                <button class="btn bg-emerald-500 text-white" id="btnSaveSlot">Salva slot</button>
+                <button class="btn" id="btnDeleteSlot">Elimina slot</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="text-xs text-slate-500">Le liste (Progetti, Servizi, Routine, Tipi slot, Obiettivi) si gestiscono in <strong>/dashboard/liste</strong>.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function initSuperadminWeekplanner() {
+    const root = document.getElementById("superadmin-weekplanner");
+    if (!root || root.dataset.initialized === "1") return;
+    root.dataset.initialized = "1";
+
+    const K = {
+      schedule: "weekplanner:v1",
+      objectives: "weekplanner:objectives",
+      projects: "weekplanner:projects",
+      services: "weekplanner:services",
+      routines: "weekplanner:routines",
+      slotTypes: "weekplanner:slot_types"
+    };
+
+    const DEFAULT_PROJECTS = [
+      { id: "p1", name: "Igiene Posturale - corso online" },
+      { id: "p2", name: "PosturaCorretta alla scrivania" }
+    ];
+    const DEFAULT_SERVICES = [
+      { id: "s1", role: "Tutor", step: "Presentazione", service: "Gruppo Igiene Posturale" }
+    ];
+    const DEFAULT_ROUTINES = [
+      { id: "r1", name: "Mobilita mattina", description: "10' mobilita + 5' respiro" },
+      { id: "r2", name: "Scrittura focus", description: "15' journaling + 15' pianificazione" }
+    ];
+    const DEFAULT_SLOT_TYPES = [
+      { id: "st1", name: "salute" },
+      { id: "st2", name: "lavoro" },
+      { id: "st3", name: "formazione" },
+      { id: "st4", name: "tempo libero" }
+    ];
+
+    const DEFAULT_DATA = {
+      dayStart: "08:00",
+      dayEnd: "22:00",
+      pxPerMinute: 1,
+      days: [
+        { name: "Lunedì", slots: [] },
+        { name: "Martedì", slots: [] },
+        { name: "Mercoledì", slots: [] },
+        { name: "Giovedì", slots: [] },
+        { name: "Venerdì", slots: [] },
+        { name: "Sabato", slots: [] },
+        { name: "Domenica", slots: [] }
+      ],
+      categoryStyles: { routine: "bg-pc_routine", progetti: "bg-pc_progetti", servizi: "bg-pc_servizi", pubblici: "bg-pc_pubblici" },
+      slotTypeStyles: { salute: "border-emerald-300", lavoro: "border-amber-300", servizi: "border-sky-300", pubblici: "border-rose-300", formazione: "border-purple-300", "tempo libero": "border-lime-300", default: "border-slate-300" }
+    };
+
+    function load(key, fallback) { const raw = localStorage.getItem(key); try { return raw ? JSON.parse(raw) : fallback; } catch { return fallback; } }
+    function save(key, val) { localStorage.setItem(key, JSON.stringify(val)); }
+
+    let scheduleData = load(K.schedule, structuredClone(DEFAULT_DATA));
+    let projects = load(K.projects, structuredClone(DEFAULT_PROJECTS));
+    let services = load(K.services, structuredClone(DEFAULT_SERVICES));
+    let routines = load(K.routines, structuredClone(DEFAULT_ROUTINES));
+    let slotTypes = load(K.slotTypes, structuredClone(DEFAULT_SLOT_TYPES));
+
+    const $H = (id) => document.getElementById(id);
+    const $daysHeader = $H("daysHeader");
+    const $gridBody = $H("gridBody");
+    if (!$daysHeader || !$gridBody) return;
+
+    function toMin(t) { const [h, m] = t.split(":").map(Number); return h * 60 + m; }
+    function minutesToTime(min) { const h = Math.floor(min / 60), m = min % 60; return String(h).padStart(2, "0") + ":" + String(m).padStart(2, "0"); }
+    const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
+    function isTime(t) { return /^\d{2}:\d{2}$/.test(t); }
+
+    const START = toMin(scheduleData.dayStart);
+    const END = toMin(scheduleData.dayEnd);
+    const PXPM = scheduleData.pxPerMinute || 1;
+    const H = (END - START) * PXPM;
+
+    function renderHeader() {
+      $daysHeader.innerHTML = scheduleData.days.map((d) => `<div class=\"bg-slate-50 text-center text-sm font-medium py-2\">${d.name}</div>`).join("");
+    }
+
+    function hourScale(show = true) {
+      if (!show) return "";
+      const rows = [];
+      for (let m = START; m <= END; m += 60) {
+        const top = (m - START) * PXPM;
+        if (m < END) rows.push(`<div class=\"absolute left-0 w-full border-t border-slate-200/30\" style=\"top:${top}px\"></div>`);
+      }
+      return `<div class=\"pointer-events-none absolute inset-0\">${rows.join("")}</div>`;
+    }
+
+    function slotFillPercent(slot) {
+      const s = toMin(slot.start), e = toMin(slot.end), dur = Math.max(0, e - s);
+      const covered = (slot.items || []).reduce((a, it) => {
+        const is = clamp(toMin(it.start), s, e);
+        const ie = clamp(toMin(it.end), s, e);
+        return a + Math.max(0, ie - is);
+      }, 0);
+      return Math.min(100, Math.round((covered / dur) * 100));
+    }
+
+    function renderSlot(slot, di) {
+      const s = toMin(slot.start), e = toMin(slot.end);
+      const durationMinutes = Math.max(0, e - s);
+      const compactSlot = durationMinutes <= 60;
+      const top = (s - START) * PXPM;
+      const h = Math.max(28, (e - s) * PXPM) - 1;
+      const border = scheduleData.slotTypeStyles[slot.slot_type] || scheduleData.slotTypeStyles.default;
+      const fill = slotFillPercent(slot);
+      const statusCls = fill >= 95 ? "bg-emerald-500" : "bg-rose-500";
+      const inner = (slot.items || []).sort((a, b) => toMin(a.start) - toMin(b.start)).map((it) => {
+        const is = toMin(it.start), ie = toMin(it.end);
+        const itemDurationMinutes = Math.max(0, Math.min(ie, e) - Math.max(is, s));
+        const compactItem = itemDurationMinutes <= 30;
+        const itTop = Math.max(0, (is - s) * PXPM);
+        const itH = Math.max(18, (Math.min(ie, e) - Math.max(is, s)) * PXPM) - 1;
+        const catCls = scheduleData.categoryStyles[it.category] || "bg-slate-200";
+        const itemContent = compactItem
+          ? `<div class=\"text-[11px] truncate whitespace-nowrap\"><span class=\"font-semibold\">${it.start}-${it.end}</span> <span class=\"font-normal\">${it.title}</span></div>`
+          : `<div class=\"text-[11px] font-semibold\">${it.start}-${it.end}</div><div class=\"text-[12px]\">${it.title}</div>`;
+        return `<div class=\"absolute left-1 right-1 ${catCls} border border-white/60 rounded-sm p-1 card\" style=\"top:${itTop}px;height:${itH}px\">${itemContent}</div>`;
+      }).join("");
+      const headerHtml = compactSlot ? "" : `<div class=\"px-1.5 py-0.5 border-b border-slate-200/40 text-[12px] flex items-center justify-between gap-1.5 flex-nowrap\"><span class=\"font-medium flex items-center gap-1.5 shrink-0\"><span class=\"inline-block w-2 h-2 rounded-full ${statusCls}\"></span>${slot.start}-${slot.end}</span><span class=\"uppercase tracking-wide text-[10px] text-slate-500 min-w-0 truncate text-right\">${slot.slot_type || "slot"}</span></div>`;
+      const bodyHeight = compactSlot ? "100%" : "calc(100% - 24px)";
+      return `<div class=\"absolute left-1 right-1 bg-pc_bg border ${border} rounded-md card cursor-pointer\" data-slot=\"${slot.id}\" data-di=\"${di}\" style=\"top:${top}px;height:${h}px\">${headerHtml}<div class=\"relative w-full overflow-hidden\" style=\"height:${bodyHeight}\">${inner}</div></div>`;
+    }
+
+    function renderDay(day, di, showGuides) {
+      const slots = (day.slots || []).sort((a, b) => toMin(a.start) - toMin(b.start)).map((s) => renderSlot(s, di)).join("");
+      return `<div class=\"relative bg-white overflow-hidden\" style=\"height:${H}px\">${hourScale(showGuides)}${slots}</div>`;
+    }
+
+    function drawPlanner() {
+      const toggle = $H("toggleGuides");
+      const show = !!(toggle && toggle.checked);
+      $gridBody.innerHTML = scheduleData.days.map((d, i) => renderDay(d, i, show)).join("");
+    }
+
+    const $modal = $H("modal");
+    function openModal() { if ($modal) $modal.classList.remove("hidden"); document.body.classList.add("modal-open"); }
+    function closeModal() { if ($modal) $modal.classList.add("hidden"); document.body.classList.remove("modal-open"); }
+
+    function persist() { save(K.schedule, scheduleData); }
+
+    function quickAdd(di, sid, { category, title, note = "" }) {
+      const day = scheduleData.days[di];
+      const slot = day.slots.find((s) => s.id === sid);
+      const s = toMin(slot.start), e = toMin(slot.end);
+      const lastEnd = (slot.items || []).map((it) => toMin(it.end)).sort((a, b) => b - a)[0] || s;
+      const st = minutesToTime(clamp(lastEnd, s, e - 15));
+      const en = minutesToTime(clamp(lastEnd + 30, s + 15, e));
+      slot.items = slot.items || [];
+      slot.items.push({ id: crypto.randomUUID(), category, title, note, start: st, end: en });
+      persist();
+      openSlotModal(di, sid);
+      drawPlanner();
+    }
+
+    function openSlotModal(di, sid) {
+      const day = scheduleData.days[di];
+      const slot = day.slots.find((s) => s.id === sid);
+      if (!slot) return;
+
+      const fill = slotFillPercent(slot);
+      $H("mTitle").textContent = `${day.name} - ${slot.start}-${slot.end}`;
+      $H("mStart").value = slot.start;
+      $H("mEnd").value = slot.end;
+
+      const selType = $H("mType");
+      selType.innerHTML = slotTypes.map((t) => `<option ${t.name === slot.slot_type ? "selected" : ""}>${t.name}</option>`).join("");
+      $H("mSummary").innerHTML = `<span class=\"chip ${fill >= 95 ? "bg-emerald-100 border-emerald-300" : "bg-rose-100 border-rose-300"}\">${fill}% occupato</span> <span class=\"chip\">Programmi: ${(slot.items || []).length}</span>`;
+
+      const list = $H("mPrograms");
+      list.innerHTML = (slot.items || []).sort((a, b) => toMin(a.start) - toMin(b.start)).map((it) => `<li class=\"flex items-center justify-between border rounded px-2 py-1\"><span class=\"text-sm\"><strong>${it.start}-${it.end}</strong> - ${it.title} <em class=\"text-slate-500\">(${it.category})</em></span><button class=\"btn text-red-600\" data-del-prog=\"${it.id}\">-</button></li>`).join("") || '<div class="text-sm text-slate-500">- Nessun programma -</div>';
+      list.querySelectorAll("[data-del-prog]").forEach((b) => b.onclick = () => { slot.items = (slot.items || []).filter((x) => x.id !== b.dataset.delProg); persist(); openSlotModal(di, sid); });
+
+      $H("quickProject").innerHTML = `<option value=\"\">- scegli -</option>` + projects.map((p) => `<option value=\"${p.id}\">${p.name}</option>`).join("");
+      $H("quickService").innerHTML = `<option value=\"\">- scegli -</option>` + services.map((s) => `<option value=\"${s.id}\">${s.role} - ${s.step} - ${s.service}</option>`).join("");
+      $H("quickRoutine").innerHTML = `<option value=\"\">- scegli -</option>` + routines.map((r) => `<option value=\"${r.id}\">${r.name} - ${r.description}</option>`).join("");
+
+      $H("btnAddProject").onclick = () => { const id = $H("quickProject").value; const p = projects.find((x) => x.id === id); if (p) quickAdd(di, sid, { category: "progetti", title: p.name }); };
+      $H("btnAddService").onclick = () => { const id = $H("quickService").value; const s = services.find((x) => x.id === id); if (s) quickAdd(di, sid, { category: "servizi", title: `${s.role} - ${s.step} - ${s.service}` }); };
+      $H("btnAddRoutine").onclick = () => { const id = $H("quickRoutine").value; const r = routines.find((x) => x.id === id); if (r) quickAdd(di, sid, { category: "routine", title: r.name, note: r.description }); };
+      $H("mAddProg").onclick = () => quickAdd(di, sid, { category: "servizi", title: "Nuovo programma" });
+
+      $H("btnSaveSlot").onclick = () => {
+        const st = $H("mStart").value;
+        const en = $H("mEnd").value;
+        const tp = $H("mType").value;
+        if (!isTime(st) || !isTime(en) || toMin(st) >= toMin(en)) { alert("Orari non validi"); return; }
+        slot.start = st;
+        slot.end = en;
+        slot.slot_type = tp;
+        persist();
+        closeModal();
+        drawPlanner();
+      };
+
+      $H("btnDeleteSlot").onclick = () => {
+        day.slots = day.slots.filter((s) => s.id !== sid);
+        persist();
+        closeModal();
+        drawPlanner();
+      };
+
+      openModal();
+    }
+
+    $gridBody.addEventListener("click", (e) => {
+      const el = e.target.closest("[data-slot]");
+      if (!el) return;
+      openSlotModal(+el.dataset.di, el.dataset.slot);
+    });
+
+    $gridBody.addEventListener("dblclick", (e) => {
+      const col = Array.from($gridBody.children).indexOf(e.target.closest("div"));
+      if (col < 0) return;
+      const y = e.offsetY;
+      const m = START + Math.round(y / PXPM / 15) * 15;
+      const st = minutesToTime(clamp(m, START, END - 30));
+      const en = minutesToTime(clamp(m + 60, START + 30, END));
+      const d = scheduleData.days[col];
+      d.slots = d.slots || [];
+      d.slots.push({ id: crypto.randomUUID(), start: st, end: en, slot_type: (slotTypes[0]?.name || "servizi"), items: [] });
+      persist();
+      drawPlanner();
+    });
+
+    if ($modal) {
+      $modal.addEventListener("click", (e) => { if (e.target.hasAttribute("data-close")) closeModal(); });
+    }
+    const toggle = $H("toggleGuides");
+    if (toggle) toggle.addEventListener("change", drawPlanner);
+
+    renderHeader();
+    drawPlanner();
+  }
+
+  document.addEventListener("turbo:load", initSuperadminWeekplanner);
+  document.addEventListener("DOMContentLoaded", initSuperadminWeekplanner);
+</script>

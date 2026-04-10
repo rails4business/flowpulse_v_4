@@ -1,0 +1,109 @@
+<% content_for :title, "Profilo e domini" %>
+
+<div class="max-w-5xl mx-auto py-8 space-y-8">
+  <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+    <h1 class="text-3xl font-bold text-slate-900">Ciao, <%= @lead.full_name.presence || @user.email_address %></h1>
+    <p class="text-sm text-slate-600 mt-1">
+      Qui trovi i percorsi a cui sei iscritto, i domini abilitati e i ruoli che hai maturato.
+    </p>
+
+    <div class="mt-6 grid gap-4 md:grid-cols-2">
+      <div class="rounded-xl border border-slate-100 bg-slate-50 p-4">
+        <p class="text-xs uppercase tracking-wide text-slate-500">Ruoli con cui partecipi</p>
+        <% if @participant_roles.any? %>
+          <div class="mt-2 flex flex-wrap gap-2">
+            <% @participant_roles.each do |role| %>
+              <span class="inline-flex items-center rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700 border border-slate-200">
+                <%= role %>
+              </span>
+            <% end %>
+          </div>
+        <% else %>
+          <p class="mt-2 text-sm text-slate-500">Nessun ruolo registrato.</p>
+        <% end %>
+      </div>
+
+      <div class="rounded-xl border border-emerald-100 bg-emerald-50 p-4">
+        <p class="text-xs uppercase tracking-wide text-emerald-700">Ruoli ottenuti</p>
+        <% if @obtained_roles.any? %>
+          <div class="mt-2 flex flex-wrap gap-2">
+            <% @obtained_roles.each do |role| %>
+              <span class="inline-flex items-center rounded-full bg-white px-3 py-1 text-xs font-semibold text-emerald-700 border border-emerald-200">
+                <%= role %>
+              </span>
+            <% end %>
+          </div>
+        <% else %>
+          <p class="mt-2 text-sm text-emerald-700">Completa un percorso per ottenere la certificazione.</p>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <div class="space-y-6">
+    <h2 class="text-2xl font-semibold text-slate-900">Domini e servizi attivi</h2>
+    <% if @domains_group.any? %>
+      <% @domains_group.each do |domain, enrollments| %>
+        <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
+          <div class="flex items-center justify-between flex-wrap gap-3">
+            <div>
+              <p class="text-xs uppercase tracking-wide text-slate-500">Dominio</p>
+              <p class="text-lg font-semibold text-slate-900">
+                <%= domain&.title.presence || "Senza dominio" %>
+              </p>
+              <p class="text-sm text-slate-500"><%= domain&.host || "—" %></p>
+            </div>
+            <% if domain&.taxbranch %>
+              <%= link_to "Apri contenuti",
+                          post_entry_link(domain.taxbranch.post, taxbranch: domain.taxbranch),
+                          class: "inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500" rescue nil %>
+            <% end %>
+          </div>
+
+          <% enrollments.group_by(&:service).each do |service, items| %>
+            <div class="rounded-xl border border-slate-100 p-4 space-y-3">
+              <div class="flex items-center justify-between flex-wrap gap-3">
+                <div>
+                  <p class="text-sm font-semibold text-slate-900"><%= service&.name || "Servizio senza titolo" %></p>
+                  <p class="text-xs text-slate-500">Journey collegati: <%= items.map { |en| en.journey&.title }.compact.uniq.join(", ").presence || "—" %></p>
+                </div>
+                <div class="text-xs text-slate-500">
+                  <span class="font-semibold text-slate-700">Ruoli in uscita:</span>
+                  <%= Array(service&.output_roles).presence&.join(", ") || "non specificati" %>
+                </div>
+              </div>
+
+              <div class="space-y-2">
+                <% items.each do |enrollment| %>
+                  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between rounded-lg border border-slate-200 px-3 py-2 text-sm">
+                    <div>
+                      <p class="font-medium text-slate-900">
+                        Iscrizione del <%= l(enrollment.created_at.to_date, format: :long) %>
+                        · stato: <%= enrollment.status.humanize %>
+                      </p>
+                      <p class="text-xs text-slate-500">
+                        Ruolo: <%= enrollment.participant_role.presence || "—" %>
+                        <% if enrollment.target_role.present? %>
+                          · Obiettivo: <%= enrollment.target_role %>
+                        <% end %>
+                      </p>
+                    </div>
+                    <% if enrollment.certified_at.present? %>
+                      <span class="mt-2 sm:mt-0 inline-flex items-center rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
+                        Certificato il <%= l(enrollment.certified_at.to_date, format: :long) %>
+                      </span>
+                    <% end %>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    <% else %>
+      <div class="rounded-2xl border border-dashed border-slate-300 p-6 text-center text-slate-500">
+        Non risultano iscrizioni attive. Inizia esplorando i servizi disponibili oppure richiedi l’accesso a un tutor.
+      </div>
+    <% end %>
+  </div>
+</div>

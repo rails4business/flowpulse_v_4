@@ -1,0 +1,72 @@
+<div class="port-form-container">
+<%= form_with(model: [:creator, port], class: "form-standard", data: { turbo_frame: "_top", controller: "port-form" }) do |form| %>
+  <% if port.errors.any? %>
+    <div style="color: red; margin-bottom: 1rem;">
+      <h4>Ci sono errori:</h4>
+      <ul>
+        <% port.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <%= form.hidden_field :x %>
+  <%= form.hidden_field :y %>
+
+  <% if port.x.present? && port.y.present? %>
+    <div class="dashboard-meta-row" style="margin-bottom: 1rem;">
+      <span class="dashboard-meta-label">Posizione sulla carta</span>
+      <span class="dashboard-meta-value"><%= port.x %>, <%= port.y %></span>
+    </div>
+  <% end %>
+
+  <div class="port-form-grid port-form-grid-two" style="margin-bottom: 1rem;">
+    <div class="form-group">
+      <%= form.label :name, "Nome", style: "display: block;" %>
+      <%= form.text_field :name, class: "form-control", style: "width: 100%; border: 1px solid #ccc; padding: 0.5rem; border-radius: 4px;", data: { port_form_target: "name", action: "input->port-form#syncSlug" } %>
+    </div>
+
+    <div class="form-group">
+      <%= form.label :slug, "Slug (minuscole, numeri e trattini)", style: "display: block;" %>
+      <%= form.text_field :slug, class: "form-control", style: "width: 100%; border: 1px solid #ccc; padding: 0.5rem; border-radius: 4px;", data: { port_form_target: "slug", action: "input->port-form#markSlugAsEdited" } %>
+      <p style="margin: 0.35rem 0 0; color: #64748b; font-size: 0.82rem;">Viene proposto automaticamente dal nome, ma puoi cambiarlo a mano.</p>
+    </div>
+  </div>
+
+  <div class="port-form-grid port-form-grid-three" style="margin-bottom: 1rem;">
+    <div class="form-group">
+      <%= form.label :port_kind, "Tipologia", style: "display: block;" %>
+      <%= form.select :port_kind, Port.port_kinds.keys.map { |k| [k == "map_port" ? "Map" : k.capitalize, k] }, {}, class: "form-control", style: "width: 100%; border: 1px solid #ccc; padding: 0.5rem; border-radius: 4px;" %>
+    </div>
+
+    <div class="form-group">
+      <%= form.label :visibility, "Visibilità", style: "display: block;" %>
+      <%= form.select :visibility, Port.visibilities.keys.map { |v| [v.capitalize, v] }, {}, class: "form-control", style: "width: 100%; border: 1px solid #ccc; padding: 0.5rem; border-radius: 4px;" %>
+    </div>
+
+    <div class="form-group">
+      <%= form.label :brand_port_id, "Brand di appartenenza", style: "display: block;" %>
+      <%= form.collection_select :brand_port_id, Current.session.user.profile.ports.where(port_kind: :brand).where.not(id: port.id), :id, :name, { include_blank: "Radice principale" }, class: "form-control", style: "width: 100%; border: 1px solid #ccc; padding: 0.5rem; border-radius: 4px;" %>
+    </div>
+  </div>
+
+  <div class="form-group" style="margin-bottom: 1rem;">
+    <%= form.label :color_key, "Colore del porto", style: "display: block;" %>
+    <div style="display: flex; align-items: center; gap: 0.85rem;">
+      <%= form.color_field :color_key, class: "form-control", style: "width: 56px; height: 42px; padding: 0.2rem; border: 1px solid #ccc; border-radius: 10px; background: white;" %>
+      <%= form.text_field :color_key, class: "form-control", style: "width: 140px; border: 1px solid #ccc; padding: 0.5rem; border-radius: 4px; text-transform: lowercase;" %>
+    </div>
+    <p style="margin: 0.35rem 0 0; color: #64748b; font-size: 0.82rem;">Scegli direttamente il colore del porto. Il bordo esterno seguira' il colore del brand di appartenenza, se presente.</p>
+  </div>
+
+  <div class="form-group" style="margin-bottom: 1rem;">
+    <%= form.label :description, "Descrizione o note", style: "display: block;" %>
+    <%= form.text_area :description, class: "form-control", rows: 4, style: "width: 100%; border: 1px solid #ccc; padding: 0.5rem; border-radius: 4px;" %>
+  </div>
+
+  <div style="margin-top: 2rem;">
+    <%= form.submit "Salva", class: "btn btn-primary" %>
+    <%= link_to "Annulla", creator_carta_nautica_path, class: "btn btn-secondary", style: "margin-left: 1rem;", data: { turbo_frame: "_top" } %>
+  </div>
+<% end %>

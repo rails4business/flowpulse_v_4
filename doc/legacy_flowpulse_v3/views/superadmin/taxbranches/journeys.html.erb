@@ -1,0 +1,99 @@
+<% content_for :title, "Journeys" %>
+
+<% content_for :nav do %>
+  <%= render "shared/taxbranch_nav", taxbranch: @taxbranch %>
+<% end %>
+
+<div class="w-full">
+
+  <% if notice.present? %>
+    <p class="py-2 px-3 bg-green-50 mb-5 text-green-700 font-medium rounded-md" id="notice">
+      <%= notice %>
+    </p>
+  <% end %>
+
+  <div class="flex justify-between items-center mb-5">
+    <h1 class="font-bold text-xl flex items-center gap-2">
+      <span><%= @taxbranch.slug_label %></span>
+      <span class="text-sm text-gray-400">/ <%= @taxbranch.slug_category %></span>
+    </h1>
+    <%= link_to "New journey", 
+                new_journey_path(taxbranch_id: @taxbranch.id),
+                class: "rounded-md px-3.5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-medium" %>
+  </div>
+
+  <% if @journeys.any? %>
+
+    <div class="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Titolo</th>
+            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Eventi</th>
+            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Commitments</th>
+            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Partecipanti</th>
+            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Progress</th>
+            <th class="px-4 py-3 text-right text-xs font-semibold text-gray-600 uppercase">Azioni</th>
+          </tr>
+        </thead>
+
+        <tbody class="divide-y divide-gray-100">
+          <% @journeys.each do |journey| %>
+            <tr class="hover:bg-gray-50 transition">
+
+              <!-- TITRE -->
+              <td class="px-4 py-3 text-sm font-medium text-gray-900">
+                <%= link_to journey.title, journey, class: "text-blue-600 hover:underline" %>
+                <div class="text-xs text-gray-400">
+                  <%= journey.taxbranch&.slug_label %>
+                </div>
+              </td>
+
+              <!-- EVENTDATES -->
+              <td class="px-4 py-3 text-sm text-gray-700">
+                <%= journey.eventdates.distinct.count %>
+              </td>
+
+              <!-- STEPS -->
+              <td class="px-4 py-3 text-sm text-gray-700">
+                <%= journey.commitments.count %>
+              </td>
+
+              <!-- ENROLLMENTS -->
+              <td class="px-4 py-3 text-sm text-gray-700">
+                <%= journey.enrollments.count %>
+              </td>
+
+              <!-- PROGRESS -->
+              <td class="px-4 py-3">
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                  <div class="bg-blue-600 h-2 rounded-full transition-all"
+                       style="width: <%= journey.progress || 0 %>%"></div>
+                </div>
+                <span class="text-xs text-gray-500"><%= journey.progress || 0 %>%</span>
+              </td>
+
+              <!-- ACTIONS -->
+              <td class="px-4 py-3 text-right text-sm font-medium space-x-2">
+                <%= link_to "Show", journey,
+                      class: "inline-block rounded-md px-3 py-1.5 bg-gray-100 hover:bg-gray-50" %>
+
+                <%= link_to "Edit", edit_journey_path(journey),
+                      class: "inline-block rounded-md px-3 py-1.5 bg-gray-100 hover:bg-gray-50" %>
+
+                <%= button_to "Destroy", journey, method: :delete,
+                      data: { turbo_confirm: "Are you sure?" },
+                      class: "inline-block rounded-md px-3 py-1.5 bg-red-600 text-white hover:bg-red-500" %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+
+  <% else %>
+
+    <p class="text-center my-10 text-gray-500">No journeys found.</p>
+
+  <% end %>
+</div>

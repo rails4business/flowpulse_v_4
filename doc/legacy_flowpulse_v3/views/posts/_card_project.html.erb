@@ -1,0 +1,75 @@
+<% scope = Taxbranch.find_by(slug: "playlist/progetto")&.children&.ordered&.reorder(position: :desc) || [] %>
+<% upcoming_candidates = scope.select { |t|
+     t.public_node? &&
+     t.scheduled_eventdate&.date_end.present? &&
+     t.scheduled_eventdate.date_end >= Time.current &&
+     (t.published_at.blank? || t.published_at > Time.current) &&
+     t.post&.persisted? &&
+     t.post&.title.present?
+   } %>
+<% upcoming = upcoming_candidates.min_by { |t| t.scheduled_eventdate.date_end } %>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+  <% if upcoming.present? %>
+    <% tax = upcoming %>
+    <% post = tax.post %>
+    <% badge_text = "In Arrivo" %>
+    <% link_url =
+         if post&.url_media_content.present?
+           post.url_media_content
+         elsif post&.persisted?
+           post_path(post)
+         else
+           "#"
+         end %>
+    <% external = link_url.start_with?("http") %>
+    <article class="group flex flex-col bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow border border-slate-200 overflow-hidden md:max-w-[480px] md:justify-self-start">
+      <%= link_to link_url, class: "block h-full", target: (external ? "_blank" : nil), rel: (external ? "noopener" : nil) do %>
+        <div class="flex flex-col sm:flex-row h-full">
+          <div class="sm:w-2/5 w-full h-48 sm:h-auto relative bg-slate-100">
+            <% if post&.horizontal_cover_url.present? %>
+              <img class="absolute inset-0 w-full h-full object-cover" src="<%= post.horizontal_cover_url %>" alt="<%= post.title %>">
+            <% else %>
+              <div class="absolute inset-0 flex items-center justify-center text-slate-400">
+                <span class="material-symbols-outlined text-4xl">auto_stories</span>
+              </div>
+            <% end %>
+            <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent sm:bg-gradient-to-r sm:from-transparent sm:to-black/10"></div>
+            <div class="absolute top-3 left-3">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/90 backdrop-blur text-xs font-bold text-primary shadow-sm">
+                <span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+                <%= badge_text %>
+              </span>
+            </div>
+          </div>
+          <div class="flex-1 p-5 flex flex-col gap-4">
+            <div>
+              <h3 class="text-xl font-bold text-slate-900 leading-tight mb-1 group-hover:text-primary transition-colors">
+                <%= post&.title.presence || tax.slug_label %>
+              </h3>
+              <p class="text-slate-600 text-sm line-clamp-2">
+                <%= post&.description.presence || "Aggiornamento sul progetto PosturaCorretta." %>
+              </p>
+            </div>
+            <div class="mt-auto pt-3 flex flex-wrap gap-4 opacity-80">
+              <div class="flex items-center gap-1">
+                <span class="material-symbols-outlined text-[14px] text-slate-500">monitoring</span>
+                <span class="text-xs font-medium text-slate-500">Puntata <%= tax.position %></span>
+              </div>
+              <div class="flex items-center gap-1">
+                <span class="material-symbols-outlined text-[14px] text-slate-500">event</span>
+                <span class="text-xs font-medium text-slate-500">
+                  Termine: <%= I18n.l(tax.scheduled_eventdate.date_end, format: "%d %b %Y", locale: :it) %>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </article>
+  <% else %>
+    <div class="col-span-full rounded-2xl border border-slate-200 bg-white p-6 text-sm text-slate-500">
+      Nessuna puntata disponibile al momento.
+    </div>
+  <% end %>
+</div>

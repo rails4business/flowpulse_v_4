@@ -1,0 +1,365 @@
+<% content_for :title, "1impegno · #{@lead.full_name.presence || @lead.username}" %>
+
+<div class="space-y-8">
+  <!-- Header -->
+  <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+    <nav class="text-xs text-slate-500 mb-3">
+      <%= link_to "Dashboard", dashboard_home_path, class: "hover:text-slate-900" %>
+      <span class="mx-1">/</span>
+      <span class="text-slate-900"><%= @lead.full_name.presence || @lead.username %></span>
+    </nav>
+    <h1 class="text-3xl font-bold text-slate-900">1impegno</h1>
+    <p class="text-sm text-slate-500 mt-1">
+      Gestione impegni e contabilità per <strong><%= @lead.full_name.presence || @lead.username %></strong>.
+    </p>
+  </div>
+
+  <% current_tab = params[:tab].presence || "tempo" %>
+  <% all_expenses = @commitments.where.not(compensation_euro: nil).or(@commitments.where.not(compensation_dash: nil)) %>
+
+  <!-- Main Content -->
+  <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+    <!-- Tabs -->
+    <div class="border-b border-slate-200 bg-slate-50/50 px-6 pt-4">
+      <div class="flex items-center justify-between gap-4 mb-4">
+        <h2 class="text-lg font-semibold text-slate-900">Impegno</h2>
+      </div>
+      <div class="flex gap-6 text-sm font-medium">
+        <% tabs = {
+          "soldi" => "Soldi",
+          "attenzione" => "Attenzione",
+          "energia" => "Energia",
+          "tempo" => "Tempo",
+          "profilo" => "Profilo"
+        } %>
+        <% tabs.each do |key, label| %>
+          <%= link_to label,
+                      impegno_lead_path(@lead, tab: key),
+                      class: class_names(
+                        "pb-3 border-b-2 transition-colors",
+                        current_tab == key ? "border-blue-600 text-blue-600" : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300"
+                      ) %>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="p-6">
+      <% if current_tab == "soldi" %>
+        <%
+          current_week_start = Date.current.beginning_of_week
+          week_expenses = all_expenses.select { |c| c.eventdate&.date_start&.beginning_of_week == current_week_start }
+          week_outcome = week_expenses.sum { |c| c.compensation_euro.to_f }
+
+          week_booking_income = @bookings.select { |b| b.eventdate&.date_start&.beginning_of_week == current_week_start }
+                                       .sum { |b| b.price_euro.to_f }
+          week_enrollment_income = @enrollments.select { |e| e.created_at&.to_date&.beginning_of_week == current_week_start }
+                                               .sum { |e| e.price_euro.to_f }
+          week_income = week_booking_income + week_enrollment_income
+          week_balance = week_income - week_outcome
+
+          total_euro_income = (@bookings.sum(:price_euro) || 0) + (@enrollments.sum(:price_euro) || 0)
+          total_euro_outcome = all_expenses.sum { |c| c.compensation_euro.to_f }
+          total_euro_balance = total_euro_income - total_euro_outcome
+        %>
+
+        <!-- Weekly Summary Widget -->
+        <div class="grid gap-6 md:grid-cols-3 mb-8">
+          <!-- Current Week -->
+          <div class="bg-slate-50 rounded-xl border border-slate-200 p-4">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">Questa Settimana</h3>
+            <div class="space-y-2">
+              <div class="flex justify-between text-sm">
+                <span class="text-slate-600">Entrate</span>
+                <span class="font-semibold text-emerald-600">+<%= number_to_currency(week_income, unit: "€") %></span>
+              </div>
+              <div class="flex justify-between text-sm">
+                <span class="text-slate-600">Uscite</span>
+                <span class="font-semibold text-red-600">-<%= number_to_currency(week_outcome, unit: "€") %></span>
+              </div>
+              <div class="pt-2 border-t border-slate-200 flex justify-between font-bold">
+                <span class="text-slate-900">Bilancio</span>
+                <span class="<%= week_balance >= 0 ? 'text-slate-900' : 'text-red-600' %>">
+                  <%= number_to_currency(week_balance, unit: "€") %>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Total Balance -->
+          <div class="bg-slate-50 rounded-xl border border-slate-200 p-4">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">Totale Complessivo</h3>
+            <div class="space-y-2">
+              <div class="flex justify-between text-sm">
+                <span class="text-slate-600">Totale Entrate</span>
+                <span class="font-semibold text-emerald-600">+<%= number_to_currency(total_euro_income, unit: "€") %></span>
+              </div>
+              <div class="flex justify-between text-sm">
+                <span class="text-slate-600">Totale Uscite</span>
+                <span class="font-semibold text-red-600">-<%= number_to_currency(total_euro_outcome, unit: "€") %></span>
+              </div>
+               <div class="pt-2 border-t border-slate-200 flex justify-between font-bold">
+                <span class="text-slate-900">Saldo</span>
+                <span class="<%= total_euro_balance >= 0 ? 'text-blue-600' : 'text-red-600' %> text-lg">
+                  <%= number_to_currency(total_euro_balance, unit: "€") %>
+                </span>
+              </div>
+            </div>
+          </div>
+
+           <!-- Action Card -->
+          <div class="flex flex-col justify-center items-center bg-blue-50 rounded-xl border border-blue-100 p-4">
+             <%= button_to create_expense_check_lead_path(@lead),
+                          method: :post,
+                          class: "flex flex-col items-center gap-2 text-blue-700 hover:text-blue-800 transition-colors" do %>
+              <div class="h-10 w-10 rounded-full bg-blue-600 flex items-center justify-center text-white shadow-sm hover:bg-blue-700 hover:scale-105 transition-all">
+                <span class="material-symbols-outlined">add</span>
+              </div>
+              <span class="font-semibold text-sm">Registra Spesa</span>
+            <% end %>
+          </div>
+        </div>
+
+        <!-- Expenses Table -->
+        <% is_expense = ->(c) { c.eventdate&.event_type == "check" || c.eventdate&.description == "Spesa" } %>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm text-left">
+            <thead class="text-xs text-slate-500 uppercase bg-slate-50 border-b border-slate-200">
+              <tr>
+                <th class="px-3 py-3 font-medium">Data</th>
+                <th class="px-3 py-3 font-medium">Domain / Taxheaders</th>
+                <th class="px-3 py-3 font-medium">Descrizione</th>
+                <th class="px-3 py-3 font-medium">Ruolo / Tipo</th>
+                <th class="px-3 py-3 font-medium text-right">Entrata</th>
+                <th class="px-3 py-3 font-medium text-right">Uscita</th>
+                <th class="px-3 py-3 font-medium text-right">Dash</th>
+                <th class="px-3 py-3 font-center w-10"></th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              <% if all_expenses.any? %>
+                <% all_expenses.each do |commitment| %>
+                  <% is_exp = is_expense.call(commitment) %>
+                  <% taxbranch = commitment.eventdate&.taxbranch || commitment.taxbranch %>
+                  <tr class="hover:bg-slate-50/50 transition-colors group">
+                    <td class="px-3 py-3 text-slate-500 whitespace-nowrap">
+                      <% if commitment.eventdate&.date_start.present? %>
+                        <%= l(commitment.eventdate.date_start, format: "%d %b %Y") %>
+                      <% else %>
+                        -
+                      <% end %>
+                    </td>
+                    <td class="px-3 py-3 text-slate-600">
+                       <% if taxbranch %>
+                         <div class="flex flex-col leading-tight">
+                           <span class="font-semibold text-slate-700"><%= taxbranch.effective_domain&.host || "—" %></span>
+                           <span class="text-[11px] text-slate-400"><%= taxbranch.slug %></span>
+                         </div>
+                       <% else %>
+                         <span class="text-slate-400">—</span>
+                       <% end %>
+                    </td>
+                    <td class="px-3 py-3 font-medium text-slate-900">
+                      <%= commitment.eventdate&.description || "—" %>
+                    </td>
+                    <td class="px-3 py-3 text-slate-600">
+                      <% if is_exp %>
+                         <span class="inline-flex items-center rounded-full bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/10">Spesa</span>
+                      <% else %>
+                         <%= commitment.role_name.presence || commitment.commitment_kind&.humanize || "—" %>
+                      <% end %>
+                    </td>
+                    <td class="px-3 py-3 text-right font-medium text-emerald-600">
+                      <% unless is_exp %>
+                        <%= commitment.compensation_euro.to_f > 0 ? number_to_currency(commitment.compensation_euro, unit: "€") : "-" %>
+                      <% end %>
+                    </td>
+                    <td class="px-3 py-3 text-right font-medium text-red-600">
+                       <% if is_exp %>
+                        <%= commitment.compensation_euro.to_f > 0 ? number_to_currency(commitment.compensation_euro, unit: "€") : "-" %>
+                      <% end %>
+                    </td>
+                     <td class="px-3 py-3 text-right font-mono text-blue-600">
+                      <% if commitment.compensation_dash.to_f > 0 %>
+                        <%= commitment.compensation_dash %> Đ
+                      <% else %>
+                        -
+                      <% end %>
+                    </td>
+                    <td class="px-3 py-3 text-center">
+                       <%= link_to edit_eventdate_commitment_path(commitment.eventdate, commitment),
+                                   data: { turbo_frame: "modal" },
+                                   class: "text-slate-400 hover:text-blue-600 transition-colors" do %>
+                          <span class="material-symbols-outlined text-[18px]">edit</span>
+                       <% end %>
+                    </td>
+                  </tr>
+                <% end %>
+              <% else %>
+                <tr>
+                  <td colspan="8" class="px-4 py-8 text-center text-slate-500">
+                    Nessun movimento registrato.
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+
+      <% elsif current_tab == "tempo" %>
+        <!-- Keeping this section relatively simple but with light theme updates -->
+        <h3 class="text-sm font-semibold text-slate-900 mb-4">Eventdates del lead</h3>
+        <% if @eventdates.any? %>
+          <div class="divide-y divide-slate-100">
+            <% @eventdates.each do |eventdate| %>
+              <div class="py-4 flex items-center justify-between gap-4">
+                <div>
+                  <p class="font-medium text-slate-900">
+                    <%= eventdate.description.presence || "Senza descrizione" %>
+                  </p>
+                  <p class="text-slate-500 text-xs mt-1">
+                    <% if eventdate.date_start.present? %>
+                      <%= l(eventdate.date_start, format: "%d %b %Y, %H:%M") %>
+                    <% else %>
+                      Data non disponibile
+                    <% end %>
+                  </p>
+                  <div class="flex items-center gap-2 mt-1 text-xs text-slate-500">
+                    <span class="px-2 py-0.5 rounded bg-slate-100 border border-slate-200">
+                      <%= eventdate.event_type.humanize %>
+                    </span>
+                    <% if eventdate.journey %>
+                      <span>· <%= eventdate.journey.title %></span>
+                    <% end %>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2 text-xs">
+                   <%= link_to eventdate_path(eventdate),
+                              class: "inline-flex items-center rounded-lg border border-slate-200 bg-white px-3 py-1.5 font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 shadow-sm" do %>
+                      Apri
+                   <% end %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+           <p class="text-sm text-slate-500">Nessun eventdate trovato.</p>
+        <% end %>
+
+      <% else %>
+        <div class="rounded-xl border border-dashed border-slate-300 p-8 text-center">
+          <p class="text-slate-500">Sezione <strong class="text-slate-900"><%= tabs[current_tab] %></strong> in costruzione.</p>
+        </div>
+      <% end %>
+    </div>
+    </div>
+  </div>
+
+  <% if params[:expense_modal].present? && @expense_eventdate.present? %>
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-fade-in">
+      <div class="w-full max-w-lg bg-white rounded-2xl shadow-2xl p-6 transform transition-all scale-100">
+        <div class="flex items-start justify-between mb-6">
+          <div>
+            <h3 class="text-lg font-bold text-slate-900">Nuova Spesa</h3>
+            <p class="text-sm text-slate-500 mt-1">
+              Inserisci i dettagli della spesa per il lead.
+            </p>
+          </div>
+          <%= link_to impegno_lead_path(@lead, tab: "soldi"), 
+                      class: "text-slate-400 hover:text-slate-600 transition-colors p-1" do %>
+            <span class="material-symbols-outlined">close</span>
+          <% end %>
+        </div>
+
+        <%= form_with model: Commitment.new,
+                      url: eventdate_commitments_path(@expense_eventdate),
+                      class: "space-y-4" do |form| %>
+          <%= form.hidden_field :eventdate_id, value: @expense_eventdate.id %>
+          
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">Destinazione (Dominio / Servizio / Branch)</label>
+            <% taxbranch_options = @grouped_taxbranch_options.values.flatten %>
+            <%= form.hidden_field :taxbranch_id, id: "expense-taxbranch-id" %>
+            <%= text_field_tag :taxbranch_query,
+                  nil,
+                  list: "expense-taxbranch-options",
+                  placeholder: "Cerca destinazione...",
+                  autocomplete: "off",
+                  class: "block w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm",
+                  data: { taxbranch_target: "input" } %>
+            <datalist id="expense-taxbranch-options">
+              <% taxbranch_options.each do |label, id| %>
+                <option value="<%= label %>" data-id="<%= id %>"></option>
+              <% end %>
+            </datalist>
+            <p class="text-xs text-slate-500 mt-1">Seleziona a chi imputare la spesa.</p>
+          </div>
+
+          <div>
+            <%= form.label :role_name, "Descrizione / Voce", class: "block text-sm font-medium text-slate-700 mb-1" %>
+            <%= form.text_field :role_name,
+                                placeholder: "Es. Ristorante, Taxi, Software...",
+                                class: "block w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" %>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <%= form.label :compensation_euro, "Importo (€)", class: "block text-sm font-medium text-slate-700 mb-1" %>
+              <div class="relative rounded-md shadow-sm">
+                <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                  <span class="text-slate-500 sm:text-sm">€</span>
+                </div>
+                <%= form.number_field :compensation_euro,
+                                      step: 0.01,
+                                      class: "block w-full rounded-lg border-slate-300 pl-7 focus:border-blue-500 focus:ring-blue-500 sm:text-sm",
+                                      placeholder: "0.00" %>
+              </div>
+            </div>
+            <div>
+              <%= form.label :compensation_dash, "Importo (Dash)", class: "block text-sm font-medium text-slate-700 mb-1" %>
+              <div class="relative rounded-md shadow-sm">
+                 <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                  <span class="text-slate-500 sm:text-sm">Đ</span>
+                </div>
+                <%= form.number_field :compensation_dash,
+                                      step: 0.00001,
+                                      class: "block w-full rounded-lg border-slate-300 pl-8 focus:border-blue-500 focus:ring-blue-500 sm:text-sm",
+                                      placeholder: "0.0" %>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <%= form.label :notes, "Note aggiuntive", class: "block text-sm font-medium text-slate-700 mb-1" %>
+            <%= form.text_area :notes,
+                               rows: 3,
+                               class: "block w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" %>
+          </div>
+
+          <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100 mt-6">
+            <%= link_to "Annulla",
+                        impegno_lead_path(@lead, tab: "soldi"),
+                        class: "px-4 py-2 text-sm font-medium text-slate-700 hover:text-slate-900 transition-colors" %>
+            <%= form.submit "Salva Spesa",
+                            class: "inline-flex justify-center rounded-lg border border-transparent bg-blue-600 px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+    <script>
+      (() => {
+        const input = document.querySelector("#expense-taxbranch-options");
+        const field = document.querySelector("input[list='expense-taxbranch-options']");
+        const hidden = document.getElementById("expense-taxbranch-id");
+        if (!field || !hidden || !input) return;
+
+        const syncHidden = () => {
+          const option = input.querySelector(`option[value='${field.value}']`);
+          hidden.value = option ? option.dataset.id : "";
+        };
+
+        field.addEventListener("change", syncHidden);
+        field.addEventListener("input", syncHidden);
+      })();
+    </script>
+  <% end %>
+</div>

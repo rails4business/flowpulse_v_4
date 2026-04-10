@@ -1,0 +1,167 @@
+<% status_label, status_classes = eventdate_status_badge(@eventdate) %>
+<% content_for :title, "Evento · #{eventdate_label(@eventdate)}" %>
+
+<div class="max-w-5xl mx-auto px-4 py-8 space-y-6">
+  <% if notice.present? %>
+    <p class="py-2 px-3 bg-green-50 text-green-600 font-medium rounded-md inline-block" id="notice"><%= notice %></p>
+  <% end %>
+
+  <section class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-6">
+    <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+      <div class="flex items-center gap-4">
+        <div class="text-center px-3 py-2 rounded-2xl border border-slate-200 bg-slate-50">
+          <% if @eventdate.date_start.present? %>
+            <div class="text-3xl font-black text-slate-900 leading-tight">
+              <%= l(@eventdate.date_start, format: "%d") %>
+            </div>
+            <div class="text-xs uppercase tracking-wide text-slate-500">
+              <%= l(@eventdate.date_start, format: "%b %Y") %>
+            </div>
+          <% else %>
+            <div class="text-lg font-semibold text-slate-600">TBD</div>
+          <% end %>
+        </div>
+        <div>
+          <p class="text-xs uppercase tracking-wide text-slate-400">Evento</p>
+          <h1 class="text-3xl font-bold text-slate-900"><%= eventdate_label(@eventdate) %></h1>
+          <p class="mt-2 text-base text-slate-600">
+            <%= eventdate_period(@eventdate) %>
+          </p>
+          <% if @eventdate.location.present? %>
+            <p class="text-sm text-slate-500 mt-1">
+              📍 <span class="font-medium text-slate-700"><%= @eventdate.location %></span>
+            </p>
+          <% end %>
+        </div>
+      </div>
+
+      <div class="flex flex-col gap-2 items-start md:items-end">
+        <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold <%= status_classes %>">
+          <%= status_label %>
+        </span>
+        <div class="flex flex-wrap gap-2 text-[11px] text-slate-600">
+          <span class="inline-flex items-center gap-1 rounded-full border border-slate-200 px-3 py-1">
+            Tipo: <strong><%= @eventdate.event_type %></strong>
+          </span>
+          <span class="inline-flex items-center gap-1 rounded-full border border-slate-200 px-3 py-1">
+            Modalità: <strong><%= @eventdate.mode %></strong>
+          </span>
+          <span class="inline-flex items-center gap-1 rounded-full border border-slate-200 px-3 py-1">
+            Visibilità: <strong><%= @eventdate.visibility %></strong>
+          </span>
+          <% if @eventdate.journey_role.present? %>
+            <span class="inline-flex items-center gap-1 rounded-full border border-emerald-200 px-3 py-1 text-emerald-700">
+              Ruolo journey: <strong><%= @eventdate.journey_role %></strong>
+            </span>
+          <% end %>
+          <% if @eventdate.event_type == "event" %>
+            <span class="inline-flex items-center gap-1 rounded-full border border-blue-200 px-3 py-1 text-blue-700">
+              Kind: <strong><%= @eventdate.kind_event.humanize %></strong>
+            </span>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid gap-4 md:grid-cols-3">
+      <div class="rounded-2xl border border-slate-100 bg-slate-50 p-4">
+        <p class="text-xs uppercase tracking-wide text-slate-500">Journey</p>
+        <p class="mt-1 text-sm font-semibold text-slate-900">
+          <% if @eventdate.journey.present? %>
+            <%= link_to @eventdate.journey.title, journey_path(@eventdate.journey), class: "text-blue-600 hover:underline" %>
+          <% else %>
+            —
+          <% end %>
+        </p>
+      </div>
+
+      <div class="rounded-2xl border border-slate-100 bg-slate-50 p-4">
+        <p class="text-xs uppercase tracking-wide text-slate-500">Taxbranch</p>
+        <p class="mt-1 text-sm font-semibold text-slate-900">
+          <%= eventdate_taxbranch_label(@eventdate) %>
+        </p>
+        <p class="mt-2 text-xs text-slate-500">Lead: <%= @eventdate.lead&.full_name.presence || "n/d" %></p>
+      </div>
+
+      <div class="rounded-2xl border border-slate-100 bg-slate-50 p-4">
+        <p class="text-xs uppercase tracking-wide text-slate-500">Meta</p>
+        <p class="mt-1 text-sm text-slate-800 break-words"><%= @eventdate.meta.presence || "—" %></p>
+      </div>
+    </div>
+  </section>
+
+  <div class="grid gap-6 md:grid-cols-2">
+    <section class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+      <h2 class="text-lg font-semibold text-slate-900">Dettagli principali</h2>
+      <dl class="mt-4 space-y-3 text-sm text-slate-700">
+        <div class="flex justify-between">
+          <dt class="text-slate-500">Status diario</dt>
+          <dd class="font-semibold text-slate-900"><%= @eventdate.status %></dd>
+        </div>
+        <div class="flex justify-between">
+          <dt class="text-slate-500">Location</dt>
+          <dd class="font-semibold text-slate-900"><%= @eventdate.location.presence || "Non specificata" %></dd>
+        </div>
+        <div class="flex justify-between">
+          <dt class="text-slate-500">Taxbranch</dt>
+          <dd class="font-semibold text-slate-900"><%= eventdate_taxbranch_label(@eventdate) %></dd>
+        </div>
+        <div class="flex justify-between">
+          <dt class="text-slate-500">Lead</dt>
+          <dd class="font-semibold text-slate-900"><%= @eventdate.lead&.full_name.presence || "—" %></dd>
+        </div>
+        <div class="flex justify-between">
+          <dt class="text-slate-500">Tipo evento</dt>
+          <dd class="font-semibold text-slate-900"><%= @eventdate.event_type.humanize %></dd>
+        </div>
+        <div class="flex justify-between">
+          <dt class="text-slate-500">Kind</dt>
+          <dd class="font-semibold text-slate-900"><%= @eventdate.kind_event.humanize %></dd>
+        </div>
+        <div class="flex justify-between">
+          <dt class="text-slate-500">Evento padre</dt>
+          <dd class="font-semibold text-slate-900">
+            <% if @eventdate.parent_eventdate.present? %>
+              <%= link_to "##{@eventdate.parent_eventdate.id}", eventdate_path(@eventdate.parent_eventdate), class: "text-blue-600 hover:underline" %>
+            <% else %>
+              —
+            <% end %>
+          </dd>
+        </div>
+      </dl>
+    </section>
+
+    <% if @eventdate.description.present? %>
+      <section class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+        <h2 class="text-lg font-semibold text-slate-900">Descrizione</h2>
+        <div class="mt-3 text-sm text-slate-700">
+          <%= simple_format(@eventdate.description) %>
+        </div>
+      </section>
+    <% end %>
+  </div>
+
+  <div class="flex flex-wrap gap-3">
+    <%= link_to "✏️ Modifica evento", edit_eventdate_path(@eventdate), class: "inline-flex items-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50" %>
+    <%= link_to "⬅️ Torna all'elenco", eventdates_path, class: "inline-flex items-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50" %>
+
+    <% if @eventdate.journey.present? %>
+      <%= link_to "Vai al Journey", journey_path(@eventdate.journey), class: "inline-flex items-center rounded-lg border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700 shadow-sm hover:bg-blue-100" %>
+    <% end %>
+
+    <% is_superadmin = Current.user&.respond_to?(:superadmin?) ? Current.user.superadmin? : Current.user&.superadmin %>
+    <% if @eventdate.taxbranch.present? && is_superadmin %>
+      <%= link_to "Taxbranch", superadmin_taxbranch_path(@eventdate.taxbranch), class: "inline-flex items-center rounded-lg border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-700 shadow-sm hover:bg-amber-100" %>
+    <% end %>
+
+    <% if @eventdate.taxbranch&.post.present? %>
+      <%= link_to "Post correlato", post_path(@eventdate.taxbranch.post), class: "inline-flex items-center rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700 shadow-sm hover:bg-emerald-100" %>
+    <% end %>
+
+    <%= button_to "Elimina evento", @eventdate, method: :delete, form_class: "inline", class: "inline-flex items-center rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500", data: { turbo_confirm: "Sei sicuro di voler eliminare questo evento?" } %>
+  </div>
+
+  <%= render partial: "eventdates/commitments", locals: { eventdate: @eventdate } %>
+
+  <%= render partial: "eventdates/bookings", locals: { eventdate: @eventdate } %>
+</div>

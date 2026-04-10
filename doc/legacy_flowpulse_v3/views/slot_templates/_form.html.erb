@@ -1,0 +1,87 @@
+<%= form_with(model: slot_template, class: "contents") do |form| %>
+  <% if slot_template.errors.any? %>
+    <div id="error_explanation" class="bg-red-50 text-red-500 px-3 py-2 font-medium rounded-md mt-3">
+      <h2><%= pluralize(slot_template.errors.count, "error") %> prohibited this slot_template from being saved:</h2>
+
+      <ul class="list-disc ml-6">
+        <% slot_template.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="my-5">
+    <%= form.label :lead_id %>
+    <%= form.text_field :lead_id, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": slot_template.errors[:lead_id].none?, "border-red-400 focus:outline-red-600": slot_template.errors[:lead_id].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :title %>
+    <%= form.text_field :title, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": slot_template.errors[:title].none?, "border-red-400 focus:outline-red-600": slot_template.errors[:title].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :description %>
+    <%= form.textarea :description, rows: 4, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": slot_template.errors[:description].none?, "border-red-400 focus:outline-red-600": slot_template.errors[:description].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :day_of_week %>
+    <%= form.number_field :day_of_week, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": slot_template.errors[:day_of_week].none?, "border-red-400 focus:outline-red-600": slot_template.errors[:day_of_week].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :time_start %>
+    <%= form.time_field :time_start, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": slot_template.errors[:time_start].none?, "border-red-400 focus:outline-red-600": slot_template.errors[:time_start].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :time_end %>
+    <%= form.time_field :time_end, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": slot_template.errors[:time_end].none?, "border-red-400 focus:outline-red-600": slot_template.errors[:time_end].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :repeat_rule %>
+    <%= form.number_field :repeat_rule, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": slot_template.errors[:repeat_rule].none?, "border-red-400 focus:outline-red-600": slot_template.errors[:repeat_rule].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :repeat_every %>
+    <%= form.number_field :repeat_every, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": slot_template.errors[:repeat_every].none?, "border-red-400 focus:outline-red-600": slot_template.errors[:repeat_every].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :repeat_start %>
+    <%= form.date_field :repeat_start, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": slot_template.errors[:repeat_start].none?, "border-red-400 focus:outline-red-600": slot_template.errors[:repeat_start].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :repeat_end %>
+    <%= form.date_field :repeat_end, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": slot_template.errors[:repeat_end].none?, "border-red-400 focus:outline-red-600": slot_template.errors[:repeat_end].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :seasons %>
+    <%= form.text_field :seasons, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": slot_template.errors[:seasons].none?, "border-red-400 focus:outline-red-600": slot_template.errors[:seasons].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :jsonb %>
+    <%= form.text_field :jsonb, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": slot_template.errors[:jsonb].none?, "border-red-400 focus:outline-red-600": slot_template.errors[:jsonb].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :color_hex %>
+    <%= form.text_field :color_hex, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": slot_template.errors[:color_hex].none?, "border-red-400 focus:outline-red-600": slot_template.errors[:color_hex].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :taxbranch_id %>
+    <%= form.text_field :taxbranch_id, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": slot_template.errors[:taxbranch_id].none?, "border-red-400 focus:outline-red-600": slot_template.errors[:taxbranch_id].any?}] %>
+  </div>
+
+  <div class="inline">
+    <%= form.submit class: "w-full sm:w-auto rounded-md px-3.5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white inline-block font-medium cursor-pointer" %>
+  </div>
+<% end %>

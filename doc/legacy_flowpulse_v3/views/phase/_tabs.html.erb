@@ -1,0 +1,46 @@
+<div class="border-b border-slate-200">
+  <div class="text-xs text-slate-500 mb-2">
+    Taxbranch:
+    <%= link_to @taxbranch.display_label,
+                superadmin_taxbranch_path(@taxbranch),
+                class: "font-semibold text-slate-700 hover:underline" %>
+  </div>
+  <div class="mb-3">
+    <%= form_with model: @taxbranch,
+                  url: superadmin_taxbranch_path(@taxbranch),
+                  method: :patch,
+                  local: true,
+                  class: "flex flex-wrap items-center gap-2 text-xs" do |f| %>
+      <%= f.label :phase, "Fase", class: "text-slate-600 font-medium" %>
+      <%= f.select :phase,
+                   Taxbranch.phases.keys.map { |p| [p.to_s.humanize, p] },
+                   { include_blank: "—", selected: @taxbranch.phase },
+                   class: "rounded-md border border-slate-300 px-2 py-1 text-xs" %>
+      <%= f.submit "Aggiorna", class: "rounded-md bg-slate-900 px-2 py-1 text-xs font-semibold text-white hover:bg-slate-800" %>
+    <% end %>
+  </div>
+  <nav class="-mb-px flex flex-wrap gap-3 text-sm">
+    <%= link_to "Index", taxbranch_phase_index_path(@taxbranch),
+                class: "px-3 py-2 border-b-2 border-transparent text-slate-600 hover:text-slate-900 hover:border-slate-300" %>
+    <%= link_to "Problema", taxbranch_phase_problema_path(@taxbranch),
+                class: "px-3 py-2 border-b-2 border-transparent text-slate-600 hover:text-slate-900 hover:border-slate-300" %>
+    <%= link_to "Obiettivo", taxbranch_phase_obiettivo_path(@taxbranch),
+                class: "px-3 py-2 border-b-2 border-transparent text-slate-600 hover:text-slate-900 hover:border-slate-300" %>
+    <%= link_to "Previsione", taxbranch_phase_previsione_path(@taxbranch),
+                class: "px-3 py-2 border-b-2 border-transparent text-slate-600 hover:text-slate-900 hover:border-slate-300" %>
+    <%= link_to "Responsabile", taxbranch_phase_responsabile_progettazione_path(@taxbranch),
+                class: "px-3 py-2 border-b-2 border-transparent text-slate-600 hover:text-slate-900 hover:border-slate-300" %>
+    <%= link_to "Step necessari", taxbranch_phase_step_necessari_path(@taxbranch),
+                class: "px-3 py-2 border-b-2 border-transparent text-slate-600 hover:text-slate-900 hover:border-slate-300" %>
+    <%= link_to "Impegno", taxbranch_phase_impegno_path(@taxbranch),
+                class: "px-3 py-2 border-b-2 border-transparent text-slate-600 hover:text-slate-900 hover:border-slate-300" %>
+    <%= link_to "Realizzazione", taxbranch_phase_realizzazione_path(@taxbranch),
+                class: "px-3 py-2 border-b-2 border-transparent text-slate-600 hover:text-slate-900 hover:border-slate-300" %>
+    <%= link_to "Test", taxbranch_phase_test_path(@taxbranch),
+                class: "px-3 py-2 border-b-2 border-transparent text-slate-600 hover:text-slate-900 hover:border-slate-300" %>
+    <%= link_to "Attivo", taxbranch_phase_attivo_path(@taxbranch),
+                class: "px-3 py-2 border-b-2 border-transparent text-slate-600 hover:text-slate-900 hover:border-slate-300" %>
+    <%= link_to "Chiuso", taxbranch_phase_chiuso_path(@taxbranch),
+                class: "px-3 py-2 border-b-2 border-transparent text-slate-600 hover:text-slate-900 hover:border-slate-300" %>
+  </nav>
+</div>

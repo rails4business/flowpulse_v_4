@@ -1,0 +1,181 @@
+<% content_for :title, "Mapservices · #{@domain.title.presence || @domain.host}" %>
+
+<style>
+  .map-frame {
+    background-image: radial-gradient(circle, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+    background-size: 28px 28px;
+    position: relative;
+    overflow: hidden;
+    cursor: grab;
+  }
+  .map-frame.dragging {
+    cursor: grabbing;
+  }
+  .map-viewport {
+    width: 100%;
+    height: 520px;
+    transform-origin: center;
+    transition: transform 0.15s ease;
+  }
+  .map-label {
+    font-size: 12px;
+    font-weight: 600;
+    fill: #ffffff;
+  }
+  .map-sub {
+    font-size: 10px;
+    fill: #9dabb9;
+  }
+</style>
+
+<div class="space-y-2">
+  
+
+  
+      <% if @stations.any? %>
+        <% map_width = 1000 %>
+        <% map_height = 600 %>
+        <% center_x = map_width / 2 %>
+        <% center_y = map_height / 2 %>
+        <% positions = {} %>
+        <% @stations.each_with_index do |station, index| %>
+          <% x = station.respond_to?(:x_coordinated) ? station.x_coordinated : nil %>
+          <% y = station.respond_to?(:y_coordinated) ? station.y_coordinated : nil %>
+          <% fallback_x = 140 + (index % 4) * 220 %>
+          <% fallback_y = 120 + (index / 4) * 170 %>
+          <% px = x.present? ? center_x + x : fallback_x %>
+          <% py = y.present? ? center_y + y : fallback_y %>
+          <% positions[station.id] = [px, py] %>
+        <% end %>
+
+        <div class="mt-4 rounded-xl border border-[#283039] bg-background-dark map-frame">
+          <svg
+            class="map-viewport"
+            id="map-viewport"
+            viewBox="0 0 <%= map_width %> <%= map_height %>"
+            preserveAspectRatio="xMidYMid meet"
+          >
+            <% @journey_links.each do |journey| %>
+              <% from = positions[journey.taxbranch_id] %>
+              <% to = positions[journey.end_taxbranch_id] %>
+              <% next if from.nil? || to.nil? %>
+              <line
+                x1="<%= from[0] %>"
+                y1="<%= from[1] %>"
+                x2="<%= to[0] %>"
+                y2="<%= to[1] %>"
+                stroke="rgba(19, 127, 236, 0.7)"
+                stroke-width="2"
+              />
+            <% end %>
+
+            <% @stations.each do |station| %>
+              <% pos = positions[station.id] %>
+              <a href="<%= superadmin_taxbranch_path(station) %>" xlink:href="<%= superadmin_taxbranch_path(station) %>">
+                <g class="cursor-pointer" transform="translate(<%= pos[0] %>, <%= pos[1] %>)">
+                  <title>
+                    <%= station.display_label %> · slug: <%= station.slug %> · journey: <%= @journey_counts[station.id] || 0 %>
+                  </title>
+                  <circle fill="#101922" r="12" stroke="#137fec" stroke-width="3"></circle>
+                  <circle fill="#ffffff" r="4"></circle>
+                  <text class="map-label" text-anchor="middle" y="30">
+                    <%= station.display_label %>
+                  </text>
+                  <text class="map-sub" text-anchor="middle" y="44">
+                    <%= station.slug %>
+                  </text>
+                </g>
+              </a>
+            <% end %>
+          </svg>
+          <div class="absolute bottom-4 right-4 flex flex-col gap-2 z-10">
+            <div class="flex flex-col bg-background-dark/80 backdrop-blur-md border border-[#283039] rounded-lg overflow-hidden shadow-xl">
+              <button class="p-2.5 text-white hover:bg-primary/20 transition-colors" data-zoom="in" type="button">
+                <span class="material-symbols-outlined">add</span>
+              </button>
+              <div class="h-px bg-[#283039]"></div>
+              <button class="p-2.5 text-white hover:bg-primary/20 transition-colors" data-zoom="out" type="button">
+                <span class="material-symbols-outlined">remove</span>
+              </button>
+            </div>
+            <button class="p-2.5 bg-background-dark/80 backdrop-blur-md border border-[#283039] rounded-lg text-white hover:bg-primary/20 shadow-xl transition-colors" data-zoom="reset" type="button">
+              <span class="material-symbols-outlined">navigation</span>
+            </button>
+          </div>
+        </div>
+      <% else %>
+        <p class="mt-4 text-sm text-[#9dabb9]">
+          Nessuna stazione trovata. Aggiungi taxbranch figli al dominio.
+        </p>
+      <% end %>
+ 
+
+   
+
+</div>
+
+<script>
+  (() => {
+    const viewport = document.getElementById("map-viewport");
+    const frame = viewport?.closest(".map-frame");
+    if (!viewport || !frame) return;
+    let scale = 1;
+    let offsetX = 0;
+    let offsetY = 0;
+    let dragging = false;
+    let startX = 0;
+    let startY = 0;
+    const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
+
+    function applyTransform() {
+      viewport.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale.toFixed(2)})`;
+    }
+
+    document.querySelectorAll("[data-zoom]").forEach((btn) => {
+      btn.addEventListener("pointerdown", (event) => {
+        event.stopPropagation();
+      });
+      btn.addEventListener("click", () => {
+        const action = btn.getAttribute("data-zoom");
+        if (action === "in") scale = clamp(scale + 0.1, 0.6, 2);
+        if (action === "out") scale = clamp(scale - 0.1, 0.6, 2);
+        if (action === "reset") {
+          scale = 1;
+          offsetX = 0;
+          offsetY = 0;
+        }
+        applyTransform();
+      });
+    });
+
+    frame.addEventListener("pointerdown", (event) => {
+      if (event.button !== 0) return;
+      if (event.target.closest("[data-zoom]")) return;
+      if (event.target.closest("a")) return;
+      dragging = true;
+      startX = event.clientX - offsetX;
+      startY = event.clientY - offsetY;
+      frame.classList.add("dragging");
+      frame.setPointerCapture(event.pointerId);
+    });
+
+    frame.addEventListener("pointermove", (event) => {
+      if (!dragging) return;
+      offsetX = event.clientX - startX;
+      offsetY = event.clientY - startY;
+      applyTransform();
+    });
+
+    frame.addEventListener("pointerup", () => {
+      dragging = false;
+      frame.classList.remove("dragging");
+    });
+
+    frame.addEventListener("pointercancel", () => {
+      dragging = false;
+      frame.classList.remove("dragging");
+    });
+
+    applyTransform();
+  })();
+</script>

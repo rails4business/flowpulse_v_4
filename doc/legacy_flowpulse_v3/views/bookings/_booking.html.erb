@@ -1,0 +1,62 @@
+<div id="<%= dom_id booking %>" class="w-full sm:w-auto my-5 space-y-5">
+  <div>
+    <strong class="block font-medium mb-1">Service:</strong>
+    <%= booking.service_id %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Eventdate:</strong>
+    <%= booking.eventdate_id %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Contact:</strong>
+    <%= booking.mycontact_id %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Enrollment:</strong>
+    <%= booking.enrollment_id %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Commitment resource:</strong>
+    <%= booking.commitment_id %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Journey role:</strong>
+    <%= booking.journey_role.presence || "—" %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Status:</strong>
+    <%= booking.status %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Mode:</strong>
+    <%= booking.mode %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Participant role:</strong>
+    <%= booking.participant_role %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Requested by datacontact:</strong>
+    <%= booking.requested_by_lead_id %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Invited by datacontact:</strong>
+    <%= booking.invited_by_lead_id %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Price euro:</strong>
+    <%= booking.price_euro %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Price dash:</strong>
+    <%= booking.price_dash %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Notes:</strong>
+    <%= booking.notes %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Meta:</strong>
+    <%= booking.meta %>
+  </div>
+</div>

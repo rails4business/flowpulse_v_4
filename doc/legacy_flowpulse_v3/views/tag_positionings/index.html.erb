@@ -1,0 +1,69 @@
+<% content_for :title, "Tag positionings" %>
+<!-- app/views/tag_positionings/index.html.erb -->
+
+<% if params[:taxbranch_id].present? %>
+
+
+<h1 class="text-2xl font-bold mb-4">Positioning — <%= @taxbranch.slug_label %></h1>
+
+<div class="bg-white border rounded-xl p-4 mb-6">
+  <%= form_with url: taxbranch_tag_positionings_path(@taxbranch), method: :post, local: true, class: "grid md:grid-cols-3 gap-3" do |f| %>
+    <div class="md:col-span-1">
+      <%= f.label :category, "Categoria", class: "block text-sm font-medium" %>
+      <% list_id = dom_id(@taxbranch, :categories_list) %>
+      <%= f.text_field :category, list: list_id,
+            placeholder: "es. problema / target / keyword…",
+            class: "w-full border rounded-md px-3 py-2" %>
+      <datalist id="<%= list_id %>">
+        <% (@categories.presence || []).
+             concat(@default_categories).
+             uniq.each do |cat| %>
+          <option value="<%= cat %>"></option>
+        <% end %>
+      </datalist>
+    </div>
+
+    <div class="md:col-span-1">
+      <%= f.label :name, "Termine", class: "block text-sm font-medium" %>
+      <%= f.text_field :name, placeholder: "es. dolori cervicali", class: "w-full border rounded-md px-3 py-2" %>
+    </div>
+
+  
+
+    <div class="md:col-span-3 text-right">
+      <%= f.submit "Aggiungi", class: "inline-flex items-center px-3 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700" %>
+    </div>
+  <% end %>
+</div>
+
+<div class="overflow-x-auto bg-white border rounded-xl">
+  <table class="min-w-full text-sm">
+    <thead class="bg-slate-100 dark:bg-black">
+      <tr>
+        <th class="py-2 px-3 text-left">Categoria</th>
+        <th class="py-2 px-3 text-left">Termine</th>
+        <th class="py-2 px-3 text-left">Post</th>
+        <th class="py-2 px-3 text-right">Azioni</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @tags.each do |t| %>
+        <tr class="border-t hover:bg-slate-50">
+          <td class="py-2 px-3"><%= t.category %></td>
+          <td class="py-2 px-3"><%= t.name %></td>
+          <td class="py-2 px-3"><%= t.post&.title || "—" %></td>
+          <td class="py-2 px-3 text-right">
+            <%= link_to "Elimina",
+                taxbranch_tag_positioning_path(@taxbranch, t),
+                data: { turbo_method: :delete, turbo_confirm: "Eliminare?" },
+                class: "text-red-600 hover:underline" %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+
+<% else %>
+  <%= render 'index_all' %>
+<% end %>

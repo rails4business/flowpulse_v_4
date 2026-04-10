@@ -1,0 +1,24 @@
+<% content_for :title, "Fasi progetto" %>
+<% content_for :nav do %>
+  <%= render "shared/taxbranch_nav", taxbranch: @taxbranch %>
+<% end %>
+
+<div class="max-w-4xl mx-auto px-4 py-8 space-y-6">
+  <h1 class="text-2xl font-bold text-slate-900">Fasi progetto</h1>
+
+  <%= render "tabs" %>
+
+  <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+    <p class="text-sm text-slate-600">
+      Seleziona una fase per vedere il template dedicato.
+    </p>
+    <p class="text-xs text-slate-500 mt-2">Taxbranch: <%= @taxbranch.display_label %></p>
+  </div>
+</div>
+
+
+Come faccio a distinguere generaimpresa e rails4b e 1impegno e dove salvo le info dei vari step? 
+aggiungo a  event journey una casella text? o uso i messagggi su eventdate?
+
+<br>
+metti i commenti del libro e i services

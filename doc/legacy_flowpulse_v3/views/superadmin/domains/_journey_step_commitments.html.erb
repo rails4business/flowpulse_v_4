@@ -1,0 +1,79 @@
+<% commitments = eventdate.commitments.ordered %>
+
+<div class="mt-2 rounded-md border border-<%= tone %>-500/10 bg-[#0b1220] px-3 py-2 text-[11px] text-<%= tone %>-100/80">
+  <div class="flex items-center justify-between gap-2 border-b border-<%= tone %>-500/10 pb-1 mb-2">
+    <span class="text-<%= tone %>-200/80 font-semibold">Commitments</span>
+    <%= link_to "+",
+                new_eventdate_commitment_path(eventdate),
+                data: { turbo_frame: "modal" },
+                class: "text-#{tone}-200 hover:text-white text-[14px]" %>
+  </div>
+
+  <% if commitments.any? %>
+    <div class="space-y-2">
+      <% commitments.each do |commitment| %>
+        <% contact = commitment.bookings.confirmed.first&.mycontact %>
+        <div class="flex items-center justify-between gap-3 rounded-md border border-<%= tone %>-500/5 bg-[#0f172a]/50 px-2 py-1.5 hover:bg-[#0f172a] transition-colors group">
+          
+          <!-- Left: Avatar/Icon -->
+          <div class="shrink-0">
+            <div class="h-6 w-6 rounded-full border border-<%= tone %>-500/20 bg-[#1e293b] flex items-center justify-center text-<%= tone %>-200 overflow-hidden">
+              <% if contact %>
+                 <span class="text-[9px] font-bold"><%= contact.initials rescue contact.firstname[0] %></span>
+              <% else %>
+                 <span class="material-symbols-outlined text-[14px]">person</span>
+              <% end %>
+            </div>
+          </div>
+
+          <!-- Middle: Role & Contact -->
+          <div class="min-w-0 flex-1">
+            <p class="truncate text-<%= tone %>-50 font-semibold leading-tight">
+              <%= commitment.role_name.presence || "Ruolo non definito" %>
+            </p>
+            <div class="flex items-center gap-1.5 text-[10px] text-<%= tone %>-200/60 leading-tight">
+               <% if contact %>
+                 <span class="text-<%= tone %>-100"><%= contact.fullname rescue contact.email %></span>
+               <% else %>
+                 <span class="italic">Vacante</span>
+               <% end %>
+               <% if commitment.area.present? %>
+                 <span>· <%= commitment.area %></span>
+               <% end %>
+            </div>
+          </div>
+
+          <!-- Right: Cost & Duration -->
+          <div class="text-right shrink-0 flex flex-col items-end gap-0.5">
+            <% if commitment.compensation_euro.to_f > 0 %>
+              <p class="text-<%= tone %>-100 font-mono font-medium whitespace-nowrap" title="Valore €">
+                <%= number_to_currency(commitment.compensation_euro, unit: "€", format: "%n %u", precision: 2) %>
+              </p>
+            <% end %>
+            <% if commitment.compensation_dash.to_f > 0 %>
+              <p class="text-blue-200 font-mono font-medium whitespace-nowrap text-[10px]" title="Valore Dash">
+                <%= number_with_precision(commitment.compensation_dash, precision: 5, strip_insignificant_zeros: true) %> Đ
+              </p>
+            <% end %>
+            <% if commitment.duration_minutes.present? %>
+              <p class="text-[10px] text-<%= tone %>-200/50 flex items-center gap-1 justify-end mt-0.5">
+                <span class="material-symbols-outlined text-[10px]">schedule</span>
+                <%= commitment.duration_minutes %>m
+              </p>
+            <% end %>
+          </div>
+          
+          <!-- Edit Action -->
+          <%= link_to edit_eventdate_commitment_path(eventdate, commitment),
+                      data: { turbo_frame: "modal" },
+                      class: "opacity-0 group-hover:opacity-100 transition-opacity ml-1 text-#{tone}-200 hover:text-white" do %>
+            <span class="material-symbols-outlined text-[14px]">edit</span>
+          <% end %>
+
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <p class="text-<%= tone %>-200/40 text-center py-1">Nessuna risorsa assegnata.</p>
+  <% end %>
+</div>

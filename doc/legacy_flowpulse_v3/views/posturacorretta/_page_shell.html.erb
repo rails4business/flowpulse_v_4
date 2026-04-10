@@ -1,0 +1,16 @@
+<%= render "shared/brand_custom_pc_home_nav" %>
+
+<main class="bg-background-light min-h-[70vh]">
+  <section class="max-w-[1200px] mx-auto px-6 py-16">
+    <p class="text-[11px] font-bold uppercase tracking-[0.2em] text-slate-400"><%= @page_group %></p>
+    <h1 class="mt-2 text-4xl font-light tracking-tight text-slate-900">
+      <span class="font-bold"><%= @page_title %></span>
+    </h1>
+    <p class="mt-4 max-w-2xl text-slate-600"><%= @page_description %></p>
+
+    <div class="mt-8 flex flex-wrap gap-3">
+      <%= link_to "Vai al percorso", root_path(anchor: "percorso"), class: "inline-flex items-center rounded-full bg-primary px-5 py-2 text-sm font-semibold text-white hover:bg-primary/90 transition-colors" %>
+      <%= link_to "Vai al progetto", root_path(anchor: "progetto"), class: "inline-flex items-center rounded-full border border-slate-200 px-5 py-2 text-sm font-semibold text-slate-700 hover:border-primary/40 hover:text-primary transition-colors" %>
+    </div>
+  </section>
+</main>

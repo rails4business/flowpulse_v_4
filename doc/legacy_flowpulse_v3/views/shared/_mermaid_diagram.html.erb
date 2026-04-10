@@ -1,0 +1,51 @@
+<%# locals: title:, subtitle: nil, mermaid:, badge: nil, hint: nil %>
+<% mermaid_code = local_assigns[:mermaid] %>
+<% return if mermaid_code.blank? %>
+
+<% unless content_for?(:mermaid_assets_loaded) %>
+  <% content_for :head do %>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js" defer></script>
+    <script>
+      window.renderMermaidDiagrams = window.renderMermaidDiagrams || function renderMermaidDiagrams() {
+        if (!window.mermaid) return;
+        mermaid.initialize({ startOnLoad: false, securityLevel: "loose" });
+        document.querySelectorAll("[data-mermaid-diagram]").forEach((node) => {
+          if (node.dataset.mermaidProcessed === "true") return;
+          node.textContent = node.dataset.mermaidDiagram;
+          node.dataset.mermaidProcessed = "true";
+          mermaid.run({ nodes: [node] });
+        });
+      };
+      document.addEventListener("turbo:load", window.renderMermaidDiagrams);
+      document.addEventListener("turbo:frame-load", window.renderMermaidDiagrams);
+    </script>
+  <% end %>
+  <% content_for :mermaid_assets_loaded do %>
+    true
+  <% end %>
+<% end %>
+
+<section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
+  <% if local_assigns[:title].present? %>
+    <div class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <% if local_assigns[:badge].present? %>
+          <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+            <%= badge %>
+          </p>
+        <% end %>
+        <h3 class="text-lg font-semibold text-slate-900"><%= title %></h3>
+        <% if local_assigns[:subtitle].present? %>
+          <p class="text-sm text-slate-600"><%= subtitle %></p>
+        <% end %>
+      </div>
+      <% if local_assigns[:hint].present? %>
+        <p class="text-xs text-slate-500"><%= hint %></p>
+      <% end %>
+    </div>
+  <% end %>
+
+  <div class="rounded-xl border border-slate-200 bg-slate-50 p-4 overflow-x-auto">
+    <div class="mermaid text-sm" data-mermaid-diagram="<%= j mermaid_code %>"></div>
+  </div>
+</section>

@@ -1,0 +1,314 @@
+<%= form_with(model: journey, local: true, class: "contents") do |form| %>
+  <% if journey.errors.any? %>
+    <div id="error_explanation" class="bg-red-50 text-red-500 px-3 py-2 font-medium rounded-md mt-3">
+      <h2><%= pluralize(journey.errors.count, "error") %> prohibited this journey from being saved:</h2>
+
+      <ul class="list-disc ml-6">
+        <% journey.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="my-5">
+    <%= form.label :title %>
+    <%= form.text_field :title, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": journey.errors[:title].none?, "border-red-400 focus:outline-red-600": journey.errors[:title].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :slug %>
+    <%= form.text_field :slug,
+          class: [
+            "block shadow-sm rounded-md border px-3 py-2 mt-2 w-full",
+            {
+              "border-gray-400 focus:outline-blue-600": journey.errors[:slug].none?,
+              "border-red-400 focus:outline-red-600": journey.errors[:slug].any?
+            }
+          ] %>
+    <p class="text-xs text-slate-500 mt-1">
+      Se lasci vuoto lo slug verrà generato automaticamente dal titolo.
+    </p>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :taxbranch_id %>
+    <%= form.text_field :taxbranch_id,
+          class: [
+            "block shadow-sm rounded-md border px-3 py-2 mt-2 w-full",
+            {
+              "border-gray-400 focus:outline-blue-600": journey.errors[:taxbranch_id].none?,
+              "border-red-400 focus:outline-red-600": journey.errors[:taxbranch_id].any?
+            }
+          ],
+          value: default_taxbranch_id_for(journey) %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :end_taxbranch_id %>
+    <%= form.text_field :end_taxbranch_id,
+          class: [
+            "block shadow-sm rounded-md border px-3 py-2 mt-2 w-full",
+            {
+              "border-gray-400 focus:outline-blue-600": journey.errors[:end_taxbranch_id].none?,
+              "border-red-400 focus:outline-red-600": journey.errors[:end_taxbranch_id].any?
+            }
+          ],
+          value: (journey.end_taxbranch_id.presence || params[:end_taxbranch_id]) %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :service_id %>
+    <%= form.text_field :service_id, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": journey.errors[:service_id].none?, "border-red-400 focus:outline-red-600": journey.errors[:service_id].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :lead_id %>
+    <%= form.text_field :lead_id, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": journey.errors[:lead_id].none?, "border-red-400 focus:outline-red-600": journey.errors[:lead_id].any?}] %>
+  </div>
+
+  <div class="my-5">
+  <%= form.label :importance %>
+  <%= form.number_field :importance,
+        min: 1, max: 5,
+        class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full",
+        {"border-gray-400 focus:outline-blue-600": journey.errors[:importance].none?,
+         "border-red-400 focus:outline-red-600": journey.errors[:importance].any?}] %>
+</div>
+
+<div class="my-5">
+  <%= form.label :urgency %>
+  <%= form.number_field :urgency,
+        min: 1, max: 5,
+        class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full",
+        {"border-gray-400 focus:outline-blue-600": journey.errors[:urgency].none?,
+         "border-red-400 focus:outline-red-600": journey.errors[:urgency].any?}] %>
+</div>
+
+<div class="my-5">
+  <%= form.label :energy %>
+
+  <div class="flex items-center space-x-3 mt-2">
+    <% [
+      ["😴", 1],
+      ["🙂", 2],
+      ["😀", 3],
+      ["⚡️", 4],
+      ["🔥", 5]
+    ].each do |emoji, val| %>
+
+      <label class="flex flex-col items-center cursor-pointer">
+        <%= form.radio_button :energy, val, class: "hidden peer" %>
+        <span class="text-2xl peer-checked:ring-2 peer-checked:ring-blue-600 peer-checked:scale-110 transition">
+          <%= emoji %>
+        </span>
+        <span class="text-xs text-gray-500 mt-1"><%= val %></span>
+      </label>
+
+    <% end %>
+  </div>
+
+  <% if journey.errors[:energy].any? %>
+    <p class="text-red-600 text-sm mt-2"><%= journey.errors[:energy].first %></p>
+  <% end %>
+</div>
+
+
+  <div class="my-5">
+    <%= form.label :progress %>
+    <%= form.number_field :progress, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": journey.errors[:progress].none?, "border-red-400 focus:outline-red-600": journey.errors[:progress].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :notes %>
+    <%= form.textarea :notes, rows: 4, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": journey.errors[:notes].none?, "border-red-400 focus:outline-red-600": journey.errors[:notes].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :price_estimate_euro %>
+    <%= form.text_field :price_estimate_euro, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": journey.errors[:price_estimate_euro].none?, "border-red-400 focus:outline-red-600": journey.errors[:price_estimate_euro].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :price_estimate_dash %>
+    <%= form.text_field :price_estimate_dash, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": journey.errors[:price_estimate_dash].none?, "border-red-400 focus:outline-red-600": journey.errors[:price_estimate_dash].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :meta %>
+    <%= form.text_field :meta, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": journey.errors[:meta].none?, "border-red-400 focus:outline-red-600": journey.errors[:meta].any?}] %>
+  </div>
+
+  <div class="my-5" data-journey-roles>
+    <%= form.label :journey_roles_text, "Ruoli Journey" %>
+    <%= form.hidden_field :journey_roles_text, value: journey.journey_roles_text %>
+    <div class="mt-2 rounded-md border px-3 py-3 shadow-sm">
+      <div class="flex flex-wrap gap-2" data-journey-roles-list></div>
+      <div class="mt-3 flex flex-wrap gap-2">
+        <input
+          type="text"
+          class="block w-full sm:w-auto flex-1 rounded-md border px-3 py-2"
+          placeholder="Aggiungi ruolo"
+          data-journey-roles-input
+        />
+        <button
+          type="button"
+          class="rounded-md bg-slate-900 px-3 py-2 text-xs font-semibold text-white hover:bg-slate-800"
+          data-journey-roles-add
+        >
+          Aggiungi
+        </button>
+      </div>
+    </div>
+    <% if journey.errors[:journey_roles].any? %>
+      <p class="text-red-600 text-xs mt-1"><%= journey.errors[:journey_roles].first %></p>
+    <% end %>
+  </div>
+
+  <div class="my-5 flex flex-col gap-3 sm:flex-row sm:items-center">
+    <label class="flex items-center gap-2 text-sm text-slate-700">
+      <%= form.check_box :allows_invite,
+            class: "h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" %>
+      Permetti iscrizioni su invito
+    </label>
+    <label class="flex items-center gap-2 text-sm text-slate-700">
+      <%= form.check_box :allows_request,
+            class: "h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" %>
+      Permetti richieste autonome
+    </label>
+  </div>
+
+  <div class="my-4">
+    <%= form.label :kind, "Tipo di Journey", class: "block text-sm font-medium mb-1" %>
+    <%= form.select :kind, 
+          Journey.kinds.keys.map { |k| [k.humanize, k] },
+          {},
+          class: "block w-full rounded-md border px-3 py-2 shadow-sm" %>
+  </div>
+
+  <div class="my-4">
+    <%= form.label :journey_type, "Categoria Journey", class: "block text-sm font-medium mb-1" %>
+    <%= form.select :journey_type,
+          Journey.journey_types.keys.map { |t| [t.humanize, t] },
+          {},
+          class: "block w-full rounded-md border px-3 py-2 shadow-sm" %>
+  </div>
+
+  <div class="my-4">
+    <%= form.label :journeys_status, "Fase", class: "block text-sm font-medium mb-1" %>
+    <%= form.select :journeys_status,
+          Journey.journeys_statuses.keys.map { |p| [p.humanize, p] },
+          { include_blank: "Seleziona fase" },
+          class: "block w-full rounded-md border px-3 py-2 shadow-sm" %>
+  </div>
+
+  <div class="my-4">
+    <%= form.label :phase, "Journey Phase", class: "block text-sm font-medium mb-1" %>
+    <%= form.select :phase,
+          Journey::PHASES.map { |value| [value.humanize, value] },
+          { include_blank: "Seleziona fase del journey" },
+          class: "block w-full rounded-md border px-3 py-2 shadow-sm" %>
+  </div>
+
+  <div class="my-4">
+    <%= form.label :mode, "Journey Mode", class: "block text-sm font-medium mb-1" %>
+    <%= form.select :mode,
+          Journey::MODES.map { |value| [value.humanize, value] },
+          { include_blank: "Seleziona modalita" },
+          class: "block w-full rounded-md border px-3 py-2 shadow-sm" %>
+  </div>
+ 
+
+  <div class="my-5">
+    <%= form.label :template_journey_id %>
+    <%= form.number_field :template_journey_id, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": journey.errors[:template_journey_id].none?, "border-red-400 focus:outline-red-600": journey.errors[:template_journey_id].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :start_at %>
+    <%= form.datetime_field :start_at, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": journey.errors[:start_at].none?, "border-red-400 focus:outline-red-600": journey.errors[:start_at].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :end_at %>
+    <%= form.datetime_field :end_at, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": journey.errors[:end_at].none?, "border-red-400 focus:outline-red-600": journey.errors[:end_at].any?}] %>
+  </div>
+
+  
+
+  <% if journey.errors[:is_template].any? %>
+    <p class="text-red-600 text-xs mt-1"><%= journey.errors[:is_template].first %></p>
+  <% end %>
+</div>
+
+  <div class="inline">
+    <%= form.submit class: "w-full sm:w-auto rounded-md px-3.5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white inline-block font-medium cursor-pointer" %>
+  </div>
+<% end %>
+
+<script>
+  (() => {
+    const root = document.querySelector("[data-journey-roles]");
+    if (!root) return;
+    const input = root.querySelector("[data-journey-roles-input]");
+    const addBtn = root.querySelector("[data-journey-roles-add]");
+    const list = root.querySelector("[data-journey-roles-list]");
+    const hidden = root.querySelector('input[name="journey[journey_roles_text]"]');
+    if (!input || !addBtn || !list || !hidden) return;
+
+    const parseRoles = (value) =>
+      value
+        .split(/[\n,;]/)
+        .map((role) => role.trim())
+        .filter((role) => role.length > 0);
+
+    const unique = (roles) => Array.from(new Set(roles));
+
+    const render = (roles) => {
+      list.innerHTML = "";
+      roles.forEach((role) => {
+        const pill = document.createElement("span");
+        pill.className =
+          "inline-flex items-center gap-2 rounded-full border border-slate-300 px-3 py-1 text-xs font-semibold text-slate-700";
+        const label = document.createElement("span");
+        label.textContent = role;
+        const remove = document.createElement("button");
+        remove.type = "button";
+        remove.textContent = "×";
+        remove.className = "text-slate-400 hover:text-slate-900";
+        remove.addEventListener("click", () => {
+          const next = roles.filter((item) => item !== role);
+          sync(next);
+        });
+        pill.appendChild(label);
+        pill.appendChild(remove);
+        list.appendChild(pill);
+      });
+    };
+
+    const sync = (roles) => {
+      const next = unique(roles);
+      hidden.value = next.join("\n");
+      render(next);
+    };
+
+    const addRole = () => {
+      const value = input.value.trim();
+      if (!value) return;
+      const current = parseRoles(hidden.value);
+      sync([...current, value]);
+      input.value = "";
+      input.focus();
+    };
+
+    addBtn.addEventListener("click", addRole);
+    input.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" || event.key === ",") {
+        event.preventDefault();
+        addRole();
+      }
+    });
+
+    sync(parseRoles(hidden.value));
+  })();
+</script>

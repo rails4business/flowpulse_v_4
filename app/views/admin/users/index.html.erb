@@ -1,0 +1,85 @@
+<% content_for :title, "Persone" %>
+
+<section class="dashboard-shell">
+  <div class="app-layout">
+    <%= render "shared/app_sidebar" %>
+
+    <div class="dashboard-card admin-page">
+      <p class="eyebrow">Superadmin</p>
+      <h1>Persone</h1>
+      <p>
+        Qui puoi vedere insieme account, profili e livelli di accesso in una sola vista compatta.
+      </p>
+
+      <div class="dashboard-tabs dashboard-tabs-subtle admin-filter-tabs">
+        <%= link_to admin_users_path(filter: "all"), class: ["dashboard-tab-link", (@filter == "all" ? "active" : nil)].compact.join(" ") do %>
+          <span>Tutti</span>
+          <small><%= User.count %></small>
+        <% end %>
+        <%= link_to admin_users_path(filter: "with_profile"), class: ["dashboard-tab-link", (@filter == "with_profile" ? "active" : nil)].compact.join(" ") do %>
+          <span>Con profilo</span>
+          <small><%= User.where.associated(:profile).count %></small>
+        <% end %>
+        <%= link_to admin_users_path(filter: "without_profile"), class: ["dashboard-tab-link", (@filter == "without_profile" ? "active" : nil)].compact.join(" ") do %>
+          <span>Senza profilo</span>
+          <small><%= User.where.missing(:profile).count %></small>
+        <% end %>
+        <%= link_to admin_users_path(filter: "superadmin"), class: ["dashboard-tab-link", (@filter == "superadmin" ? "active" : nil)].compact.join(" ") do %>
+          <span>Superadmin</span>
+          <small><%= User.where(superadmin: true).count %></small>
+        <% end %>
+      </div>
+
+      <div class="admin-section">
+        <h2>Elenco persone</h2>
+
+        <div class="admin-compact-list">
+          <% @users.each do |user| %>
+            <article class="admin-compact-item admin-compact-item-static">
+              <div class="admin-compact-main">
+                <strong><%= user.email_address %></strong>
+              </div>
+              <div class="admin-compact-col">
+                <% if user.profile.present? %>
+                  <span><%= user.profile.display_name %></span>
+                  <span>@<%= user.profile.slug %></span>
+                <% else %>
+                  <span>Profilo non completato</span>
+                <% end %>
+              </div>
+              <div class="admin-compact-col">
+                <span><%= user.profile&.access_role_label || "Nessun profilo" %></span>
+                <% if user.profile&.creator? %>
+                  <span>Creator fino al <%= user.profile.creator_active_until_label %></span>
+                <% elsif user.profile&.creator_requested? %>
+                  <span><%= user.profile.creator_requested_compact_label.present? ? "Creator richiesto il #{user.profile.creator_requested_compact_label}" : "Richiesta creator aperta" %></span>
+                <% end %>
+                <% if user.profile&.professional? %>
+                  <span>Professional fino al <%= user.profile.professional_active_until_label %></span>
+                <% elsif user.profile&.professional_requested? %>
+                  <span><%= user.profile.professional_requested_compact_label.present? ? "Professional richiesto il #{user.profile.professional_requested_compact_label}" : "Richiesta professional aperta" %></span>
+                <% end %>
+              </div>
+              <div class="admin-compact-col">
+                <% if user.superadmin? %>
+                  <span class="admin-inline-badge">Superadmin</span>
+                <% end %>
+                <% if user.profile&.creator? %>
+                  <span class="admin-inline-badge admin-inline-badge-creator">Creator</span>
+                <% end %>
+                <% if user.profile&.professional? %>
+                  <span class="admin-inline-badge admin-inline-badge-professional">Professional</span>
+                <% end %>
+                <% if user.profile&.traveler_only? %>
+                  <span class="admin-inline-badge">Viaggiatore</span>
+                <% elsif user.profile.blank? %>
+                  <span class="admin-inline-badge">Profilo mancante</span>
+                <% end %>
+              </div>
+            </article>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

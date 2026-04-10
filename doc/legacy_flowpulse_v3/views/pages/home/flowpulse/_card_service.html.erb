@@ -1,0 +1,19 @@
+<section id="services" class="max-w-7xl mx-auto px-4 py-12">
+  <div class="rounded-xl p-4 bg-gradient-to-r from-slate-50 via-white to-transparent border border-slate-100 dark:from-slate-800/40 dark:border-slate-800">
+    <h2 class="text-2xl font-bold">Servizi dell'accademia</h2>
+    <p class="text-sm text-slate-600 dark:text-slate-300 mt-1">Strumenti trasversali: corsi, valutazioni e contenuti.</p>
+  </div>
+  <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
+    <% @services.each do |s| %>
+      <article class="card rounded-xl border border-gray-200 bg-white dark:bg-slate-900 overflow-hidden transition-all">
+        <% if s[:image_url].present? %>
+          <img src="<%= s[:image_url] %>" alt="<%= s[:title] %>" class="w-full aspect-[16/9] object-cover bg-gray-100" />
+        <% end %>
+        <div class="p-4 space-y-2">
+          <h3 class="font-semibold"><%= s[:title] %></h3>
+          <p class="text-sm text-gray-600 dark:text-slate-400"><%= s[:description] %></p>
+        </div>
+      </article>
+    <% end %>
+  </div>
+</section>

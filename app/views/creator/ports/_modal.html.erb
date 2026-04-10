@@ -1,0 +1,26 @@
+<dialog
+  class="changelog-modal port-modal"
+  data-controller="port-modal"
+  data-port-modal-target="dialog"
+  data-action="click->port-modal#closeOnBackdrop cancel->port-modal#closeOnCancel"
+>
+  <div class="changelog-modal-card port-modal-card">
+    <div class="changelog-modal-head">
+      <span class="changelog-modal-pill">Fonda un nuovo approdo</span>
+      <button
+        type="button"
+        class="changelog-modal-close"
+        data-action="click->port-modal#close"
+        aria-label="Chiudi"
+      >
+        ×
+      </button>
+    </div>
+    <p class="changelog-modal-text" style="color: #64748b; font-size: 0.9rem;">
+      Stiamo per piantare le fondamenta alle coordinate <strong>[<%= port.x %>, <%= port.y %>]</strong>. Scegli tipo, nome e dettagli del porto per salvarlo sulla carta.
+    </p>
+    <div style="text-align: left; margin-top: 1rem;">
+      <%= render "creator/ports/form", port: port %>
+    </div>
+  </div>
+</dialog>

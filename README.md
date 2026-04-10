@@ -69,8 +69,10 @@ Key files:
 - [`doc/journey_service_offer_professional.md`](doc/journey_service_offer_professional.md)
 - [`doc/professional_operativita.md`](doc/professional_operativita.md)
 - [`doc/steps/README.md`](doc/steps/README.md)
-- [`doc/steps/todo/planning_develop_step_0003.md`](doc/steps/todo/planning_develop_step_0003.md)
+- [`doc/steps/todo/planning_develop_step_0004.md`](doc/steps/todo/planning_develop_step_0004.md)
+- [`doc/steps/todonext/planning_develop_step_0005.md`](doc/steps/todonext/planning_develop_step_0005.md)
 - [`doc/steps/done/planning_develop_step_0002.md`](doc/steps/done/planning_develop_step_0002.md)
+- [`doc/steps/done/planning_develop_step_0003.md`](doc/steps/done/planning_develop_step_0003.md)
 - [`doc/steps/todonext/`](doc/steps/todonext/)
 
 ## Status
@@ -82,5 +84,5 @@ The current priority is to stabilize:
 - core language
 - user roles
 - journey structure
-- branch and map architecture
+- port, trail, service, event and activity architecture
 - service and professional value model

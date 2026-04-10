@@ -1,0 +1,22 @@
+<li style="margin-left: <%= node.depth + 2 %>px;">
+  <div class="flex items-start gap-2">
+    <span class="text-xs text-slate-400 mt-1">&gt;</span>
+    <% if node.link_node? && node.link_child.present? %>
+      <span class="material-symbols-outlined text-[14px] text-slate-400 mt-1">link</span>
+      <%= link_to node.link_child.display_label,
+                  generaimpresa_superadmin_taxbranch_path(node.link_child),
+                  class: "flex-1 truncate rounded-md px-1 py-1 text-sm text-slate-200 hover:bg-white/10" %>
+    <% else %>
+      <%= link_to node.display_label,
+                  generaimpresa_superadmin_taxbranch_path(node),
+                  class: "flex-1 truncate rounded-md px-1 py-1 text-sm text-slate-200 hover:bg-white/10 #{'bg-white/10 text-white' if node.id == @taxbranch.id}" %>
+    <% end %>
+  </div>
+  <% if node.children.exists? %>
+    <ul class="mt-1 space-y-1">
+      <%= render partial: "tree_simple",
+                 collection: node.children.ordered,
+                 as: :node %>
+    </ul>
+  <% end %>
+</li>

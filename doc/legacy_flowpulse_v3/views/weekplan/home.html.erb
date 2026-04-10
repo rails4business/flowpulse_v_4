@@ -1,0 +1,236 @@
+<% content_for :head do %>
+  <style>
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    .grid-lines {
+      background-image: linear-gradient(to bottom, #e7edf3 1px, transparent 1px);
+      background-size: 100% 60px;
+    }
+    .dark .grid-lines {
+      background-image: linear-gradient(to bottom, #2d3748 1px, transparent 1px);
+    }
+  </style>
+<% end %>
+
+<% week_start = @week_start %>
+<% week_days = (0..6).map { |i| week_start + i } %>
+<% today = Date.current %>
+<% time_slots = (0..23).to_a %>
+<% prev_week = week_start - 7 %>
+<% next_week = week_start + 7 %>
+<% selected_year = week_start.year %>
+<% selected_month = week_start.month %>
+<% selected_week = week_start.cweek %>
+<% weeks_in_year = Date.new(selected_year, 12, 28).cweek %>
+
+<div class="flex flex-col h-screen overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-800 bg-surface-light dark:bg-surface-dark shadow-sm">
+  <div class="flex flex-1 overflow-hidden min-h-0">
+    <main class="flex-1 flex flex-col bg-white dark:bg-surface-dark overflow-hidden min-h-0">
+      <div class="flex-1 min-h-0 overflow-y-auto no-scrollbar">
+        <div class="flex border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-surface-dark sticky top-0 z-20">
+          <div class="w-16 border-r border-gray-100 dark:border-gray-800 shrink-0"></div>
+          <div class="flex-1 grid grid-cols-7 divide-x divide-gray-100 dark:divide-gray-800">
+            <% week_days.each do |day| %>
+              <div class="py-2 text-center <%= day == today ? "bg-blue-50/30 dark:bg-blue-900/10" : "" %>">
+                <span class="block text-xs font-medium text-gray-500 uppercase"><%= day.strftime("%a") %></span>
+                <div class="mt-1 flex justify-center items-center gap-1">
+                  <span class="flex size-7 items-center justify-center rounded-full text-base font-medium <%= day == today ? "bg-primary text-white shadow-md" : "text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800" %>">
+                    <%= day.day %>
+                  </span>
+                  <span class="text-[10px] font-semibold text-gray-400 uppercase"><%= day.strftime("%b") %></span>
+                </div>
+              </div>
+            <% end %>
+          </div>
+          <div class="w-4 shrink-0"></div>
+        </div>
+
+        <div class="flex min-h-[1440px]">
+          <div class="w-16 flex flex-col items-center shrink-0 border-r border-gray-100 dark:border-gray-800 bg-white dark:bg-surface-dark sticky left-0 z-10 pt-2 select-none">
+            <% time_slots.each do |hour| %>
+              <div class="h-[60px] text-xs font-medium text-gray-400 pt-1">
+                <%= Time.zone.parse("#{hour}:00").strftime("%H:%M") %>
+              </div>
+            <% end %>
+          </div>
+          <div class="flex-1 relative grid grid-cols-7 divide-x divide-gray-100 dark:divide-gray-800 grid-lines">
+            <% week_days.each_with_index do |day, idx| %>
+              <div class="relative group <%= day == today ? "bg-blue-50/10 dark:bg-blue-900/5" : "" %>">
+                <% day_slots = @slot_instances.select { |s| s.date_start&.to_date == day } %>
+                <% day_slots.each do |slot| %>
+                  <% slot_start = slot.date_start || day.to_time.change(hour: 0) %>
+                  <% slot_end = slot.date_end || (slot_start + 1.hour) %>
+                  <% slot_top = (slot_start.hour * 60) + slot_start.min %>
+                  <% slot_height = [(slot_end - slot_start) / 60, 30].max.to_i %>
+                  <% slot_color = slot.slot_template&.color_hex.presence || "#94a3b8" %>
+                  <%= link_to slot_instance_path(slot),
+                              class: "absolute left-1 right-2 rounded-lg border p-2 bg-white/70 dark:bg-slate-900/40 text-[10px] text-slate-700 dark:text-slate-200 hover:shadow-md transition-shadow",
+                              style: "top: #{slot_top}px; height: #{slot_height}px; border-color: #{slot_color}; background-color: #{slot_color}22; z-index: 0;" do %>
+                    <div class="font-semibold truncate"><%= slot.slot_template&.title || "Slot" %></div>
+                    <% if slot.slot_template&.description.present? %>
+                      <div class="text-[9px] text-slate-500 dark:text-slate-300 truncate"><%= slot.slot_template.description %></div>
+                    <% end %>
+                  <% end %>
+                <% end %>
+                <% day_events = @week_events.select { |e| e.date_start&.to_date == day } %>
+                <% day_events.each do |event| %>
+                  <% start_time = event.date_start || day.to_time.change(hour: 0) %>
+                  <% end_time = event.date_end || (start_time + 1.hour) %>
+                  <% top = (start_time.hour * 60) + start_time.min %>
+                  <% height = [(end_time - start_time) / 60, 30].max.to_i %>
+                  <div class="absolute left-1 right-2 rounded-lg border-l-4 p-2 shadow-sm bg-blue-100 dark:bg-blue-900/40 border-blue-500 dark:border-blue-400"
+                       style="top: <%= top %>px; height: <%= height %>px; z-index: 10;">
+                    <div class="text-xs font-bold text-blue-800 dark:text-blue-100 truncate">
+                      <%= event.description.presence || "Evento" %>
+                    </div>
+                    <div class="text-[10px] text-blue-600 dark:text-blue-200 mt-0.5">
+                      <%= start_time.strftime("%H:%M") %>
+                      <% if event.date_end.present? %>
+                        - <%= event.date_end.strftime("%H:%M") %>
+                      <% end %>
+                    </div>
+                    <% if event.location.present? %>
+                      <div class="text-[10px] text-blue-600 dark:text-blue-200 mt-0.5 flex items-center gap-1">
+                        <span class="material-symbols-outlined text-[10px]">location_on</span>
+                        <%= event.location %>
+                      </div>
+                    <% end %>
+                  </div>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <aside class="hidden xl:flex w-80 flex-col border-l border-gray-200 dark:border-gray-800 bg-surface-light dark:bg-surface-dark p-4 gap-6 overflow-y-auto">
+      <div class="flex items-center gap-3">
+        <%= link_to dashboard_home_path,
+                    class: "size-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center hover:bg-primary/20 transition-colors",
+                    aria: { label: "Torna alla dashboard" } do %>
+          <span class="material-symbols-outlined text-xl">calendar_month</span>
+        <% end %>
+        <div>
+          <h1 class="text-lg font-bold text-slate-900 dark:text-white">Week Plan</h1>
+          <p class="text-xs text-slate-500"><%= @lead.full_name.presence || @lead.username %></p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3 rounded-xl bg-background-light dark:bg-background-dark px-2 py-1">
+        <%= link_to weekplan_home_path(lead_id: @lead.id, week: prev_week.strftime("%Y-%m-%d")),
+                    class: "p-1 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700",
+                    aria: { label: "Settimana precedente" } do %>
+          <span class="material-symbols-outlined text-gray-500 dark:text-gray-400">chevron_left</span>
+        <% end %>
+        <%= form_with url: weekplan_home_path, method: :get, local: true, class: "flex items-center gap-2" do %>
+          <%= select_tag :month,
+                options_for_select(Date::MONTHNAMES.compact.each_with_index.map { |n, i| [n, i + 1] }, selected_month),
+                class: "calendar-select text-sm font-semibold bg-transparent border border-transparent px-1 py-0.5 focus:border-slate-300 focus:bg-white dark:focus:bg-gray-800" %>
+          <%= select_tag :year,
+                options_for_select((selected_year - 2..selected_year + 2).to_a, selected_year),
+                class: "calendar-select text-sm font-semibold bg-transparent border border-transparent px-1 py-0.5 focus:border-slate-300 focus:bg-white dark:focus:bg-gray-800" %>
+          <%= select_tag :week,
+                options_for_select((1..weeks_in_year).to_a, selected_week),
+                class: "calendar-select text-sm font-semibold bg-transparent border border-transparent px-1 py-0.5 focus:border-slate-300 focus:bg-white dark:focus:bg-gray-800" %>
+          <%= hidden_field_tag :lead_id, @lead.id %>
+        <% end %>
+        <%= link_to weekplan_home_path(lead_id: @lead.id, week: next_week.strftime("%Y-%m-%d")),
+                    class: "p-1 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700",
+                    aria: { label: "Settimana successiva" } do %>
+          <span class="material-symbols-outlined text-gray-500 dark:text-gray-400">chevron_right</span>
+        <% end %>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2">
+        <% generaimpresa_path = @lead_domain ? mapservice_superadmin_domain_path(@lead_domain) : superadmin_domains_path %>
+        <%= link_to generaimpresa_path,
+                    class: "flex items-center gap-2 rounded-xl h-10 px-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-slate-900 dark:text-white text-sm font-semibold hover:bg-gray-50 dark:hover:bg-gray-700" do %>
+          <span class="material-symbols-outlined text-[18px]">map</span>
+          Mapservices
+        <% end %>
+        <%= link_to weekplan_home_path(lead_id: @lead.id),
+                    class: "inline-flex items-center justify-center rounded-xl h-10 px-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-slate-900 dark:text-white text-sm font-semibold hover:bg-gray-50 dark:hover:bg-gray-700",
+                    aria: { label: "Torna a oggi" } do %>
+          Oggi
+        <% end %>
+        <%= link_to new_slot_template_path(lead_id: @lead.id, week: week_start.strftime("%Y-%m-%d")),
+                    class: "inline-flex items-center gap-2 rounded-xl h-10 px-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-slate-900 dark:text-white text-sm font-semibold hover:bg-gray-50 dark:hover:bg-gray-700" do %>
+          <span class="material-symbols-outlined text-[18px]">add_circle</span>
+          Nuovo slot
+        <% end %>
+        <%= link_to new_eventdate_path(lead_id: @lead.id, date_start: week_start.strftime("%Y-%m-%d")),
+                    class: "inline-flex items-center gap-2 rounded-xl h-10 px-4 bg-primary text-white text-sm font-semibold hover:bg-blue-600" do %>
+          <span class="material-symbols-outlined text-[18px]">add</span>
+          Nuovo evento
+        <% end %>
+        <button class="flex size-10 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800 text-slate-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700">
+          <span class="material-symbols-outlined">settings</span>
+        </button>
+      </div>
+
+      <div class="rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-800/50 p-4 shadow-sm">
+        <div class="flex items-center justify-between mb-4">
+          <span class="text-sm font-bold"><%= week_start.strftime("%B %Y") %></span>
+          <div class="flex gap-1">
+            <%= link_to weekplan_home_path(lead_id: @lead.id, week: prev_week.strftime("%Y-%m-%d")),
+                        class: "size-6 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-700",
+                        aria: { label: "Settimana precedente" } do %>
+              <span class="material-symbols-outlined text-sm">chevron_left</span>
+            <% end %>
+            <%= link_to weekplan_home_path(lead_id: @lead.id, week: next_week.strftime("%Y-%m-%d")),
+                        class: "size-6 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-700",
+                        aria: { label: "Settimana successiva" } do %>
+              <span class="material-symbols-outlined text-sm">chevron_right</span>
+            <% end %>
+          </div>
+        </div>
+        <div class="grid grid-cols-7 text-center text-xs mb-2 text-gray-400">
+          <span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span>
+        </div>
+        <div class="grid grid-cols-7 gap-y-2 text-center text-sm">
+          <% week_days.each do |day| %>
+            <% if day == today %>
+              <span class="mx-auto flex size-7 items-center justify-center rounded-full bg-primary text-white font-semibold"><%= day.day %></span>
+            <% else %>
+              <span class="<%= day.month == week_start.month ? "text-slate-700 dark:text-slate-200" : "text-gray-300 dark:text-gray-600" %>"><%= day.day %></span>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+
+      <div>
+        <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3 px-1">Highlights</h3>
+        <div class="space-y-3">
+          <% @week_events.first(2).each do |event| %>
+            <div class="flex items-start gap-3">
+              <div class="size-2 rounded-full bg-blue-500 mt-1.5 shrink-0"></div>
+              <div>
+                <p class="text-sm font-semibold text-slate-900 dark:text-white">
+                  <%= event.description.presence || "Evento" %>
+                </p>
+                <p class="text-xs text-gray-500">
+                  <%= l(event.date_start.to_date, format: "%a %d") %>
+                  <% if event.date_start.present? %>
+                    <%= event.date_start.strftime("%H:%M") %>
+                  <% end %>
+                  <% if event.date_end.present? %>
+                    - <%= event.date_end.strftime("%H:%M") %>
+                  <% end %>
+                </p>
+              </div>
+            </div>
+          <% end %>
+          <% if @week_events.empty? %>
+            <p class="text-xs text-gray-500">Nessun evento questa settimana.</p>
+          <% end %>
+        </div>
+      </div>
+    </aside>
+  </div>
+</div>

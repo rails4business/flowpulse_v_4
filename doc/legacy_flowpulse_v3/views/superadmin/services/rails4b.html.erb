@@ -1,0 +1,81 @@
+<% content_for :title, "Area Rails4B – #{@service.name}" %>
+
+<div class="space-y-6">
+  <div class="flex items-center justify-between gap-3">
+    <div>
+      <p class="text-sm text-slate-500">Coordinamento officina</p>
+      <h1 class="text-3xl font-bold text-slate-900"><%= @service.name %></h1>
+    </div>
+    <%= link_to "← Torna al servizio", superadmin_service_path(@service), class: "text-sm text-blue-600 hover:underline" %>
+  </div>
+
+  <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
+    <div class="grid gap-4 md:grid-cols-3">
+      <div>
+        <p class="text-xs uppercase tracking-wide text-slate-500">Taxbranch</p>
+        <% if @taxbranch.present? %>
+          <p class="mt-1 text-sm">
+            <%= link_to @taxbranch.display_label, superadmin_taxbranch_path(@taxbranch), class: "text-blue-600 hover:underline" %>
+          </p>
+        <% else %>
+          <p class="mt-1 text-sm text-slate-500">Nessun ramo associato.</p>
+        <% end %>
+      </div>
+      <div>
+        <p class="text-xs uppercase tracking-wide text-slate-500">Lead / Owner</p>
+        <% if @service.lead.present? %>
+          <p class="mt-1 text-sm text-slate-700"><%= @service.lead&.full_name.presence || "Lead ##{@service.lead_id}" %></p>
+        <% else %>
+          <p class="mt-1 text-sm text-slate-500">Non assegnato.</p>
+        <% end %>
+      </div>
+      <div>
+        <p class="text-xs uppercase tracking-wide text-slate-500">Journeys collegati</p>
+        <p class="mt-1 text-3xl font-semibold text-slate-900"><%= @service.journeys.count %></p>
+      </div>
+    </div>
+    <div class="rounded-xl border border-amber-200 bg-amber-50 p-4 shadow-sm">
+      <p class="text-xs uppercase tracking-wide text-amber-800">Costo stimato</p>
+      <p class="mt-2 text-2xl font-semibold text-amber-900"><%= number_to_currency(@production_cost_euro, unit: "€") %></p>
+      <p class="text-xs text-amber-800 mt-1">Tempo impegnato: <%= (@production_minutes.to_f / 60).round(1) %> h</p>
+    </div>
+  </div>
+
+  <div class="grid gap-6 lg:grid-cols-2">
+    <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <h2 class="text-lg font-semibold text-slate-900 mb-4">Journeys in lavorazione</h2>
+      <% if @journeys.any? %>
+        <ul class="divide-y divide-slate-100">
+          <% @journeys.each do |journey| %>
+            <li class="py-3">
+              <p class="font-medium text-slate-900">
+                <%= link_to journey.title.presence || "Journey ##{journey.id}", journey_path(journey), class: "text-blue-600 hover:underline" %>
+              </p>
+              <p class="text-xs text-slate-500">Stato: <%= journey.human_stage %> · Progress: <%= journey.computed_progress %>%</p>
+            </li>
+          <% end %>
+        </ul>
+      <% else %>
+        <p class="text-sm text-slate-500">Nessun journey collegato al servizio.</p>
+      <% end %>
+    </div>
+
+    <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <h2 class="text-lg font-semibold text-slate-900 mb-4"> Eventi pianificati </h2>
+      <% if @upcoming_eventdates.any? %>
+        <ul class="divide-y divide-slate-100">
+          <% @upcoming_eventdates.each do |event| %>
+            <li class="py-3 text-sm">
+              <p class="font-medium text-slate-900">
+                <%= l(event.date_start, format: :short) rescue "Data da definire" %>
+              </p>
+              <p class="text-xs text-slate-500"><%= event.description.presence || "Evento" %></p>
+            </li>
+          <% end %>
+        </ul>
+      <% else %>
+        <p class="text-sm text-slate-500">Non ci sono eventi pianificati per questo servizio.</p>
+      <% end %>
+    </div>
+  </div>
+</div>

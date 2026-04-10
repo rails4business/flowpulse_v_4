@@ -1,0 +1,22 @@
+<% content_for :title, "Superadmin" %>
+
+<% content_for :aside do %>
+  <%= render "dashboard/aside_menu" %>
+<% end %>
+
+<div class="max-w-[1200px] mx-auto p-4 md:p-6">
+  <div class="rounded-xl border border-slate-200 bg-white p-6 min-h-[280px]">
+    <h1 class="text-xl font-semibold text-slate-900">Superadmin</h1>
+    <div class="mt-4 flex flex-wrap gap-3">
+      <%= link_to "Lead",
+                  superadmin_leads_path,
+                  class: "inline-flex items-center rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-800 hover:bg-slate-50" %>
+      <%= link_to "Domain",
+                  superadmin_domains_path,
+                  class: "inline-flex items-center rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-800 hover:bg-slate-50" %>
+      <%= link_to "Calendar Weekplan",
+                  dashboard_calendarweekplan_path,
+                  class: "inline-flex items-center rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-800 hover:bg-slate-50" %>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,416 @@
+ <!-- variant: "post" — Pagina singolo post -->
+
+<% content_for :title, @post.title.presence || "Post" %>
+
+<% content_for :head do %>
+   <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+   
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: "#0ea5e9",
+              "background-light": "#ffffff",
+              "background-dark": "#0f172a",
+            },
+            fontFamily: {
+              display: ["Inter", "sans-serif"],
+            },
+            borderRadius: {
+              DEFAULT: "0.5rem",
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      .clip-diagonal {
+        clip-path: polygon(100% 0, 0 0, 100% 100%);
+      }
+    </style>
+    <style>
+      body {
+        min-height: max(884px, 100dvh);
+      }
+      .menu-item {
+        line-height: 1;
+        display: flex;
+        align-items: center;
+      }
+      .menu-item .material-icons {
+        line-height: 1;
+        display: inline-flex;
+      }
+    </style>
+<% end %>
+<%= render 'shared/nav_partial_post' %>
+
+<body class="min-h-full bg-white text-slate-900 antialiased dark:bg-slate-950 dark:text-white">
+  <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-10">
+    <% @parent_taxbranch = @post.taxbranch.parent %>
+
+    <!-- Header -->
+    <%#= link_to @parent_taxbranch.post do %>
+    <!--header class="mb-10 flex card p-4 rounded-lg border">
+      
+
+     
+      <div class="">
+        <h2 class="text-3xl font-bold leading-tight text-slate-900 dark:text-white">
+          <%= @post.title %>
+        </h2>
+
+        <% if @post.description.present? %>
+          <p class="mt-2 text-lg text-slate-600 dark:text-white">
+            <%= @post.description %>
+          </p>
+        <% end %>
+
+        <% if @post.taxbranch.published_at.present? %>
+          <time datetime="<%= @post.taxbranch.published_at.to_date %>"
+                class="mt-2 block text-sm text-slate-500 dark:text-white">
+            Pubblicato il <%= l(@post.taxbranch.published_at, format: :long) %>
+          </time>
+        <% end %>
+      </div>
+    </header-->
+    <%# end %>
+
+    <div class="flex flex-col gap-8 lg:flex-row">
+      <% if @parent_taxbranch&.slug_category == "playlist" && @parent_taxbranch&.children&.any? %>
+        <aside class="lg:w-1/4">
+          <button
+            type="button"
+            class="mb-3 inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm lg:hidden"
+            data-playlist-toggle
+          >
+            <span class="material-symbols-outlined text-[18px]">list</span>
+            Playlist
+          </button>
+          <div class="hidden lg:block" data-playlist-panel>
+            <div class="sticky top-6 rounded-xl border border-slate-200 bg-white/70 p-4 shadow-sm">
+              <h3 class="text-sm font-semibold text-slate-800 mb-3">Playlist</h3>
+              <ul class="space-y-2 text-sm">
+                <% children_scope = @parent_taxbranch.children.ordered %>
+                <% children_scope = children_scope.reorder(position: :desc) if @parent_taxbranch.order_des %>
+                <% published = children_scope.select { |t|
+                     t.public_node? &&
+                     t.published? &&
+                     t.published_at.present? &&
+                     t.published_at <= Time.current &&
+                     t.post&.persisted? &&
+                     t.post&.title.present?
+                   } %>
+                <% upcoming_candidates = children_scope.select { |t|
+                     t.public_node? &&
+                     t.scheduled_eventdate&.date_end.present? &&
+                     t.scheduled_eventdate.date_end >= Time.current &&
+                     (t.published_at.blank? || t.published_at > Time.current) &&
+                     t.post&.persisted? &&
+                     t.post&.title.present?
+                   } %>
+                <% upcoming = upcoming_candidates.min_by { |t| t.scheduled_eventdate.date_end } %>
+                <% items = [] %>
+                <% items << upcoming if upcoming.present? %>
+                <% items.concat(published.reject { |t| t == upcoming }) %>
+                <% items.each do |child| %>
+                  <% child_post = child.post %>
+                  <% next unless child_post&.persisted? %>
+                  <% in_arrivo = (child == upcoming && !published.include?(child)) %>
+                  <% badge_text =
+                       if in_arrivo
+                         "In Arrivo"
+                       else
+                         I18n.l(child.published_at, format: "%d %b %Y", locale: :it)
+                       end %>
+                  <li>
+                    <%= link_to post_path(child_post),
+                                class: "block #{child_post == @post ? 'text-primary' : 'text-slate-600 hover:text-slate-900'}" do %>
+                      <div class="flex gap-3">
+                        <% if child_post.horizontal_cover_url.present? %>
+                          <!--div class="w-20 h-14 rounded-md overflow-hidden bg-slate-200 flex-shrink-0">
+                            <img src="<%= child_post.horizontal_cover_url %>" alt="" class="w-full h-full object-cover">
+                          </div-->
+                        <% end %>
+                        <div class="min-w-0">
+                          <div class="text-[10px] uppercase tracking-wider text-slate-400">
+                            Puntata <%= child.position %> • <%= badge_text %>
+                          </div>
+                          <div class="truncate font-semibold">
+                            <%= child_post.title.presence || child.slug_label %>
+                          </div>
+                        </div>
+                      </div>
+                    <% end %>
+                  </li>
+                <% end %>
+              </ul>
+            </div>
+          </div>
+        </aside>
+      <% end %>
+
+      <div class="flex-1 mx-auto max-w-3xl items-center w-full">
+        <% if @parent_taxbranch&.slug_category == "playlist" %>
+          <% is_upcoming = @post.taxbranch.published_at.blank? || @post.taxbranch.published_at > Time.current %>
+          <% episode_date = @post.taxbranch.published_at %>
+          <div class="mb-4 text-xs font-semibold uppercase tracking-wider text-slate-500">
+            Puntata <%= @post.taxbranch.position %> •
+            <% if is_upcoming %>
+              In Arrivo
+            <% elsif episode_date.present? %>
+              <%= episode_date.strftime("%d %b %Y") %>
+            <% end %>
+          </div>
+          <% children_scope = @parent_taxbranch.children.ordered %>
+          <% children_scope = children_scope.reorder(position: :desc) if @parent_taxbranch.order_des %>
+          <% published_items = children_scope.select { |t|
+               t.public_node? &&
+               t.published_at.present? &&
+               t.published_at <= Time.current &&
+               t.post&.persisted?
+             } %>
+          <% upcoming_candidates = children_scope.select { |t|
+               t.public_node? &&
+               t.post&.persisted? &&
+               t.scheduled_eventdate&.date_end.present? &&
+               t.scheduled_eventdate.date_end >= Time.current &&
+               (t.published_at.blank? || t.published_at > Time.current)
+             } %>
+          <% upcoming_item = upcoming_candidates.min_by { |t| t.scheduled_eventdate.date_end } %>
+          <% current_index = published_items.index { |t| t.id == @post.taxbranch_id } %>
+          <% prev_item = if current_index && current_index > 0
+                           published_items[current_index - 1]
+                         elsif is_upcoming
+                           published_items.last
+                         end %>
+          <% next_item = current_index && current_index < published_items.size - 1 ? published_items[current_index + 1] : nil %>
+          <% prev_target = prev_item %>
+          <% next_target = if next_item.present?
+                             next_item
+                           elsif !is_upcoming && upcoming_item.present?
+                             upcoming_item
+                           end %>
+
+          <% if published_items.any? || upcoming_item.present? %>
+            <div class="mb-6 flex items-center justify-between gap-2">
+              <% if prev_target&.post.present? %>
+                <%= link_to post_path(prev_target.post),
+                            class: "inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-600 hover:bg-slate-50" do %>
+                  <span class="material-symbols-outlined text-[14px]">chevron_left</span>
+                  Prec
+                <% end %>
+              <% else %>
+                <span class="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-300">
+                  <span class="material-symbols-outlined text-[14px]">chevron_left</span>
+                  Prec
+                </span>
+              <% end %>
+
+              <% if next_target&.post.present? %>
+                <%= link_to post_path(next_target.post),
+                            class: "inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-600 hover:bg-slate-50" do %>
+                  Succ
+                  <span class="material-symbols-outlined text-[14px]">chevron_right</span>
+                <% end %>
+              <% else %>
+                <span class="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-300">
+                  Succ
+                  <span class="material-symbols-outlined text-[14px]">chevron_right</span>
+                </span>
+              <% end %>
+            </div>
+          <% end %>
+        <% end %>
+        <% unless is_upcoming %>
+          <!-- Cover / Media -->
+          <% media_url = post_media_url(@post) %>
+          <% image_url = post_image_url(@post) %>
+          <% media_embed_html = media_url.present? ? media_embed(media_url) : nil %>
+          <% if post_taxbranch_post_category?(@post) && media_url.present? && (yt = extract_youtube_info(media_url)) %>
+            <div class="mb-10 px-2">
+              <button
+                type="button"
+                class="group relative w-full max-w-2xl mx-auto overflow-hidden rounded-2xl shadow-sm"
+                data-video-open
+              >
+                <div class="relative w-full" style="aspect-ratio: 16 / 9;">
+                  <img
+                    src="<%= image_url.presence || youtube_thumb(media_url) %>"
+                    alt="<%= @post.title %>"
+                    class="absolute inset-0 h-full w-full object-cover"
+                  >
+                </div>
+                <span class="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-colors"></span>
+                <span class="absolute inset-0 flex items-center justify-center">
+                  <span class="inline-flex items-center justify-center rounded-full bg-white/90 text-slate-900 shadow-lg h-14 w-14 group-hover:scale-105 transition-transform">
+                    <span class="material-symbols-outlined text-[28px]">play_arrow</span>
+                  </span>
+                </span>
+              </button>
+            </div>
+
+            <div class="fixed inset-0 z-50 hidden items-center justify-center bg-black/70 p-4" data-video-modal>
+              <div class="relative w-full max-w-4xl">
+                <button type="button" class="absolute -top-10 right-0 text-white/80 hover:text-white" data-video-close>
+                  <span class="material-symbols-outlined text-[28px]">close</span>
+                </button>
+                <div class="relative w-full overflow-hidden rounded-2xl bg-black" style="aspect-ratio: 16 / 9;">
+                  <% yt_src = "https://www.youtube.com/embed/#{ERB::Util.url_encode(yt[:id])}" %>
+                  <% yt_src += "?start=#{yt[:start].to_i}" if yt[:start].present? %>
+                  <iframe
+                    class="absolute inset-0 h-full w-full"
+                    src="<%= yt_src %>"
+                    data-video-src="<%= yt_src %>"
+                    title="YouTube video player"
+                    loading="lazy"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowfullscreen
+                    referrerpolicy="strict-origin-when-cross-origin"
+                    frameborder="0"></iframe>
+                </div>
+              </div>
+            </div>
+          <% elsif post_taxbranch_post_category?(@post) && media_embed_html.present? %>
+            <div class="mb-10">
+              <div class="overflow-hidden rounded-2xl shadow-sm">
+                <%= media_embed_html %>
+              </div>
+            </div>
+          <% elsif post_taxbranch_post_category?(@post) && image_url.present? %>
+            <div class="mb-10">
+              <img src="<%= image_url %>"
+                   alt="<%= @post.title %>"
+                   class="w-full h-64 sm:h-80 object-cover rounded-2xl shadow-sm">
+            </div>
+          <% end %>
+
+          <!-- Body -->
+          <div class="mb-4">
+          <%= render 'posts/body' %>
+          </div>
+        <% else %>
+          <div class="rounded-2xl border border-amber-200 bg-amber-50 p-6 text-sm text-amber-800">
+            Questa puntata non è ancora disponibile. Torna presto.
+          </div>
+        <% end %>
+
+    <!-- Related posts -->
+    <% if  0 == 1 #  @parent_taxbranch.children.any? %>
+      <div class="pt-8 my-12 border-t border-slate-200 dark:bg-slate-950 dark:text-white"></div>
+
+      <section class="space-y-8">
+        <h2 class="text-xl font-semibold text-slate-800 dark:text-white">
+          Articoli correlati
+        </h2>
+
+        <% @parent_taxbranch.children.each do |child| %>
+          <% related = child.post %>
+          <% next if related.blank? %>
+          <% next if related.taxbranch.blank? %>
+          <% next unless related.taxbranch.visible_and_published_for?(@post.lead) %>
+
+          <article class="card p-4 rounded-lg border border-slate-200 pt-6 first:border-t-0 first:pt-0 dark:bg-slate-950 dark:text-white">
+            <time datetime="<%= related.taxbranch.published_at&.to_date %>"
+                  class="block text-xs uppercase tracking-wide text-slate-500 dark:text-white">
+              <%= related.taxbranch.published_at&.strftime("%d %b %Y") %>
+            </time>
+
+            <h3 class="mt-1 text-lg font-semibold leading-snug">
+              <%= link_to related, class: "hover:underline decoration-2 underline-offset-2" do %>
+                <%= related.title %>
+              <% end %>
+            </h3>
+
+            <% if related.description.present? %>
+              <p class="mt-2 text-slate-700 dark:text-white">
+                <%= related.description %>
+              </p>
+            <% end %>
+          </article>
+        <% end %>
+      </section>
+    <% end %>
+
+
+    <!-- Footer -->
+    <footer class="mt-12 border-t border-slate-200 pt-6 text-xs text-slate-500 dark:border-slate-800 dark:text-white flex justify-between">
+      <div>
+        © <span id="year"><%= Time.current.year %></span> •
+        <a href="/" class="hover:underline"><%= @post.taxbranch&.slug || "Blog" %></a>
+      </div>
+
+      <%= link_to "← Torna al Blog", @parent_taxbranch.post,
+            class: "text-blue-600 hover:text-blue-800 hover:underline" %>
+    </footer>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+  <script>
+    (() => {
+      const openBtn = document.querySelector("[data-video-open]");
+      const modal = document.querySelector("[data-video-modal]");
+      const closeBtn = document.querySelector("[data-video-close]");
+      const iframe = modal?.querySelector("iframe[data-video-src]");
+      if (!openBtn || !modal) return;
+
+      const open = () => {
+        modal.classList.remove("hidden");
+        modal.classList.add("flex");
+        document.body.classList.add("overflow-hidden");
+        if (iframe) {
+          const base = iframe.getAttribute("data-video-src");
+          if (base) {
+            const joiner = base.includes("?") ? "&" : "?";
+            iframe.src = `${base}${joiner}autoplay=1`;
+          }
+        }
+      };
+      const close = () => {
+        modal.classList.add("hidden");
+        modal.classList.remove("flex");
+        document.body.classList.remove("overflow-hidden");
+        if (iframe) {
+          iframe.src = "";
+        }
+      };
+
+      openBtn.addEventListener("click", open);
+      closeBtn?.addEventListener("click", close);
+      modal.addEventListener("click", (e) => {
+        if (e.target === modal) close();
+      });
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") close();
+      });
+    })();
+  </script>
+  <script>
+    (() => {
+      const toggle = document.querySelector("[data-playlist-toggle]");
+      const panel = document.querySelector("[data-playlist-panel]");
+      if (!toggle || !panel) return;
+      toggle.addEventListener("click", () => {
+        panel.classList.toggle("hidden");
+      });
+    })();
+  </script>
+</body>
