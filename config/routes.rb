@@ -31,7 +31,16 @@ Rails.application.routes.draw do
   get "creator/value_architecture", to: "creator#value_architecture", as: :creator_value_architecture
 
   namespace :creator do
-    resources :ports, only: [:new, :create, :edit, :update, :destroy]
+    resources :ports, only: [:show, :new, :create, :edit, :update, :destroy] do
+      resources :brand_domains, except: :show do
+        patch :toggle_published, on: :member
+      end
+    end
+    resources :sea_routes, only: [:create, :update, :destroy] do
+      patch :cycle_direction, on: :member
+      patch :invert_direction, on: :member
+      patch :set_direction, on: :member
+    end
   end
 
   get "traveler/impegno", to: "traveler#impegno", as: :traveler_impegno
@@ -45,6 +54,8 @@ Rails.application.routes.draw do
     patch :workspace
   end
   get "about", to: "pages#about", as: :about
+  get "brand-homes/posturacorretta-home", to: "brand_homes#posturacorretta_home", as: :posturacorretta_brand_home
+  get "ports/:id/public", to: "ports#public", as: :public_port
   get "blog", to: "blog#index", as: :blog
   get "blog/:slug", to: "blog#show", as: :blog_post
   root "pages#home"

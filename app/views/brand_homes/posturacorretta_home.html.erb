@@ -1,0 +1,104 @@
+<% content_for :title, @brand_domain.seo_title.presence || @brand_domain.title.presence || @brand_port.name %>
+
+<section
+  class="home-shell"
+  style="
+    --brand-header-bg: <%= @brand_domain.header_bg_color.presence || "#0f172a" %>;
+    --brand-header-text: <%= @brand_domain.header_text_color.presence || "#f8fafc" %>;
+    --brand-accent: <%= @brand_domain.accent_color.presence || "#0f766e" %>;
+    --brand-background: <%= @brand_domain.background_color.presence || "#f8fafc" %>;
+    background:
+      radial-gradient(circle at top left, rgba(15, 118, 110, 0.08), transparent 38%),
+      linear-gradient(180deg, #ffffff 0%, var(--brand-background) 100%);
+    min-height: 100vh;
+  "
+>
+  <nav style="display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: 1rem 1.5rem; background: var(--brand-header-bg); color: var(--brand-header-text);">
+    <div style="display: flex; align-items: center; gap: 0.9rem;">
+      <% if @brand_domain.horizontal_logo_url.present? %>
+        <img src="<%= @brand_domain.horizontal_logo_url %>" alt="<%= @brand_port.name %>" style="height: 42px; width: auto; display: block;">
+      <% elsif @brand_domain.square_logo_url.present? %>
+        <img src="<%= @brand_domain.square_logo_url %>" alt="<%= @brand_port.name %>" style="height: 42px; width: 42px; border-radius: 12px; display: block;">
+      <% else %>
+        <div style="width: 42px; height: 42px; border-radius: 12px; background: var(--brand-accent); display: inline-flex; align-items: center; justify-content: center; font-weight: 800; color: white;">
+          <%= @brand_port.name.first&.upcase %>
+        </div>
+      <% end %>
+
+      <div>
+        <strong style="display: block;"><%= @brand_domain.title.presence || @brand_port.name %></strong>
+        <span style="font-size: 0.82rem; opacity: 0.82;"><%= resolved_domain_host %> · <%= @brand_domain.locale %></span>
+      </div>
+    </div>
+
+    <span style="padding: 0.4rem 0.7rem; border-radius: 999px; background: rgba(255,255,255,0.12); font-size: 0.82rem;">Home dedicata</span>
+  </nav>
+
+  <main style="max-width: 1180px; margin: 0 auto; padding: 2rem 1.5rem 3rem;">
+    <section style="display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr); gap: 1.2rem; align-items: stretch;">
+      <article style="padding: 1.5rem; border-radius: 28px; background: white; border: 1px solid #dbe4ea; box-shadow: 0 20px 50px rgba(15, 23, 42, 0.06);">
+        <p style="margin: 0; color: var(--brand-accent); font-size: 0.78rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase;">Home Dedicata</p>
+        <h1 style="margin: 0.5rem 0 0.75rem; max-width: none; white-space: nowrap;"><%= @brand_domain.title.presence || @brand_port.name %></h1>
+        <p style="margin: 0; max-width: 54ch; color: #475569; font-size: 1rem; line-height: 1.7;">
+          Questa e' una homepage dedicata del brand. Il dominio resta l'ingresso pubblico, ma qui puoi introdurre un tono,
+          una promessa e una gerarchia diversa dalla home standard del brand.
+        </p>
+
+        <div style="display: flex; gap: 0.8rem; flex-wrap: wrap; margin-top: 1.2rem;">
+          <a href="#porti-brand" class="btn btn-primary" style="background: var(--brand-accent); border-color: var(--brand-accent);">Esplora i porti</a>
+          <%= link_to "Apri il brand port", creator_port_path(@brand_port), class: "btn btn-secondary" if authenticated? %>
+        </div>
+      </article>
+
+      <aside style="padding: 1.4rem; border-radius: 28px; background: linear-gradient(180deg, rgba(255,255,255,0.94) 0%, rgba(240,253,250,0.98) 100%); border: 1px solid #dbe4ea;">
+        <p style="margin: 0; color: var(--brand-accent); font-size: 0.78rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase;">Dominio</p>
+        <div style="display: grid; gap: 0.9rem; margin-top: 0.9rem;">
+          <div>
+            <strong style="display: block;">Host</strong>
+            <span style="color: #475569;"><%= @brand_domain.host %></span>
+          </div>
+          <div>
+            <strong style="display: block;">Lingua</strong>
+            <span style="color: #475569;"><%= @brand_domain.locale %></span>
+          </div>
+          <div>
+            <strong style="display: block;">Home page key</strong>
+            <span style="color: #475569;"><%= @brand_domain.home_page_key %></span>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <section id="porti-brand" style="margin-top: 1.4rem; padding: 1.25rem; border-radius: 28px; background: white; border: 1px solid #dbe4ea; box-shadow: 0 16px 38px rgba(15, 23, 42, 0.05);">
+      <div style="display: flex; justify-content: space-between; gap: 1rem; align-items: center; flex-wrap: wrap;">
+        <div>
+          <p style="margin: 0; color: var(--brand-accent); font-size: 0.78rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase;">Brand Network</p>
+          <h2 style="margin: 0.45rem 0 0;">Porti collegati</h2>
+        </div>
+        <span style="padding: 0.45rem 0.75rem; border-radius: 999px; background: #ecfeff; color: #0f766e; font-weight: 700;"><%= @brand_network_ports.count %> porti</span>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.9rem; margin-top: 1rem;">
+        <% @brand_network_ports.each do |port| %>
+          <% own_color = port.color_config %>
+          <article style="padding: 0.95rem 1rem; border-radius: 20px; background: linear-gradient(180deg, <%= own_color[:fill] %> 0%, #ffffff 100%); border: 2px solid <%= own_color[:stroke] %>;">
+            <strong style="display: block; color: <%= own_color[:text] %>;"><%= port.name %></strong>
+            <span style="display: inline-block; margin-top: 0.45rem; font-size: 0.82rem; color: #475569;"><%= port.port_kind_label %></span>
+          </article>
+        <% end %>
+      </div>
+    </section>
+  </main>
+
+  <% if development_domain_simulation_active? %>
+    <footer style="padding: 0.85rem 1.25rem 1.1rem; text-align: center;">
+      <span style="display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.35rem 0.6rem; border-radius: 999px; background: #e0f2fe; color: #0c4a6e; font-size: 0.72rem; font-weight: 700;">
+        Dev domain: <code style="font-size: 0.72rem; font-weight: 800;"><%= resolved_domain_host %></code> · Home <code style="font-size: 0.72rem; font-weight: 800;"><%= @brand_domain.home_page_key %></code>
+      </span>
+    </footer>
+  <% end %>
+
+  <% if @brand_domain.custom_css.present? %>
+    <style><%= @brand_domain.custom_css.html_safe %></style>
+  <% end %>
+</section>

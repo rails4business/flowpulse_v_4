@@ -1,0 +1,113 @@
+<%= form_with(model: [:creator, brand_port, brand_domain], class: "form-standard") do |form| %>
+  <% if brand_domain.errors.any? %>
+    <div style="color: #b91c1c; margin-bottom: 1rem;">
+      <h4 style="margin: 0 0 0.5rem;">Ci sono errori:</h4>
+      <ul style="margin: 0; padding-left: 1.2rem;">
+        <% brand_domain.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="port-form-grid port-form-grid-two" style="margin-bottom: 1rem;">
+    <div class="form-group">
+      <%= form.label :host, "Host", style: "display: block;" %>
+      <%= form.text_field :host, class: "form-control", placeholder: "posturacorretta.org", style: "width: 100%; border: 1px solid #ccc; padding: 0.5rem; border-radius: 4px;" %>
+      <p style="margin: 0.35rem 0 0; color: #64748b; font-size: 0.82rem;">Salva sempre il dominio canonico senza <code>www</code>. L'alias <code>www.posturacorretta.org</code> viene trattato come equivalente a <code>posturacorretta.org</code> e in produzione viene riportato al dominio canonico.</p>
+    </div>
+
+    <div class="form-group">
+      <%= form.label :locale, "Lingua", style: "display: block;" %>
+      <%= form.text_field :locale, class: "form-control", placeholder: "it, en, pt-br", style: "width: 100%; border: 1px solid #ccc; padding: 0.5rem; border-radius: 4px;" %>
+    </div>
+  </div>
+
+  <div class="port-form-grid port-form-grid-two" style="margin-bottom: 1rem;">
+    <div class="form-group">
+      <%= form.label :title, "Titolo dominio", style: "display: block;" %>
+      <%= form.text_field :title, class: "form-control", style: "width: 100%; border: 1px solid #ccc; padding: 0.5rem; border-radius: 4px;" %>
+    </div>
+
+    <div class="form-group">
+      <%= form.label :seo_title, "SEO title", style: "display: block;" %>
+      <%= form.text_field :seo_title, class: "form-control", style: "width: 100%; border: 1px solid #ccc; padding: 0.5rem; border-radius: 4px;" %>
+    </div>
+  </div>
+
+  <div class="form-group" style="margin-bottom: 1rem;">
+    <%= form.label :seo_description, "SEO description", style: "display: block;" %>
+    <%= form.text_area :seo_description, rows: 3, class: "form-control", style: "width: 100%; border: 1px solid #ccc; padding: 0.5rem; border-radius: 4px;" %>
+  </div>
+
+  <div class="port-form-grid port-form-grid-three" style="margin-bottom: 1rem;">
+    <div class="form-group">
+      <%= form.label :favicon_url, "Favicon URL", style: "display: block;" %>
+      <%= form.url_field :favicon_url, class: "form-control", style: "width: 100%; border: 1px solid #ccc; padding: 0.5rem; border-radius: 4px;" %>
+    </div>
+
+    <div class="form-group">
+      <%= form.label :square_logo_url, "Logo quadrato", style: "display: block;" %>
+      <%= form.url_field :square_logo_url, class: "form-control", style: "width: 100%; border: 1px solid #ccc; padding: 0.5rem; border-radius: 4px;" %>
+    </div>
+
+    <div class="form-group">
+      <%= form.label :horizontal_logo_url, "Logo orizzontale", style: "display: block;" %>
+      <%= form.url_field :horizontal_logo_url, class: "form-control", style: "width: 100%; border: 1px solid #ccc; padding: 0.5rem; border-radius: 4px;" %>
+    </div>
+  </div>
+
+  <div class="form-group" style="margin-bottom: 1rem;">
+    <%= form.label :home_page_key, "Home page key", style: "display: block;" %>
+    <%= form.text_field :home_page_key, class: "form-control", placeholder: "posturacorretta_home", style: "width: 100%; border: 1px solid #ccc; padding: 0.5rem; border-radius: 4px;" %>
+    <p style="margin: 0.35rem 0 0; color: #64748b; font-size: 0.82rem;">Lascia vuoto per usare la pagina pubblica del brand port. Se compili una chiave, il dominio passa a un'action dedicata del controller <code>BrandHomesController</code>.</p>
+    <p style="margin: 0.2rem 0 0; color: #64748b; font-size: 0.82rem;">Convenzione: <code>home_page_key</code> = nome dell'action ammessa, con controller fissato. Esempio: <code>posturacorretta_home</code> -> <code>BrandHomesController#posturacorretta_home</code>.</p>
+    <p style="margin: 0.2rem 0 0; color: #64748b; font-size: 0.82rem;">Chiavi disponibili ora: <code><%= BrandDomain::AVAILABLE_HOME_PAGE_KEYS.join("</code>, <code>").html_safe %></code></p>
+  </div>
+
+  <div class="port-form-grid port-form-grid-two" style="margin-bottom: 1rem;">
+    <div class="form-group">
+      <%= form.label :header_bg_color, "Header bg", style: "display: block;" %>
+      <%= form.color_field :header_bg_color, class: "form-control", style: "width: 56px; height: 42px; padding: 0.2rem; border: 1px solid #ccc; border-radius: 10px; background: white;" %>
+    </div>
+
+    <div class="form-group">
+      <%= form.label :header_text_color, "Header text", style: "display: block;" %>
+      <%= form.color_field :header_text_color, class: "form-control", style: "width: 56px; height: 42px; padding: 0.2rem; border: 1px solid #ccc; border-radius: 10px; background: white;" %>
+    </div>
+  </div>
+
+  <div class="port-form-grid port-form-grid-two" style="margin-bottom: 1rem;">
+    <div class="form-group">
+      <%= form.label :accent_color, "Accent", style: "display: block;" %>
+      <%= form.color_field :accent_color, class: "form-control", style: "width: 56px; height: 42px; padding: 0.2rem; border: 1px solid #ccc; border-radius: 10px; background: white;" %>
+    </div>
+
+    <div class="form-group">
+      <%= form.label :background_color, "Background", style: "display: block;" %>
+      <%= form.color_field :background_color, class: "form-control", style: "width: 56px; height: 42px; padding: 0.2rem; border: 1px solid #ccc; border-radius: 10px; background: white;" %>
+    </div>
+  </div>
+
+  <div class="port-form-grid port-form-grid-two" style="margin-bottom: 1rem;">
+    <div class="form-group" style="display: flex; align-items: center; gap: 0.5rem;">
+      <%= form.check_box :primary %>
+      <%= form.label :primary, "Dominio principale" %>
+    </div>
+
+    <div class="form-group" style="display: flex; align-items: center; gap: 0.5rem;">
+      <%= form.check_box :published %>
+      <%= form.label :published, "Pubblicato" %>
+    </div>
+  </div>
+
+  <div class="form-group" style="margin-bottom: 1rem;">
+    <%= form.label :custom_css, "Custom CSS", style: "display: block;" %>
+    <%= form.text_area :custom_css, rows: 6, class: "form-control", style: "width: 100%; border: 1px solid #ccc; padding: 0.5rem; border-radius: 4px; font-family: monospace;" %>
+  </div>
+
+  <div style="margin-top: 2rem;">
+    <%= form.submit "Salva dominio", class: "btn btn-primary" %>
+    <%= link_to "Annulla", creator_port_path(brand_port), class: "btn btn-secondary", style: "margin-left: 1rem;" %>
+  </div>
+<% end %>

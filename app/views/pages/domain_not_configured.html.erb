@@ -1,0 +1,16 @@
+<% content_for :title, "Dominio non configurato" %>
+
+<section class="home-shell" style="min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 2rem 1.5rem; background: linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%);">
+  <article style="width: min(640px, 100%); padding: 1.6rem; border-radius: 28px; background: white; border: 1px solid #dbe4ea; box-shadow: 0 20px 50px rgba(15, 23, 42, 0.08); text-align: center;">
+    <p style="margin: 0; color: #0f766e; font-size: 0.78rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase;">Brand Domain</p>
+    <h1 style="margin: 0.55rem 0 0.7rem; max-width: none; white-space: nowrap;">Dominio non configurato</h1>
+    <p style="margin: 0 auto; max-width: 48ch; color: #475569; line-height: 1.7;">
+      L'host <strong><%= resolved_domain_host %></strong> non corrisponde ancora a nessun dominio brand pubblicato.
+    </p>
+
+    <div style="display: flex; gap: 0.8rem; justify-content: center; flex-wrap: wrap; margin-top: 1.2rem;">
+      <%= link_to "Vai a Flowpulse", root_url(host: "flowpulse.net"), class: "btn btn-primary" %>
+      <%= link_to "About", about_path, class: "btn btn-secondary" %>
+    </div>
+  </article>
+</section>

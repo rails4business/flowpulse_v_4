@@ -67,4 +67,22 @@ class PortTest < ActiveSupport::TestCase
     assert_not port.valid?
     assert_includes port.errors[:color_key], "is invalid"
   end
+
+  test "inherits brand port from source brand context" do
+    brand = @profile.ports.create!(
+      name: "Brand Madre",
+      port_kind: :brand,
+      visibility: :draft
+    )
+
+    branch = @profile.ports.create!(
+      name: "Nodo Figlio",
+      port_kind: :map_port,
+      visibility: :draft,
+      brand_port: brand
+    )
+
+    assert_equal brand, brand.inherited_brand_port
+    assert_equal brand, branch.inherited_brand_port
+  end
 end

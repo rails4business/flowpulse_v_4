@@ -20,7 +20,7 @@
       Stiamo per piantare le fondamenta alle coordinate <strong>[<%= port.x %>, <%= port.y %>]</strong>. Scegli tipo, nome e dettagli del porto per salvarlo sulla carta.
     </p>
     <div style="text-align: left; margin-top: 1rem;">
-      <%= render "creator/ports/form", port: port %>
+      <%= render "creator/ports/form", port: port, route_source_port_id: local_assigns[:route_source_port_id] %>
     </div>
   </div>
 </dialog>

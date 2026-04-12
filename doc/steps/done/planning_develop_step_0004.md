@@ -2,7 +2,7 @@
 
 ## Stato
 
-Implementazione operativa avviata e logica fissata.
+Completato.
 
 ## Stato attuale
 
@@ -86,6 +86,21 @@ Il flusso operativo previsto e' questo:
 - la chiusura del modal riporta alla carta nautica pulita, evitando di lasciare il flag `add_port=true` aperto in modo ambiguo
 - il modello `Port` genera lo slug dal nome se manca
 - `x` e `y` sono validate come coordinate intere
+- `color_key` e' gestito sul `Port` tramite input colore e applicato alla resa del nodo
+- il porto usa il proprio colore come identita' interna
+- l'appartenenza a un `brand_port` viene mostrata tramite bandiera colorata del brand
+- la carta nautica ha ricevuto una resa grafica piu' evocativa del mare e dei porti, con sfondo leggero e nodi trattati come piccole isole/approdi
+
+## Outcome raggiunto
+
+Lo step 0004 ha chiuso:
+
+- flusso `+ Porto` -> click sulla mappa -> modal -> salvataggio
+- salvataggio delle coordinate `x,y`
+- accesso riservato al creator approvato manualmente
+- mappa del creator come insieme dei `Port` del suo `Profile`
+- distinzione visiva dei `Port` tramite tipo, colore e appartenenza al brand
+- prima identita' grafica della carta nautica creator
 
 ### Nota sui test
 

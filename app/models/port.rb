@@ -4,6 +4,9 @@ class Port < ApplicationRecord
 
   belongs_to :profile
   belongs_to :brand_port, class_name: 'Port', optional: true
+  has_many :brand_domains, foreign_key: :brand_port_id, dependent: :destroy
+  has_many :outgoing_sea_routes, class_name: "SeaRoute", foreign_key: :source_port_id, dependent: :destroy
+  has_many :incoming_sea_routes, class_name: "SeaRoute", foreign_key: :target_port_id, dependent: :destroy
 
   enum :port_kind, { brand: 0, map_port: 1, blog: 2, book: 3 }
   enum :visibility, { draft: 0, published: 1, hidden: 2 }
@@ -34,6 +37,17 @@ class Port < ApplicationRecord
 
   def brand_ring_color_config
     brand_port&.color_config || color_config
+  end
+
+  def inherited_brand_port
+    return self if brand?
+    return brand_port if brand_port.present?
+
+    nil
+  end
+
+  def sea_routes
+    SeaRoute.where("source_port_id = ? OR target_port_id = ?", id, id)
   end
 
   private

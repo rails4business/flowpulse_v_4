@@ -4,56 +4,82 @@
   <div class="app-layout">
     <%= render "shared/app_sidebar" %>
 
-    <div class="dashboard-card" style="display: flex; flex-direction: column; height: 100vh;" data-controller="sea-chart" data-sea-chart-add-mode-value="<%= params[:add_port].present? %>" data-sea-chart-edit-mode-value="<%= params[:add_port].present? %>">
-      <div style="flex-shrink: 0;">
-        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
-          <div>
-            <p class="eyebrow">Creator</p>
-            <h1 style="margin-bottom: 0.5rem; max-width: none; white-space: nowrap;">Carta nautica</h1>
-            <p>Il grande mare della tua offerta. Attiva <strong>Modifica</strong> quando vuoi aggiungere o sistemare i porti.</p>
+    <% edit_mode_active = params[:edit].present? || params[:add_port].present? %>
+    <div style="display: flex; flex-direction: column; flex-grow: 1; height: 100vh; position: relative;" data-controller="sea-chart" data-sea-chart-add-mode-value="<%= params[:add_port].present? %>" data-sea-chart-edit-mode-value="<%= edit_mode_active %>">
+      <!-- SEA CHART AREA (Mappa in 2D) -->
+      <div 
+        class="dashboard-card sea-chart-container sea-chart-bg" 
+        data-sea-chart-target="mapArea"
+        data-action="click->sea-chart#mapClicked mousemove->sea-chart#mapHovered"
+        style="flex-grow: 1; position: relative; padding: 0; background: #e0f2fe; border: 2px solid #bae6fd; overflow: hidden; user-select: none; transition: background-color 0.3s;"
+      >
+        <!-- TASTI FLUTTUANTI (Floating HUD) -->
+        <div style="position: absolute; top: 1.5rem; right: 1.5rem; z-index: 50; display: flex; align-items: flex-start; gap: 0.75rem; pointer-events: none;">
+          
+          <!-- Box dei Suggerimenti (Appare in base al contesto) -->
+          <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.5rem; pointer-events: auto;">
             <% if params[:add_port].present? && @port.blank? %>
-              <p style="margin: 0.75rem 0 0; display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.55rem 0.85rem; border-radius: 999px; background: #dbeafe; color: #1d4ed8; font-weight: 700; font-size: 0.9rem;">
-                Clicca sulla mappa per scegliere il punto del nuovo porto.
-              </p>
+              <div style="padding: 0.6rem 1rem; border-radius: 8px; background: rgba(255,255,255, 0.95); border: 2px solid #3b82f6; color: #1d4ed8; font-weight: 700; font-size: 0.9rem; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                🎯 Clicca sulla mappa per fondare un nuovo approdo
+              </div>
             <% end %>
+            <div data-sea-chart-target="routeHint" hidden style="padding: 0.6rem 1rem; border-radius: 8px; background: rgba(255,255,255, 0.95); border: 2px solid #0f766e; color: #0f766e; font-weight: 700; font-size: 0.9rem; box-shadow: 0 4px 12px rgba(0,0,0,0.1);"></div>
           </div>
-          <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; justify-content: flex-end;">
+
+          <!-- Pulsantiera Principale -->
+          <div style="display: flex; background: rgba(255,255,255,0.95); padding: 0.35rem; border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.12); gap: 0.35rem; align-items: center; border: 1px solid rgba(0,0,0,0.05); pointer-events: auto;">
+            
+            <div data-sea-chart-target="editTools" hidden style="display: flex; align-items: center; gap: 0.35rem;">
+              <% if params[:add_port].present? %>
+                <%= link_to "Annulla", creator_carta_nautica_path(edit: 1), class: "btn btn-secondary", style: "border: none; background: #e2e8f0; font-weight: 600; padding: 0.5rem 0.85rem;" %>
+              <% else %>
+                <%= link_to "+ Porto", creator_carta_nautica_path(edit: 1, add_port: true), class: "btn btn-primary", style: "box-shadow: none; padding: 0.5rem 0.85rem;" %>
+              <% end %>
+              <div style="width: 1px; height: 24px; background: #cbd5e1; margin: 0 0.25rem;"></div>
+            </div>
+
             <button
               type="button"
               class="btn btn-secondary"
               data-sea-chart-target="modifyButton"
               data-action="click->sea-chart#toggleEditMode"
+              title="Modalità modifica"
+              aria-label="Modalità modifica"
+              style="height: 38px; padding: 0 1rem; display: inline-flex; gap: 0.3rem; align-items: center; justify-content: center; font-size: 0.95rem; font-weight: 600; border: none; background: transparent; transition: all 0.2s; white-space: nowrap;"
             >
-              Modifica
+              ✎ Modifica
             </button>
+
             <button
               type="button"
               class="btn btn-secondary"
               data-sea-chart-target="fullscreenButton"
               data-action="click->sea-chart#toggleFullscreen"
+              title="Full screen"
+              aria-label="Full screen"
+              style="width: 38px; height: 38px; padding: 0; display: inline-flex; align-items: center; justify-content: center; font-size: 1.1rem; border: none; background: transparent; color: #475569; transition: color 0.2s;"
+              onmouseover="this.style.color='#0f172a'"
+              onmouseout="this.style.color='#475569'"
             >
-              Full screen
+              ⛶
             </button>
-            <div data-sea-chart-target="editTools" hidden style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
-              <% if params[:add_port].present? %>
-                <%= link_to "Annulla", creator_carta_nautica_path, class: "btn btn-secondary" %>
-              <% else %>
-              <%= link_to "+ Porto", creator_carta_nautica_path(add_port: true), class: "btn btn-primary" %>
-              <% end %>
-            </div>
           </div>
         </div>
-      </div>
 
-      <!-- SEA CHART AREA (Mappa in 2D) -->
-      <div 
-        class="sea-chart-container sea-chart-bg" 
-        data-sea-chart-target="mapArea"
-        data-action="click->sea-chart#mapClicked"
-        style="flex-grow: 1; min-height: 500px; position: relative; background: #e0f2fe; border: 2px solid #bae6fd; border-radius: 12px; overflow: hidden; box-shadow: inset 0 0 20px rgba(0,0,0,0.05); user-select: none; transition: background-color 0.3s;"
-      >
-        <div class="sea-chart-wave-layer"></div>
-        <div class="sea-chart-reef-layer" aria-hidden="true">
+        <!-- RADAR MINIMAPPA -->
+        <div style="position: absolute; bottom: 1.5rem; left: 1.5rem; z-index: 50; width: 160px; height: 120px; background: rgba(255,255,255,0.7); backdrop-filter: blur(8px); border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); border: 2px solid rgba(255,255,255,0.9); overflow: hidden; pointer-events: auto; cursor: crosshair;" data-action="mousedown->sea-chart#radarClick">
+          <!-- I nodini del radar -->
+          <div data-sea-chart-target="radarDots" style="position: absolute; inset: 0; transform-origin: 0 0; transform: translate(var(--radar-pan-x, 0px), var(--radar-pan-y, 0px)); transition: transform 0.05s linear;"></div>
+          <!-- Il rettangolo viewport -->
+          <div data-sea-chart-target="radarViewport" style="position: absolute; border: 2px solid #0f766e; background: rgba(15, 118, 110, 0.1); border-radius: 4px; box-sizing: border-box; pointer-events: none;"></div>
+        </div>
+
+        <!-- MOTORE DI PANNING INFINITO (Canvas) -->
+        <div data-sea-chart-target="canvas" data-action="mousedown->sea-chart#panStart touchstart->sea-chart#panStart" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%; transform-origin: 0 0; transform: translate(var(--pan-x, 0px), var(--pan-y, 0px)); will-change: transform; transition: transform 0.05s linear;">
+          
+          <!-- Espansiamo gli sfondi a -5000px per renderli infiniti -->
+          <div class="sea-chart-wave-layer" style="position: absolute; inset: -5000px;"></div>
+          <div class="sea-chart-reef-layer" aria-hidden="true" style="position: absolute; inset: -5000px;">
           <svg class="sea-chart-fish fish-a" viewBox="0 0 120 60">
             <path d="M14 30c14-15 32-22 50-20l18-8-4 14 16 14-16 14 4 14-18-8c-18 2-36-5-50-20z" />
             <circle cx="32" cy="25" r="2.5" />
@@ -69,32 +95,189 @@
         </div>
 
         <!-- Griglia sottomarina -->
-        <div style="position: absolute; inset: 0; background-image: radial-gradient(#93c5fd 1px, transparent 1px); background-size: 40px 40px; opacity: 0.38; pointer-events: none; z-index: 1;"></div>
+        <div style="position: absolute; inset: -5000px; background-image: radial-gradient(#93c5fd 1px, transparent 1px); background-size: 40px 40px; opacity: 0.38; pointer-events: none; z-index: 1;"></div>
 
         <!-- ROTTE E COLLEGAMENTI (SVG Layer invisibile) -->
-        <svg style="position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1;">
-          <% @ports.each do |port| %>
-            <% if port.brand_port.present? %>
-              <% 
-                # Calcolo stime per agganciare le linee vicino al centro (X+60, Y+40)
-                p_x = port.brand_port.x.present? ? port.brand_port.x : 50 + ((port.brand_port.id || 1) * 20 % 300)
-                p_y = port.brand_port.y.present? ? port.brand_port.y : 50 + ((port.brand_port.id || 1) * 35 % 300)
-                
-                c_x = port.x.present? ? port.x : 50 + ((port.id || 1) * 20 % 300)
-                c_y = port.y.present? ? port.y : 50 + ((port.id || 1) * 35 % 300)
-              %>
-              <line 
-                x1="<%= p_x + 60 %>" y1="<%= p_y + 40 %>" 
-                x2="<%= c_x + 60 %>" y2="<%= c_y + 40 %>" 
-                stroke="#475569" stroke-width="3" stroke-dasharray="8,8"
-                opacity="0.4"
+        <svg style="position: absolute; inset: -5000px; width: 10000px; height: 10000px; overflow: visible; z-index: 1;">
+          <defs>
+            <marker id="sea-route-arrow-end" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="strokeWidth">
+              <path d="M0,0 L10,5 L0,10 z" fill="#0f766e"></path>
+            </marker>
+            <marker id="sea-route-arrow-start" markerWidth="10" markerHeight="10" refX="2" refY="5" orient="auto" markerUnits="strokeWidth">
+              <path d="M10,0 L0,5 L10,10 z" fill="#0f766e"></path>
+            </marker>
+          </defs>
+          <% @sea_routes.each do |sea_route| %>
+            <%
+              source_x = sea_route.source_port.x.present? ? sea_route.source_port.x : 50 + ((sea_route.source_port.id || 1) * 20 % 300)
+              source_y = sea_route.source_port.y.present? ? sea_route.source_port.y : 50 + ((sea_route.source_port.id || 1) * 35 % 300)
+              target_x = sea_route.target_port.x.present? ? sea_route.target_port.x : 50 + ((sea_route.target_port.id || 1) * 20 % 300)
+              target_y = sea_route.target_port.y.present? ? sea_route.target_port.y : 50 + ((sea_route.target_port.id || 1) * 35 % 300)
+              line_x1 = source_x + 66
+              line_y1 = source_y + 52
+              line_x2 = target_x + 66
+              line_y2 = target_y + 52
+              angle = Math.atan2(line_y2 - line_y1, line_x2 - line_x1) * 180 / Math::PI
+              line_length = Math.sqrt(((line_x2 - line_x1) ** 2) + ((line_y2 - line_y1) ** 2))
+              arrow_count = [[(line_length / 52).floor, 3].max, 10].min
+              arrow_points = (1..arrow_count).map { |step| (step.to_f / (arrow_count + 1)) }
+            %>
+            <g data-route-id="<%= sea_route.id %>">
+              <line
+                x1="<%= line_x1 %>" y1="<%= line_y1 %>"
+                x2="<%= line_x2 %>" y2="<%= line_y2 %>"
+                stroke="#0f766e" stroke-width="3.5"
+                stroke-dasharray="<%= sea_route.bidirectional? ? "10,7" : "6,14" %>"
+                opacity="<%= sea_route.bidirectional? ? "0.62" : "0.24" %>"
                 data-sea-chart-target="line"
-                data-source-id="<%= port.brand_port.id %>"
-                data-target-id="<%= port.id %>"
+                data-route-role="visible"
+                data-route-id="<%= sea_route.id %>"
+                data-source-id="<%= sea_route.source_port_id %>"
+                data-target-id="<%= sea_route.target_port_id %>"
+                data-source-name="<%= sea_route.source_port.name %>"
+                data-target-name="<%= sea_route.target_port.name %>"
+                data-bidirectional="<%= sea_route.bidirectional %>"
+                style="pointer-events: none;"
               />
-            <% end %>
+              <line
+                x1="<%= line_x1 %>" y1="<%= line_y1 %>"
+                x2="<%= line_x2 %>" y2="<%= line_y2 %>"
+                stroke="rgba(15, 118, 110, 0.001)"
+                stroke-width="20"
+                stroke-linecap="round"
+                data-sea-chart-target="line"
+                data-action="mouseenter->sea-chart#routeLineEntered mouseleave->sea-chart#routeLineLeft click->sea-chart#routeLineClicked"
+                data-route-role="hit-area"
+                data-route-id="<%= sea_route.id %>"
+                data-source-id="<%= sea_route.source_port_id %>"
+                data-target-id="<%= sea_route.target_port_id %>"
+                data-source-name="<%= sea_route.source_port.name %>"
+                data-target-name="<%= sea_route.target_port.name %>"
+                data-bidirectional="<%= sea_route.bidirectional %>"
+                style="pointer-events: stroke; cursor: pointer;"
+              />
+              <% arrow_points.each_with_index do |position, index| %>
+                <% arrow_x = line_x1 + ((line_x2 - line_x1) * position) %>
+                <% arrow_y = line_y1 + ((line_y2 - line_y1) * position) %>
+                <text
+                  x="<%= arrow_x.round %>"
+                  y="<%= arrow_y.round %>"
+                  fill="#0f766e"
+                  font-size="16"
+                  font-weight="700"
+                  text-anchor="middle"
+                  dominant-baseline="middle"
+                  transform="rotate(<%= angle %> <%= arrow_x.round %> <%= arrow_y.round %>)"
+                  data-route-id="<%= sea_route.id %>"
+                  data-route-arrow-index="<%= index %>"
+                  data-bidirectional="<%= sea_route.bidirectional %>"
+                  <%= "hidden" if sea_route.bidirectional? %>
+                  style="pointer-events: none; opacity: <%= sea_route.bidirectional? ? "0" : "0.95" %>;"
+                ><%= index.even? ? "—" : "➤" %></text>
+              <% end %>
+            </g>
           <% end %>
+
+          <line
+            data-sea-chart-target="previewLine"
+            x1="0" y1="0"
+            x2="0" y2="0"
+            stroke="#0f766e"
+            stroke-width="4.5"
+            stroke-dasharray="10,6"
+            stroke-linecap="round"
+            opacity="0.82"
+            style="pointer-events: none;"
+            hidden
+          />
         </svg>
+
+        <div
+          data-sea-chart-target="routeControls"
+          hidden
+          style="position: absolute; z-index: 40; display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.3rem 0.35rem; border-radius: 999px; background: rgba(15, 23, 42, 0.96); box-shadow: 0 14px 26px rgba(15, 23, 42, 0.24);"
+        >
+          <button
+            type="button"
+            data-sea-chart-target="routeDirectionButton"
+            data-action="click->sea-chart#toggleRouteDirectionMenu"
+            style="width: 30px; height: 30px; border: none; border-radius: 999px; padding: 0; background: #0f766e; color: white; font-size: 0.95rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;"
+            title="Direzione rotta"
+            aria-label="Direzione rotta"
+          >
+            <span data-sea-chart-target="routeDirectionIcon" aria-hidden="true">⇄</span>
+          </button>
+          <button
+            type="button"
+            data-sea-chart-target="routeEditButton"
+            data-action="click->sea-chart#toggleRouteEditor"
+            style="width: 30px; height: 30px; border: none; border-radius: 999px; padding: 0; background: #164e63; color: white; font-size: 0.9rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;"
+            title="Modifica rotta"
+            aria-label="Modifica rotta"
+          >
+            <span aria-hidden="true">✎</span>
+          </button>
+          <button
+            type="button"
+            data-sea-chart-target="routeDeleteButton"
+            data-action="click->sea-chart#deleteSelectedRoute"
+            style="width: 30px; height: 30px; border: none; border-radius: 999px; padding: 0; background: #7f1d1d; color: white; font-size: 0.9rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;"
+            title="Elimina rotta"
+            aria-label="Elimina rotta"
+          >
+            <span aria-hidden="true">✕</span>
+          </button>
+        </div>
+
+        <div
+          data-sea-chart-target="routeEditorPanel"
+          hidden
+          style="position: absolute; z-index: 39; min-width: 240px; max-width: 300px; padding: 0.85rem 0.95rem; border-radius: 18px; background: rgba(255,255,255,0.97); border: 1px solid rgba(14, 116, 144, 0.16); box-shadow: 0 18px 34px rgba(15, 23, 42, 0.18);"
+        >
+          <p style="margin: 0; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: #0f766e;">Sea Route</p>
+          <p data-sea-chart-target="routeEditorTitle" style="margin: 0.35rem 0 0; font-size: 1rem; font-weight: 800; color: #0f172a;"></p>
+          <p data-sea-chart-target="routeEditorState" style="margin: 0.45rem 0 0; font-size: 0.9rem; color: #334155;"></p>
+          <div style="margin: 0.75rem 0 0; padding: 0.65rem 0.75rem; border-radius: 14px; background: #f8fafc; border: 1px solid #e2e8f0;">
+            <p style="margin: 0; font-size: 0.75rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: #64748b;">Direzione</p>
+            <p data-sea-chart-target="routeEditorCycle" style="margin: 0.35rem 0 0; font-size: 0.84rem; line-height: 1.45; color: #334155;"></p>
+          </div>
+        </div>
+
+        <div
+          data-sea-chart-target="routeDirectionMenu"
+          hidden
+          style="position: absolute; z-index: 41; min-width: 220px; padding: 0.35rem; border-radius: 16px; background: rgba(15, 23, 42, 0.98); box-shadow: 0 18px 34px rgba(15, 23, 42, 0.24);"
+        >
+          <button
+            type="button"
+            data-sea-chart-target="routeDirectionOption"
+            data-direction-state="bidirectional"
+            data-action="click->sea-chart#setSelectedRouteDirection"
+            style="width: 100%; text-align: left; border: none; border-radius: 12px; padding: 0.7rem 0.8rem; background: transparent; color: white; font-size: 0.86rem; cursor: pointer;"
+          >
+            — Neutra
+          </button>
+          <button
+            type="button"
+            data-sea-chart-target="routeDirectionOption"
+            data-direction-state="source_to_target"
+            data-action="click->sea-chart#setSelectedRouteDirection"
+            style="width: 100%; text-align: left; border: none; border-radius: 12px; padding: 0.7rem 0.8rem; background: transparent; color: white; font-size: 0.86rem; cursor: pointer;"
+          >
+            → Da source a target
+          </button>
+          <button
+            type="button"
+            data-sea-chart-target="routeDirectionOption"
+            data-direction-state="target_to_source"
+            data-action="click->sea-chart#setSelectedRouteDirection"
+            style="width: 100%; text-align: left; border: none; border-radius: 12px; padding: 0.7rem 0.8rem; background: transparent; color: white; font-size: 0.86rem; cursor: pointer;"
+          >
+            ← Da target a source
+          </button>
+        </div>
+
+        <div class="sea-route-preview-marker" data-sea-chart-target="previewMarker" hidden>+</div>
 
         <% if @ports.any? %>
           <% @ports.each do |port| %>
@@ -122,16 +305,40 @@
             <div
               class="sea-chart-node sea-island <%= island_kind_class %>"
               data-sea-chart-target="node"
-              data-action="mousedown->sea-chart#dragStart touchstart->sea-chart#dragStart"
+              data-action="click->sea-chart#nodeClicked mousemove->sea-chart#nodeHovered mouseleave->sea-chart#nodeHoverLeft mousedown->sea-chart#dragStart touchstart->sea-chart#dragStart"
               data-port-id="<%= port.id %>"
+              data-port-show-url="<%= creator_port_path(port) %>"
               style="position: absolute; left: <%= x %>px; top: <%= y %>px; background: radial-gradient(circle at 30% 20%, rgba(255,255,255,0.72), rgba(255,255,255,0) 42%), rgba(255,255,255,0.46);"
             >
               <% if port.brand_port.present? %>
-                <div class="sea-island-flag" aria-hidden="true">
+                <div
+                  class="sea-island-flag"
+                  aria-label="Brand di riferimento: <%= port.brand_port.name %>"
+                  style="position: relative;"
+                  onmouseenter="this.querySelector('[data-flag-tooltip]').style.opacity='1'"
+                  onmouseleave="this.querySelector('[data-flag-tooltip]').style.opacity='0'"
+                >
                   <span class="sea-island-flag-pole"></span>
                   <span class="sea-island-flag-cloth" style="background: linear-gradient(180deg, <%= brand_color[:stroke] %> 0%, <%= brand_color[:fill] %> 100%); border-color: <%= brand_color[:stroke] %>;"></span>
+                  <span
+                    data-flag-tooltip
+                    style="position: absolute; left: 50%; bottom: calc(100% + 10px); transform: translateX(-50%); white-space: nowrap; padding: 0.3rem 0.55rem; border-radius: 999px; background: rgba(15, 23, 42, 0.92); color: white; font-size: 0.72rem; font-weight: 700; line-height: 1; opacity: 0; pointer-events: none; transition: opacity 0.16s ease; box-shadow: 0 10px 18px rgba(15, 23, 42, 0.18);"
+                  ><%= port.brand_port.name %></span>
                 </div>
               <% end %>
+              <button
+                type="button"
+                class="sea-island-route-trigger"
+                data-sea-chart-target="routeButton"
+                data-port-id="<%= port.id %>"
+                data-port-name="<%= port.name %>"
+                data-action="click->sea-chart#startRoute"
+                hidden
+                aria-label="Aggiungi rotta"
+                title="Aggiungi rotta"
+              >
+                ⤴
+              </button>
               <%= link_to "✎", edit_creator_port_path(port), style: "position: absolute; top: -8px; right: -8px; width: 28px; height: 28px; border-radius: 999px; background: #0f172a; color: white; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; font-size: 0.9rem; box-shadow: 0 8px 18px rgba(15, 23, 42, 0.18);", data: { turbo: false, sea_chart_target: "editLink" }, hidden: true %>
               <div class="sea-island-shore">
                 <div
@@ -149,8 +356,9 @@
             <p>Il mare è calmo e inesplorato.<br><br>Costruisci navigando creando il tuo primo<br>brand, mappa, blog o libro.</p>
           </div>
         <% end %>
+        </div> <!-- chiusura canvas -->
       </div>
-      <p style="font-size: 0.8rem; color: #94a3b8; text-align: right; margin-top: 0.5rem;">In modalita' modifica puoi aggiungere nuovi porti, trascinare i nodi e aprire la modifica del singolo porto.</p>
+
     </div>
   </div>
 </section>

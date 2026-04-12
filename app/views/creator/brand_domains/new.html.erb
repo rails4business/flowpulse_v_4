@@ -1,0 +1,16 @@
+<% content_for :title, "Nuovo Dominio Brand" %>
+
+<section class="dashboard-shell">
+  <div class="app-layout">
+    <%= render "shared/app_sidebar" %>
+
+    <div class="dashboard-card">
+      <p class="eyebrow">Creator Brand Domain</p>
+      <h1 style="margin-bottom: 0.35rem; max-width: none; white-space: nowrap;">Nuovo dominio per <%= @brand_port.name %></h1>
+
+      <div class="dashboard-actions" style="margin-top: 2rem; background: #fff; padding: 2rem; border-radius: 16px; border: 1px solid #e2e8f0;">
+        <%= render "form", brand_port: @brand_port, brand_domain: @brand_domain %>
+      </div>
+    </div>
+  </div>
+</section>

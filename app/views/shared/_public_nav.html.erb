@@ -1,0 +1,96 @@
+<%
+  nav_links ||= []
+  brand_title ||= "Flowpulse"
+  logo_horizontal_url ||= nil
+  logo_square_url ||= nil
+  home_path ||= root_path
+  accent_color ||= "#0f766e"
+  background_color ||= "#f8fafc"
+  header_bg_color ||= "#ffffff"
+  header_text_color ||= "#0f172a"
+%>
+
+<header style="position: sticky; top: 0; z-index: 50; width: 100%; background: color-mix(in srgb, <%= header_bg_color %> 90%, <%= background_color %> 10%); backdrop-filter: blur(18px); border-bottom: 1px solid color-mix(in srgb, <%= header_text_color %> 16%, transparent);">
+  <div style="max-width: 1180px; margin: 0 auto; padding: 0.9rem 1.25rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem;">
+    <%= link_to home_path, style: "display: inline-flex; align-items: center; text-decoration: none; color: #{header_text_color};" do %>
+      <% if logo_horizontal_url.present? %>
+        <img src="<%= logo_horizontal_url %>" alt="<%= brand_title %>" style="height: 36px; width: auto; display: block;" class="brand-public-logo-desktop" />
+      <% elsif logo_square_url.present? %>
+        <img src="<%= logo_square_url %>" alt="<%= brand_title %>" style="height: 36px; width: 36px; border-radius: 10px; display: block;" class="brand-public-logo-desktop" />
+      <% else %>
+        <div style="height: 36px; padding: 0 0.85rem; border-radius: 999px; background: <%= accent_color %>; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; color: white;" class="brand-public-logo-desktop">
+          <%= brand_title %>
+        </div>
+      <% end %>
+
+      <% if logo_square_url.present? %>
+        <img src="<%= logo_square_url %>" alt="<%= brand_title %>" style="height: 36px; width: 36px; border-radius: 10px; display: none;" class="brand-public-logo-mobile" />
+      <% elsif logo_horizontal_url.present? %>
+        <img src="<%= logo_horizontal_url %>" alt="<%= brand_title %>" style="height: 36px; width: auto; max-width: 36px; object-fit: contain; display: none;" class="brand-public-logo-mobile" />
+      <% else %>
+        <div style="width: 36px; height: 36px; border-radius: 10px; background: <%= accent_color %>; display: none; align-items: center; justify-content: center; font-weight: 800; color: white;" class="brand-public-logo-mobile">
+          <%= brand_title.first&.upcase %>
+        </div>
+      <% end %>
+    <% end %>
+
+    <nav style="display: none; gap: 1.1rem; align-items: center;" class="brand-public-nav-desktop">
+      <% nav_links.each do |link| %>
+        <%= link_to link[:label], link[:href], style: "text-decoration: none; color: color-mix(in srgb, #{header_text_color} 72%, transparent); font-weight: 600;" %>
+      <% end %>
+    </nav>
+
+    <div style="display: flex; align-items: center; gap: 0.65rem;">
+      <% if authenticated? %>
+        <details style="position: relative;">
+          <summary style="list-style: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 999px; background: color-mix(in srgb, <%= accent_color %> 14%, white); color: <%= header_text_color %>; font-weight: 800;">
+            <span><%= Current.session.user.email_address.first.upcase %></span>
+          </summary>
+          <div style="position: absolute; right: 0; top: calc(100% + 10px); min-width: 180px; border-radius: 16px; background: white; border: 1px solid color-mix(in srgb, <%= accent_color %> 18%, white); box-shadow: 0 18px 34px rgba(15, 23, 42, 0.12); padding: 0.45rem;">
+            <% if Current.session.user.profile.present? %>
+              <%= link_to "Profilo", edit_profile_path(anchor: "profile-main"), style: "display: block; padding: 0.65rem 0.75rem; border-radius: 12px; text-decoration: none; color: #{header_text_color}; font-weight: 600;" %>
+            <% end %>
+            <%= button_to "Esci", session_path, method: :delete, form_class: "", style: "margin-top: 0.35rem; width: 100%; text-align: left; border: none; border-radius: 12px; padding: 0.65rem 0.75rem; background: color-mix(in srgb, #{accent_color} 10%, white); color: #{header_text_color}; font-weight: 600; cursor: pointer;" %>
+          </div>
+        </details>
+      <% else %>
+        <%= link_to "Iscriviti", new_registration_path, style: "display: inline-flex; align-items: center; justify-content: center; min-height: 40px; padding: 0 1rem; border-radius: 999px; text-decoration: none; white-space: nowrap; background: #{accent_color}; color: white; font-weight: 700; border: 1px solid #{accent_color};" %>
+        <%= link_to "Accedi", new_session_path, style: "display: inline-flex; align-items: center; justify-content: center; min-height: 40px; padding: 0 1rem; border-radius: 999px; text-decoration: none; white-space: nowrap; background: transparent; color: #{header_text_color}; font-weight: 700; border: 1px solid color-mix(in srgb, #{header_text_color} 18%, transparent);" %>
+      <% end %>
+
+      <details class="brand-public-nav-mobile" style="position: relative;">
+        <summary style="list-style: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 999px; background: white; border: 1px solid color-mix(in srgb, <%= accent_color %> 18%, white); color: <%= header_text_color %>; font-size: 1rem; font-weight: 800;">☰</summary>
+        <div style="position: absolute; right: 0; top: calc(100% + 10px); min-width: 220px; border-radius: 18px; background: white; border: 1px solid color-mix(in srgb, <%= accent_color %> 18%, white); box-shadow: 0 18px 34px rgba(15, 23, 42, 0.12); padding: 0.55rem;">
+          <% nav_links.each do |link| %>
+            <%= link_to link[:label], link[:href], style: "display: block; padding: 0.75rem 0.85rem; border-radius: 12px; text-decoration: none; color: #{header_text_color}; font-weight: 700;" %>
+          <% end %>
+          <% if authenticated? %>
+            <% if Current.session.user.profile.present? %>
+              <div style="height: 1px; background: color-mix(in srgb, <%= accent_color %> 18%, white); margin: 0.35rem 0;"></div>
+              <%= link_to "Profilo", edit_profile_path(anchor: "profile-main"), style: "display: block; padding: 0.75rem 0.85rem; border-radius: 12px; text-decoration: none; color: #{header_text_color}; font-weight: 700;" %>
+            <% end %>
+            <%= button_to "Esci", session_path, method: :delete, form_class: "", style: "margin-top: 0.35rem; width: 100%; text-align: left; border: none; border-radius: 12px; padding: 0.75rem 0.85rem; background: color-mix(in srgb, #{accent_color} 10%, white); color: #{header_text_color}; font-weight: 700; cursor: pointer;" %>
+          <% else %>
+            <div style="height: 1px; background: color-mix(in srgb, <%= accent_color %> 18%, white); margin: 0.35rem 0;"></div>
+            <%= link_to "Iscriviti", new_registration_path, style: "display: block; padding: 0.75rem 0.85rem; border-radius: 12px; text-decoration: none; color: #{header_text_color}; font-weight: 700;" %>
+            <%= link_to "Accedi", new_session_path, style: "display: block; padding: 0.75rem 0.85rem; border-radius: 12px; text-decoration: none; color: #{header_text_color}; font-weight: 700;" %>
+          <% end %>
+        </div>
+      </details>
+    </div>
+  </div>
+</header>
+
+<style>
+  .brand-public-logo-mobile { display: none; }
+
+  @media (max-width: 899px) {
+    .brand-public-logo-desktop { display: none !important; }
+    .brand-public-logo-mobile { display: inline-flex !important; }
+  }
+
+  @media (min-width: 900px) {
+    .brand-public-nav-desktop { display: inline-flex !important; }
+    .brand-public-nav-mobile { display: none !important; }
+  }
+</style>

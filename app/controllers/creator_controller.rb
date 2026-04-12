@@ -3,6 +3,7 @@ class CreatorController < ApplicationController
 
   def carta_nautica
     @ports = Current.session.user.profile.ports.order(created_at: :desc)
+    @sea_routes = Current.session.user.profile.sea_routes.includes(:source_port, :target_port).order(created_at: :desc)
     return unless params[:add_port].present? && params[:x].present? && params[:y].present?
 
     @port = Current.session.user.profile.ports.new(

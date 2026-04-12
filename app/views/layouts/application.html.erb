@@ -1,11 +1,29 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="<%= current_brand_domain&.locale.presence || "it" %>">
   <head>
-    <title><%= content_for(:title) || "Flowpulse V 4" %></title>
+    <% page_title = content_for(:title) || "Flowpulse V 4" %>
+    <% domain_favicon = current_brand_domain&.favicon_url.presence || asset_path("flowpulse_brand.png") %>
+    <% meta_description =
+      if current_brand_domain.present?
+        current_brand_domain.seo_description.presence || current_brand_domain.title.presence || current_brand_domain.brand_port.name
+      else
+        "Flowpulse: mappe, percorsi e mondi condivisi tra creator, professionisti e persone."
+      end %>
+    <% canonical_url = request.original_url.sub(%r{\A(https?://)www\.}i, "\\1") %>
+    <% og_image = current_brand_domain&.horizontal_logo_url.presence || current_brand_domain&.square_logo_url.presence || domain_favicon %>
+
+    <title><%= page_title %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="application-name" content="Flowpulse V 4">
+    <meta name="application-name" content="<%= current_brand_domain&.title.presence || "Flowpulse V 4" %>">
     <meta name="mobile-web-app-capable" content="yes">
+    <meta name="description" content="<%= meta_description %>">
+    <link rel="canonical" href="<%= canonical_url %>">
+    <meta property="og:title" content="<%= page_title %>">
+    <meta property="og:description" content="<%= meta_description %>">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="<%= canonical_url %>">
+    <meta property="og:image" content="<%= og_image %>">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 
@@ -14,8 +32,8 @@
     <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
     <%#= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
 
-    <%= favicon_link_tag asset_path("flowpulse_brand.png"), type: "image/png" %>
-    <link rel="apple-touch-icon" href="<%= asset_path("flowpulse_brand.png") %>">
+    <%= favicon_link_tag domain_favicon, type: "image/png" %>
+    <link rel="apple-touch-icon" href="<%= domain_favicon %>">
 
     <%# Includes all stylesheet files in app/assets/stylesheets %>
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>

@@ -1,53 +1,18 @@
 <% content_for :title, "Flowpulse" %>
 
-<section class="home-shell">
-  <nav class="top-nav">
-    <%= link_to root_path, class: "brand-mark" do %>
-      <%= image_tag "flowpulse_brand.png", alt: "Flowpulse", class: "brand-logo" %>
-      <span>Flowpulse</span>
-    <% end %>
+<section style="min-height: 100vh; background: #ffffff;">
+  <%= render "shared/public_nav",
+    brand_title: "Flowpulse",
+    logo_horizontal_url: asset_path("flowpulse_brand.png"),
+    home_path: root_path,
+    accent_color: "#c96f38",
+    background_color: "#ffffff",
+    header_bg_color: "#ffffff",
+    header_text_color: "#1d1f1e",
+    nav_links: @public_nav_links %>
 
-    <div class="top-nav-links">
-      <a href="#struttura">Struttura</a>
-      <a href="#journey">Journey</a>
-      <%= link_to "About", about_path %>
-      <%= link_to "Blog", blog_path %>
-
-      <% if authenticated? %>
-        <details class="user-menu">
-          <summary class="user-trigger">
-            <span class="user-avatar"><%= Current.session.user.email_address.first.upcase %></span>
-          </summary>
-
-          <div class="user-dropdown">
-            <% if Current.session.user.profile.present? %>
-              <%= link_to "Home", root_path %>
-              <%= link_to "Dashboard", dashboard_path %>
-              <%= link_to "Profilo", edit_profile_path(anchor: "profile-main") %>
-              <%= link_to "Impostazioni", edit_profile_path(anchor: "profile-settings") %>
-            <% else %>
-              <%= link_to "Home", root_path %>
-              <%= link_to "Completa profilo", new_profile_path %>
-            <% end %>
-
-            <%= button_to "Esci", session_path, method: :delete, class: "user-menu-button" %>
-          </div>
-        </details>
-      <% else %>
-        <%= link_to "Registrati", new_registration_path %>
-        <%= link_to "Accedi", new_session_path, class: "nav-login" %>
-      <% end %>
-    </div>
-  </nav>
-
-  <nav class="top-nav sub-nav">
-    <div class="top-nav-links">
-      <a href="#struttura">Struttura</a>
-      <a href="#journey">Ingresso</a>
-    </div>
-  </nav>
-
-  <header class="home-hero">
+  <div class="home-shell">
+  <header class="home-hero" style="margin-top: 1.4rem;">
     <div class="hero-copy">
       <p class="eyebrow">Flowpulse</p>
       <h1>La vita e' un viaggio che lascia mappe.</h1>
@@ -160,4 +125,13 @@
       </p>
     </article>
   </section>
+
+  <% if development_domain_simulation_active? %>
+    <footer style="padding: 0.85rem 1.25rem 1.1rem; text-align: center;">
+      <span style="display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.35rem 0.6rem; border-radius: 999px; background: #e0f2fe; color: #0c4a6e; font-size: 0.72rem; font-weight: 700;">
+        Dev domain: <code style="font-size: 0.72rem; font-weight: 800;"><%= resolved_domain_host %></code> · FlowPulse
+      </span>
+    </footer>
+  <% end %>
+  </div>
 </section>

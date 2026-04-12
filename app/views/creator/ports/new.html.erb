@@ -1,6 +1,6 @@
 <%= turbo_frame_tag "port_modal" do %>
   <% if turbo_frame_request? %>
-    <%= render "modal", port: @port %>
+    <%= render "modal", port: @port, route_source_port_id: @route_source_port_id %>
   <% else %>
     <% content_for :title, "Nuovo Approdo (Port)" %>
 
@@ -10,13 +10,13 @@
 
         <div class="dashboard-card">
           <p class="eyebrow">Creator</p>
-          <h1>Crea un nuovo Nodo (Port)</h1>
+          <h1 style="margin-bottom: 0.35rem; max-width: none; white-space: nowrap;">Crea un nuovo Nodo (Port)</h1>
           <p>
             Aggiungi un nuovo componente alla tua carta nautica. Può essere un brand generale, un libro, mappa o blog.
           </p>
 
           <div class="dashboard-actions" style="margin-top: 2rem; background: #fff; padding: 2rem; border-radius: 8px; border: 1px solid #eee;">
-            <%= render "creator/ports/form", port: @port %>
+            <%= render "creator/ports/form", port: @port, route_source_port_id: @route_source_port_id %>
           </div>
         </div>
       </div>

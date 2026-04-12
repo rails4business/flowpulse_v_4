@@ -1,0 +1,109 @@
+<% content_for :title, @port.name %>
+
+<section class="dashboard-shell">
+  <div class="app-layout">
+    <%= render "shared/app_sidebar" %>
+
+    <div class="dashboard-card">
+      <p class="eyebrow">Creator Port</p>
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; flex-wrap: wrap;">
+        <div>
+          <h1 style="margin-bottom: 0.35rem; max-width: none; white-space: nowrap;"><%= @port.name %></h1>
+          <p style="margin-top: 0;">Slug: <code><%= @port.slug %></code></p>
+        </div>
+        <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+          <%= link_to "Torna alla carta", creator_carta_nautica_path, class: "btn btn-secondary" %>
+          <%= link_to "Modifica", edit_creator_port_path(@port), class: "btn btn-primary" %>
+        </div>
+      </div>
+
+      <div class="port-form-grid port-form-grid-three" style="margin-top: 1.5rem; margin-bottom: 1.5rem;">
+        <div class="dashboard-actions" style="background: #fff; padding: 1rem; border-radius: 16px; border: 1px solid #e2e8f0;">
+          <strong>Tipologia</strong>
+          <p style="margin-bottom: 0;"><%= @port.port_kind_label %></p>
+        </div>
+        <div class="dashboard-actions" style="background: #fff; padding: 1rem; border-radius: 16px; border: 1px solid #e2e8f0;">
+          <strong>Visibilità</strong>
+          <p style="margin-bottom: 0;"><%= @port.visibility.humanize %></p>
+        </div>
+        <div class="dashboard-actions" style="background: #fff; padding: 1rem; border-radius: 16px; border: 1px solid #e2e8f0;">
+          <strong>Coordinate</strong>
+          <p style="margin-bottom: 0;"><%= @port.x || "-" %>, <%= @port.y || "-" %></p>
+        </div>
+      </div>
+
+      <div class="dashboard-actions" style="background: #fff; padding: 1.25rem; border-radius: 18px; border: 1px solid #e2e8f0;">
+        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
+          <span style="display: inline-block; width: 18px; height: 18px; border-radius: 999px; background: <%= @port.color_key %>; border: 2px solid rgba(15,23,42,0.12);"></span>
+          <strong>Descrizione</strong>
+        </div>
+        <p style="margin: 0;"><%= @port.description.presence || "Nessuna descrizione ancora inserita." %></p>
+      </div>
+
+      <div class="dashboard-actions" style="margin-top: 1.5rem; background: #fff; padding: 1.25rem; border-radius: 18px; border: 1px solid #e2e8f0;">
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem;">
+          <div>
+            <strong>Domini del brand</strong>
+            <p style="margin: 0.35rem 0 0; color: #475569;">
+              <% if @port.brand? %>
+                Collega qui i domini pubblici che aprono l'ingresso del brand.
+              <% else %>
+                I domini pubblici appartengono solo ai porti di tipo brand.
+              <% end %>
+            </p>
+          </div>
+          <% if @port.brand? %>
+            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+              <%= link_to "Vedi tutti", creator_port_brand_domains_path(@port), class: "btn btn-secondary" %>
+              <%= link_to "+ Dominio", new_creator_port_brand_domain_path(@port), class: "btn btn-primary" %>
+            </div>
+          <% end %>
+        </div>
+
+        <% if @port.brand? %>
+          <% brand_domains = @port.brand_domains.order(primary: :desc, created_at: :asc) %>
+          <div style="display: grid; gap: 0.85rem;">
+            <% brand_domains.each do |brand_domain| %>
+              <div style="padding: 0.9rem 1rem; border-radius: 14px; border: 1px solid #e2e8f0; background: #f8fafc;">
+                <div style="display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; align-items: center;">
+                  <div>
+                    <strong><%= brand_domain.host %></strong>
+                    <p style="margin: 0.3rem 0 0; color: #475569;">
+                      <%= brand_domain.locale %>
+                      <% if brand_domain.title.present? %>· <%= brand_domain.title %><% end %>
+                    </p>
+                    <p style="margin: 0.35rem 0 0; font-size: 0.82rem; color: <%= brand_domain.published? ? "#166534" : "#991b1b" %>;">
+                      <strong><%= brand_domain.published? ? "Pubblico attivo" : "Non pubblicato" %></strong>
+                      · <%= brand_domain.published? ? "Questo dominio viene risolto pubblicamente." : "Finché non è pubblicato, il dominio non viene usato dalla root pubblica." %>
+                    </p>
+                  </div>
+                  <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+                    <% if brand_domain.primary? %><span class="btn btn-secondary" style="padding: 0.3rem 0.55rem;">Primary</span><% end %>
+                    <%= button_to(
+                      brand_domain.published? ? "Published" : "Draft",
+                      toggle_published_creator_port_brand_domain_path(@port, brand_domain),
+                      method: :patch,
+                      class: "btn btn-secondary",
+                      form: {
+                        style: "display: inline-block;",
+                        data: (brand_domain.published? ? { turbo_confirm: "Sei sicuro di voler riportare questo dominio in draft?" } : {})
+                      },
+                      style: "padding: 0.3rem 0.55rem; #{brand_domain.published? ? "background: #dcfce7; border-color: #86efac; color: #166534;" : "background: #fee2e2; border-color: #fecaca; color: #991b1b;"}"
+                    ) %>
+                    <%= link_to "Modifica", edit_creator_port_brand_domain_path(@port, brand_domain), class: "btn btn-secondary" %>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+
+            <% if brand_domains.blank? %>
+              <div style="padding: 1rem; border-radius: 14px; border: 1px dashed #cbd5e1; color: #475569;">
+                Nessun dominio collegato a questo brand.
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</section>

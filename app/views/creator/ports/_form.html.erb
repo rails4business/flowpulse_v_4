@@ -13,6 +13,7 @@
 
   <%= form.hidden_field :x %>
   <%= form.hidden_field :y %>
+  <%= hidden_field_tag :route_source_port_id, local_assigns[:route_source_port_id] %>
 
   <% if port.x.present? && port.y.present? %>
     <div class="dashboard-meta-row" style="margin-bottom: 1rem;">
@@ -37,7 +38,12 @@
   <div class="port-form-grid port-form-grid-three" style="margin-bottom: 1rem;">
     <div class="form-group">
       <%= form.label :port_kind, "Tipologia", style: "display: block;" %>
-      <%= form.select :port_kind, Port.port_kinds.keys.map { |k| [k == "map_port" ? "Map" : k.capitalize, k] }, {}, class: "form-control", style: "width: 100%; border: 1px solid #ccc; padding: 0.5rem; border-radius: 4px;" %>
+      <%= form.select :port_kind, [
+        ["⚓ Brand", "brand"],
+        ["🧭 Map", "map_port"],
+        ["📜 Blog", "blog"],
+        ["🧰 Book", "book"]
+      ], {}, class: "form-control", style: "width: 100%; border: 1px solid #ccc; padding: 0.5rem; border-radius: 4px;" %>
     </div>
 
     <div class="form-group">
@@ -54,8 +60,8 @@
   <div class="form-group" style="margin-bottom: 1rem;">
     <%= form.label :color_key, "Colore del porto", style: "display: block;" %>
     <div style="display: flex; align-items: center; gap: 0.85rem;">
-      <%= form.color_field :color_key, class: "form-control", style: "width: 56px; height: 42px; padding: 0.2rem; border: 1px solid #ccc; border-radius: 10px; background: white;" %>
-      <%= form.text_field :color_key, class: "form-control", style: "width: 140px; border: 1px solid #ccc; padding: 0.5rem; border-radius: 4px; text-transform: lowercase;" %>
+      <%= form.color_field :color_key, class: "form-control", style: "width: 56px; height: 42px; padding: 0.2rem; border: 1px solid #ccc; border-radius: 10px; background: white;", data: { port_form_target: "colorPicker", action: "input->port-form#syncColorText change->port-form#syncColorText" } %>
+      <%= text_field_tag :port_color_key_display, port.color_key, class: "form-control", style: "width: 140px; border: 1px solid #ccc; padding: 0.5rem; border-radius: 4px; text-transform: lowercase;", data: { port_form_target: "colorText", action: "input->port-form#syncColorPicker blur->port-form#normalizeColorText" }, autocomplete: "off", spellcheck: false %>
     </div>
     <p style="margin: 0.35rem 0 0; color: #64748b; font-size: 0.82rem;">Scegli direttamente il colore del porto. Il bordo esterno seguira' il colore del brand di appartenenza, se presente.</p>
   </div>

@@ -1456,6 +1456,33 @@ form.button_to {
   box-shadow: 0 3px 8px rgba(15, 23, 42, 0.12);
 }
 
+.sea-island-route-trigger {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 36px;
+  height: 28px;
+  padding: 0 0.55rem;
+  border: 0;
+  border-radius: 999px;
+  background: #0f766e;
+  color: white;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.18);
+  cursor: pointer;
+  z-index: 3;
+}
+
+.sea-island-route-trigger:hover {
+  background: #115e59;
+}
+
 .sea-island.island-brand,
 .sea-island.island-blog,
 .sea-island.island-book,
@@ -1585,6 +1612,24 @@ form.button_to {
   stroke: rgba(37, 99, 235, 0.1);
 }
 
+.sea-route-preview-marker {
+  position: absolute;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  background: rgba(15, 118, 110, 0.92);
+  color: white;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.18);
+  pointer-events: none;
+  z-index: 2;
+}
+
 @media (max-width: 720px) {
   .port-form-grid-two,
   .port-form-grid-three {
@@ -1613,8 +1658,20 @@ form.button_to {
     height: 32px;
   }
 
+  .sea-island-route-trigger {
+    min-width: 32px;
+    height: 26px;
+    font-size: 0.86rem;
+  }
+
   .sea-chart-fish.fish-c {
     display: none;
+  }
+
+  .sea-route-preview-marker {
+    width: 28px;
+    height: 28px;
+    font-size: 0.92rem;
   }
 
   .top-nav {
