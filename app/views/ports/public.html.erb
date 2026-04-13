@@ -1,24 +1,24 @@
-<% content_for :title, @brand_domain&.seo_title.presence || @brand_domain&.title.presence || @port.name %>
+<% content_for :title, @webapp_domain&.seo_title.presence || @webapp_domain&.title.presence || @port.name %>
 
 <section
   style="
-    --brand-header-bg: <%= @brand_domain&.header_bg_color.presence || "#0f172a" %>;
-    --brand-header-text: <%= @brand_domain&.header_text_color.presence || "#f8fafc" %>;
-    --brand-accent: <%= @brand_domain&.accent_color.presence || "#0f766e" %>;
-    --brand-background: <%= @brand_domain&.background_color.presence || "#f8fafc" %>;
+    --brand-header-bg: <%= @webapp_domain&.header_bg_color.presence || "#0f172a" %>;
+    --brand-header-text: <%= @webapp_domain&.header_text_color.presence || "#f8fafc" %>;
+    --brand-accent: <%= @webapp_domain&.accent_color.presence || "#0f766e" %>;
+    --brand-background: <%= @webapp_domain&.background_color.presence || "#f8fafc" %>;
     min-height: 100vh;
     background: var(--brand-background);
   "
 >
   <%= render "shared/public_nav",
-    brand_title: (@brand_domain&.title.presence || @brand_port.name),
-    logo_horizontal_url: @brand_domain&.horizontal_logo_url,
-    logo_square_url: @brand_domain&.square_logo_url,
+    brand_title: (@webapp_domain&.title.presence || @brand_port.name),
+    logo_horizontal_url: @webapp_domain&.horizontal_logo_url,
+    logo_square_url: @webapp_domain&.square_logo_url,
     home_path: root_path,
-    accent_color: (@brand_domain&.accent_color.presence || "#0f766e"),
-    background_color: (@brand_domain&.background_color.presence || "#f8fafc"),
-    header_bg_color: (@brand_domain&.header_bg_color.presence || "#ffffff"),
-    header_text_color: (@brand_domain&.header_text_color.presence || "#0f172a"),
+    accent_color: (@webapp_domain&.accent_color.presence || "#0f766e"),
+    background_color: (@webapp_domain&.background_color.presence || "#f8fafc"),
+    header_bg_color: (@webapp_domain&.header_bg_color.presence || "#ffffff"),
+    header_text_color: (@webapp_domain&.header_text_color.presence || "#0f172a"),
     nav_links: [{ label: "Home", href: root_path }] + @brand_nav_routes.map { |route| { label: route.target_port.name, href: "#brand-port-#{route.target_port.id}" } } %>
 
   <main style="min-height: calc(100vh - 78px); width: 100%;"></main>
@@ -31,7 +31,7 @@
     </footer>
   <% end %>
 
-  <% if @brand_domain&.custom_css.present? %>
-    <style><%= @brand_domain.custom_css.html_safe %></style>
+  <% if @webapp_domain&.custom_css.present? %>
+    <style><%= @webapp_domain.custom_css.html_safe %></style>
   <% end %>
 </section>

@@ -4,8 +4,8 @@ class SeaRouteTest < ActiveSupport::TestCase
   setup do
     @user = User.create!(email_address: "sea-routes@example.com", password: "password")
     @profile = @user.create_profile!(display_name: "Sea Routes", visibility: "private")
-    @source = @profile.ports.create!(name: "Porto A", port_kind: :brand, visibility: :draft)
-    @target = @profile.ports.create!(name: "Porto B", port_kind: :map_port, visibility: :draft)
+    @source = @profile.ports.create!(name: "Porto A", port_kind: :web_app, brand_root: true, visibility: :draft)
+    @target = @profile.ports.create!(name: "Porto B", port_kind: :website, visibility: :draft)
   end
 
   test "keeps route source and target as authored and avoids duplicate exact pairs" do
@@ -35,7 +35,7 @@ class SeaRouteTest < ActiveSupport::TestCase
 
     other_user = User.create!(email_address: "other-sea-routes@example.com", password: "password")
     other_profile = other_user.create_profile!(display_name: "Other", visibility: "private")
-    foreign_port = other_profile.ports.create!(name: "Porto C", port_kind: :blog, visibility: :draft)
+    foreign_port = other_profile.ports.create!(name: "Porto C", port_kind: :youtube, visibility: :draft)
 
     foreign_route = @profile.sea_routes.new(source_port: @source, target_port: foreign_port)
 

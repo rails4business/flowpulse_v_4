@@ -10,41 +10,17 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_11_110000) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_13_104500) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
-  create_table "brand_domains", force: :cascade do |t|
-    t.string "accent_color"
-    t.string "background_color"
-    t.bigint "brand_port_id", null: false
-    t.datetime "created_at", null: false
-    t.text "custom_css"
-    t.string "favicon_url"
-    t.string "header_bg_color"
-    t.string "header_text_color"
-    t.string "home_page_key"
-    t.string "horizontal_logo_url"
-    t.string "host", null: false
-    t.string "locale", default: "it", null: false
-    t.boolean "primary", default: false, null: false
-    t.boolean "published", default: false, null: false
-    t.text "seo_description"
-    t.string "seo_title"
-    t.string "square_logo_url"
-    t.string "title"
-    t.datetime "updated_at", null: false
-    t.index ["brand_port_id", "locale"], name: "index_brand_domains_on_brand_port_id_and_locale", unique: true
-    t.index ["brand_port_id", "primary"], name: "index_brand_domains_one_primary_per_brand", unique: true, where: "(\"primary\" = true)"
-    t.index ["brand_port_id"], name: "index_brand_domains_on_brand_port_id"
-    t.index ["host"], name: "index_brand_domains_on_host", unique: true
-  end
-
   create_table "ports", force: :cascade do |t|
     t.bigint "brand_port_id"
+    t.boolean "brand_root", default: false, null: false
     t.string "color_key"
     t.datetime "created_at", null: false
     t.text "description"
+    t.string "entry_value"
     t.jsonb "meta", default: {}
     t.string "name", null: false
     t.integer "port_kind", default: 0, null: false
@@ -56,6 +32,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_11_110000) do
     t.integer "x"
     t.integer "y"
     t.index ["brand_port_id"], name: "index_ports_on_brand_port_id"
+    t.index ["brand_root"], name: "index_ports_on_brand_root"
     t.index ["profile_id", "slug"], name: "index_ports_on_profile_id_and_slug", unique: true
     t.index ["profile_id"], name: "index_ports_on_profile_id"
   end
@@ -108,7 +85,32 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_11_110000) do
     t.index ["email_address"], name: "index_users_on_email_address", unique: true
   end
 
-  add_foreign_key "brand_domains", "ports", column: "brand_port_id"
+  create_table "webapp_domains", force: :cascade do |t|
+    t.string "accent_color"
+    t.string "background_color"
+    t.bigint "brand_port_id", null: false
+    t.datetime "created_at", null: false
+    t.text "custom_css"
+    t.string "favicon_url"
+    t.string "header_bg_color"
+    t.string "header_text_color"
+    t.string "home_page_key"
+    t.string "horizontal_logo_url"
+    t.string "host", null: false
+    t.string "locale", default: "it", null: false
+    t.boolean "primary", default: false, null: false
+    t.boolean "published", default: false, null: false
+    t.text "seo_description"
+    t.string "seo_title"
+    t.string "square_logo_url"
+    t.string "title"
+    t.datetime "updated_at", null: false
+    t.index ["brand_port_id", "locale"], name: "index_webapp_domains_on_brand_port_id_and_locale", unique: true
+    t.index ["brand_port_id", "primary"], name: "index_webapp_domains_one_primary_per_brand", unique: true, where: "(\"primary\" = true)"
+    t.index ["brand_port_id"], name: "index_webapp_domains_on_brand_port_id"
+    t.index ["host"], name: "index_webapp_domains_on_host", unique: true
+  end
+
   add_foreign_key "ports", "ports", column: "brand_port_id"
   add_foreign_key "ports", "profiles"
   add_foreign_key "profiles", "users"
@@ -116,4 +118,5 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_11_110000) do
   add_foreign_key "sea_routes", "ports", column: "target_port_id"
   add_foreign_key "sea_routes", "profiles"
   add_foreign_key "sessions", "users"
+  add_foreign_key "webapp_domains", "ports", column: "brand_port_id"
 end

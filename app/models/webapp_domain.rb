@@ -1,4 +1,4 @@
-class BrandDomain < ApplicationRecord
+class WebappDomain < ApplicationRecord
   HEX_COLOR_FORMAT = /\A#(?:[0-9a-f]{6})\z/i
   HOST_FORMAT = /\A[a-z0-9.-]+\.[a-z]{2,}\z/i
   AVAILABLE_HOME_PAGE_KEYS = %w[posturacorretta_home].freeze
@@ -25,16 +25,17 @@ class BrandDomain < ApplicationRecord
     end
 
     def unset_other_primary_domains
-      brand_port.brand_domains.where.not(id: id).where(primary: true).update_all(primary: false)
+      brand_port.webapp_domains.where.not(id: id).where(primary: true).update_all(primary: false)
     end
 
     def brand_port_must_be_brand
       return if brand_port.blank?
-      return if brand_port.brand?
+      return if brand_port.brand_root?
 
-      errors.add(:brand_port, "must be a brand port")
+      errors.add(:brand_port, "must be a brand root port")
     end
 
+  private
     def normalize_host_value(value)
       normalized = value.to_s.strip.downcase
       normalized.sub(/\Awww\./, "")

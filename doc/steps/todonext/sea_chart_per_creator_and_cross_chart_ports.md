@@ -2,7 +2,12 @@
 
 ## Punto emerso
 
-La carta nautica attuale e' ancora troppo implicita: coordinate e rotte vivono direttamente su `Port` e `SeaRoute`, ma il modello non separa ancora in modo esplicito le diverse carte dei creator.
+La carta nautica attuale e' ancora troppo implicita: coordinate e rotte vivono direttamente su `Port` e `SeaRoute`, ma il modello non separa ancora in modo esplicito:
+
+- le diverse carte dei creator
+- il `Port` come nodo concettuale
+- la presenza del `Port` dentro una carta
+- il `BrandPort` come centro della carta
 
 ## Direzione da fissare
 
@@ -19,9 +24,10 @@ Le coordinate dei `Port` non dovrebbero vivere solo sul `Port` in astratto, ma n
 
 Quindi il modello futuro dovra' probabilmente distinguere:
 
-- il `Port` come nodo concettuale
+- il `Port` come punto di ingresso o nodo concettuale
 - la presenza del `Port` dentro una specifica `SeaChart`
 - le coordinate del `Port` dentro quella specifica carta
+- il `BrandPort` che caratterizza la carta e ne definisce il centro logico
 
 ## Effetto atteso
 
@@ -31,6 +37,7 @@ Questo permettera' di avere:
 - stessa entita' `Port` vista in carte diverse
 - coordinate diverse a seconda della carta
 - meno accoppiamento diretto tra `Port` e posizione grafica
+- un `BrandPort` che resta riferimento della carta senza forzare coordinate globali su tutti i `Port`
 
 ## Lista personale dei port
 
@@ -39,7 +46,7 @@ Va anche considerata una lista "I miei Port", separata dalla sola rappresentazio
 Questa lista dovra' permettere di vedere:
 
 - tutti i `Port` del creator
-- il tipo di `Port`
+- il tipo di ingresso del `Port`
 - le `SeaRoute` collegate
 - eventuali appartenenze a brand o carte
 
@@ -58,6 +65,14 @@ Quindi il modello futuro dovra' distinguere bene:
 - esistenza della `SeaRoute` tra due `Port`
 
 senza costringere le rotte a restare solo dentro una singola carta.
+
+## Nota sul pubblico
+
+Per la soglia minima del sistema:
+
+- il `Port` pubblico iniziale resta il `BrandPort` o il porto di ingresso principale del mondo
+- gli altri `Port` della carta non devono essere esposti subito all'esterno
+- l'apertura pubblica di altri `Port` verra' affrontata dopo
 
 ## Nota di focus
 

@@ -1,7 +1,7 @@
 class Profile < ApplicationRecord
   belongs_to :user
   has_many :ports, dependent: :destroy
-  has_many :brand_domains, through: :ports
+  has_many :webapp_domains, through: :ports
   has_many :sea_routes, dependent: :destroy
 
   VISIBILITIES = %w[private public].freeze

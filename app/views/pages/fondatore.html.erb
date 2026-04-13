@@ -1,0 +1,597 @@
+<% content_for :title, "Chi sono | Esploratore, creatore di mappe e costruttore di percorsi" %>
+
+<style>
+  :root {
+    --founder-bg: #f5f3ec;
+    --founder-paper: #fffdf8;
+    --founder-text: #1f2937;
+    --founder-muted: #5b6472;
+    --founder-line: #d9d2c2;
+    --founder-gold: #b88a44;
+    --founder-green: #607a52;
+    --founder-blue: #456c8f;
+    --founder-red: #a54d4d;
+    --founder-shadow: 0 18px 45px rgba(0, 0, 0, 0.08);
+    --founder-radius: 22px;
+    --founder-max: 1100px;
+  }
+
+  .founder-page {
+    min-height: 100vh;
+    background:
+      radial-gradient(circle at top left, rgba(184, 138, 68, 0.08), transparent 28%),
+      radial-gradient(circle at bottom right, rgba(96, 122, 82, 0.08), transparent 25%),
+      var(--founder-bg);
+    color: var(--founder-text);
+    line-height: 1.7;
+  }
+
+  .founder-page * {
+    box-sizing: border-box;
+  }
+
+  .founder-container {
+    width: min(var(--founder-max), calc(100% - 32px));
+    margin: 0 auto;
+  }
+
+  .founder-hero {
+    padding: 28px 0 36px;
+  }
+
+  .founder-hero-card,
+  .founder-section-card,
+  .founder-message-box,
+  .founder-cta-box {
+    background: var(--founder-paper);
+    border: 1px solid var(--founder-line);
+    border-radius: var(--founder-radius);
+    box-shadow: var(--founder-shadow);
+  }
+
+  .founder-hero-card {
+    padding: 40px;
+    display: grid;
+    gap: 28px;
+  }
+
+  .founder-eyebrow {
+    display: inline-block;
+    padding: 8px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--founder-line);
+    color: var(--founder-gold);
+    font-size: 0.9rem;
+    background: rgba(184, 138, 68, 0.07);
+    letter-spacing: 0.02em;
+  }
+
+  .founder-page h1,
+  .founder-page h2,
+  .founder-page h3 {
+    margin: 0 0 14px;
+    line-height: 1.15;
+  }
+
+  .founder-page h1 {
+    font-size: clamp(2.2rem, 5vw, 4.4rem);
+    max-width: 900px;
+  }
+
+  .founder-page h2 {
+    font-size: clamp(1.6rem, 3.2vw, 2.4rem);
+  }
+
+  .founder-page h3 {
+    font-size: 1.25rem;
+  }
+
+  .founder-lead {
+    font-size: 1.15rem;
+    color: var(--founder-muted);
+    max-width: 860px;
+  }
+
+  .founder-hero-grid,
+  .founder-projects-grid,
+  .founder-steps,
+  .founder-vision-grid {
+    display: grid;
+    gap: 18px;
+  }
+
+  .founder-hero-grid {
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    margin-top: 10px;
+  }
+
+  .founder-mini-card {
+    padding: 18px;
+    border-radius: 18px;
+    border: 1px solid var(--founder-line);
+    background: #fcfaf5;
+  }
+
+  .founder-mini-card strong {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 1rem;
+  }
+
+  .founder-main {
+    padding: 14px 0 80px;
+  }
+
+  .founder-main section {
+    margin-top: 28px;
+  }
+
+  .founder-section-card,
+  .founder-message-box,
+  .founder-cta-box {
+    padding: 34px;
+  }
+
+  .founder-section-intro {
+    color: var(--founder-muted);
+    max-width: 850px;
+  }
+
+  .founder-projects-grid {
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    margin-top: 22px;
+  }
+
+  .founder-project {
+    padding: 24px;
+    border: 1px solid var(--founder-line);
+    border-radius: 20px;
+    background: #fffefb;
+  }
+
+  .founder-project.blue { border-top: 6px solid var(--founder-blue); }
+  .founder-project.green { border-top: 6px solid var(--founder-green); }
+  .founder-project.red { border-top: 6px solid var(--founder-red); }
+  .founder-project.gold { border-top: 6px solid var(--founder-gold); }
+
+  .founder-project p,
+  .founder-section-card p,
+  .founder-message-box p,
+  .founder-cta-box p {
+    color: var(--founder-muted);
+    margin: 0 0 14px;
+  }
+
+  .founder-list {
+    display: grid;
+    gap: 10px;
+    padding: 0;
+    margin: 16px 0 0;
+    list-style: none;
+  }
+
+  .founder-list li {
+    padding-left: 18px;
+    position: relative;
+  }
+
+  .founder-list li::before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    color: var(--founder-gold);
+    font-weight: 700;
+  }
+
+  .founder-blockquote {
+    margin: 0;
+    padding: 24px;
+    border-left: 4px solid var(--founder-gold);
+    background: rgba(184, 138, 68, 0.07);
+    border-radius: 16px;
+    font-size: 1.1rem;
+    color: #3f3322;
+  }
+
+  .founder-message-box {
+    background:
+      linear-gradient(145deg, rgba(184, 138, 68, 0.10), rgba(96, 122, 82, 0.08)),
+      var(--founder-paper);
+  }
+
+  .founder-message-big {
+    font-size: clamp(1.55rem, 3.8vw, 2.5rem);
+    line-height: 1.25;
+    margin-bottom: 16px;
+    font-weight: 700;
+  }
+
+  .founder-steps {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    margin-top: 22px;
+  }
+
+  .founder-step,
+  .founder-vision-card {
+    padding: 18px;
+    border-radius: 18px;
+    border: 1px solid var(--founder-line);
+    background: rgba(255, 255, 255, 0.72);
+  }
+
+  .founder-step-number {
+    display: inline-flex;
+    width: 34px;
+    height: 34px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    background: var(--founder-gold);
+    color: white;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+
+  .founder-vision-grid {
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    margin-top: 18px;
+  }
+
+  .founder-cta-box {
+    text-align: center;
+    background: #fdfaf3;
+  }
+
+  .founder-cta-title {
+    font-size: clamp(1.4rem, 3vw, 2.2rem);
+    margin-bottom: 10px;
+  }
+
+  .founder-cta-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 22px;
+  }
+
+  .founder-btn {
+    display: inline-block;
+    text-decoration: none;
+    padding: 14px 18px;
+    border-radius: 999px;
+    border: 1px solid var(--founder-line);
+    color: var(--founder-text);
+    background: white;
+    font-weight: 600;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .founder-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
+  }
+
+  .founder-btn.primary {
+    background: var(--founder-gold);
+    color: white;
+    border-color: var(--founder-gold);
+  }
+
+  .founder-footer {
+    padding: 0 0 56px;
+    text-align: center;
+    color: var(--founder-muted);
+    font-size: 0.95rem;
+  }
+
+  @media (max-width: 700px) {
+    .founder-hero {
+      padding-top: 42px;
+    }
+
+    .founder-hero-card,
+    .founder-section-card,
+    .founder-message-box,
+    .founder-cta-box {
+      padding: 24px;
+    }
+
+    .founder-lead {
+      font-size: 1.03rem;
+    }
+  }
+</style>
+
+<section class="founder-page">
+  <%= render "shared/public_nav",
+      nav_links: @public_nav_links,
+      brand_title: "Flowpulse",
+      logo_horizontal_url: nil,
+      logo_square_url: asset_path("flowpulse_brand.png"),
+      home_path: root_path,
+      accent_color: "#0f766e",
+      background_color: "#f8fafc",
+      header_bg_color: "#ffffff",
+      header_text_color: "#0f172a" %>
+
+  <div class="home-shell">
+    <nav class="top-nav sub-nav" style="margin-top: 0.8rem;">
+      <div class="sub-nav-links">
+        <a href="#chi-sono">Chi sono</a>
+        <a href="#progetti">Progetti</a>
+        <a href="#filo">Il filo</a>
+        <a href="#visione">Visione</a>
+        <a href="#messaggio">Messaggio</a>
+      </div>
+    </nav>
+  </div>
+
+  <header class="founder-hero">
+    <div class="founder-container">
+      <div class="founder-hero-card">
+        <div>
+          <span class="founder-eyebrow">Esploratore • Creatore di mappe • Costruttore di percorsi</span>
+          <h1>Creo mappe per orientarsi nel corpo, nella salute, nei metodi e nello stile di vita.</h1>
+          <p class="founder-lead">
+            Il mio lavoro nasce dall’incontro tra esplorazione, formazione, salute e progettazione.
+            Studio persone, metodi e sistemi, li collego tra loro e costruisco percorsi che aiutano
+            a capire meglio il corpo, a risolvere problemi concreti e a progettare uno stile di vita più integrato.
+          </p>
+        </div>
+
+        <div class="founder-hero-grid">
+          <div class="founder-mini-card">
+            <strong>Il Giardino del Corpo</strong>
+            Un progetto di eventi e stile di vita che nel tempo vuole diventare anche un agriturismo rigenerativo.
+          </div>
+          <div class="founder-mini-card">
+            <strong>Accademia PosturaCorretta</strong>
+            Un percorso educativo per comprendere la fisiologia attraverso i principi delle metodiche posturali.
+          </div>
+          <div class="founder-mini-card">
+            <strong>Flowpulse</strong>
+            Una piattaforma in Rails per gestire risorse, conoscenze, eventi e percorsi con una logica di mappe.
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="founder-main">
+    <div class="founder-container">
+      <section id="chi-sono">
+        <div class="founder-section-card">
+          <h2>Chi sono</h2>
+          <p class="founder-section-intro">
+            Mi considero un esploratore e un creatore di mappe. Nel tempo ho incontrato discipline, professionisti,
+            metodiche posturali, strumenti educativi e modi diversi di leggere il corpo. Più che scegliere una sola etichetta,
+            ho cercato di costruire una visione che collegasse ciò che di valido esiste già.
+          </p>
+          <p>
+            Per me il corpo non è solo qualcosa da curare quando si rompe. È un territorio da conoscere,
+            una storia da leggere, una bussola da usare per orientare salute, lavoro, relazioni, formazione e ambiente di vita.
+          </p>
+          <blockquote class="founder-blockquote">
+            Non cerco solo soluzioni. Cerco connessioni, principi e percorsi che possano essere compresi, vissuti e condivisi.
+          </blockquote>
+        </div>
+      </section>
+
+      <section id="progetti">
+        <div class="founder-section-card">
+          <h2>I progetti che sto costruendo</h2>
+          <p class="founder-section-intro">
+            La mia visione prende forma attraverso progetti distinti ma collegati tra loro.
+            Ognuno nasce da una domanda precisa e contribuisce a costruire un ecosistema più ampio.
+          </p>
+
+          <div class="founder-projects-grid">
+            <article class="founder-project green">
+              <h3>Il Giardino del Corpo</h3>
+              <p>
+                È il progetto dedicato allo stile di vita, agli eventi, alla natura, alla rigenerazione e alle relazioni.
+                Oggi prende forma attraverso esperienze, incontri e momenti condivisi. In prospettiva, vuole diventare
+                anche un luogo fisico: un agriturismo rigenerativo dove corpo, ambiente e comunità possano ritrovarsi.
+              </p>
+              <ul class="founder-list">
+                <li>Eventi e incontri trasformativi</li>
+                <li>Stile di vita più naturale e integrato</li>
+                <li>Visione futura di luogo fisico rigenerativo</li>
+              </ul>
+            </article>
+
+            <article class="founder-project blue">
+              <h3>Accademia PosturaCorretta</h3>
+              <p>
+                È la parte educativa del mio lavoro. Un’accademia pensata per aiutare le persone a comprendere meglio il corpo,
+                la postura e la fisiologia, attraverso i principi delle migliori metodiche posturali e di altri approcci utili.
+              </p>
+              <p>
+                Il cuore del progetto è il percorso <strong>Postura e Fisiologia</strong>: una guida educativa per scoprire
+                come funziona la nostra fisiologia e imparare a leggere il corpo con maggiore consapevolezza.
+              </p>
+            </article>
+
+            <article class="founder-project red">
+              <h3>Stop al Dolore &amp; Benessere Integrato</h3>
+              <p>
+                Accanto al percorso educativo, ci sono anche servizi e percorsi più orientati ai problemi concreti e alla costruzione
+                di salute nel quotidiano.
+              </p>
+              <ul class="founder-list">
+                <li><strong>Stop al Dolore</strong> → per affrontare problemi, disagi o situazioni da risolvere</li>
+                <li><strong>Benessere Integrato</strong> → per costruire equilibrio, prevenzione e qualità della vita</li>
+              </ul>
+            </article>
+
+            <article class="founder-project gold">
+              <h3>Flowpulse</h3>
+              <p>
+                È la piattaforma che sto sviluppando in Rails per gestire risorse, conoscenze, eventi, relazioni e percorsi.
+                Nasce dall’idea che i sistemi complessi si comprendano meglio quando vengono rappresentati come mappe.
+              </p>
+              <p>
+                La sua logica unisce <strong>carte nautiche</strong> e <strong>mappe metropolitane</strong>: orientamento,
+                nodi, connessioni, tappe, possibilità di percorso.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="filo">
+        <div class="founder-section-card">
+          <h2>Il filo che unisce tutto</h2>
+          <p>
+            Tutto questo prende forma anche in un libro: <strong>Il corpo, un mondo da scoprire</strong>.
+            Un testo che vuole essere insieme guida, visione e ponte tra PosturaCorretta e Il Giardino del Corpo.
+          </p>
+          <p>
+            Il mio obiettivo non è semplicemente offrire servizi separati, ma costruire un sistema in cui formazione,
+            salute, esperienze, metodi e tecnologie si parlino tra loro.
+          </p>
+          <p>
+            In questo senso, il corpo diventa il punto di partenza per leggere la persona, orientare le scelte,
+            costruire percorsi e diffondere metodi in modo più chiaro, vivo e condivisibile.
+          </p>
+        </div>
+      </section>
+
+      <section id="visione">
+        <div class="founder-section-card">
+          <h2>Perché PosturaCorretta e Il Giardino del Corpo stanno insieme</h2>
+          <p>
+            Molti penseranno che sia una visione troppo grande. Che sia impossibile far funzionare insieme PosturaCorretta
+            e Il Giardino del Corpo. In realtà, non solo è possibile, ma uno è la naturale conseguenza dell’altro.
+          </p>
+          <p>
+            E spiego tutto nel libro <strong>“Il corpo, un mondo da scoprire”</strong>: un libro che non è solo teoria,
+            ma una mappa concreta che ti accompagna passo dopo passo in questo percorso.
+          </p>
+          <p>
+            Con PosturaCorretta hai gli strumenti per iniziare a lavorare sul tuo ambiente interno:
+          </p>
+          <ul class="founder-list">
+            <li>Capire come funziona il tuo corpo</li>
+            <li>Costruire il tuo percorso della salute</li>
+            <li>Intervenire quando qualcosa non va</li>
+          </ul>
+          <p>
+            Attraverso tre direzioni fondamentali:
+          </p>
+          <ul class="founder-list">
+            <li><strong>Stop al Dolore</strong> → quando c’è un problema da risolvere</li>
+            <li><strong>Benessere Integrato</strong> → quando vuoi stare meglio e prevenire</li>
+            <li><strong>Postura e Fisiologia</strong> → quando vuoi capire e riattivare il tuo corpo</li>
+          </ul>
+          <p>
+            Ma a un certo punto succede qualcosa. Quando inizi davvero a sentire il tuo corpo, non ti basta più stare bene.
+            Vuoi vivere il corpo, vuoi un ambiente sano, vuoi uno stile di vita coerente, vuoi persone con cui condividere
+            questo percorso.
+          </p>
+          <p>
+            Ed è per questo che nasce <strong>Il Giardino del Corpo</strong>. Una diretta conseguenza.
+            All’inizio è semplice: incontri, eventi, scambi, condivisioni. Ma può evolvere fino a diventare
+            un vero e proprio luogo, fisico e simbolico: un agriturismo rigenerativo.
+          </p>
+
+          <div class="founder-vision-grid">
+            <div class="founder-vision-card">
+              <h3>Nel Giardino del Corpo</h3>
+              <ul class="founder-list">
+                <li>Il corpo diventa esperienza</li>
+                <li>La salute diventa stile di vita</li>
+                <li>La conoscenza diventa condivisione</li>
+                <li>Il lavoro e la formazione assumono un significato nuovo</li>
+              </ul>
+            </div>
+
+            <div class="founder-vision-card">
+              <h3>Qui trovi</h3>
+              <ul class="founder-list">
+                <li>Strumenti per scoprire le tue sfere</li>
+                <li>Modelli per esplorare nuove possibilità</li>
+                <li>Eventi per vivere esperienze reali</li>
+                <li>Relazioni per costruire comunità</li>
+              </ul>
+            </div>
+          </div>
+
+          <p>
+            Non lavori più solo su di te. Inizi a trasformare l’ambiente intorno a te, costruisci relazioni diverse,
+            crei nuovi modi di vivere.
+          </p>
+          <p>
+            Il passaggio chiave è questo:
+          </p>
+          <ul class="founder-list">
+            <li><strong>PosturaCorretta</strong> ti insegna ad ascoltare il tuo corpo, capire come funziona e trovare il tuo ruolo in base alle tue attitudini e ai tuoi talenti</li>
+            <li><strong>Il Giardino del Corpo</strong> ti permette di esprimerlo, condividerlo e viverlo nel mondo reale</li>
+          </ul>
+          <blockquote class="founder-blockquote">
+            Prima costruisci la tua fisiologia. Poi costruisci il tuo mondo.
+          </blockquote>
+        </div>
+      </section>
+
+      <section id="messaggio">
+        <div class="founder-message-box">
+          <h2>Il messaggio</h2>
+          <div class="founder-message-big">
+            Mappa il tuo cervello, crea il tuo percorso per ottenere un risultato o risolvere un problema,
+            costruisci il tuo stile di vita, oppure mappa i percorsi del tuo metodo per condividerlo e diffonderlo.
+          </div>
+          <p>
+            Questa è la direzione che sto seguendo: aiutare persone, professionisti e progetti a orientarsi meglio.
+            Prima dentro di sé, poi nelle proprie azioni, poi nella costruzione di un sistema condivisibile.
+          </p>
+
+          <div class="founder-steps">
+            <div class="founder-step">
+              <div class="founder-step-number">1</div>
+              <strong>Mappa</strong>
+              <p>Osserva il problema, il desiderio, il contesto e le risorse che hai a disposizione.</p>
+            </div>
+            <div class="founder-step">
+              <div class="founder-step-number">2</div>
+              <strong>Crea il percorso</strong>
+              <p>Dai forma a una direzione concreta, fatta di tappe, strumenti, prove e passaggi chiari.</p>
+            </div>
+            <div class="founder-step">
+              <div class="founder-step-number">3</div>
+              <strong>Costruisci lo stile di vita</strong>
+              <p>Trasforma il percorso in una pratica stabile, coerente con il corpo e con la vita reale.</p>
+            </div>
+            <div class="founder-step">
+              <div class="founder-step-number">4</div>
+              <strong>Condividi il metodo</strong>
+              <p>Rendi replicabile ciò che funziona, così da poterlo diffondere, insegnare e far crescere.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="founder-cta-box">
+          <div class="founder-cta-title">Se vuoi, possiamo partire da una mappa.</div>
+          <p>
+            Che tu voglia capire meglio il tuo corpo, costruire un percorso della salute, dare forma a uno stile di vita,
+            oppure organizzare e diffondere il tuo metodo, il primo passo è orientarsi.
+          </p>
+          <div class="founder-cta-buttons">
+            <a href="#" class="founder-btn primary">Scopri i percorsi</a>
+            <a href="#" class="founder-btn">Esplora i progetti</a>
+            <a href="https://wa.me/393290706039?text=Ciao%2C%20vorrei%20chiedere%20informazioni." class="founder-btn" target="_blank" rel="noopener">Contattami</a>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="founder-footer">
+    <div class="founder-container">
+      Una visione che unisce corpo, mappe, percorsi, formazione e stile di vita.
+    </div>
+  </footer>
+</section>

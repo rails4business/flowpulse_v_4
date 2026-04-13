@@ -2,7 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
   static targets = ["node", "line", "mapArea", "fullscreenButton", "modifyButton", "editTools", "editLink", "routeButton", "routeHint", "previewLine", "previewMarker", "routeControls", "routeDirectionButton", "routeDirectionIcon", "routeEditButton", "routeDeleteButton", "routeEditorPanel", "routeEditorTitle", "routeEditorState", "routeEditorCycle", "routeDirectionMenu", "routeDirectionOption"]
-  static values = { addMode: Boolean, editMode: Boolean }
+  static values = { addMode: Boolean, editMode: Boolean, chartBrandPortId: Number, chartPath: String }
 
   connect() {
     this.activeNode = null;
@@ -34,6 +34,7 @@ export default class extends Controller {
     document.addEventListener("fullscreenchange", this.boundFullscreenChange);
     document.addEventListener("mousemove", this.boundPointerPreview);
 
+    this.syncAllRouteEndpoints()
     this.syncAllRouteArrows()
     this.syncAddMode()
     this.syncEditMode()
@@ -57,14 +58,25 @@ export default class extends Controller {
 
     // Iniezione diretta tramite Hotwire/Turbo Frame!
     const frame = document.getElementById("port_modal");
-    const url = this.routeSourceId ?
-      `/creator/ports/new?edit=1&x=${x}&y=${y}&route_source_port_id=${this.routeSourceId}` :
-      `/creator/ports/new?edit=1&x=${x}&y=${y}`;
+    const url = new URL("/creator/ports/new", window.location.origin)
+    url.searchParams.set("edit", "1")
+    url.searchParams.set("x", x)
+    url.searchParams.set("y", y)
+
+    if (this.routeSourceId) {
+      url.searchParams.set("route_source_port_id", this.routeSourceId)
+    }
+
+    if (this.hasChartBrandPortIdValue && this.chartBrandPortIdValue) {
+      url.searchParams.set("brand_port_id", this.chartBrandPortIdValue)
+    } else {
+      url.searchParams.set("brand_root", "1")
+    }
 
     if (frame) {
-      frame.src = url;
+      frame.src = url.toString();
     } else {
-      window.location.href = url; // Fallback se il frame manca
+      window.location.href = url.toString(); // Fallback se il frame manca
     }
   }
 
@@ -358,7 +370,7 @@ export default class extends Controller {
 
     if (this.hasEditLinkTarget) {
       this.editLinkTargets.forEach((link) => {
-        link.hidden = !this.editModeValue
+        link.hidden = !this.editModeValue || !!this.routeSourceId
       })
     }
 
@@ -605,6 +617,16 @@ export default class extends Controller {
     })
 
     routeIds.forEach((routeId) => this.syncRouteAppearance(routeId))
+  }
+
+  syncAllRouteEndpoints() {
+    const routeIds = new Set()
+
+    this.element.querySelectorAll("[data-route-role='visible'][data-route-id]").forEach((line) => {
+      routeIds.add(line.dataset.routeId)
+    })
+
+    routeIds.forEach((routeId) => this.syncRouteEndpoints(routeId))
   }
 
   showRouteControls(routeId) {
@@ -954,7 +976,8 @@ export default class extends Controller {
         sea_route: {
           source_port_id: sourcePortId,
           target_port_id: targetPortId
-        }
+        },
+        brand_port_id: this.hasChartBrandPortIdValue ? this.chartBrandPortIdValue : null
       })
     })
 
@@ -963,8 +986,9 @@ export default class extends Controller {
       return
     }
 
+    const payload = await response.json()
     this.resetRouteMode()
-    window.location.href = "/creator/carta_nautica?edit=1"
+    window.location.href = payload.redirect_path || (this.hasChartPathValue ? this.chartPathValue : "/creator/carta_nautica?edit=1")
   }
 
   syncRouteEndpoints(routeId) {

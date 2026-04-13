@@ -77,6 +77,6 @@ Rails.application.configure do
   # config.generators.apply_rubocop_autocorrect_after_generate!
 
   # Simulated public host used while developing on localhost.
-  # config.x.simulated_domain_host = "flowpulse.net"
-  config.x.simulated_domain_host = "posturacorretta.org"
+  config.x.simulated_domain_host = "flowpulse.net"
+  # config.x.simulated_domain_host = "posturacorretta.org"
 end

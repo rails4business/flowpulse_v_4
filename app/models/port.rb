@@ -4,19 +4,25 @@ class Port < ApplicationRecord
 
   belongs_to :profile
   belongs_to :brand_port, class_name: 'Port', optional: true
-  has_many :brand_domains, foreign_key: :brand_port_id, dependent: :destroy
+  has_many :webapp_domains, class_name: "WebappDomain", foreign_key: :brand_port_id, dependent: :destroy
   has_many :outgoing_sea_routes, class_name: "SeaRoute", foreign_key: :source_port_id, dependent: :destroy
   has_many :incoming_sea_routes, class_name: "SeaRoute", foreign_key: :target_port_id, dependent: :destroy
 
-  enum :port_kind, { brand: 0, map_port: 1, blog: 2, book: 3 }
+  enum :port_kind, { web_app: 0, website: 1, youtube: 2, instagram: 3, whatsapp: 4, phone: 5 }
   enum :visibility, { draft: 0, published: 1, hidden: 2 }
 
   before_validation :set_slug_from_name, :normalize_color_key, :set_default_color_key
 
   def port_kind_label
-    return "Map" if map_port?
-
-    port_kind.humanize
+    case port_kind
+    when "web_app" then "Web App"
+    when "website" then "Website"
+    when "youtube" then "YouTube"
+    when "instagram" then "Instagram"
+    when "whatsapp" then "WhatsApp"
+    when "phone" then "Phone"
+    else port_kind.humanize
+    end
   end
 
   validates :name, presence: true
@@ -24,6 +30,7 @@ class Port < ApplicationRecord
   validates :slug, format: { with: SLUG_FORMAT }
   validates :x, :y, numericality: { only_integer: true }, allow_nil: true
   validates :color_key, format: { with: HEX_COLOR_FORMAT }, allow_blank: true
+  validate :brand_root_requires_web_app
 
   def color_config
     base = color_key.presence || default_color_key
@@ -40,7 +47,7 @@ class Port < ApplicationRecord
   end
 
   def inherited_brand_port
-    return self if brand?
+    return self if brand_root?
     return brand_port if brand_port.present?
 
     nil
@@ -48,6 +55,10 @@ class Port < ApplicationRecord
 
   def sea_routes
     SeaRoute.where("source_port_id = ? OR target_port_id = ?", id, id)
+  end
+
+  def public_webapp_ready?
+    published? && web_app? && webapp_domains.where(published: true).exists?
   end
 
   private
@@ -68,12 +79,21 @@ class Port < ApplicationRecord
 
     def default_color_key
       case port_kind
-      when "brand" then "#dc2626"
-      when "map_port" then "#2563eb"
-      when "blog" then "#d97706"
-      when "book" then "#16a34a"
+      when "web_app" then "#2563eb"
+      when "website" then "#0f766e"
+      when "youtube" then "#dc2626"
+      when "instagram" then "#c026d3"
+      when "whatsapp" then "#16a34a"
+      when "phone" then "#d97706"
       else "#475569"
       end
+    end
+
+    def brand_root_requires_web_app
+      return unless brand_root?
+      return if web_app?
+
+      errors.add(:brand_root, "can be enabled only for web app ports")
     end
 
     def mix_with_white(hex, ratio)

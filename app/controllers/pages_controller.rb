@@ -1,14 +1,14 @@
 class PagesController < ApplicationController
-  allow_unauthenticated_access only: %i[home about]
-  layout "brand_public", only: %i[home about]
+  allow_unauthenticated_access only: %i[home about fondatore]
+  layout "brand_public", only: %i[home about fondatore]
 
   def home
-    if unresolved_public_brand_domain?
+    if unresolved_public_webapp_domain?
       return render :domain_not_configured, status: :not_found
     end
 
-    if current_brand_domain.present?
-      return render_brand_domain_home
+    if current_webapp_domain.present?
+      return render_webapp_domain_home
     end
 
     @pillars = [
@@ -35,6 +35,7 @@ class PagesController < ApplicationController
     @public_nav_links = [
       { label: "Home", href: root_path },
       { label: "About", href: about_path },
+      { label: "Fondatore", href: fondatore_path },
       { label: "Blog", href: blog_path }
     ]
   end
@@ -43,21 +44,31 @@ class PagesController < ApplicationController
     @public_nav_links = [
       { label: "Home", href: root_path },
       { label: "About", href: about_path },
+      { label: "Fondatore", href: fondatore_path },
+      { label: "Blog", href: blog_path }
+    ]
+  end
+
+  def fondatore
+    @public_nav_links = [
+      { label: "Home", href: root_path },
+      { label: "About", href: about_path },
+      { label: "Fondatore", href: fondatore_path },
       { label: "Blog", href: blog_path }
     ]
   end
 
   private
-    def unresolved_public_brand_domain?
-      Rails.env.production? && resolved_domain_host.present? && resolved_domain_host != "flowpulse.net" && current_brand_domain.blank?
+    def unresolved_public_webapp_domain?
+      Rails.env.production? && resolved_domain_host.present? && resolved_domain_host != "flowpulse.net" && current_webapp_domain.blank?
     end
 
-    def render_brand_domain_home
-      @brand_domain = current_brand_domain
-      @brand_port = @brand_domain.brand_port
+    def render_webapp_domain_home
+      @webapp_domain = current_webapp_domain
+      @brand_port = @webapp_domain.brand_port
 
-      if @brand_domain.home_page_key.present?
-        custom_home_path = brand_home_path_for(@brand_domain.home_page_key)
+      if @webapp_domain.home_page_key.present?
+        custom_home_path = brand_home_path_for(@webapp_domain.home_page_key)
         return redirect_to custom_home_path if custom_home_path.present?
       end
 
@@ -74,7 +85,7 @@ class PagesController < ApplicationController
 
     def load_standard_brand_home_data
       @port = @brand_port
-      @brand_domains = @brand_port.brand_domains.where(published: true).order(primary: :desc, locale: :asc)
+      @webapp_domains = @brand_port.webapp_domains.where(published: true).order(primary: :desc, locale: :asc)
       @brand_nav_routes =
         @brand_port.outgoing_sea_routes
           .includes(:target_port)

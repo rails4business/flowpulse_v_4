@@ -14,6 +14,7 @@
   <%= form.hidden_field :x %>
   <%= form.hidden_field :y %>
   <%= hidden_field_tag :route_source_port_id, local_assigns[:route_source_port_id] %>
+  <%= hidden_field_tag :chart_brand_port_id, local_assigns[:chart_brand_port_id] %>
 
   <% if port.x.present? && port.y.present? %>
     <div class="dashboard-meta-row" style="margin-bottom: 1rem;">
@@ -37,13 +38,23 @@
 
   <div class="port-form-grid port-form-grid-three" style="margin-bottom: 1rem;">
     <div class="form-group">
-      <%= form.label :port_kind, "Tipologia", style: "display: block;" %>
-      <%= form.select :port_kind, [
-        ["⚓ Brand", "brand"],
-        ["🧭 Map", "map_port"],
-        ["📜 Blog", "blog"],
-        ["🧰 Book", "book"]
-      ], {}, class: "form-control", style: "width: 100%; border: 1px solid #ccc; padding: 0.5rem; border-radius: 4px;" %>
+      <% if port.brand_root? %>
+        <label style="display: block; font-weight: 600;">Tipologia</label>
+        <div class="form-control" style="width: 100%; border: 1px solid #ccc; padding: 0.5rem; border-radius: 4px; background: #f8fafc; color: #475569;">
+          Neutra per brand root
+        </div>
+        <p style="margin: 0.35rem 0 0; color: #64748b; font-size: 0.82rem;">Quando il port e' un brand root, la tipologia non viene usata come classificazione visibile della mappa.</p>
+      <% else %>
+        <%= form.label :port_kind, "Tipologia", style: "display: block;" %>
+        <%= form.select :port_kind, [
+          ["🧩 Web App", "web_app"],
+          ["🌐 Website", "website"],
+          ["▶️ YouTube", "youtube"],
+          ["📸 Instagram", "instagram"],
+          ["💬 WhatsApp", "whatsapp"],
+          ["☎️ Phone", "phone"]
+        ], {}, class: "form-control", style: "width: 100%; border: 1px solid #ccc; padding: 0.5rem; border-radius: 4px;" %>
+      <% end %>
     </div>
 
     <div class="form-group">
@@ -52,8 +63,33 @@
     </div>
 
     <div class="form-group">
-      <%= form.label :brand_port_id, "Brand di appartenenza", style: "display: block;" %>
-      <%= form.collection_select :brand_port_id, Current.session.user.profile.ports.where(port_kind: :brand).where.not(id: port.id), :id, :name, { include_blank: "Radice principale" }, class: "form-control", style: "width: 100%; border: 1px solid #ccc; padding: 0.5rem; border-radius: 4px;" %>
+      <%= form.label :brand_port_id, "Brand padre", style: "display: block;" %>
+      <%= form.collection_select :brand_port_id, Current.session.user.profile.ports.where(brand_root: true).where.not(id: port.id), :id, :name, { include_blank: "Nessun brand padre" }, class: "form-control", style: "width: 100%; border: 1px solid #ccc; padding: 0.5rem; border-radius: 4px;" %>
+      <p style="margin: 0.35rem 0 0; color: #64748b; font-size: 0.82rem;">Lascia vuoto per un brand root principale. Impostalo per creare un porto interno o un sottobrand dentro una carta brand.</p>
+    </div>
+  </div>
+
+  <div class="port-form-grid port-form-grid-two" style="margin-bottom: 1rem;">
+    <div class="form-group">
+      <%= form.label :entry_value, "Valore di ingresso", style: "display: block;" %>
+      <%= form.text_field :entry_value, class: "form-control", style: "width: 100%; border: 1px solid #ccc; padding: 0.5rem; border-radius: 4px;" %>
+      <p style="margin: 0.35rem 0 0; color: #64748b; font-size: 0.82rem;">URL, numero, handle o identificativo del canale in base alla tipologia scelta. Per le web app il dominio pubblico si gestisce dopo nella sezione Webapp Domains.</p>
+    </div>
+
+    <div class="form-group" style="display: flex; align-items: end;">
+      <div>
+        <label style="display: inline-flex; align-items: center; gap: 0.6rem; font-weight: 600;">
+        <%= form.check_box :brand_root %>
+        Brand root
+        </label>
+        <p style="margin: 0.45rem 0 0; color: #64748b; font-size: 0.82rem;">
+          <% if port.brand_root? %>
+            Questo port e' gia' un <strong>brand root</strong>. Dalla mappa apre la sua carta nautica; la modifica principale avviene dal titolo della carta. Se ha un brand padre, viene mostrato come sottobrand nella carta del padre.
+          <% else %>
+            Attiva questa opzione solo se il port deve diventare la radice di una carta brand. Un brand root deve essere di tipo <strong>Web App</strong>.
+          <% end %>
+        </p>
+      </div>
     </div>
   </div>
 
@@ -63,7 +99,7 @@
       <%= form.color_field :color_key, class: "form-control", style: "width: 56px; height: 42px; padding: 0.2rem; border: 1px solid #ccc; border-radius: 10px; background: white;", data: { port_form_target: "colorPicker", action: "input->port-form#syncColorText change->port-form#syncColorText" } %>
       <%= text_field_tag :port_color_key_display, port.color_key, class: "form-control", style: "width: 140px; border: 1px solid #ccc; padding: 0.5rem; border-radius: 4px; text-transform: lowercase;", data: { port_form_target: "colorText", action: "input->port-form#syncColorPicker blur->port-form#normalizeColorText" }, autocomplete: "off", spellcheck: false %>
     </div>
-    <p style="margin: 0.35rem 0 0; color: #64748b; font-size: 0.82rem;">Scegli direttamente il colore del porto. Il bordo esterno seguira' il colore del brand di appartenenza, se presente.</p>
+    <p style="margin: 0.35rem 0 0; color: #64748b; font-size: 0.82rem;">Scegli direttamente il colore del porto. Il bordo esterno seguira' il colore del brand padre, se presente.</p>
   </div>
 
   <div class="form-group" style="margin-bottom: 1rem;">
@@ -73,6 +109,6 @@
 
   <div style="margin-top: 2rem;">
     <%= form.submit "Salva", class: "btn btn-primary" %>
-    <%= link_to "Annulla", creator_carta_nautica_path, class: "btn btn-secondary", style: "margin-left: 1rem;", data: { turbo_frame: "_top" } %>
+    <%= link_to "Annulla", (local_assigns[:chart_brand_port_id].present? ? creator_brand_carta_nautica_path(brand_port_id: local_assigns[:chart_brand_port_id], edit: 1) : creator_carta_nautica_path(edit: 1)), class: "btn btn-secondary", style: "margin-left: 1rem;", data: { turbo_frame: "_top" } %>
   </div>
 <% end %>

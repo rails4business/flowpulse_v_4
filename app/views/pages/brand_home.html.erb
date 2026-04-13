@@ -1,30 +1,30 @@
-<% content_for :title, @brand_domain.seo_title.presence || @brand_domain.title.presence || @brand_port.name %>
+<% content_for :title, @webapp_domain.seo_title.presence || @webapp_domain.title.presence || @brand_port.name %>
 
 <section
   class="home-shell"
   style="
-    --brand-header-bg: <%= @brand_domain.header_bg_color.presence || "#0f172a" %>;
-    --brand-header-text: <%= @brand_domain.header_text_color.presence || "#f8fafc" %>;
-    --brand-accent: <%= @brand_domain.accent_color.presence || "#0f766e" %>;
-    --brand-background: <%= @brand_domain.background_color.presence || "#f8fafc" %>;
+    --brand-header-bg: <%= @webapp_domain.header_bg_color.presence || "#0f172a" %>;
+    --brand-header-text: <%= @webapp_domain.header_text_color.presence || "#f8fafc" %>;
+    --brand-accent: <%= @webapp_domain.accent_color.presence || "#0f766e" %>;
+    --brand-background: <%= @webapp_domain.background_color.presence || "#f8fafc" %>;
     background: var(--brand-background);
     min-height: 100vh;
   "
 >
   <nav style="display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: 1rem 1.5rem; background: var(--brand-header-bg); color: var(--brand-header-text);">
     <div style="display: flex; align-items: center; gap: 0.9rem;">
-      <% if @brand_domain.horizontal_logo_url.present? %>
-        <img src="<%= @brand_domain.horizontal_logo_url %>" alt="<%= @brand_port.name %>" style="height: 42px; width: auto; display: block;" />
-      <% elsif @brand_domain.square_logo_url.present? %>
-        <img src="<%= @brand_domain.square_logo_url %>" alt="<%= @brand_port.name %>" style="height: 42px; width: 42px; border-radius: 12px; display: block;" />
+      <% if @webapp_domain.horizontal_logo_url.present? %>
+        <img src="<%= @webapp_domain.horizontal_logo_url %>" alt="<%= @brand_port.name %>" style="height: 42px; width: auto; display: block;" />
+      <% elsif @webapp_domain.square_logo_url.present? %>
+        <img src="<%= @webapp_domain.square_logo_url %>" alt="<%= @brand_port.name %>" style="height: 42px; width: 42px; border-radius: 12px; display: block;" />
       <% else %>
         <div style="width: 42px; height: 42px; border-radius: 12px; background: var(--brand-accent); display: inline-flex; align-items: center; justify-content: center; font-weight: 800; color: white;">
           <%= @brand_port.name.first&.upcase %>
         </div>
       <% end %>
       <div>
-        <strong style="display: block;"><%= @brand_domain.title.presence || @brand_port.name %></strong>
-        <span style="font-size: 0.82rem; opacity: 0.82;"><%= resolved_domain_host %> · <%= @brand_domain.locale %></span>
+        <strong style="display: block;"><%= @webapp_domain.title.presence || @brand_port.name %></strong>
+        <span style="font-size: 0.82rem; opacity: 0.82;"><%= resolved_domain_host %> · <%= @webapp_domain.locale %></span>
       </div>
     </div>
     <div style="display: inline-flex; align-items: center; gap: 0.6rem;">
@@ -35,22 +35,22 @@
   <main style="max-width: 1120px; margin: 0 auto; padding: 2rem 1.5rem 3rem;">
     <header style="padding: 1.4rem 0 1.2rem;">
       <p style="margin: 0; color: var(--brand-accent); font-size: 0.78rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase;">Brand Home</p>
-      <h1 style="margin: 0.45rem 0 0.6rem; max-width: none; white-space: nowrap;"><%= @brand_domain.title.presence || @brand_port.name %></h1>
-      <p style="margin: 0; max-width: 760px; color: #475569;"><%= @brand_domain.seo_description.presence || @brand_port.description.presence || "Ingresso pubblico del brand e della sua rete di porti." %></p>
+      <h1 style="margin: 0.45rem 0 0.6rem; max-width: none; white-space: nowrap;"><%= @webapp_domain.title.presence || @brand_port.name %></h1>
+      <p style="margin: 0; max-width: 760px; color: #475569;"><%= @webapp_domain.seo_description.presence || @brand_port.description.presence || "Ingresso pubblico del brand e della sua rete di porti." %></p>
     </header>
 
     <section style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-top: 1.25rem;">
       <div style="padding: 1rem 1.1rem; border-radius: 18px; background: white; border: 1px solid #e2e8f0;">
-        <strong>Brand Port</strong>
+        <strong>Root Port</strong>
         <p style="margin: 0.45rem 0 0; color: #475569;"><%= @brand_port.name %></p>
       </div>
       <div style="padding: 1rem 1.1rem; border-radius: 18px; background: white; border: 1px solid #e2e8f0;">
         <strong>Lingua</strong>
-        <p style="margin: 0.45rem 0 0; color: #475569;"><%= @brand_domain.locale %></p>
+        <p style="margin: 0.45rem 0 0; color: #475569;"><%= @webapp_domain.locale %></p>
       </div>
       <div style="padding: 1rem 1.1rem; border-radius: 18px; background: white; border: 1px solid #e2e8f0;">
         <strong>Home Page Key</strong>
-        <p style="margin: 0.45rem 0 0; color: #475569;"><%= @brand_domain.home_page_key.presence || "brand default" %></p>
+        <p style="margin: 0.45rem 0 0; color: #475569;"><%= @webapp_domain.home_page_key.presence || "brand default" %></p>
       </div>
     </section>
 
@@ -84,12 +84,12 @@
   <% if development_domain_simulation_active? %>
     <footer style="padding: 0.85rem 1.25rem 1.1rem; text-align: center;">
       <span style="display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.35rem 0.6rem; border-radius: 999px; background: #e0f2fe; color: #0c4a6e; font-size: 0.72rem; font-weight: 700;">
-        Dev domain: <code style="font-size: 0.72rem; font-weight: 800;"><%= resolved_domain_host %></code> · Brand <code style="font-size: 0.72rem; font-weight: 800;"><%= @brand_domain.host %></code>
+        Dev domain: <code style="font-size: 0.72rem; font-weight: 800;"><%= resolved_domain_host %></code> · Webapp <code style="font-size: 0.72rem; font-weight: 800;"><%= @webapp_domain.host %></code>
       </span>
     </footer>
   <% end %>
 
-  <% if @brand_domain.custom_css.present? %>
-    <style><%= @brand_domain.custom_css.html_safe %></style>
+  <% if @webapp_domain.custom_css.present? %>
+    <style><%= @webapp_domain.custom_css.html_safe %></style>
   <% end %>
 </section>

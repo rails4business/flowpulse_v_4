@@ -6,12 +6,12 @@ class ApplicationController < ActionController::Base
   helper_method :current_workspace_mode,
     :available_workspace_modes,
     :workspace_landing_path,
-    :current_brand_domain,
+    :current_webapp_domain,
     :resolved_domain_host,
     :development_domain_simulation_active?,
     :current_domain_context_type,
     :flowpulse_domain_context?,
-    :brand_domain_context?
+    :webapp_domain_context?
   # Only allow modern browsers supporting webp images, web push, badges, import maps, CSS nesting, and CSS :has.
   allow_browser versions: :modern
 
@@ -28,16 +28,16 @@ class ApplicationController < ActionController::Base
 
     def set_current_domain_context
       host = resolve_domain_host
-      brand_domain =
+      webapp_domain =
         if host == "flowpulse.net"
           nil
         else
-          BrandDomain.includes(:brand_port).find_by(host: host, published: true)
+          WebappDomain.includes(:brand_port).find_by(host: host, published: true)
         end
 
       Current.resolved_domain_host = host
-      Current.brand_domain = brand_domain
-      Current.domain_context_type = brand_domain.present? ? "brand_domain" : "flowpulse"
+      Current.webapp_domain = webapp_domain
+      Current.domain_context_type = webapp_domain.present? ? "webapp_domain" : "flowpulse"
     end
 
     def ensure_profile_completed
@@ -61,8 +61,8 @@ class ApplicationController < ActionController::Base
       false
     end
 
-    def current_brand_domain
-      Current.brand_domain
+    def current_webapp_domain
+      Current.webapp_domain
     end
 
     def resolved_domain_host
@@ -77,8 +77,8 @@ class ApplicationController < ActionController::Base
       current_domain_context_type == "flowpulse"
     end
 
-    def brand_domain_context?
-      current_domain_context_type == "brand_domain"
+    def webapp_domain_context?
+      current_domain_context_type == "webapp_domain"
     end
 
     def development_domain_simulation_active?

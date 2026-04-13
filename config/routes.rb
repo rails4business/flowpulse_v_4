@@ -26,13 +26,14 @@ Rails.application.routes.draw do
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 
   get "creator/carta_nautica", to: "creator#carta_nautica", as: :creator_carta_nautica
+  get "creator/carta_nautica/brands/:brand_port_id", to: "creator#carta_nautica", as: :creator_brand_carta_nautica
   get "creator/branch_map", to: "creator#branch_map", as: :creator_branch_map
   get "creator/journey", to: "creator#journey", as: :creator_journey
   get "creator/value_architecture", to: "creator#value_architecture", as: :creator_value_architecture
 
   namespace :creator do
     resources :ports, only: [:show, :new, :create, :edit, :update, :destroy] do
-      resources :brand_domains, except: :show do
+      resources :webapp_domains, except: :show do
         patch :toggle_published, on: :member
       end
     end
@@ -54,6 +55,7 @@ Rails.application.routes.draw do
     patch :workspace
   end
   get "about", to: "pages#about", as: :about
+  get "fondatore", to: "pages#fondatore", as: :fondatore
   get "brand-homes/posturacorretta-home", to: "brand_homes#posturacorretta_home", as: :posturacorretta_brand_home
   get "ports/:id/public", to: "ports#public", as: :public_port
   get "blog", to: "blog#index", as: :blog

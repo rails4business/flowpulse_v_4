@@ -47,10 +47,10 @@
             <span><%= Current.session.user.email_address.first.upcase %></span>
           </summary>
           <div style="position: absolute; right: 0; top: calc(100% + 10px); min-width: 180px; border-radius: 16px; background: white; border: 1px solid color-mix(in srgb, <%= accent_color %> 18%, white); box-shadow: 0 18px 34px rgba(15, 23, 42, 0.12); padding: 0.45rem;">
+            <%= link_to "Dashboard", dashboard_path, style: "display: block; padding: 0.65rem 0.75rem; border-radius: 12px; text-decoration: none; color: #{header_text_color}; font-weight: 600;" %>
             <% if Current.session.user.profile.present? %>
               <%= link_to "Profilo", edit_profile_path(anchor: "profile-main"), style: "display: block; padding: 0.65rem 0.75rem; border-radius: 12px; text-decoration: none; color: #{header_text_color}; font-weight: 600;" %>
             <% end %>
-            <%= button_to "Esci", session_path, method: :delete, form_class: "", style: "margin-top: 0.35rem; width: 100%; text-align: left; border: none; border-radius: 12px; padding: 0.65rem 0.75rem; background: color-mix(in srgb, #{accent_color} 10%, white); color: #{header_text_color}; font-weight: 600; cursor: pointer;" %>
           </div>
         </details>
       <% else %>
@@ -65,11 +65,11 @@
             <%= link_to link[:label], link[:href], style: "display: block; padding: 0.75rem 0.85rem; border-radius: 12px; text-decoration: none; color: #{header_text_color}; font-weight: 700;" %>
           <% end %>
           <% if authenticated? %>
+            <div style="height: 1px; background: color-mix(in srgb, <%= accent_color %> 18%, white); margin: 0.35rem 0;"></div>
+            <%= link_to "Dashboard", dashboard_path, style: "display: block; padding: 0.75rem 0.85rem; border-radius: 12px; text-decoration: none; color: #{header_text_color}; font-weight: 700;" %>
             <% if Current.session.user.profile.present? %>
-              <div style="height: 1px; background: color-mix(in srgb, <%= accent_color %> 18%, white); margin: 0.35rem 0;"></div>
               <%= link_to "Profilo", edit_profile_path(anchor: "profile-main"), style: "display: block; padding: 0.75rem 0.85rem; border-radius: 12px; text-decoration: none; color: #{header_text_color}; font-weight: 700;" %>
             <% end %>
-            <%= button_to "Esci", session_path, method: :delete, form_class: "", style: "margin-top: 0.35rem; width: 100%; text-align: left; border: none; border-radius: 12px; padding: 0.75rem 0.85rem; background: color-mix(in srgb, #{accent_color} 10%, white); color: #{header_text_color}; font-weight: 700; cursor: pointer;" %>
           <% else %>
             <div style="height: 1px; background: color-mix(in srgb, <%= accent_color %> 18%, white); margin: 0.35rem 0;"></div>
             <%= link_to "Iscriviti", new_registration_path, style: "display: block; padding: 0.75rem 0.85rem; border-radius: 12px; text-decoration: none; color: #{header_text_color}; font-weight: 700;" %>

@@ -1,6 +1,6 @@
 <%= turbo_frame_tag "port_modal" do %>
   <% if turbo_frame_request? %>
-    <%= render "modal", port: @port, route_source_port_id: @route_source_port_id %>
+    <%= render "modal", port: @port, route_source_port_id: @route_source_port_id, chart_brand_port_id: @port.brand_port_id %>
   <% else %>
     <% content_for :title, "Nuovo Approdo (Port)" %>
 
@@ -16,7 +16,7 @@
           </p>
 
           <div class="dashboard-actions" style="margin-top: 2rem; background: #fff; padding: 2rem; border-radius: 8px; border: 1px solid #eee;">
-            <%= render "creator/ports/form", port: @port, route_source_port_id: @route_source_port_id %>
+            <%= render "creator/ports/form", port: @port, route_source_port_id: @route_source_port_id, chart_brand_port_id: @port.brand_port_id %>
           </div>
         </div>
       </div>

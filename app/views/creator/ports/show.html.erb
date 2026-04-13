@@ -12,7 +12,7 @@
           <p style="margin-top: 0;">Slug: <code><%= @port.slug %></code></p>
         </div>
         <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
-          <%= link_to "Torna alla carta", creator_carta_nautica_path, class: "btn btn-secondary" %>
+          <%= link_to "Torna alla carta", (@port.brand_root? ? creator_brand_carta_nautica_path(brand_port_id: @port.id) : (@port.brand_port_id.present? ? creator_brand_carta_nautica_path(brand_port_id: @port.brand_port_id) : creator_carta_nautica_path)), class: "btn btn-secondary" %>
           <%= link_to "Modifica", edit_creator_port_path(@port), class: "btn btn-primary" %>
         </div>
       </div>
@@ -32,6 +32,51 @@
         </div>
       </div>
 
+      <div class="port-form-grid port-form-grid-three" style="margin-bottom: 1.5rem;">
+        <div class="dashboard-actions" style="background: #fff; padding: 1rem; border-radius: 16px; border: 1px solid #e2e8f0;">
+          <strong>Ruolo nella carta</strong>
+          <p style="margin-bottom: 0;">
+            <% if @port.brand_root? && @port.brand_port_id.blank? %>
+              Brand root principale
+            <% elsif @port.brand_root? %>
+              Sottobrand
+            <% else %>
+              Porto interno
+            <% end %>
+          </p>
+        </div>
+        <div class="dashboard-actions" style="background: #fff; padding: 1rem; border-radius: 16px; border: 1px solid #e2e8f0;">
+          <strong>Brand padre</strong>
+          <p style="margin-bottom: 0;"><%= @port.brand_port&.name || "-" %></p>
+        </div>
+        <div class="dashboard-actions" style="background: #fff; padding: 1rem; border-radius: 16px; border: 1px solid #e2e8f0;">
+          <strong>Valore di ingresso</strong>
+          <p style="margin-bottom: 0;"><%= @port.entry_value.presence || "-" %></p>
+        </div>
+      </div>
+
+      <div class="dashboard-actions" style="margin-bottom: 1.5rem; background: #fff; padding: 1.25rem; border-radius: 18px; border: 1px solid #e2e8f0;">
+        <strong>Ingresso pubblico</strong>
+        <p style="margin: 0.45rem 0 0; color: <%= @port.public_webapp_ready? ? "#166534" : "#475569" %>;">
+          <% if @port.public_webapp_ready? %>
+            Questo port e' pronto come ingresso pubblico della web app.
+          <% elsif @port.web_app? %>
+            Questo port e' una web app, ma per essere ingresso pubblico deve essere pubblicato e avere almeno un Webapp Domain pubblicato.
+          <% else %>
+            Questo port non e' una web app. Per ora gli ingressi pubblici autonomi esistono solo per i port di tipo web app.
+          <% end %>
+        </p>
+        <% if @port.brand_root? %>
+          <p style="margin: 0.4rem 0 0; color: #475569;">
+            <% if @port.brand_port_id.blank? %>
+              Questo port e' un <strong>brand root principale</strong> e rappresenta il titolo della sua carta nautica.
+            <% else %>
+              Questo port e' un <strong>sottobrand</strong> e compare come nodo nella carta del brand padre.
+            <% end %>
+          </p>
+        <% end %>
+      </div>
+
       <div class="dashboard-actions" style="background: #fff; padding: 1.25rem; border-radius: 18px; border: 1px solid #e2e8f0;">
         <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
           <span style="display: inline-block; width: 18px; height: 18px; border-radius: 999px; background: <%= @port.color_key %>; border: 2px solid rgba(15,23,42,0.12);"></span>
@@ -43,62 +88,62 @@
       <div class="dashboard-actions" style="margin-top: 1.5rem; background: #fff; padding: 1.25rem; border-radius: 18px; border: 1px solid #e2e8f0;">
         <div style="display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem;">
           <div>
-            <strong>Domini del brand</strong>
+            <strong>Webapp Domains</strong>
             <p style="margin: 0.35rem 0 0; color: #475569;">
-              <% if @port.brand? %>
-                Collega qui i domini pubblici che aprono l'ingresso del brand.
+              <% if @port.web_app? %>
+                Collega qui i domini pubblici che aprono l'ingresso della web app.
               <% else %>
-                I domini pubblici appartengono solo ai porti di tipo brand.
+                I domini pubblici appartengono solo ai porti di tipo web app.
               <% end %>
             </p>
           </div>
-          <% if @port.brand? %>
+          <% if @port.web_app? %>
             <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
-              <%= link_to "Vedi tutti", creator_port_brand_domains_path(@port), class: "btn btn-secondary" %>
-              <%= link_to "+ Dominio", new_creator_port_brand_domain_path(@port), class: "btn btn-primary" %>
+              <%= link_to "Vedi tutti", creator_port_webapp_domains_path(@port), class: "btn btn-secondary" %>
+              <%= link_to "+ Dominio", new_creator_port_webapp_domain_path(@port), class: "btn btn-primary" %>
             </div>
           <% end %>
         </div>
 
-        <% if @port.brand? %>
-          <% brand_domains = @port.brand_domains.order(primary: :desc, created_at: :asc) %>
+        <% if @port.web_app? %>
+          <% webapp_domains = @port.webapp_domains.order(primary: :desc, created_at: :asc) %>
           <div style="display: grid; gap: 0.85rem;">
-            <% brand_domains.each do |brand_domain| %>
+            <% webapp_domains.each do |webapp_domain| %>
               <div style="padding: 0.9rem 1rem; border-radius: 14px; border: 1px solid #e2e8f0; background: #f8fafc;">
                 <div style="display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; align-items: center;">
                   <div>
-                    <strong><%= brand_domain.host %></strong>
+                    <strong><%= webapp_domain.host %></strong>
                     <p style="margin: 0.3rem 0 0; color: #475569;">
-                      <%= brand_domain.locale %>
-                      <% if brand_domain.title.present? %>· <%= brand_domain.title %><% end %>
+                      <%= webapp_domain.locale %>
+                      <% if webapp_domain.title.present? %>· <%= webapp_domain.title %><% end %>
                     </p>
-                    <p style="margin: 0.35rem 0 0; font-size: 0.82rem; color: <%= brand_domain.published? ? "#166534" : "#991b1b" %>;">
-                      <strong><%= brand_domain.published? ? "Pubblico attivo" : "Non pubblicato" %></strong>
-                      · <%= brand_domain.published? ? "Questo dominio viene risolto pubblicamente." : "Finché non è pubblicato, il dominio non viene usato dalla root pubblica." %>
+                    <p style="margin: 0.35rem 0 0; font-size: 0.82rem; color: <%= webapp_domain.published? ? "#166534" : "#991b1b" %>;">
+                      <strong><%= webapp_domain.published? ? "Pubblico attivo" : "Non pubblicato" %></strong>
+                      · <%= webapp_domain.published? ? "Questo dominio viene risolto pubblicamente." : "Finché non è pubblicato, il dominio non viene usato dalla root pubblica." %>
                     </p>
                   </div>
                   <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
-                    <% if brand_domain.primary? %><span class="btn btn-secondary" style="padding: 0.3rem 0.55rem;">Primary</span><% end %>
+                    <% if webapp_domain.primary? %><span class="btn btn-secondary" style="padding: 0.3rem 0.55rem;">Primary</span><% end %>
                     <%= button_to(
-                      brand_domain.published? ? "Published" : "Draft",
-                      toggle_published_creator_port_brand_domain_path(@port, brand_domain),
+                      webapp_domain.published? ? "Published" : "Draft",
+                      toggle_published_creator_port_webapp_domain_path(@port, webapp_domain),
                       method: :patch,
                       class: "btn btn-secondary",
                       form: {
                         style: "display: inline-block;",
-                        data: (brand_domain.published? ? { turbo_confirm: "Sei sicuro di voler riportare questo dominio in draft?" } : {})
+                        data: (webapp_domain.published? ? { turbo_confirm: "Sei sicuro di voler riportare questo dominio in draft?" } : {})
                       },
-                      style: "padding: 0.3rem 0.55rem; #{brand_domain.published? ? "background: #dcfce7; border-color: #86efac; color: #166534;" : "background: #fee2e2; border-color: #fecaca; color: #991b1b;"}"
+                      style: "padding: 0.3rem 0.55rem; #{webapp_domain.published? ? "background: #dcfce7; border-color: #86efac; color: #166534;" : "background: #fee2e2; border-color: #fecaca; color: #991b1b;"}"
                     ) %>
-                    <%= link_to "Modifica", edit_creator_port_brand_domain_path(@port, brand_domain), class: "btn btn-secondary" %>
+                    <%= link_to "Modifica", edit_creator_port_webapp_domain_path(@port, webapp_domain), class: "btn btn-secondary" %>
                   </div>
                 </div>
               </div>
             <% end %>
 
-            <% if brand_domains.blank? %>
+            <% if webapp_domains.blank? %>
               <div style="padding: 1rem; border-radius: 14px; border: 1px dashed #cbd5e1; color: #475569;">
-                Nessun dominio collegato a questo brand.
+                Nessun dominio collegato a questa web app.
               </div>
             <% end %>
           </div>

@@ -8,12 +8,12 @@ module Creator
 
       if @sea_route.save
         respond_to do |format|
-          format.html { redirect_to creator_carta_nautica_path(edit: 1), notice: "Rotta nautica creata." }
-          format.json { render json: { status: "ok", sea_route_id: @sea_route.id } }
+          format.html { redirect_to chart_redirect_path, notice: "Rotta nautica creata." }
+          format.json { render json: { status: "ok", sea_route_id: @sea_route.id, redirect_path: chart_redirect_path } }
         end
       else
         respond_to do |format|
-          format.html { redirect_to creator_carta_nautica_path(edit: 1), alert: @sea_route.errors.full_messages.to_sentence.presence || "Rotta non creata." }
+          format.html { redirect_to chart_redirect_path, alert: @sea_route.errors.full_messages.to_sentence.presence || "Rotta non creata." }
           format.json { render json: { errors: @sea_route.errors.full_messages }, status: :unprocessable_entity }
         end
       end
@@ -83,6 +83,19 @@ module Creator
 
       def require_creator
         redirect_to dashboard_path, alert: "Accesso creator non abilitato." unless Current.session.user.profile&.creator?
+      end
+
+      def chart_redirect_path
+        return creator_carta_nautica_path(edit: 1) if current_chart_brand_port.blank?
+
+        creator_brand_carta_nautica_path(brand_port_id: current_chart_brand_port.id, edit: 1)
+      end
+
+      def current_chart_brand_port
+        return @current_chart_brand_port if defined?(@current_chart_brand_port)
+        return @current_chart_brand_port = nil if params[:brand_port_id].blank?
+
+        @current_chart_brand_port = Current.session.user.profile.ports.find_by(id: params[:brand_port_id], brand_root: true)
       end
   end
 end

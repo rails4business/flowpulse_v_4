@@ -20,7 +20,7 @@ class Creator::PortsControllerTest < ActionDispatch::IntegrationTest
         port: {
           name: "Flowpulse Atlas",
           slug: "flowpulse-atlas",
-          port_kind: "map_port",
+          port_kind: "website",
           visibility: "draft",
           description: "Carta di prova",
           x: 284,

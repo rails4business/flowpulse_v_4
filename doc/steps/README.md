@@ -42,3 +42,4 @@ Step completati:
 - [`done/planning_develop_step_0006.md`](done/planning_develop_step_0006.md)
 - [`done/planning_develop_step_0007.md`](done/planning_develop_step_0007.md)
 - [`done/planning_develop_step_0008.md`](done/planning_develop_step_0008.md)
+- [`done/planning_develop_step_0009.md`](done/planning_develop_step_0009.md)

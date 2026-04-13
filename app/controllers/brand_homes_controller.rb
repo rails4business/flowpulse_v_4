@@ -8,11 +8,11 @@ class BrandHomesController < ApplicationController
 
   private
     def set_current_brand_home_context
-      @brand_domain = current_brand_domain
+      @webapp_domain = current_webapp_domain
 
-      return redirect_to root_path, alert: "Dominio brand non disponibile." if @brand_domain.blank?
+      return redirect_to root_path, alert: "Dominio web app non disponibile." if @webapp_domain.blank?
 
-      @brand_port = @brand_domain.brand_port
+      @brand_port = @webapp_domain.brand_port
       @brand_network_ports = @brand_port.profile.ports.where(brand_port_id: @brand_port.id).order(:port_kind, :name)
     end
 end

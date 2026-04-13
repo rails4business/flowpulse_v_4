@@ -5,7 +5,39 @@
     <%= render "shared/app_sidebar" %>
 
     <% edit_mode_active = params[:edit].present? || params[:add_port].present? %>
-    <div style="display: flex; flex-direction: column; flex-grow: 1; height: 100vh; position: relative;" data-controller="sea-chart" data-sea-chart-add-mode-value="<%= params[:add_port].present? %>" data-sea-chart-edit-mode-value="<%= edit_mode_active %>">
+    <div style="display: flex; flex-direction: column; flex-grow: 1; height: 100vh; position: relative;" data-controller="sea-chart" data-sea-chart-add-mode-value="<%= params[:add_port].present? %>" data-sea-chart-edit-mode-value="<%= edit_mode_active %>" data-sea-chart-chart-brand-port-id-value="<%= @brand_port&.id %>" data-sea-chart-chart-path-value="<%= creator_chart_path_for(@brand_port, edit: 1) %>">
+      <div style="padding: 0.85rem 1rem 0; display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap;">
+        <div>
+          <p class="eyebrow" style="margin: 0 0 0.25rem;"><%= @brand_port.present? ? "Carta nautica del brand" : "Carte nautiche brand" %></p>
+          <% if @brand_breadcrumbs.present? %>
+            <div style="display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 0.45rem; font-size: 0.84rem; color: #64748b;">
+              <% @brand_breadcrumbs.each_with_index do |crumb, index| %>
+                <% is_last = index == @brand_breadcrumbs.length - 1 %>
+                <% if is_last %>
+                  <span style="font-weight: 700; color: #0f172a;"><%= crumb[:label] %></span>
+                <% else %>
+                  <%= link_to crumb[:label], crumb[:path], style: "color: #475569; text-decoration: none; font-weight: 600;" %>
+                  <span style="color: #94a3b8;">/</span>
+                <% end %>
+              <% end %>
+            </div>
+          <% end %>
+          <h1 style="margin: 0; max-width: none; white-space: nowrap;">
+            <% if @brand_port.present? %>
+              <% previous_crumb = @brand_breadcrumbs[@brand_breadcrumbs.length - 2] if @brand_breadcrumbs.length > 1 %>
+              <%= link_to "←", (previous_crumb&.dig(:path) || creator_carta_nautica_path(edit: (params[:edit].present? ? 1 : nil))), class: "btn btn-secondary", style: "display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; padding: 0; margin-right: 0.55rem; vertical-align: middle;" %>
+            <% end %>
+            <%= @brand_port.present? ? @brand_port.name : "Brand Roots" %>
+            <% if @brand_port.present? %>
+              <%= link_to "✎", edit_creator_port_path(@brand_port), style: "display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; margin-left: 0.55rem; border-radius: 999px; background: #0f172a; color: white; text-decoration: none; font-size: 0.9rem; box-shadow: 0 8px 18px rgba(15, 23, 42, 0.18); vertical-align: middle;", data: { turbo: false }, title: "Modifica brand root", aria: { label: "Modifica brand root" } %>
+            <% end %>
+          </h1>
+        </div>
+        <% if @brand_port.present? %>
+          <%= link_to "Torna ai brand", creator_carta_nautica_path(edit: (params[:edit].present? ? 1 : nil)), class: "btn btn-secondary" %>
+        <% end %>
+      </div>
+
       <!-- SEA CHART AREA (Mappa in 2D) -->
       <div 
         class="dashboard-card sea-chart-container sea-chart-bg" 
@@ -31,9 +63,9 @@
             
             <div data-sea-chart-target="editTools" hidden style="display: flex; align-items: center; gap: 0.35rem;">
               <% if params[:add_port].present? %>
-                <%= link_to "Annulla", creator_carta_nautica_path(edit: 1), class: "btn btn-secondary", style: "border: none; background: #e2e8f0; font-weight: 600; padding: 0.5rem 0.85rem;" %>
+                <%= link_to "Annulla", creator_chart_path_for(@brand_port, edit: 1), class: "btn btn-secondary", style: "border: none; background: #e2e8f0; font-weight: 600; padding: 0.5rem 0.85rem;" %>
               <% else %>
-                <%= link_to "+ Porto", creator_carta_nautica_path(edit: 1, add_port: true), class: "btn btn-primary", style: "box-shadow: none; padding: 0.5rem 0.85rem;" %>
+                <%= link_to (@brand_port.present? ? "+ Porto" : "+ Brand Root"), creator_chart_path_for(@brand_port, edit: 1, add_port: true), class: "btn btn-primary", style: "box-shadow: none; padding: 0.5rem 0.85rem;" %>
               <% end %>
               <div style="width: 1px; height: 24px; background: #cbd5e1; margin: 0 0.25rem;"></div>
             </div>
@@ -98,7 +130,7 @@
         <div style="position: absolute; inset: -5000px; background-image: radial-gradient(#93c5fd 1px, transparent 1px); background-size: 40px 40px; opacity: 0.38; pointer-events: none; z-index: 1;"></div>
 
         <!-- ROTTE E COLLEGAMENTI (SVG Layer invisibile) -->
-        <svg style="position: absolute; inset: -5000px; width: 10000px; height: 10000px; overflow: visible; z-index: 1;">
+        <svg style="position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; z-index: 1;">
           <defs>
             <marker id="sea-route-arrow-end" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="strokeWidth">
               <path d="M0,0 L10,5 L0,10 z" fill="#0f766e"></path>
@@ -183,11 +215,11 @@
             x1="0" y1="0"
             x2="0" y2="0"
             stroke="#0f766e"
-            stroke-width="4.5"
-            stroke-dasharray="10,6"
+            stroke-width="6"
+            stroke-dasharray="12,6"
             stroke-linecap="round"
-            opacity="0.82"
-            style="pointer-events: none;"
+            opacity="0.98"
+            style="pointer-events: none; filter: drop-shadow(0 0 4px rgba(15, 118, 110, 0.35));"
             hidden
           />
         </svg>
@@ -287,19 +319,48 @@
               y = port.y.present? ? port.y : 50 + ((port.id || 1) * 35 % 300)
               own_color = port.color_config
               brand_color = port.brand_port&.color_config
+              node_role_label =
+                if port.brand_root? && port.brand_port_id.blank?
+                  "Brand root"
+                elsif port.brand_root?
+                  "Brand"
+                else
+                  "Porto"
+                end
+              node_role_class =
+                if port.brand_root? && port.brand_port_id.blank?
+                  "sea-node-role-root"
+                elsif port.brand_root?
+                  "sea-node-role-subbrand"
+                else
+                  "sea-node-role-port"
+                end
               
               # La Libreria Araldica dei Segnaposti
               case port.port_kind
-              when "brand"
-                icon, island_kind_class = "⚓", "island-brand"
-              when "map_port"
-                icon, island_kind_class = "🧭", "island-map"
-              when "blog"
-                icon, island_kind_class = "📜", "island-blog"
-              when "book"
-                icon, island_kind_class = "🧰", "island-book"
+              when "web_app"
+                icon, island_kind_class = "🧩", (port.brand_root? ? "island-brand" : "island-map")
+              when "website"
+                icon, island_kind_class = "🌐", "island-map"
+              when "youtube"
+                icon, island_kind_class = "▶️", "island-blog"
+              when "instagram"
+                icon, island_kind_class = "📸", "island-blog"
+              when "whatsapp"
+                icon, island_kind_class = "💬", "island-book"
+              when "phone"
+                icon, island_kind_class = "☎️", "island-book"
               else
                 icon, island_kind_class = "📍", "island-generic"
+              end
+            %>
+            <% port_show_url =
+              if port.brand_root?
+                creator_brand_carta_nautica_path(brand_port_id: port.id)
+              elsif @brand_port.present?
+                creator_port_path(port)
+              else
+                creator_brand_carta_nautica_path(brand_port_id: port.id)
               end
             %>
             <div
@@ -307,7 +368,7 @@
               data-sea-chart-target="node"
               data-action="click->sea-chart#nodeClicked mousemove->sea-chart#nodeHovered mouseleave->sea-chart#nodeHoverLeft mousedown->sea-chart#dragStart touchstart->sea-chart#dragStart"
               data-port-id="<%= port.id %>"
-              data-port-show-url="<%= creator_port_path(port) %>"
+              data-port-show-url="<%= port_show_url %>"
               style="position: absolute; left: <%= x %>px; top: <%= y %>px; background: radial-gradient(circle at 30% 20%, rgba(255,255,255,0.72), rgba(255,255,255,0) 42%), rgba(255,255,255,0.46);"
             >
               <% if port.brand_port.present? %>
@@ -339,12 +400,15 @@
               >
                 ⤴
               </button>
-              <%= link_to "✎", edit_creator_port_path(port), style: "position: absolute; top: -8px; right: -8px; width: 28px; height: 28px; border-radius: 999px; background: #0f172a; color: white; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; font-size: 0.9rem; box-shadow: 0 8px 18px rgba(15, 23, 42, 0.18);", data: { turbo: false, sea_chart_target: "editLink" }, hidden: true %>
+              <% unless port.brand_root? %>
+                <%= link_to "✎", edit_creator_port_path(port), style: "position: absolute; top: -8px; right: -8px; width: 28px; height: 28px; border-radius: 999px; background: #0f172a; color: white; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; font-size: 0.9rem; box-shadow: 0 8px 18px rgba(15, 23, 42, 0.18);", data: { turbo: false, sea_chart_target: "editLink" }, hidden: true %>
+              <% end %>
               <div class="sea-island-shore">
                 <div
                   class="sea-island-core"
                   style="border-color: <%= own_color[:stroke] %>; background: linear-gradient(180deg, <%= own_color[:fill] %> 0%, #fffdf7 100%); color: <%= own_color[:text] %>;"
                 >
+                  <span class="sea-node-role <%= node_role_class %>"><%= node_role_label %></span>
                   <div class="sea-island-icon" style="color: <%= own_color[:stroke] %>;"><%= icon %></div>
                   <strong class="sea-island-name"><%= port.name %></strong>
                 </div>
@@ -353,7 +417,13 @@
           <% end %>
         <% else %>
           <div style="position: absolute; inset: 0; display: flex; justify-content: center; align-items: center; text-align: center; color: #0284c7;">
-            <p>Il mare è calmo e inesplorato.<br><br>Costruisci navigando creando il tuo primo<br>brand, mappa, blog o libro.</p>
+            <p>
+              <% if @brand_port.present? %>
+                Il mare del brand è ancora vuoto.<br><br>Costruisci navigando creando il primo porto collegato.
+              <% else %>
+                Il mare è calmo e inesplorato.<br><br>Costruisci navigando creando il tuo primo<br>brand root.
+              <% end %>
+            </p>
           </div>
         <% end %>
         </div> <!-- chiusura canvas -->
@@ -364,5 +434,5 @@
 </section>
 
 <%= turbo_frame_tag "port_modal" do %>
-  <%= render "creator/ports/modal", port: @port if @port.present? %>
+  <%= render "creator/ports/modal", port: @port, chart_brand_port_id: @brand_port&.id if @port.present? %>
 <% end %>

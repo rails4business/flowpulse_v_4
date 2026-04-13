@@ -1,21 +1,21 @@
 <!DOCTYPE html>
-<html lang="<%= current_brand_domain&.locale.presence || "it" %>">
+<html lang="<%= current_webapp_domain&.locale.presence || "it" %>">
   <head>
-    <% page_title = content_for(:title) || current_brand_domain&.title.presence || "Flowpulse V 4" %>
-    <% domain_favicon = current_brand_domain&.favicon_url.presence || asset_path("flowpulse_brand.png") %>
+    <% page_title = content_for(:title) || current_webapp_domain&.title.presence || "Flowpulse V 4" %>
+    <% domain_favicon = current_webapp_domain&.favicon_url.presence || asset_path("flowpulse_brand.png") %>
     <% meta_description =
-      if current_brand_domain.present?
-        current_brand_domain.seo_description.presence || current_brand_domain.title.presence || current_brand_domain.brand_port.name
+      if current_webapp_domain.present?
+        current_webapp_domain.seo_description.presence || current_webapp_domain.title.presence || current_webapp_domain.brand_port.name
       else
         "Flowpulse: mappe, percorsi e mondi condivisi tra creator, professionisti e persone."
       end %>
     <% canonical_url = request.original_url.sub(%r{\A(https?://)www\.}i, "\\1") %>
-    <% og_image = current_brand_domain&.horizontal_logo_url.presence || current_brand_domain&.square_logo_url.presence || domain_favicon %>
+    <% og_image = current_webapp_domain&.horizontal_logo_url.presence || current_webapp_domain&.square_logo_url.presence || domain_favicon %>
 
     <title><%= page_title %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="application-name" content="<%= current_brand_domain&.title.presence || "Flowpulse V 4" %>">
+    <meta name="application-name" content="<%= current_webapp_domain&.title.presence || "Flowpulse V 4" %>">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="description" content="<%= meta_description %>">
     <link rel="canonical" href="<%= canonical_url %>">
@@ -40,14 +40,14 @@
         margin: 0;
         padding: 0;
         min-height: 100%;
-        background: <%= current_brand_domain&.background_color.presence || "#ffffff" %>;
+        background: <%= current_webapp_domain&.background_color.presence || "#ffffff" %>;
       }
 
       body.brand-public-body {
         margin: 0;
         padding: 0;
         min-height: 100vh;
-        background: <%= current_brand_domain&.background_color.presence || "#ffffff" %>;
+        background: <%= current_webapp_domain&.background_color.presence || "#ffffff" %>;
         color: #0f172a;
         font-family: Arial, sans-serif;
       }

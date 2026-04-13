@@ -1,15 +1,15 @@
 require "test_helper"
 
-class BrandDomainTest < ActiveSupport::TestCase
+class WebappDomainTest < ActiveSupport::TestCase
   setup do
     @user = User.create!(email_address: "brand-domains@example.com", password: "password")
     @profile = @user.create_profile!(display_name: "Brand Domains", visibility: "private")
-    @brand = @profile.ports.create!(name: "Brand Root", port_kind: :brand, visibility: :draft)
-    @map_port = @profile.ports.create!(name: "Map Child", port_kind: :map_port, visibility: :draft)
+    @brand = @profile.ports.create!(name: "Brand Root", port_kind: :web_app, brand_root: true, visibility: :draft)
+    @map_port = @profile.ports.create!(name: "Map Child", port_kind: :website, visibility: :draft)
   end
 
   test "is valid for a brand port with default modes" do
-    domain = BrandDomain.new(brand_port: @brand, host: "www.posturacorretta.org")
+    domain = WebappDomain.new(brand_port: @brand, host: "www.posturacorretta.org")
 
     assert domain.valid?
     assert_equal "it", domain.locale
@@ -17,7 +17,7 @@ class BrandDomainTest < ActiveSupport::TestCase
   end
 
   test "normalizes locale as free string" do
-    domain = BrandDomain.create!(
+    domain = WebappDomain.create!(
       brand_port: @brand,
       host: "locale.example.org",
       locale: "PT-BR"
@@ -27,12 +27,12 @@ class BrandDomainTest < ActiveSupport::TestCase
   end
 
   test "normalizes www host to bare domain but keeps other subdomains distinct" do
-    bare = BrandDomain.create!(
+    bare = WebappDomain.create!(
       brand_port: @brand,
       host: "WWW.PosturaCorretta.org"
     )
 
-    old = BrandDomain.create!(
+    old = WebappDomain.create!(
       brand_port: @brand,
       host: "old.posturacorretta.org",
       locale: "en"
@@ -43,14 +43,14 @@ class BrandDomainTest < ActiveSupport::TestCase
   end
 
   test "requires brand_port to be an actual brand" do
-    domain = BrandDomain.new(brand_port: @map_port, host: "map.example.org")
+    domain = WebappDomain.new(brand_port: @map_port, host: "map.example.org")
 
     assert_not domain.valid?
-    assert_includes domain.errors[:brand_port], "must be a brand port"
+    assert_includes domain.errors[:brand_port], "must be a brand root port"
   end
 
   test "validates structured theme colors as hex" do
-    domain = BrandDomain.new(
+    domain = WebappDomain.new(
       brand_port: @brand,
       host: "theme.example.org",
       header_bg_color: "blue"
@@ -61,13 +61,13 @@ class BrandDomainTest < ActiveSupport::TestCase
   end
 
   test "only one primary domain remains per brand" do
-    first = BrandDomain.create!(
+    first = WebappDomain.create!(
       brand_port: @brand,
       host: "first.example.org",
       primary: true
     )
 
-    second = BrandDomain.create!(
+    second = WebappDomain.create!(
       brand_port: @brand,
       host: "second.example.org",
       primary: true
@@ -78,7 +78,7 @@ class BrandDomainTest < ActiveSupport::TestCase
   end
 
   test "allows only known home page keys" do
-    domain = BrandDomain.new(
+    domain = WebappDomain.new(
       brand_port: @brand,
       host: "home.example.org",
       home_page_key: "not_existing_home"

@@ -1528,6 +1528,35 @@ form.button_to {
     0 3px 8px rgba(15, 23, 42, 0.05);
 }
 
+.sea-node-role {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 20px;
+  padding: 0.12rem 0.48rem;
+  border-radius: 999px;
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.sea-node-role-root {
+  background: rgba(37, 99, 235, 0.14);
+  color: #1d4ed8;
+}
+
+.sea-node-role-subbrand {
+  background: rgba(124, 58, 237, 0.12);
+  color: #6d28d9;
+}
+
+.sea-node-role-port {
+  background: rgba(15, 23, 42, 0.08);
+  color: #334155;
+}
+
 .sea-island-icon {
   font-size: 1.28rem;
   line-height: 1;
@@ -1551,6 +1580,10 @@ form.button_to {
 
 .sea-island.island-brand .sea-island-core {
   transform: rotate(-1.5deg);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.76),
+    0 0 0 2px rgba(37, 99, 235, 0.14),
+    0 10px 22px rgba(37, 99, 235, 0.12);
 }
 
 .sea-island.island-blog .sea-island-core {

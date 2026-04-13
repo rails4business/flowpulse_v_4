@@ -17,6 +17,7 @@ class BlogController < ApplicationController
       [
         { label: "Home", href: root_path },
         { label: "About", href: about_path },
+        { label: "Fondatore", href: fondatore_path },
         { label: "Blog", href: blog_path }
       ]
     end

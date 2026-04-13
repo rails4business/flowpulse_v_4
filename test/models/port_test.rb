@@ -12,7 +12,7 @@ class PortTest < ActiveSupport::TestCase
   test "slug is derived from name when omitted" do
     port = @profile.ports.create!(
       name: "Atlante del Mare",
-      port_kind: :brand,
+      port_kind: :web_app,
       visibility: :draft
     )
 
@@ -23,7 +23,7 @@ class PortTest < ActiveSupport::TestCase
     port = @profile.ports.new(
       name: "Coordinate Test",
       slug: "coordinate-test",
-      port_kind: :blog,
+      port_kind: :youtube,
       visibility: :draft,
       x: 12.5,
       y: "north"
@@ -37,14 +37,15 @@ class PortTest < ActiveSupport::TestCase
   test "color key defaults from port kind and can be inherited by brand ring" do
     brand = @profile.ports.create!(
       name: "Brand Madre",
-      port_kind: :brand,
+      port_kind: :web_app,
+      brand_root: true,
       visibility: :draft,
       color_key: "#dc2626"
     )
 
     child = @profile.ports.create!(
-      name: "Mappa Figlia",
-      port_kind: :map_port,
+      name: "Website Figlio",
+      port_kind: :website,
       visibility: :draft,
       brand_port: brand,
       color_key: "#2563eb"
@@ -59,7 +60,7 @@ class PortTest < ActiveSupport::TestCase
     port = @profile.ports.new(
       name: "Color Test",
       slug: "color-test",
-      port_kind: :brand,
+      port_kind: :web_app,
       visibility: :draft,
       color_key: "rosso"
     )
@@ -71,18 +72,32 @@ class PortTest < ActiveSupport::TestCase
   test "inherits brand port from source brand context" do
     brand = @profile.ports.create!(
       name: "Brand Madre",
-      port_kind: :brand,
+      port_kind: :web_app,
+      brand_root: true,
       visibility: :draft
     )
 
     branch = @profile.ports.create!(
       name: "Nodo Figlio",
-      port_kind: :map_port,
+      port_kind: :website,
       visibility: :draft,
       brand_port: brand
     )
 
     assert_equal brand, brand.inherited_brand_port
     assert_equal brand, branch.inherited_brand_port
+  end
+
+  test "brand root requires web app kind" do
+    port = @profile.ports.new(
+      name: "Canale non valido",
+      slug: "canale-non-valido",
+      port_kind: :youtube,
+      visibility: :draft,
+      brand_root: true
+    )
+
+    assert_not port.valid?
+    assert_includes port.errors[:brand_root], "can be enabled only for web app ports"
   end
 end
