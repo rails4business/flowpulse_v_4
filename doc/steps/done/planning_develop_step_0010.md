@@ -2,7 +2,7 @@
 
 ## Stato
 
-Da iniziare.
+Completato e applicato nel codice.
 
 ## Obiettivo
 

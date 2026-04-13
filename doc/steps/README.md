@@ -10,7 +10,7 @@ Gli step ancora aperti o attuali stanno in:
 
 Step attuale:
 
-- [`todo/planning_develop_step_0010.md`](todo/planning_develop_step_0010.md)
+- [`todo/planning_develop_step_0011.md`](todo/planning_develop_step_0011.md)
 
 ## Todo Next
 
@@ -43,3 +43,4 @@ Step completati:
 - [`done/planning_develop_step_0007.md`](done/planning_develop_step_0007.md)
 - [`done/planning_develop_step_0008.md`](done/planning_develop_step_0008.md)
 - [`done/planning_develop_step_0009.md`](done/planning_develop_step_0009.md)
+- [`done/planning_develop_step_0010.md`](done/planning_develop_step_0010.md)

@@ -332,7 +332,7 @@
       <div class="founder-hero-card">
         <div>
           <span class="founder-eyebrow">Esploratore • Creatore di mappe • Costruttore di percorsi</span>
-          <h1>Creo mappe per orientarsi nel corpo, nella salute, nei metodi e nello stile di vita.</h1>
+          <h1>Mi piace esplorare l'essere umano e creare mappe e percorsi. Per facilitare il compito di creare mappe e di formare professionisti che possano guidare persone, alla scoperta di esperienze,  ho creato flopwpulse  </h1>
           <p class="founder-lead">
             Il mio lavoro nasce dall’incontro tra esplorazione, formazione, salute e progettazione.
             Studio persone, metodi e sistemi, li collego tra loro e costruisco percorsi che aiutano
@@ -364,7 +364,7 @@
         <div class="founder-section-card">
           <h2>Chi sono</h2>
           <p class="founder-section-intro">
-            Mi considero un esploratore e un creatore di mappe. Nel tempo ho incontrato discipline, professionisti,
+            Sono un esploratore, un creatore di mappe, che connette persone. Nel tempo ho incontrato discipline, professionisti,
             metodiche posturali, strumenti educativi e modi diversi di leggere il corpo. Più che scegliere una sola etichetta,
             ho cercato di costruire una visione che collegasse ciò che di valido esiste già.
           </p>
@@ -569,6 +569,141 @@
               <p>Rendi replicabile ciò che funziona, così da poterlo diffondere, insegnare e far crescere.</p>
             </div>
           </div>
+        </div>
+      </section>
+
+      <section id="stile-di-vita">
+        <div class="founder-section-card">
+          <h2>Stile di vita: SALIUTE</h2>
+          
+          <div style="display: grid; gap: 2rem; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); margin-bottom: 40px;">
+            <div>
+              <h3>Programma Benessere Integrato</h3>
+              <ul class="founder-list">
+                <li>Allenamento</li>
+                <li>Meditazione</li>
+                <li>Terapia Manuale</li>
+                <li>Piante</li>
+                <li>Preparazione e consumare Cibo</li>
+              </ul>
+            </div>
+
+            <div>
+              <h3>Lettura Teatro Storie Linguaggio</h3>
+              <p style="margin: 16px 0 0; padding-left: 18px; color: var(--founder-muted);">
+                Inside Adventure - Capacità cognitive pensare come leonardo
+              </p>
+            </div>
+
+            <div>
+              <h3>LAVORO RELAZIONI</h3>
+              <ul class="founder-list">
+                <li>Generaimpresa</li>
+                <li>Programmazione Rails4b</li>
+                <li>Pazienti PosturaCorretta</li>
+                <li>Musica Giochi socialità</li>
+                <li>Fisarmonica Studio</li>
+              </ul>
+            </div>
+
+            <div>
+              <h3>FORMAZIONE</h3>
+              <ul class="founder-list">
+                <li>Calendario contadino</li>
+                <li>Eventi Montagna natura</li>
+                <li>Sovranità</li>
+              </ul>
+            </div>
+
+            <div style="grid-column: 1 / -1;">
+              <h3>GESTIONE</h3>
+              <p style="margin: 16px 0 0; padding-left: 18px; font-weight: bold; color: var(--founder-text);">Impegno</p>
+              <ul class="founder-list" style="margin-top: 8px;">
+                <li>Planning settimanale</li>
+                <li>Coltivazione Cibo</li>
+                <li>Scambio risorse</li>
+                <li>Gestione Risorse</li>
+              </ul>
+              <ul class="founder-list" style="margin-top: 6px; margin-left: 20px;">
+                <li>Eventi</li>
+                <li>Persone</li>
+                <li>Tempo</li>
+                <li>Energia</li>
+                <li>Attenzione</li>
+                <li>Soldi</li>
+                <li>Apprendimento</li>
+              </ul>
+            </div>
+          </div>
+
+          <hr style="margin: 40px 0; border: none; border-top: 1px solid var(--founder-line);">
+
+          <style>
+            .week-grid { display: grid; grid-template-columns: repeat(7, minmax(130px, 1fr)); overflow-x: auto; height: 750px; width: 100%; border: 1px solid #d9d2c2; border-right: none; font-family: ui-sans-serif, system-ui, sans-serif; }
+            .day-col { border-right: 1px solid #d9d2c2; text-align: center; padding: 0 4px; }
+            .day-head { height: 40px; font-weight: bold; margin-bottom: 0.5rem; text-transform: capitalize; padding-top: 8px; color: var(--founder-text); border-bottom: 1px solid #d9d2c2; }
+            .slot-card { width: 100%; padding: 0.5rem; border: 1px solid rgba(0,0,0,0.05); border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); display: flex; flex-direction: column; justify-content: flex-start; overflow: hidden; align-items: center; color: #1f2937; }
+            .slot-time { font-size: 0.85rem; font-weight: 700; white-space: nowrap; margin-bottom: 4px; }
+            .slot-title { font-size: 0.8rem; font-weight: 400; line-height: 1.25; }
+            
+            .bg-gray-400 { background-color: #9ca3af; }
+            .bg-blue-400 { background-color: #60a5fa; }
+            .bg-blue-300 { background-color: #93c5fd; }
+            .bg-blue-200 { background-color: #bfdbfe; }
+            .bg-red-200 { background-color: #fecaca; }
+            .bg-red-300 { background-color: #fca5a5; }
+            .bg-red-400 { background-color: #f87171; }
+            .bg-yellow-200 { background-color: #fef08a; }
+            .bg-green-200 { background-color: #bbf7d0; }
+            .bg-purple-200 { background-color: #e9d5ff; }
+          </style>
+
+          <h3 style="margin-bottom: 24px;">La mia settimana tipo</h3>
+          <%
+            yaml_path = Rails.root.join('config', 'style_of_life_slots.yml')
+            slots_data = File.exist?(yaml_path) ? YAML.load_file(yaml_path) : { 'days' => {} }
+            days = ['lunedì', 'martedì', 'mercoledì', 'giovedì', 'venerdì', 'sabato', 'domenica']
+          %>
+          
+          <div style="overflow-x: auto; background: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+            <div class="week-grid">
+              <% days.each do |day| %>
+                <div class="day-col">
+                  <div class="day-head"><%= day.capitalize %></div>
+                  <% (slots_data.dig('days', day) || []).each do |slot| %>
+                    <div class="slot-card <%= slot['color'] %>" style="margin-top: <%= slot['margin_top'] %>px; height: <%= slot['height'] %>px;">
+                      <div class="slot-time"><%= slot['time'] %></div>
+                      <div class="slot-title"><%= slot['title'] %></div>
+                    </div>
+                  <% end %>
+                </div>
+              <% end %>
+            </div>
+          </div>
+
+          <div style="margin-top: 48px; color: var(--founder-muted);">
+            <h3 style="color: var(--founder-text);"># Slot della settimana (i vari slot in cui divido il tempo)</h3>
+            <ol style="margin-left: 20px; list-style-type: decimal; margin-bottom: 24px;">
+              <li></li>
+            </ol>
+            
+            <h3 style="color: var(--founder-text);">[ # Eventi Attività di routine (es per il mio benessere tipo correre)</h3>
+            <ol style="margin-left: 20px; list-style-type: decimal; margin-bottom: 24px;">
+              <li></li>
+            </ol>
+            
+            <h3 style="color: var(--founder-text);"># Eventi Progetti (che sto realizzando)</h3>
+            <ol style="margin-left: 20px; list-style-type: decimal; margin-bottom: 24px;">
+              <li></li>
+            </ol>
+            
+            <h3 style="color: var(--founder-text);"># Eventi Servizi</h3>
+            <ol style="margin-left: 20px; list-style-type: decimal; margin-bottom: 8px;">
+              <li></li>
+            </ol>
+            <h3 style="color: var(--founder-text);">]</h3>
+          </div>
+
         </div>
       </section>
 

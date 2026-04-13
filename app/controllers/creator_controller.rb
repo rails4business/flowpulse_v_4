@@ -79,7 +79,7 @@ class CreatorController < ApplicationController
   def build_brand_breadcrumbs(profile, brand_port)
     breadcrumbs = [
       {
-        label: "Brand Roots",
+        label: "Brands",
         path: creator_carta_nautica_path
       }
     ]

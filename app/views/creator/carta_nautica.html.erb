@@ -6,37 +6,6 @@
 
     <% edit_mode_active = params[:edit].present? || params[:add_port].present? %>
     <div style="display: flex; flex-direction: column; flex-grow: 1; height: 100vh; position: relative;" data-controller="sea-chart" data-sea-chart-add-mode-value="<%= params[:add_port].present? %>" data-sea-chart-edit-mode-value="<%= edit_mode_active %>" data-sea-chart-chart-brand-port-id-value="<%= @brand_port&.id %>" data-sea-chart-chart-path-value="<%= creator_chart_path_for(@brand_port, edit: 1) %>">
-      <div style="padding: 0.85rem 1rem 0; display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap;">
-        <div>
-          <p class="eyebrow" style="margin: 0 0 0.25rem;"><%= @brand_port.present? ? "Carta nautica del brand" : "Carte nautiche brand" %></p>
-          <% if @brand_breadcrumbs.present? %>
-            <div style="display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 0.45rem; font-size: 0.84rem; color: #64748b;">
-              <% @brand_breadcrumbs.each_with_index do |crumb, index| %>
-                <% is_last = index == @brand_breadcrumbs.length - 1 %>
-                <% if is_last %>
-                  <span style="font-weight: 700; color: #0f172a;"><%= crumb[:label] %></span>
-                <% else %>
-                  <%= link_to crumb[:label], crumb[:path], style: "color: #475569; text-decoration: none; font-weight: 600;" %>
-                  <span style="color: #94a3b8;">/</span>
-                <% end %>
-              <% end %>
-            </div>
-          <% end %>
-          <h1 style="margin: 0; max-width: none; white-space: nowrap;">
-            <% if @brand_port.present? %>
-              <% previous_crumb = @brand_breadcrumbs[@brand_breadcrumbs.length - 2] if @brand_breadcrumbs.length > 1 %>
-              <%= link_to "←", (previous_crumb&.dig(:path) || creator_carta_nautica_path(edit: (params[:edit].present? ? 1 : nil))), class: "btn btn-secondary", style: "display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; padding: 0; margin-right: 0.55rem; vertical-align: middle;" %>
-            <% end %>
-            <%= @brand_port.present? ? @brand_port.name : "Brand Roots" %>
-            <% if @brand_port.present? %>
-              <%= link_to "✎", edit_creator_port_path(@brand_port), style: "display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; margin-left: 0.55rem; border-radius: 999px; background: #0f172a; color: white; text-decoration: none; font-size: 0.9rem; box-shadow: 0 8px 18px rgba(15, 23, 42, 0.18); vertical-align: middle;", data: { turbo: false }, title: "Modifica brand root", aria: { label: "Modifica brand root" } %>
-            <% end %>
-          </h1>
-        </div>
-        <% if @brand_port.present? %>
-          <%= link_to "Torna ai brand", creator_carta_nautica_path(edit: (params[:edit].present? ? 1 : nil)), class: "btn btn-secondary" %>
-        <% end %>
-      </div>
 
       <!-- SEA CHART AREA (Mappa in 2D) -->
       <div 
@@ -45,9 +14,39 @@
         data-action="click->sea-chart#mapClicked mousemove->sea-chart#mapHovered"
         style="flex-grow: 1; position: relative; padding: 0; background: #e0f2fe; border: 2px solid #bae6fd; overflow: hidden; user-select: none; transition: background-color 0.3s;"
       >
+        <!-- BREADCRUMB FLUTTUANTE (Top Left) -->
+        <div style="position: absolute; top: 1.5rem; left: 1.5rem; z-index: 50; pointer-events: auto; display: flex; align-items: center; gap: 0.75rem; background: rgba(255,255,255,0.95); backdrop-filter: blur(8px); padding: 0.35rem 0.75rem; border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.12); border: 1px solid rgba(0,0,0,0.05); min-height: 51px;">
+          <% if @brand_port.present? %>
+            <% previous_crumb = @brand_breadcrumbs[@brand_breadcrumbs.length - 2] if @brand_breadcrumbs.present? && @brand_breadcrumbs.length > 1 %>
+            <%= link_to "←", (previous_crumb&.dig(:path) || creator_carta_nautica_path(edit: (params[:edit].present? ? 1 : nil))), style: "display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 8px; background: #f1f5f9; color: #334155; text-decoration: none; font-weight: bold; border: 1px solid #e2e8f0; transition: all 0.2s;" %>
+          <% end %>
+
+          <div style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.95rem; color: #475569; font-weight: 500; margin: 0 0.2rem;">
+            <% if @brand_breadcrumbs.present? %>
+              <% @brand_breadcrumbs.each_with_index do |crumb, index| %>
+                <% is_last = index == @brand_breadcrumbs.length - 1 %>
+                <% if is_last %>
+                  <span style="font-weight: 700; color: #0f172a;"><%= crumb[:label] %></span>
+                <% else %>
+                  <%= link_to crumb[:label], crumb[:path], style: "color: #64748b; text-decoration: none; transition: color 0.2s;" %>
+                  <span style="color: #cbd5e1; margin: 0 0.1rem;">/</span>
+                <% end %>
+              <% end %>
+            <% else %>
+               <span style="font-weight: 700; color: #0f172a;">Brands</span>
+            <% end %>
+          </div>
+
+          <% if @brand_port.present? %>
+            <div style="display: flex; align-items: center; gap: 0.35rem;">
+              <%= link_to "✎", edit_creator_port_path(@brand_port), style: "display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 999px; background: white; color: #334155; text-decoration: none; font-size: 0.9rem; border: 1px solid #e2e8f0; transition: all 0.2s;", data: { turbo: false }, title: "Modifica", aria: { label: "Modifica" } %>
+              <%= link_to "👁", creator_port_path(@brand_port), style: "display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 999px; background: #eff6ff; color: #2563eb; text-decoration: none; font-size: 0.95rem; border: 1px solid #bfdbfe; transition: all 0.2s;", title: "Mostra Dettagli", aria: { label: "Mostra" }, data: { turbo_frame: "_top" } %>
+            </div>
+          <% end %>
+        </div>
         <!-- TASTI FLUTTUANTI (Floating HUD) -->
         <div style="position: absolute; top: 1.5rem; right: 1.5rem; z-index: 50; display: flex; align-items: flex-start; gap: 0.75rem; pointer-events: none;">
-          
+
           <!-- Box dei Suggerimenti (Appare in base al contesto) -->
           <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.5rem; pointer-events: auto;">
             <% if params[:add_port].present? && @port.blank? %>
@@ -60,12 +59,12 @@
 
           <!-- Pulsantiera Principale -->
           <div style="display: flex; background: rgba(255,255,255,0.95); padding: 0.35rem; border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.12); gap: 0.35rem; align-items: center; border: 1px solid rgba(0,0,0,0.05); pointer-events: auto;">
-            
+
             <div data-sea-chart-target="editTools" hidden style="display: flex; align-items: center; gap: 0.35rem;">
               <% if params[:add_port].present? %>
                 <%= link_to "Annulla", creator_chart_path_for(@brand_port, edit: 1), class: "btn btn-secondary", style: "border: none; background: #e2e8f0; font-weight: 600; padding: 0.5rem 0.85rem;" %>
               <% else %>
-                <%= link_to (@brand_port.present? ? "+ Porto" : "+ Brand Root"), creator_chart_path_for(@brand_port, edit: 1, add_port: true), class: "btn btn-primary", style: "box-shadow: none; padding: 0.5rem 0.85rem;" %>
+                <%= link_to (@brand_port.present? ? "+ 🏝️" : "+ Brand Root"), creator_chart_path_for(@brand_port, edit: 1, add_port: true), class: "btn btn-primary", style: "box-shadow: none; padding: 0.5rem 0.85rem;" %>
               <% end %>
               <div style="width: 1px; height: 24px; background: #cbd5e1; margin: 0 0.25rem;"></div>
             </div>
@@ -77,9 +76,11 @@
               data-action="click->sea-chart#toggleEditMode"
               title="Modalità modifica"
               aria-label="Modalità modifica"
-              style="height: 38px; padding: 0 1rem; display: inline-flex; gap: 0.3rem; align-items: center; justify-content: center; font-size: 0.95rem; font-weight: 600; border: none; background: transparent; transition: all 0.2s; white-space: nowrap;"
+              style="width: 38px; height: 38px; padding: 0; display: inline-flex; align-items: center; justify-content: center; font-size: 1rem; font-weight: 700; border: none; background: transparent; color: #475569; transition: color 0.2s;"
+              onmouseover="this.style.color='#0f172a'"
+              onmouseout="this.style.color='#475569'"
             >
-              ✎ Modifica
+              ✎
             </button>
 
             <button
@@ -108,7 +109,7 @@
 
         <!-- MOTORE DI PANNING INFINITO (Canvas) -->
         <div data-sea-chart-target="canvas" data-action="mousedown->sea-chart#panStart touchstart->sea-chart#panStart" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%; transform-origin: 0 0; transform: translate(var(--pan-x, 0px), var(--pan-y, 0px)); will-change: transform; transition: transform 0.05s linear;">
-          
+
           <!-- Espansiamo gli sfondi a -5000px per renderli infiniti -->
           <div class="sea-chart-wave-layer" style="position: absolute; inset: -5000px;"></div>
           <div class="sea-chart-reef-layer" aria-hidden="true" style="position: absolute; inset: -5000px;">
