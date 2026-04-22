@@ -20,8 +20,7 @@ class Creator::PortsControllerTest < ActionDispatch::IntegrationTest
         port: {
           name: "Flowpulse Atlas",
           slug: "flowpulse-atlas",
-          port_kind: "website",
-          visibility: "draft",
+          port_kind: "website_external",
           description: "Carta di prova",
           x: 284,
           y: 99
@@ -30,5 +29,26 @@ class Creator::PortsControllerTest < ActionDispatch::IntegrationTest
     end
 
     assert_redirected_to dashboard_path
+  end
+
+  test "creator with existing brand root cannot create another brand root" do
+    @profile.update!(creator_enabled_until: 1.year.from_now)
+    @profile.ports.create!(
+      name: "Brand Root Uno",
+      slug: "brand-root-uno",
+      brand_root: true
+    )
+
+    assert_no_difference("Port.count") do
+      post creator_ports_path, params: {
+        port: {
+          name: "Brand Root Due",
+          slug: "brand-root-due",
+          brand_root: "1"
+        }
+      }
+    end
+
+    assert_redirected_to creator_carta_nautica_path(edit: 1)
   end
 end

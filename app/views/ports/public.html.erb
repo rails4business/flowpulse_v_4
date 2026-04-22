@@ -1,27 +1,44 @@
 <% content_for :title, @webapp_domain&.seo_title.presence || @webapp_domain&.title.presence || @port.name %>
 
+<% content = @port.content %>
+<% creator_owner_mode = creator_owner_for_port?(@port) %>
+<% theme = brand_public_theme(@webapp_domain) %>
+<% brand_title = brand_public_title(@webapp_domain, @brand_port) %>
+<% nav_links = brand_public_nav_links(@brand_nav_routes) %>
+
 <section
   style="
-    --brand-header-bg: <%= @webapp_domain&.header_bg_color.presence || "#0f172a" %>;
-    --brand-header-text: <%= @webapp_domain&.header_text_color.presence || "#f8fafc" %>;
-    --brand-accent: <%= @webapp_domain&.accent_color.presence || "#0f766e" %>;
-    --brand-background: <%= @webapp_domain&.background_color.presence || "#f8fafc" %>;
+    --brand-header-bg: <%= theme[:header_bg] %>;
+    --brand-header-text: <%= theme[:header_text] %>;
+    --brand-accent: <%= theme[:accent] %>;
+    --brand-background: <%= theme[:background] %>;
     min-height: 100vh;
     background: var(--brand-background);
   "
 >
   <%= render "shared/public_nav",
-    brand_title: (@webapp_domain&.title.presence || @brand_port.name),
+    brand_title: brand_title,
     logo_horizontal_url: @webapp_domain&.horizontal_logo_url,
     logo_square_url: @webapp_domain&.square_logo_url,
     home_path: root_path,
-    accent_color: (@webapp_domain&.accent_color.presence || "#0f766e"),
-    background_color: (@webapp_domain&.background_color.presence || "#f8fafc"),
-    header_bg_color: (@webapp_domain&.header_bg_color.presence || "#ffffff"),
-    header_text_color: (@webapp_domain&.header_text_color.presence || "#0f172a"),
-    nav_links: [{ label: "Home", href: root_path }] + @brand_nav_routes.map { |route| { label: route.target_port.name, href: "#brand-port-#{route.target_port.id}" } } %>
+    accent_color: theme[:accent],
+    background_color: theme[:background],
+    header_bg_color: theme[:header_bg],
+    header_text_color: theme[:header_text],
+    nav_links: nav_links %>
 
-  <main style="min-height: calc(100vh - 78px); width: 100%;"></main>
+  <main style="min-height: calc(100vh - 78px); width: 100%; overflow-x: hidden;">
+    <% if creator_owner_mode && @port.web_app? %>
+      <section style="max-width: 1280px; margin: 0 auto; padding: 1rem 1.5rem 0;">
+        <div style="display: inline-flex; align-items: center; gap: 0.6rem; padding: 0.45rem 0.55rem 0.45rem 0.8rem; border-radius: 999px; background: #eff6ff; color: #1d4ed8; font-size: 0.78rem; font-weight: 800; letter-spacing: 0.02em; border: 1px solid #93c5fd;">
+          Accesso creator
+          <%= link_to "Vai ad anteprima", preview_creator_port_path(@port), style: "display: inline-flex; align-items: center; justify-content: center; min-height: 30px; padding: 0 0.8rem; border-radius: 999px; text-decoration: none; white-space: nowrap; background: white; color: #1d4ed8; font-weight: 700; border: 1px solid #bfdbfe;" %>
+        </div>
+      </section>
+    <% end %>
+
+    <%= render "ports/public_page", port: @port, content: content %>
+  </main>
 
   <% if development_domain_simulation_active? %>
     <footer style="padding: 0.85rem 1.25rem 1.1rem; text-align: center;">

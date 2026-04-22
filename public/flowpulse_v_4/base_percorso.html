@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flowpulse - Struttura Viaggiatore</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: #f7f9fc;
+        color: #1f2937;
+        margin: 0;
+        padding: 40px 20px;
+        line-height: 1.5;
+      }
+
+      .container {
+        max-width: 1100px;
+        margin: 0 auto;
+      }
+
+      h1 {
+        font-size: 2rem;
+        margin-bottom: 10px;
+      }
+
+      p.subtitle {
+        color: #4b5563;
+        margin-bottom: 30px;
+      }
+
+      .card {
+        background: white;
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 24px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+        border: 1px solid #e5e7eb;
+      }
+
+      .node {
+        border-left: 4px solid #2563eb;
+        padding-left: 16px;
+        margin-top: 16px;
+      }
+
+      .node.green {
+        border-left-color: #16a34a;
+      }
+      .node.red {
+        border-left-color: #dc2626;
+      }
+      .node.orange {
+        border-left-color: #ea580c;
+      }
+      .node.purple {
+        border-left-color: #7c3aed;
+      }
+
+      .title {
+        font-size: 1.1rem;
+        font-weight: bold;
+        margin-bottom: 8px;
+      }
+
+      ul {
+        margin: 8px 0 0 20px;
+        padding: 0;
+      }
+
+      li {
+        margin-bottom: 6px;
+      }
+
+      .tag {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 999px;
+        font-size: 0.85rem;
+        margin: 4px 6px 0 0;
+        background: #eef2ff;
+        color: #3730a3;
+      }
+
+      .tag.green {
+        background: #ecfdf5;
+        color: #166534;
+      }
+
+      .tag.red {
+        background: #fef2f2;
+        color: #991b1b;
+      }
+
+      .tag.orange {
+        background: #fff7ed;
+        color: #9a3412;
+      }
+
+      .tag.gray {
+        background: #f3f4f6;
+        color: #374151;
+      }
+
+      .example {
+        background: #f9fafb;
+        border: 1px dashed #cbd5e1;
+        border-radius: 12px;
+        padding: 16px;
+        margin-top: 12px;
+      }
+
+      .flow {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 10px;
+      }
+
+      .flow-step {
+        background: #e0e7ff;
+        color: #1e3a8a;
+        padding: 8px 12px;
+        border-radius: 10px;
+        font-size: 0.92rem;
+        font-weight: 600;
+      }
+
+      .arrow {
+        align-self: center;
+        color: #6b7280;
+        font-weight: bold;
+      }
+
+      .footer-note {
+        margin-top: 24px;
+        color: #4b5563;
+        font-size: 0.95rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Flowpulse — Struttura base Viaggiatore</h1>
+      <p class="subtitle">
+        Sistema leggero per tracciare richieste, percorsi, eventi ed esecuzioni
+        reali, e trasformare i successi in journey riutilizzabili per altre
+        persone.
+      </p>
+
+      <div class="card">
+        <div class="title">👤 User (Viaggiatore)</div>
+        <p>
+          Ogni viaggiatore ha una lista di <strong>Percorsi</strong>, cioè
+          richieste o problemi che evolvono nel tempo fino a diventare obiettivi
+          e progetti concreti.
+        </p>
+
+        <div class="node">
+          <div class="title">🎯 Percorsi</div>
+
+          <div class="flow">
+            <div class="flow-step">Richiesta</div>
+            <div class="arrow">→</div>
+            <div class="flow-step">Valutazione</div>
+            <div class="arrow">→</div>
+            <div class="flow-step">Obiettivo</div>
+            <div class="arrow">→</div>
+            <div class="flow-step">Progetto</div>
+          </div>
+
+          <div style="margin-top: 14px">
+            <span class="tag">Brand</span>
+            <span class="tag green">Responsabile</span>
+          </div>
+
+          <ul>
+            <li>
+              <strong>Stato:</strong> richiesta → valutazione → obiettivo →
+              progetto
+            </li>
+            <li>
+              <strong>Brand:</strong> categoria di appartenenza (es. Stop al
+              Dolore, Benessere Integrato, Postura e Fisiologia)
+            </li>
+            <li>
+              <strong>Responsabile:</strong> professionista, guida, consulente,
+              coach, mentore
+            </li>
+          </ul>
+
+          <div class="example">
+            <strong>Esempio:</strong><br>
+            “Dolore cervicale quando lavoro al PC” → valutazione → obiettivo:
+            ridurre dolore e tensione → progetto: costruire routine e percorso
+            con guida.
+          </div>
+
+          <div class="node green">
+            <div class="title">🛤 Journey</div>
+            <p>Ogni percorso può avere uno o più journey collegati.</p>
+
+            <div style="margin-top: 6px">
+              <span class="tag green">Personale</span>
+              <span class="tag orange">Professionista</span>
+            </div>
+
+            <ul>
+              <li>
+                <strong>Journey personale:</strong> azioni che il viaggiatore
+                compie direttamente
+              </li>
+              <li>
+                <strong>Journey professionista:</strong> si apre quando entra
+                una guida o un operatore
+              </li>
+            </ul>
+
+            <div class="example">
+              <strong>Esempio:</strong><br>
+              Journey personale = esercizi quotidiani, diario, contenuti
+              visti.<br>
+              Journey professionista = visita, sedute, lezioni guidate,
+              correzioni.
+            </div>
+
+            <div class="node red">
+              <div class="title">📍 Eventi</div>
+              <p>
+                Ogni journey è composto da eventi. Gli eventi sono gli step
+                reali del percorso.
+              </p>
+
+              <ul>
+                <li>
+                  <strong>Contenuto:</strong> teoria, spiegazione, materiale
+                  didattico
+                </li>
+                <li>
+                  <strong>Esperienza:</strong> esercizio, seduta, pratica,
+                  attività
+                </li>
+                <li>
+                  <strong>Persone:</strong> solo, gruppo, professionista, tutor
+                </li>
+                <li><strong>Valore:</strong> base, avanzato, professionale</li>
+                <li>
+                  <strong>Modalità:</strong> autonomia, gruppo, individuale,
+                  online, presenza
+                </li>
+                <li>
+                  <strong>Ambiente:</strong> casa, studio, centro, natura,
+                  lavoro
+                </li>
+                <li><strong>Tipo:</strong> singolo oppure routine</li>
+              </ul>
+
+              <div class="example">
+                <strong>Esempio evento:</strong><br>
+                “Routine mobilità mattutina 10 minuti”<br>
+                Modalità: autonomia<br>
+                Ambiente: casa<br>
+                Tipo: routine
+              </div>
+
+              <div class="node purple">
+                <div class="title">✅ Esecuzioni (log reali)</div>
+                <p>
+                  Le esecuzioni sono la parte più importante: tracciano ciò che
+                  è stato fatto davvero.
+                </p>
+
+                <ul>
+                  <li>Fatto / non fatto</li>
+                  <li>Data e ora</li>
+                  <li>Percezione</li>
+                  <li>Dolore</li>
+                  <li>Energia</li>
+                  <li>Note</li>
+                </ul>
+
+                <div class="example">
+                  <strong>Esempio esecuzione:</strong><br>
+                  Evento: Routine mobilità mattutina<br>
+                  Data: 17/04/2026<br>
+                  Stato: fatto<br>
+                  Dolore: 4/10 → 2/10<br>
+                  Energia: migliorata<br>
+                  Note: meno rigidità cervicale dopo 8 minuti
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <p class="footer-note">
+          <strong>Idea chiave:</strong> quando più esecuzioni portano a un
+          risultato, quel journey può essere ripulito, semplificato e
+          trasformato in un <strong>percorso replicabile</strong> da proporre ad
+          altre persone.
+        </p>
+      </div>
+    </div>
+  </body>
+</html>

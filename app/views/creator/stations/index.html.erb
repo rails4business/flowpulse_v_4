@@ -1,0 +1,63 @@
+<% content_for :title, "Station di #{@line.name}" %>
+
+<section class="dashboard-shell">
+  <div class="app-layout">
+    <%= render "shared/app_sidebar" %>
+
+    <div class="dashboard-card">
+      <p class="eyebrow">Creator</p>
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; flex-wrap: wrap;">
+        <div>
+          <h1 class="page-title" style="margin-bottom: 0.35rem;">Station di <%= @line.name %></h1>
+          <p style="margin: 0; color: #64748b;">Port: <%= @port.name %> · Tipo linea: <%= @line.line_kind_label %></p>
+        </div>
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+          <%= link_to "Torna alle linee", creator_port_lines_path(@port), class: "btn btn-secondary" %>
+          <%= link_to "Nuova station", new_creator_port_line_station_path(@port, @line), class: "btn btn-primary" %>
+        </div>
+      </div>
+
+      <div class="dashboard-actions" style="margin-top: 2rem; background: #fff; padding: 1.5rem; border-radius: 8px; border: 1px solid #eee;">
+        <% if @stations.any? %>
+          <div style="display: grid; gap: 1rem;">
+            <% @stations.each do |station| %>
+              <article style="border: 1px solid #e2e8f0; border-radius: 16px; padding: 1rem 1.25rem; background: #fff;">
+                <div style="display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; align-items: center;">
+                  <div>
+                    <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+                      <h2 style="margin: 0; font-size: 1.1rem;"><%= station.name %></h2>
+                      <span style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; background: #f8fafc; color: #334155; border-radius: 999px; padding: 0.2rem 0.55rem; border: 1px solid #cbd5e1;"><%= station.station_kind_label %></span>
+                      <span style="font-size: 0.75rem; color: #64748b;">pos. <%= station.position %></span>
+                    </div>
+                    <p style="margin: 0.35rem 0 0; color: #64748b;"><%= station.slug %> · Experience: <strong><%= station.experience.name %></strong></p>
+                    <% if station.description.present? %>
+                      <p style="margin: 0.75rem 0 0; color: #334155;"><%= station.description %></p>
+                    <% end %>
+                    <% if station.link_station.present? || station.link_port.present? %>
+                      <p style="margin: 0.75rem 0 0; color: #1e293b; font-size: 0.95rem;">
+                        <% if station.link_station.present? %>
+                          Link station: <strong><%= station.link_station.name %></strong>
+                        <% end %>
+                        <% if station.link_station.present? && station.link_port.present? %> · <% end %>
+                        <% if station.link_port.present? %>
+                          Link port: <strong><%= station.link_port.name %></strong>
+                        <% end %>
+                      </p>
+                    <% end %>
+                  </div>
+
+                  <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                    <%= link_to "Modifica", edit_creator_port_line_station_path(@port, @line, station), class: "btn btn-secondary" %>
+                    <%= button_to "Elimina", creator_port_line_station_path(@port, @line, station), method: :delete, form: { data: { turbo_confirm: "Eliminare questa station?" } }, class: "btn btn-danger" %>
+                  </div>
+                </div>
+              </article>
+            <% end %>
+          </div>
+        <% else %>
+          <p style="margin: 0; color: #64748b;">Nessuna station ancora definita per questa line.</p>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</section>

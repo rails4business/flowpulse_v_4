@@ -1,36 +1,42 @@
 class Port < ApplicationRecord
   SLUG_FORMAT = /\A[a-z0-9]+(?:-[a-z0-9]+)*\z/
   HEX_COLOR_FORMAT = /\A#(?:[0-9a-f]{6})\z/i
+  attr_reader :webapp_sea_chart_yaml
 
   belongs_to :profile
   belongs_to :brand_port, class_name: 'Port', optional: true
+  has_one :content, as: :contentable, dependent: :destroy
+  has_many :experiences, -> { order(:position, :created_at) }, dependent: :destroy
+  has_many :lines, -> { order(:position, :created_at) }, dependent: :destroy
   has_many :webapp_domains, class_name: "WebappDomain", foreign_key: :brand_port_id, dependent: :destroy
   has_many :outgoing_sea_routes, class_name: "SeaRoute", foreign_key: :source_port_id, dependent: :destroy
   has_many :incoming_sea_routes, class_name: "SeaRoute", foreign_key: :target_port_id, dependent: :destroy
 
-  enum :port_kind, { web_app: 0, website: 1, youtube: 2, instagram: 3, whatsapp: 4, phone: 5 }
-  enum :visibility, { draft: 0, published: 1, hidden: 2 }
+  enum :port_kind, { web_app: 0, website_external: 1, youtube: 2, other_social: 3, whatsapp: 4, phone: 5 }
+  accepts_nested_attributes_for :content, update_only: true
 
-  before_validation :set_slug_from_name, :normalize_color_key, :set_default_color_key
+  before_validation :set_slug_from_name, :normalize_slug, :normalize_color_key, :normalize_port_kind_for_brand_root, :set_default_color_key
 
   def port_kind_label
     case port_kind
+    when nil then "Neutra"
     when "web_app" then "Web App"
-    when "website" then "Website"
+    when "website_external" then "Website esterno"
     when "youtube" then "YouTube"
-    when "instagram" then "Instagram"
+    when "other_social" then "Altro social"
     when "whatsapp" then "WhatsApp"
     when "phone" then "Phone"
-    else port_kind.humanize
+    else port_kind&.humanize || "Neutra"
     end
   end
 
   validates :name, presence: true
   validates :slug, presence: true, uniqueness: { scope: :profile_id }
   validates :slug, format: { with: SLUG_FORMAT }
+  validates :port_kind, presence: true, unless: :brand_root?
   validates :x, :y, numericality: { only_integer: true }, allow_nil: true
   validates :color_key, format: { with: HEX_COLOR_FORMAT }, allow_blank: true
-  validate :brand_root_requires_web_app
+  validate :validate_webapp_sea_chart_yaml
 
   def color_config
     base = color_key.presence || default_color_key
@@ -58,7 +64,21 @@ class Port < ApplicationRecord
   end
 
   def public_webapp_ready?
-    published? && web_app? && webapp_domains.where(published: true).exists?
+    content&.publicly_visible? && web_app? && webapp_domains.where(published: true).exists?
+  end
+
+  def webapp_sea_chart_yaml
+    @webapp_sea_chart_yaml.presence || webapp_sea_chart.to_yaml
+  end
+
+  def webapp_sea_chart_yaml=(value)
+    @webapp_sea_chart_yaml = value
+    return if value.nil?
+
+    parsed = YAML.safe_load(value.presence || "--- {}\n", permitted_classes: [], aliases: false)
+    self.webapp_sea_chart = parsed.is_a?(Hash) ? parsed : {}
+  rescue Psych::SyntaxError
+    # Validation handles the user-facing error.
   end
 
   private
@@ -69,31 +89,45 @@ class Port < ApplicationRecord
       self.slug = name.parameterize
     end
 
+    def normalize_slug
+      return if slug.blank?
+
+      self.slug = slug.to_s.parameterize
+    end
+
     def normalize_color_key
       self.color_key = color_key.to_s.downcase.presence
+    end
+
+    def normalize_port_kind_for_brand_root
+      self.port_kind = nil if brand_root?
     end
 
     def set_default_color_key
       self.color_key = default_color_key if color_key.blank?
     end
 
+    def validate_webapp_sea_chart_yaml
+      return if @webapp_sea_chart_yaml.nil?
+
+      parsed = YAML.safe_load(@webapp_sea_chart_yaml.presence || "--- {}\n", permitted_classes: [], aliases: false)
+      unless parsed.is_a?(Hash)
+        errors.add(:webapp_sea_chart_yaml, "must define a YAML object at the root")
+      end
+    rescue Psych::SyntaxError => e
+      errors.add(:webapp_sea_chart_yaml, "is not valid YAML: #{e.message.lines.first.to_s.strip}")
+    end
+
     def default_color_key
       case port_kind
       when "web_app" then "#2563eb"
-      when "website" then "#0f766e"
+      when "website_external" then "#0f766e"
       when "youtube" then "#dc2626"
-      when "instagram" then "#c026d3"
+      when "other_social" then "#c026d3"
       when "whatsapp" then "#16a34a"
       when "phone" then "#d97706"
       else "#475569"
       end
-    end
-
-    def brand_root_requires_web_app
-      return unless brand_root?
-      return if web_app?
-
-      errors.add(:brand_root, "can be enabled only for web app ports")
     end
 
     def mix_with_white(hex, ratio)

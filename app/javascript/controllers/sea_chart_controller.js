@@ -524,7 +524,7 @@ export default class extends Controller {
   }
 
   panStart(event) {
-    if (this.addModeValue || this.editModeValue || this.routeSourceId) return;
+    if (this.addModeValue || this.routeSourceId) return;
     if (
       event.target.closest('[data-sea-chart-target="node"]') ||
       event.target.closest(".sea-island")

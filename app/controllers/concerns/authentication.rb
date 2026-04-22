@@ -38,7 +38,7 @@ module Authentication
       return_to = session.delete(:return_to_after_authenticating)
       return return_to if return_to.present?
 
-      Current.session.user.profile.present? ? dashboard_path : new_profile_path
+      Current.session.user.profile.present? ? hub_dashboard_path : new_profile_path
     end
 
     def start_new_session_for(user)

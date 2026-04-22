@@ -12,8 +12,7 @@ class PortTest < ActiveSupport::TestCase
   test "slug is derived from name when omitted" do
     port = @profile.ports.create!(
       name: "Atlante del Mare",
-      port_kind: :web_app,
-      visibility: :draft
+      port_kind: :web_app
     )
 
     assert_equal "atlante-del-mare", port.slug
@@ -24,7 +23,6 @@ class PortTest < ActiveSupport::TestCase
       name: "Coordinate Test",
       slug: "coordinate-test",
       port_kind: :youtube,
-      visibility: :draft,
       x: 12.5,
       y: "north"
     )
@@ -39,14 +37,12 @@ class PortTest < ActiveSupport::TestCase
       name: "Brand Madre",
       port_kind: :web_app,
       brand_root: true,
-      visibility: :draft,
       color_key: "#dc2626"
     )
 
     child = @profile.ports.create!(
       name: "Website Figlio",
-      port_kind: :website,
-      visibility: :draft,
+      port_kind: :website_external,
       brand_port: brand,
       color_key: "#2563eb"
     )
@@ -61,7 +57,6 @@ class PortTest < ActiveSupport::TestCase
       name: "Color Test",
       slug: "color-test",
       port_kind: :web_app,
-      visibility: :draft,
       color_key: "rosso"
     )
 
@@ -73,14 +68,12 @@ class PortTest < ActiveSupport::TestCase
     brand = @profile.ports.create!(
       name: "Brand Madre",
       port_kind: :web_app,
-      brand_root: true,
-      visibility: :draft
+      brand_root: true
     )
 
     branch = @profile.ports.create!(
       name: "Nodo Figlio",
-      port_kind: :website,
-      visibility: :draft,
+      port_kind: :website_external,
       brand_port: brand
     )
 
@@ -88,16 +81,55 @@ class PortTest < ActiveSupport::TestCase
     assert_equal brand, branch.inherited_brand_port
   end
 
-  test "brand root requires web app kind" do
+  test "brand root can keep port kind empty" do
     port = @profile.ports.new(
       name: "Canale non valido",
       slug: "canale-non-valido",
-      port_kind: :youtube,
-      visibility: :draft,
       brand_root: true
     )
 
+    assert port.valid?
+    port.validate
+    assert_nil port.port_kind
+  end
+
+  test "non brand root requires port kind" do
+    port = @profile.ports.new(
+      name: "Porto senza tipo",
+      slug: "porto-senza-tipo",
+      brand_root: false
+    )
+
     assert_not port.valid?
-    assert_includes port.errors[:brand_root], "can be enabled only for web app ports"
+    assert_includes port.errors[:port_kind], "can't be blank"
+  end
+
+  test "webapp sea chart yaml is parsed into json" do
+    port = @profile.ports.create!(
+      name: "Mappa Webapp",
+      port_kind: :web_app,
+      webapp_sea_chart_yaml: <<~YAML
+        entry: postura
+        nodes:
+          postura:
+            label: Postura
+            x: 450
+            y: 230
+      YAML
+    )
+
+    assert_equal "postura", port.webapp_sea_chart["entry"]
+    assert_equal 450, port.webapp_sea_chart.dig("nodes", "postura", "x")
+  end
+
+  test "invalid webapp sea chart yaml adds an error" do
+    port = @profile.ports.new(
+      name: "Mappa Non Valida",
+      port_kind: :web_app,
+      webapp_sea_chart_yaml: "nodes: ["
+    )
+
+    assert_not port.valid?
+    assert_includes port.errors[:webapp_sea_chart_yaml].first, "is not valid YAML"
   end
 end

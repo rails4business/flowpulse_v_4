@@ -1,0 +1,393 @@
+<style>
+  .week-grid-wrapper { display: flex; background: white; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.03); overflow-x: auto; overflow-y: hidden; position: relative; margin-bottom: 24px; }
+  .week-grid { display: grid; grid-template-columns: repeat(7, minmax(130px, 1fr)); width: 100%; position: relative; font-family: ui-sans-serif, system-ui, sans-serif; }
+  .day-col { border-right: 1px dashed #e2e8f0; position: relative; background: rgba(248, 250, 252, 0.3); overflow: hidden; }
+  .day-col:last-child { border-right: none; }
+  .day-head { height: 56px; background: #fff; border-bottom: 2px solid #e2e8f0; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 600; color: #334155; text-transform: capitalize; position: sticky; top: 0; z-index: 10; border-radius: 6px 6px 0 0; }
+  .slot-card { position: absolute; left: 4px; width: calc(100% - 8px); padding: 0.6rem; border: 1px solid rgba(255,255,255,0.7); border-radius: 10px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255,255,255,0.2); display: flex; flex-direction: column; overflow: hidden; color: #1e293b; cursor: pointer; z-index: 5; transition: transform 0.2s, box-shadow 0.2s, filter 0.2s, opacity 0.2s; }
+  .slot-card:hover { transform: scale(1.02); z-index: 20; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+  .slot-time { font-size: 0.75rem; font-weight: 700; white-space: nowrap; margin-bottom: 4px; opacity: 0.8; letter-spacing: -0.02em; text-align: center; }
+  .slot-title { font-size: 0.85rem; font-weight: 600; line-height: 1.2; text-align: center; }
+  
+  .bg-gray-400 { background-color: #e2e8f0; border-color: #cbd5e1; }
+  .bg-blue-400 { background-color: #bfdbfe; border-color: #93c5fd; }
+  .bg-blue-300 { background-color: #dbeafe; border-color: #bfdbfe; }
+  .bg-blue-200 { background-color: #eff6ff; border-color: #dbeafe; }
+  .bg-red-200 { background-color: #fee2e2; border-color: #fecaca; }
+  .bg-red-300 { background-color: #fecaca; border-color: #fca5a5; }
+  .bg-red-400 { background-color: #fca5a5; border-color: #f87171; }
+  .bg-yellow-200 { background-color: #fef3c7; border-color: #fde68a; }
+  .bg-green-200 { background-color: #d1fae5; border-color: #a7f3d0; }
+  .bg-purple-200 { background-color: #ede9fe; border-color: #ddd6fe; }
+</style>
+
+<%
+  start_time_param = params[:start_time].presence || '08:00'
+  end_time_param = params[:end_time].presence || '20:00'
+  start_hour = start_time_param.split(':')[0].to_i
+  end_hour = end_time_param.split(':')[0].to_i
+  end_hour = start_hour + 1 if end_hour <= start_hour
+  pixels_per_hour = 65
+  calendar_height = (end_hour - start_hour) * pixels_per_hour
+
+  begin
+    current_date = params[:date].present? ? Date.parse(params[:date]) : Date.current
+  rescue ArgumentError
+    current_date = Date.current
+  end
+  start_of_week = current_date.beginning_of_week
+  week_number = start_of_week.cweek
+  year = start_of_week.cwyear
+  
+  week_file_name = "week_#{week_number}_#{year}.yml"
+  yaml_path = Rails.root.join('config', 'settimane', week_file_name)
+  
+  # se il file non esiste, carica silenziosamente quello di default
+  if File.exist?(yaml_path)
+    slots_data = YAML.load_file(yaml_path)
+  else
+    fallback_path = Rails.root.join('config', 'style_of_life_slots.yml')
+    slots_data = File.exist?(fallback_path) ? YAML.load_file(fallback_path) : { 'days' => {} }
+  end
+  
+  days = ['lunedì', 'martedì', 'mercoledì', 'giovedì', 'venerdì', 'sabato', 'domenica']
+  
+  prev_week = start_of_week - 1.week
+  next_week = start_of_week + 1.week
+  
+  has_prev = File.exist?(Rails.root.join('config', 'settimane', "week_#{prev_week.cweek}_#{prev_week.cwyear}.yml"))
+  has_next = File.exist?(Rails.root.join('config', 'settimane', "week_#{next_week.cweek}_#{next_week.cwyear}.yml"))
+
+  locations = []
+  if slots_data['days']
+    slots_data['days'].values.compact.each do |day_slots|
+      day_slots.each do |slot|
+        locations << slot['location'] if slot['location'].present?
+      end
+    end
+  end
+  locations = locations.uniq.sort
+  selected_location = params[:location].presence
+  current_query_params = request.query_parameters
+%>
+
+<div style="background: white; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.03); margin-bottom: 24px; overflow: hidden;">
+  <!-- Header & Navigation Row -->
+  <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid #f1f5f9; flex-wrap: wrap; gap: 16px;">
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <div style="width: 42px; height: 42px; background: #eff6ff; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #3b82f6; border: 1px solid #dbeafe;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+      </div>
+      <div>
+        <h2 style="margin: 0; font-size: 1.15rem; font-weight: 700; color: #0f172a; letter-spacing: -0.01em;">Piano Operativo</h2>
+        <span style="font-size: 0.85rem; color: #64748b; font-weight: 500;">
+          Settimana <%= week_number %> &bull; <%= start_of_week.strftime("%d/%m") %> - <%= start_of_week.end_of_week.strftime("%d/%m/%Y") %>
+        </span>
+      </div>
+    </div>
+    
+    <div style="display: flex; align-items: center; gap: 6px; background: #f8fafc; padding: 4px; border-radius: 8px; border: 1px solid #e2e8f0; box-shadow: inset 0 1px 2px rgba(0,0,0,0.02);">
+      <% if has_prev %>
+        <%= link_to "← Prec", "#{request.path}?#{current_query_params.merge('date' => prev_week.to_date.to_s).to_query}", style: "text-decoration: none; padding: 6px 12px; border-radius: 6px; border: 1px solid transparent; color: #475569; font-weight: 600; font-size: 0.85rem; transition: background 0.2s;" %>
+      <% else %>
+        <span style="padding: 6px 12px; border-radius: 6px; color: #94a3b8; font-weight: 600; font-size: 0.85rem; cursor: not-allowed;">← Prec</span>
+      <% end %>
+
+      <div style="width: 1px; height: 16px; background: #cbd5e1;"></div>
+      
+      <% if has_next %>
+        <%= link_to "Succ →", "#{request.path}?#{current_query_params.merge('date' => next_week.to_date.to_s).to_query}", style: "text-decoration: none; padding: 6px 12px; border-radius: 6px; border: 1px solid transparent; color: #475569; font-weight: 600; font-size: 0.85rem; transition: background 0.2s;" %>
+      <% else %>
+        <span style="padding: 6px 12px; border-radius: 6px; color: #94a3b8; font-weight: 600; font-size: 0.85rem; cursor: not-allowed;">Succ →</span>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Settings Row -->
+  <div style="background: #fafaf9; padding: 12px 20px;">
+    <%= form_with url: request.path, method: :get, local: true, html: { style: "display: flex; align-items: center; gap: 24px; flex-wrap: wrap;" } do %>
+      <%= hidden_field_tag :date, current_date.to_s %>
+      
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <span style="font-size: 0.85rem; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.05em;">Orario Range</span>
+        <div style="display: flex; align-items: center; gap: 6px; background: white; padding: 4px 6px; border-radius: 8px; border: 1px solid #cbd5e1; box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
+          <input type="time" name="start_time" value="<%= params[:start_time] || '08:00' %>" onchange="this.form.submit()" style="border: none; background: transparent; font-size: 0.9rem; color: #1e293b; font-weight: 500; outline: none; cursor: pointer;">
+          <span style="color: #94a3b8;">-</span>
+          <input type="time" name="end_time" value="<%= params[:end_time] || '20:00' %>" onchange="this.form.submit()" style="border: none; background: transparent; font-size: 0.9rem; color: #1e293b; font-weight: 500; outline: none; cursor: pointer;">
+        </div>
+      </div>
+
+      <% if locations.any? %>
+        <div style="width: 1px; height: 24px; background: #e2e8f0;"></div>
+        
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 0.85rem; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; gap: 4px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+            Filtro
+          </span>
+          <select id="week-plan-location" name="location" onchange="this.form.submit()" style="padding: 6px 14px; border-radius: 8px; border: 1px solid #cbd5e1; background: white; font-size: 0.9rem; color: #1e293b; font-weight: 500; box-shadow: 0 1px 2px rgba(0,0,0,0.02); outline: none; cursor: pointer;">
+            <option value="" <%= "selected" if selected_location.blank? %>>Tutti i luoghi</option>
+            <% locations.each do |loc| %>
+              <option value="<%= loc %>" <%= "selected" if selected_location == loc %>><%= loc %></option>
+            <% end %>
+          </select>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+</div>
+
+<div class="week-grid-wrapper">
+  <div class="week-grid" style="height: <%= calendar_height + 56 %>px;">
+    <% days.each_with_index do |day, index| %>
+      <% date_for_day = start_of_week + index.days %>
+      <div class="day-col">
+        <div class="day-head">
+          <span style="font-size: 0.95rem;"><%= day.capitalize %></span>
+          <span style="font-size: 0.75rem; font-weight: 500; color: #64748b;"><%= date_for_day.strftime("%d/%m") %></span>
+        </div>
+        
+        <% (slots_data.dig('days', day) || []).each do |slot| %>
+          <%
+            # Parse time "08:00 - 10:30" => absolute absolute CSS pixels
+            top_px = 56
+            height_px = pixels_per_hour
+            
+            if slot['time'].present? && slot['time'].include?('-')
+              st, en = slot['time'].split('-').map(&:strip)
+              
+              st_parts = st.split(':')
+              en_parts = en.split(':')
+              if st_parts.length == 2 && en_parts.length == 2
+                st_dec = st_parts[0].to_f + (st_parts[1].to_f / 60.0)
+                en_dec = en_parts[0].to_f + (en_parts[1].to_f / 60.0)
+                
+                # Non c'è più il clamp (il taglio massimo e minimo).
+                # Lo slot assume la vera Y matematica. Il container nasconderà col CSS gli overflow.
+                
+                if en_dec > st_dec
+                  top_px = 56 + ((st_dec - start_hour) * pixels_per_hour)
+                  height_px = (en_dec - st_dec) * pixels_per_hour
+                end
+              end
+            else
+               # Fallback using margin_top if no valid time
+               top_px = 56 + (slot['margin_top'].to_i)
+               height_px = slot['height'].to_i > 0 ? slot['height'].to_i : pixels_per_hour
+            end
+
+            slot_matches_location = selected_location.blank? || slot['location'] == selected_location
+            slot_color_class = slot_matches_location ? slot['color'] : nil
+            slot_style = +"top: #{top_px}px; height: #{height_px}px;"
+            unless slot_matches_location
+              slot_style << " opacity: 0.25; filter: grayscale(100%); transform: scale(0.985); background: #f8fafc; color: #94a3b8; border-color: rgba(0,0,0,0.05); box-shadow: none;"
+            end
+          %>
+          
+          <div class="slot-card <%= slot_color_class %>" style="<%= slot_style %>; cursor: pointer;" data-location="<%= slot['location'] %>" data-slot-json="<%= CGI.escapeHTML(slot.to_json) %>" onclick="openSlotModal(this)">
+            <div class="slot-time"><%= slot['time'] %></div>
+            <div class="slot-title"><%= slot['title'] %></div>
+            
+            <% if slot['appointments'].present? && height_px > 50 %>
+              <div style="margin-top: 6px; width: 100%; display: flex; flex-direction: column; gap: 4px; pointer-events: none;">
+                <% slot['appointments'].each do |app| %>
+                  <div style="background: rgba(255,255,255,0.6); padding: 2px 4px; border-radius: 4px; font-size: 0.7rem; color: #1e293b; border-left: 2px solid rgba(0,0,0,0.2); box-shadow: 0 1px 2px rgba(0,0,0,0.02); display: flex; align-items: center; justify-content: space-between;">
+                    <span style="font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 60%;"><%= app['client'] %></span>
+                    <strong style="font-size: 0.65rem; opacity: 0.9; color: #3b82f6;"><%= app['time'].to_s.split('-').first.to_s.strip %></strong>
+                  </div>
+                <% end %>
+              </div>
+            <% end %>
+
+            <% if slot['location'].present? && height_px > 70 %>
+              <div style="font-size: 0.7rem; opacity: <%= slot_matches_location ? '0.85' : '0.95' %>; margin-top: auto; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; pointer-events: none;">
+                📍 <%= slot['location'] %>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<div style="margin-top: 56px; background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 1px solid #e2e8f0; overflow: hidden;">
+  <div style="padding: 16px 24px; border-bottom: 1px solid #e2e8f0; background: #f8fafc;">
+    <h3 style="margin: 0; font-size: 1.1rem; color: #1e293b; display: flex; align-items: center; gap: 8px; font-weight: 600;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #64748b;"><path d="M4 6h16M4 12h16M4 18h7"/></svg>
+      Tassonomia Attività (Legenda)
+    </h3>
+  </div>
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 0;">
+    
+    <div style="padding: 24px; border-right: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; transition: background 0.2s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
+      <div style="font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+        <span style="display: block; width: 10px; height: 10px; border-radius: 50%; background: #60a5fa; box-shadow: 0 0 0 3px #dbeafe;"></span>
+        Slot di Base
+      </div>
+      <p style="font-size: 0.95rem; color: #475569; margin: 0; line-height: 1.5;">I grandi contenitori della settimana (es. "Appuntamenti"). Definiscono la cornice dentro la quale smistare le task.</p>
+    </div>
+    
+    <div style="padding: 24px; border-right: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; transition: background 0.2s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
+      <div style="font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+        <span style="display: block; width: 10px; height: 10px; border-radius: 50%; background: #34d399; box-shadow: 0 0 0 3px #d1fae5;"></span>
+        Routine Personale
+      </div>
+      <p style="font-size: 0.95rem; color: #475569; margin: 0; line-height: 1.5;">Eventi di mantenimento, igiene posturale, formazione o stacco mentale in cui non sono ammesse intromissioni.</p>
+    </div>
+
+    <div style="padding: 24px; border-right: 1px solid #e2e8f0; transition: background 0.2s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
+      <div style="font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+        <span style="display: block; width: 10px; height: 10px; border-radius: 50%; background: #f87171; box-shadow: 0 0 0 3px #fee2e2;"></span>
+        Costruzione Progetti
+      </div>
+      <p style="font-size: 0.95rem; color: #475569; margin: 0; line-height: 1.5;">Lavoro operativo profondo ("Deep Work") per spingere o rifinire progetti specifici in fase di elaborazione.</p>
+    </div>
+
+    <div style="padding: 24px; transition: background 0.2s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
+      <div style="font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+        <span style="display: block; width: 10px; height: 10px; border-radius: 50%; background: #a78bfa; box-shadow: 0 0 0 3px #ede9fe;"></span>
+        Erogazione Servizi
+      </div>
+      <p style="font-size: 0.95rem; color: #475569; margin: 0; line-height: 1.5;">Lavoro di interfaccia esterna e front-end dove eroghi ufficialmente il valore/servizio verso il pubblico.</p>
+    </div>
+
+  </div>
+</div>
+
+<!-- Modal Backdrop -->
+<div id="slot-modal-backdrop" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.5); backdrop-filter: blur(4px); z-index: 1000; align-items: center; justify-content: center;">
+  <!-- Modal Content -->
+  <div style="background: white; width: 90%; max-width: 480px; border-radius: 16px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); overflow: hidden; transform: scale(0.95); transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative;">
+    
+    <!-- Modal Header -->
+    <div style="background: #f8fafc; border-bottom: 1px solid #e2e8f0; padding: 20px 24px; display: flex; justify-content: space-between; align-items: flex-start;">
+      <div style="display: flex; flex-direction: column; gap: 6px;">
+        <div id="modal-slot-brand" style="display: none; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #8b5cf6; background: #ede9fe; padding: 2px 8px; border-radius: 4px; align-self: flex-start;">BRAND</div>
+        <h3 id="modal-slot-title" style="margin: 0; font-size: 1.25rem; color: #0f172a; font-weight: 700; line-height: 1.1;">Titolo Slot</h3>
+        <p id="modal-slot-time" style="margin: 0; font-size: 0.9rem; color: #3b82f6; font-weight: 600; background: #eff6ff; padding: 2px 8px; border-radius: 6px; display: inline-block; width: fit-content;">Orario</p>
+      </div>
+      <button onclick="closeSlotModal()" style="background: white; border: 1px solid #e2e8f0; border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #64748b; box-shadow: 0 1px 2px rgba(0,0,0,0.05); transition: all 0.2s; flex-shrink: 0;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+    </div>
+    
+    <!-- Modal Body -->
+    <div style="padding: 24px;">
+      <div id="modal-slot-location" style="display: none; align-items: center; gap: 8px; font-size: 0.95rem; color: #475569; margin-bottom: 20px; background: #f1f5f9; border: 1px solid #e2e8f0; padding: 10px 14px; border-radius: 8px;">
+        📍 <span id="modal-location-text" style="font-weight: 500;">Luogo</span>
+      </div>
+      
+      <h4 style="margin: 0 0 16px 0; font-size: 1rem; color: #334155; display: flex; align-items: center; gap: 8px; font-weight: 600; border-bottom: 1px solid #f1f5f9; padding-bottom: 12px;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+        Appuntamenti Prenotati
+      </h4>
+      
+      <div id="modal-appointments-list" style="display: flex; flex-direction: column; gap: 10px; max-height: 350px; overflow-y: auto;">
+        <!-- JS Li Inietta Qui -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function openSlotModal(cardElement) {
+    const slotJson = cardElement.getAttribute('data-slot-json');
+    if (!slotJson) return;
+    
+    // Convert escape tags back (CGI.escapeHTML) e parsare il JSON
+    const parser = new DOMParser();
+    const parsedHtml = parser.parseFromString(slotJson, 'text/html');
+    const slotData = JSON.parse(parsedHtml.documentElement.textContent);
+    
+    const brandBadge = document.getElementById('modal-slot-brand');
+    if (slotData.brand) {
+      brandBadge.style.display = 'inline-block';
+      brandBadge.innerText = slotData.brand;
+    } else {
+      brandBadge.style.display = 'none';
+    }
+    
+    document.getElementById('modal-slot-title').innerText = slotData.title || 'Slot Operativo';
+    document.getElementById('modal-slot-time').innerText = slotData.time || 'Orario Esteso';
+    
+    const locBox = document.getElementById('modal-slot-location');
+    if (slotData.location) {
+      locBox.style.display = 'flex';
+      document.getElementById('modal-location-text').innerText = slotData.location;
+    } else {
+      locBox.style.display = 'none';
+    }
+    
+    const appList = document.getElementById('modal-appointments-list');
+    appList.innerHTML = '';
+    
+    if (slotData.appointments && slotData.appointments.length > 0) {
+      slotData.appointments.forEach(app => {
+        const item = document.createElement('div');
+        item.style.padding = '14px 16px';
+        item.style.background = 'white';
+        item.style.border = '1px solid #e2e8f0';
+        item.style.borderRadius = '10px';
+        item.style.boxShadow = '0 1px 3px rgba(0,0,0,0.02)';
+        item.style.flexDirection = 'column';
+        item.style.alignItems = 'flex-start';
+        item.style.gap = '10px';
+        
+        let detailsHtml = '';
+        if (app.description) {
+          detailsHtml = `<div style="font-size: 0.85rem; color: #64748b; font-style: italic; background: #f8fafc; padding: 8px 12px; border-radius: 6px; margin-top: 4px; border-left: 2px solid #cbd5e1;">${app.description}</div>`;
+        }
+        
+        let priceHtml = '';
+        if (app.price) {
+          priceHtml = `<span style="font-size: 0.8rem; font-weight: 600; color: #10b981; display: flex; align-items: center; gap: 4px; background: #d1fae5; padding: 2px 6px; border-radius: 4px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg> ${app.price}</span>`;
+        }
+        
+        item.innerHTML = `
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <div style="width: 36px; height: 36px; border-radius: 50%; background: #f1f5f9; display: flex; justify-content: center; align-items: center; color: #64748b; font-weight: bold; flex-shrink: 0;">
+                 ${app.client ? app.client.charAt(0).toUpperCase() : '?'}
+              </div>
+              <div>
+                <div style="font-weight: 600; font-size: 1rem; color: #1e293b; line-height: 1.2; display: flex; align-items: center; gap: 8px;">
+                  ${app.client}
+                  ${priceHtml}
+                </div>
+              </div>
+            </div>
+            <div style="background: #eff6ff; border: 1px solid #bfdbfe; padding: 4px 10px; border-radius: 20px; font-size: 0.85rem; font-weight: 700; color: #2563eb; flex-shrink: 0; margin-left: 12px;">
+              ${app.time}
+            </div>
+          </div>
+          ${detailsHtml}
+        `;
+        appList.appendChild(item);
+      });
+    } else {
+      appList.innerHTML = `
+        <div style="text-align: center; color: #94a3b8; font-style: normal; font-size: 0.95rem; padding: 32px 0; background: #f8fafc; border-radius: 8px; border: 1px dashed #cbd5e1;">
+          Nessun appuntamento specifico per questo slot.
+        </div>
+      `;
+    }
+    
+    const backdrop = document.getElementById('slot-modal-backdrop');
+    backdrop.style.display = 'flex';
+    setTimeout(() => { backdrop.children[0].style.transform = 'scale(1)'; }, 10);
+  }
+  
+  function closeSlotModal() {
+    const backdrop = document.getElementById('slot-modal-backdrop');
+    backdrop.children[0].style.transform = 'scale(0.95)';
+    setTimeout(() => { backdrop.style.display = 'none'; }, 200);
+  }
+  
+  // Chiudi modale cliccando fuori
+  document.getElementById('slot-modal-backdrop').addEventListener('click', function(e) {
+    if (e.target === this) {
+      closeSlotModal();
+    }
+  });
+</script>

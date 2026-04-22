@@ -1,0 +1,118 @@
+<%
+  current_date = params[:date].present? ? Date.parse(params[:date]) : Date.current rescue Date.current
+  start_of_week = current_date.beginning_of_week
+  week_file = "week_#{start_of_week.cweek}_#{start_of_week.cwyear}.yml"
+  yaml_path = Rails.root.join('config', 'settimane', week_file)
+  
+  slots_data = File.exist?(yaml_path) ? YAML.load_file(yaml_path) : { 'days' => {} }
+  days = ['lunedì', 'martedì', 'mercoledì', 'giovedì', 'venerdì', 'sabato', 'domenica']
+  
+  slot_duration_mins = 60
+  dur_sec = slot_duration_mins * 60
+
+  def compute_free_slots(macro_start_str, macro_end_str, appointments, dur_sec)
+    return [] if macro_start_str.blank? || macro_end_str.blank?
+    macro_start = Time.parse(macro_start_str)
+    macro_end = Time.parse(macro_end_str)
+    
+    if appointments.blank?
+      # Ritorno solo primo e ultimo slot per forzare di chiudere alle estremità!
+      results = []
+      results << [macro_start, macro_start + dur_sec] if macro_start + dur_sec <= macro_end
+      results << [macro_end - dur_sec, macro_end] if macro_end - dur_sec >= macro_start && (macro_end - dur_sec) != macro_start
+      return results.uniq
+    end
+
+    booked = appointments.map do |a|
+      st, en = a['time'].split('-').map(&:strip)
+      [Time.parse(st), Time.parse(en)]
+    end.sort_by { |a| a[0] }
+
+    free_slots = []
+    
+    booked.each do |b_start, b_end|
+      slot_before_start = b_start - dur_sec
+      if slot_before_start >= macro_start
+        overlap = booked.any? { |ob_s, ob_e| !(slot_before_start >= ob_e || b_start <= ob_s) }
+        free_slots << [slot_before_start, b_start] unless overlap
+      end
+      
+      slot_after_end = b_end + dur_sec
+      if slot_after_end <= macro_end
+        overlap = booked.any? { |ob_s, ob_e| !(b_end >= ob_e || slot_after_end <= ob_s) }
+        free_slots << [b_end, slot_after_end] unless overlap
+      end
+    end
+    free_slots.uniq.sort_by { |s| s[0] }
+  end
+%>
+<% content_for :title, "Prenotazioni Pubbliche" %>
+
+<div style="max-width: 800px; margin: 40px auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
+  <div style="text-align: center; margin-bottom: 40px;">
+    <h1 style="font-size: 2rem; font-weight: 800; color: #0f172a; margin-bottom: 8px;">Prenota Appuntamento</h1>
+    <p style="color: #64748b; font-size: 1.1rem; max-width: 500px; margin: 0 auto; line-height: 1.5;">
+      Seleziona uno degli slot disponibili qui sotto. Il sistema espone solo orari contigui a sessioni già schedulate per evitare buchi operativi.
+    </p>
+  </div>
+
+  <div style="margin-bottom: 30px; display: flex; justify-content: center; gap: 20px; align-items: center;">
+    <%= link_to "← Settimana Prec.", public_prenotazioni_path(date: start_of_week - 1.week), style: "text-decoration:none; color: #3b82f6; font-weight: bold; padding: 8px 12px; border: 1px solid #bfdbfe; border-radius: 6px; transition: 0.2s;" %>
+    <strong style="color: #1e293b;"><%= start_of_week.strftime("%d/%m") %> - <%= start_of_week.end_of_week.strftime("%d/%m/%Y") %></strong>
+    <%= link_to "Settimana Succ. →", public_prenotazioni_path(date: start_of_week + 1.week), style: "text-decoration:none; color: #3b82f6; font-weight: bold; padding: 8px 12px; border: 1px solid #bfdbfe; border-radius: 6px; transition: 0.2s;" %>
+  </div>
+
+  <% found_slots = false %>
+  <div style="display: flex; flex-direction: column; gap: 30px;">
+    <% days.each_with_index do |day, index| %>
+      <% 
+         date_for_day = start_of_week + index.days 
+         daily_slots = slots_data.dig('days', day) || []
+         public_macro_slots = daily_slots.select { |s| s['title'].downcase.include?('appuntament') } 
+      %>
+      
+      <% if public_macro_slots.any? %>
+        <% 
+          available_times = []
+          public_macro_slots.each do |macro|
+            m_start, m_end = macro['time'].split('-').map(&:strip)
+            free_slots = compute_free_slots(m_start, m_end, macro['appointments'], dur_sec)
+            
+            free_slots.each do |fs_start, fs_end|
+              available_times << {
+                time: "#{fs_start.strftime('%H:%M')} - #{fs_end.strftime('%H:%M')}",
+                location: macro['location']
+              }
+            end
+          end
+        %>
+        
+        <% if available_times.any? %>
+          <% found_slots = true %>
+          <div style="border-left: 4px solid #3b82f6; padding-left: 20px;">
+            <h3 style="margin: 0 0 16px 0; color: #0f172a; text-transform: capitalize; font-size: 1.25rem;">
+              <%= day %> <span style="font-weight: normal; color: #94a3b8; font-size: 1rem;"><%= date_for_day.strftime("%d %b") %></span>
+            </h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px;">
+              <% available_times.each do |at| %>
+                <a href="#" style="display: block; padding: 12px 16px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; text-decoration: none; color: #1e3a8a; font-weight: 600; text-align: center; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer;" onmouseover="this.style.background='#dbeafe'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(59,130,246,0.15)';" onmouseout="this.style.background='#eff6ff'; this.style.transform='none'; this.style.boxShadow='none';">
+                  <%= at[:time] %>
+                  <% if at[:location].present? %>
+                    <div style="font-size: 0.75rem; font-weight: normal; color: #3b82f6; margin-top: 4px;">📍 <%= at[:location] %></div>
+                  <% end %>
+                </a>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      <% end %>
+    <% end %>
+
+    <% unless found_slots %>
+      <div style="text-align: center; padding: 60px 20px; background: #f8fafc; border-radius: 8px; border: 1px dashed #cbd5e1; color: #64748b;">
+        <span style="font-size: 2rem; display: block; margin-bottom: 8px;">🗓️</span>
+        Nessun appuntamento calcolabile come viciniore per questa settimana.
+      </div>
+    <% end %>
+  </div>
+</div>

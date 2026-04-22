@@ -35,8 +35,8 @@
   <main style="max-width: 1120px; margin: 0 auto; padding: 2rem 1.5rem 3rem;">
     <header style="padding: 1.4rem 0 1.2rem;">
       <p style="margin: 0; color: var(--brand-accent); font-size: 0.78rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase;">Brand Home</p>
-      <h1 style="margin: 0.45rem 0 0.6rem; max-width: none; white-space: nowrap;"><%= @webapp_domain.title.presence || @brand_port.name %></h1>
-      <p style="margin: 0; max-width: 760px; color: #475569;"><%= @webapp_domain.seo_description.presence || @brand_port.description.presence || "Ingresso pubblico del brand e della sua rete di porti." %></p>
+      <h1 class="page-title" style="margin: 0.45rem 0 0.6rem;"><%= @webapp_domain.title.presence || @brand_port.name %></h1>
+      <p style="margin: 0; max-width: 760px; color: #475569;"><%= @webapp_domain.seo_description.presence || @brand_port.content&.description.presence || "Ingresso pubblico del brand e della sua rete di porti." %></p>
     </header>
 
     <section style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-top: 1.25rem;">

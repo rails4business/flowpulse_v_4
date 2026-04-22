@@ -1,0 +1,119 @@
+days:
+  lunedì:
+    - time: "15:00 - 16:00"
+      title: "Professionisti"
+      color: "bg-gray-400"
+      brand: "Metodo Postura Corretta"
+      margin_top: 230
+      height: 80
+    - time: "16:00 - 19:30"
+      title: "Appuntamenti singoli"
+      color: "bg-blue-400"
+      margin_top: 0
+      height: 180
+      appointments:
+        - time: "17:00 - 18:00"
+          client: "Mario Rossi"
+          price: "€ 80,00"
+          description: "Prima visita posturale, portare referti."
+        - time: "18:00 - 18:30"
+          client: "Call Cliente NuovO"
+          price: "Gratuito"
+          description: "Chiamata conoscitiva via Zoom."
+    - time: "20:00 - 20:30"
+      title: "Musica Strumenti"
+      color: "bg-red-200"
+      margin_top: 30
+      height: 60
+    - time: "20:30 - 22:00"
+      title: "Coro canti folcloristici Viadana"
+      color: "bg-red-200"
+      margin_top: 0
+      height: 90
+  martedì:
+    - time: "8:30 - 11:00"
+      title: "Professionisti"
+      color: "bg-gray-400"
+      margin_top: 5
+      height: 80
+    - time: "11:30 - 15:00"
+      title: "Appuntamenti singoli"
+      color: "bg-blue-400"
+      margin_top: 15
+      height: 150
+    - time: "15:00 - 16:00"
+      title: "Gruppo Postura"
+      color: "bg-blue-200"
+      margin_top: 0
+      height: 60
+      location: "Viadana"
+    - time: "16:00 - 18:30"
+      title: "Appuntamenti singoli"
+      color: "bg-blue-400"
+      margin_top: 0
+      height: 140
+    - time: "19:00 - 19:45"
+      title: "Gruppo Postura"
+      color: "bg-blue-200"
+      margin_top: 25
+      height: 60
+    - time: "19:45 - 20:15"
+      title: "Benessere Integrato"
+      color: "bg-blue-300"
+      margin_top: 0
+      height: 60
+    - time: "20:15 - 21:00"
+      title: "Giardino del corpo"
+      color: "bg-red-300"
+      margin_top: 0
+      height: 60
+  mercoledì:
+    - time: "8:30 - 11:00"
+      title: "Professionisti"
+      color: "bg-gray-400"
+      margin_top: 5
+      height: 80
+  giovedì:
+    - time: "14:30 - 15:15"
+      title: "Rails 4 Business"
+      color: "bg-yellow-200"
+      margin_top: 220
+      height: 60
+    - time: "16:00 - 16:45"
+      title: "1impegno"
+      color: "bg-green-200"
+      margin_top: 10
+      height: 60
+    - time: "16:00 - 18:00"
+      title: "Pittura"
+      color: "bg-red-400"
+      margin_top: 10
+      height: 280
+  venerdì:
+    - time: "8:30 - 11:00"
+      title: "Professionisti"
+      color: "bg-gray-400"
+      margin_top: 5
+      height: 80
+    - time: "11:30 - 15:00"
+      title: "Appuntamenti singoli"
+      color: "bg-blue-400"
+      margin_top: 15
+      height: 150
+    - time: "15:00 - 16:00"
+      title: "Video PosturaCorretta"
+      color: "bg-purple-200"
+      margin_top: 0
+      height: 60
+    - time: "16:00 - 19:30"
+      title: "Appuntamenti singoli"
+      color: "bg-blue-400"
+      margin_top: 0
+      height: 180
+  sabato:
+    - time: "15:00 - 18:00"
+      title: "Appuntamenti singoli"
+      color: "bg-gray-400"
+      margin_top: 250
+      height: 180
+  domenica: null

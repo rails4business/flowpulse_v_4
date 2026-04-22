@@ -2,21 +2,21 @@ class ProfilesController < ApplicationController
   before_action :require_superadmin, only: %i[toggle_creator toggle_professional]
 
   def new
-    redirect_to dashboard_path if Current.session.user.profile.present?
+    redirect_to hub_dashboard_path if Current.session.user.profile.present?
 
     @profile = Profile.new(visibility: "private")
   end
 
   def create
     if Current.session.user.profile.present?
-      redirect_to dashboard_path
+      redirect_to hub_dashboard_path
       return
     end
 
     @profile = Current.session.user.build_profile(profile_params)
 
     if @profile.save
-      redirect_to dashboard_path, notice: "Profilo completato."
+      redirect_to hub_dashboard_path, notice: "Profilo completato."
     else
       render :new, status: :unprocessable_entity
     end
@@ -30,7 +30,7 @@ class ProfilesController < ApplicationController
     @profile = Current.session.user.profile
 
     if @profile.update(profile_params)
-      redirect_to dashboard_path, notice: "Profilo aggiornato."
+      redirect_to hub_dashboard_path, notice: "Profilo aggiornato."
     else
       render :edit, status: :unprocessable_entity
     end

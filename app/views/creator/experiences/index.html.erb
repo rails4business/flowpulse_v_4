@@ -1,0 +1,60 @@
+<% content_for :title, "Experiences di #{@port.name}" %>
+
+<section class="dashboard-shell">
+  <div class="app-layout">
+    <%= render "shared/app_sidebar" %>
+
+    <div class="dashboard-card">
+      <p class="eyebrow">Creator</p>
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; flex-wrap: wrap;">
+        <div>
+          <h1 class="page-title" style="margin-bottom: 0.35rem;">Experiences di <%= @port.name %></h1>
+          <p style="margin: 0; color: #64748b;">Unità base da agganciare poi alle station delle linee.</p>
+        </div>
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+          <%= link_to "Torna al port", creator_port_path(@port), class: "btn btn-secondary" %>
+          <%= link_to "Nuova experience", new_creator_port_experience_path(@port), class: "btn btn-primary" %>
+        </div>
+      </div>
+
+      <div class="dashboard-actions" style="margin-top: 2rem; background: #fff; padding: 1.5rem; border-radius: 8px; border: 1px solid #eee;">
+        <% if @experiences.any? %>
+          <div style="display: grid; gap: 1rem;">
+            <% @experiences.each do |experience| %>
+              <article style="border: 1px solid #e2e8f0; border-radius: 16px; padding: 1rem 1.25rem; background: #fff;">
+                <div style="display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; align-items: center;">
+                  <div>
+                    <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+                      <h2 style="margin: 0; font-size: 1.1rem;"><%= experience.name %></h2>
+                      <span style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; background: #ecfeff; color: #0f766e; border-radius: 999px; padding: 0.2rem 0.55rem;"><%= experience.experience_kind_label %></span>
+                      <span style="font-size: 0.75rem; color: #64748b;">pos. <%= experience.position %></span>
+                    </div>
+                    <p style="margin: 0.35rem 0 0; color: #64748b;">
+                      <%= experience.slug %> · <%= pluralize(experience.stations.count, "station") %>
+                      <% if experience.parent_experience.present? %>
+                        · parent <%= experience.parent_experience.name %>
+                      <% end %>
+                      <% if experience.child_experiences.any? %>
+                        · <%= pluralize(experience.child_experiences.count, "figlio", "figli") %>
+                      <% end %>
+                    </p>
+                    <% if experience.description.present? %>
+                      <p style="margin: 0.75rem 0 0; color: #334155;"><%= experience.description %></p>
+                    <% end %>
+                  </div>
+
+                  <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                    <%= link_to "Modifica", edit_creator_port_experience_path(@port, experience), class: "btn btn-secondary" %>
+                    <%= button_to "Elimina", creator_port_experience_path(@port, experience), method: :delete, form: { data: { turbo_confirm: "Eliminare questa experience?" } }, class: "btn btn-danger" %>
+                  </div>
+                </div>
+              </article>
+            <% end %>
+          </div>
+        <% else %>
+          <p style="margin: 0; color: #64748b;">Nessuna experience ancora definita per questo port.</p>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</section>

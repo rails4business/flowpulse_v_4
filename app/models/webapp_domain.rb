@@ -30,9 +30,9 @@ class WebappDomain < ApplicationRecord
 
     def brand_port_must_be_brand
       return if brand_port.blank?
-      return if brand_port.brand_root?
+      return if brand_port.web_app?
 
-      errors.add(:brand_port, "must be a brand root port")
+      errors.add(:brand_port, "must be a web app port")
     end
 
   private

@@ -1,0 +1,17 @@
+<% content_for :title, "Nuova linea" %>
+
+<section class="dashboard-shell">
+  <div class="app-layout">
+    <%= render "shared/app_sidebar" %>
+
+    <div class="dashboard-card">
+      <p class="eyebrow">Creator</p>
+      <h1 class="page-title" style="margin-bottom: 0.35rem;">Nuova linea per <%= @port.name %></h1>
+      <p>Crea una linea del port. Per ora e' la struttura base della futura mappa terra.</p>
+
+      <div class="dashboard-actions" style="margin-top: 2rem; background: #fff; padding: 2rem; border-radius: 8px; border: 1px solid #eee;">
+        <%= render "form", line: @line %>
+      </div>
+    </div>
+  </div>
+</section>

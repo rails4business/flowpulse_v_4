@@ -1,0 +1,11 @@
+one:
+  user: one
+  display_name: One Profile
+  slug: one-profile
+  visibility: private
+
+two:
+  user: two
+  display_name: Two Profile
+  slug: two-profile
+  visibility: private

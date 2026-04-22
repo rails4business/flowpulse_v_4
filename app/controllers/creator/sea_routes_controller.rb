@@ -86,7 +86,7 @@ module Creator
       end
 
       def chart_redirect_path
-        return creator_carta_nautica_path(edit: 1) if current_chart_brand_port.blank?
+        return current_creator_carta_nautica_path(edit: 1) if current_chart_brand_port.blank?
 
         creator_brand_carta_nautica_path(brand_port_id: current_chart_brand_port.id, edit: 1)
       end

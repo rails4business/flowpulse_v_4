@@ -1,154 +1,393 @@
 <% content_for :title, @port.name %>
 
-<section class="dashboard-shell">
-  <div class="app-layout">
+<section class="dashboard-shell bg-slate-50 min-h-screen">
+  <div class="flex h-full w-full mx-auto" style="max-width: 1600px;">
+    <!-- Sidebar rendered normally -->
     <%= render "shared/app_sidebar" %>
 
-    <div class="dashboard-card">
-      <p class="eyebrow">Creator Port</p>
-      <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; flex-wrap: wrap;">
-        <div>
-          <h1 style="margin-bottom: 0.35rem; max-width: none; white-space: nowrap;"><%= @port.name %></h1>
-          <p style="margin-top: 0;">Slug: <code><%= @port.slug %></code></p>
-        </div>
-        <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
-          <%= link_to "Torna alla carta", (@port.brand_root? ? creator_brand_carta_nautica_path(brand_port_id: @port.id) : (@port.brand_port_id.present? ? creator_brand_carta_nautica_path(brand_port_id: @port.brand_port_id) : creator_carta_nautica_path)), class: "btn btn-secondary" %>
-          <%= link_to "Modifica", edit_creator_port_path(@port), class: "btn btn-primary" %>
-        </div>
-      </div>
-
-      <div class="port-form-grid port-form-grid-three" style="margin-top: 1.5rem; margin-bottom: 1.5rem;">
-        <div class="dashboard-actions" style="background: #fff; padding: 1rem; border-radius: 16px; border: 1px solid #e2e8f0;">
-          <strong>Tipologia</strong>
-          <p style="margin-bottom: 0;"><%= @port.port_kind_label %></p>
-        </div>
-        <div class="dashboard-actions" style="background: #fff; padding: 1rem; border-radius: 16px; border: 1px solid #e2e8f0;">
-          <strong>Visibilità</strong>
-          <p style="margin-bottom: 0;"><%= @port.visibility.humanize %></p>
-        </div>
-        <div class="dashboard-actions" style="background: #fff; padding: 1rem; border-radius: 16px; border: 1px solid #e2e8f0;">
-          <strong>Coordinate</strong>
-          <p style="margin-bottom: 0;"><%= @port.x || "-" %>, <%= @port.y || "-" %></p>
-        </div>
-      </div>
-
-      <div class="port-form-grid port-form-grid-three" style="margin-bottom: 1.5rem;">
-        <div class="dashboard-actions" style="background: #fff; padding: 1rem; border-radius: 16px; border: 1px solid #e2e8f0;">
-          <strong>Ruolo nella carta</strong>
-          <p style="margin-bottom: 0;">
-            <% if @port.brand_root? && @port.brand_port_id.blank? %>
-              Brand root principale
-            <% elsif @port.brand_root? %>
-              Sottobrand
-            <% else %>
-              Porto interno
+    <div class="flex-1 px-4 md:px-8 py-6 lg:py-8 lg:px-12 w-full max-w-6xl overflow-y-auto">
+      
+      <!-- HERO HEADER CARD -->
+      <div class="bg-white rounded-[1.5rem] p-4 md:px-6 md:py-4 mb-6 shadow-sm border border-slate-200/60 relative overflow-hidden">
+        <!-- Abstract gradient background accent -->
+        <div class="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 z-0 pointer-events-none"></div>
+        
+        <div class="relative z-10 flex flex-col md:flex-row justify-between gap-4 items-start md:items-center">
+          <div class="flex items-center gap-4">
+            <!-- Icon Symbol -->
+            <div class="flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-50 to-indigo-100/50 text-indigo-600 shadow-inner border border-indigo-100 shrink-0">
+              <span class="material-symbols-outlined text-2xl">explore</span>
+            </div>
+            
+            <div class="flex items-center flex-wrap gap-2 md:gap-4">
+              <h1 class="text-xl md:text-2xl font-extrabold text-slate-900 tracking-tight m-0 flex items-center gap-2">
+                <%= @port.name %>
+                <span class="bg-indigo-50 text-indigo-700 text-[10px] uppercase font-black px-2 py-0.5 rounded-md tracking-widest border border-indigo-200/50 ml-1 hidden sm:inline-block">Port</span>
+              </h1>
+              
+              <div class="flex items-center gap-2 sm:ml-2">
+                <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg bg-slate-50 text-slate-500 text-xs font-semibold border border-slate-200/60 shadow-sm" title="Slug">
+                  <span class="material-symbols-outlined text-[14px]">link</span>
+                  <%= @port.slug %>
+                </span>
+                <% if @port.brand_root? %>
+                   <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg bg-amber-50 text-amber-700 text-xs font-bold border border-amber-200 shadow-sm">
+                     <span class="material-symbols-outlined text-[14px]">stars</span> Brand Root
+                   </span>
+                <% end %>
+              </div>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <% if @port.web_app? %>
+              <%= link_to preview_creator_port_path(@port), class: "flex items-center justify-center w-11 h-11 rounded-[1rem] bg-white text-slate-700 hover:text-blue-600 border border-slate-200 hover:border-blue-200 hover:bg-blue-50 transition-all", title: "Anteprima Web App" do %>
+                <span class="material-symbols-outlined" style="font-size: 20px;">preview</span>
+              <% end %>
             <% end %>
-          </p>
-        </div>
-        <div class="dashboard-actions" style="background: #fff; padding: 1rem; border-radius: 16px; border: 1px solid #e2e8f0;">
-          <strong>Brand padre</strong>
-          <p style="margin-bottom: 0;"><%= @port.brand_port&.name || "-" %></p>
-        </div>
-        <div class="dashboard-actions" style="background: #fff; padding: 1rem; border-radius: 16px; border: 1px solid #e2e8f0;">
-          <strong>Valore di ingresso</strong>
-          <p style="margin-bottom: 0;"><%= @port.entry_value.presence || "-" %></p>
+            <%= link_to (@port.brand_root? ? creator_brand_carta_nautica_path(brand_port_id: @port.id) : (@port.brand_port_id.present? ? creator_brand_carta_nautica_path(brand_port_id: @port.brand_port_id) : creator_carta_nautica_path)), class: "flex items-center justify-center w-11 h-11 rounded-[1rem] bg-white text-slate-700 hover:text-emerald-600 border border-slate-200 hover:border-emerald-200 hover:bg-emerald-50 transition-all", title: "Apri nella Carta Nautica" do %>
+              <span class="material-symbols-outlined" style="font-size: 20px;">map</span>
+            <% end %>
+            <%= link_to edit_creator_port_path(@port), class: "flex items-center justify-center w-11 h-11 rounded-[1rem] bg-indigo-600 text-white shadow-md shadow-indigo-600/20 hover:shadow-lg hover:shadow-indigo-600/30 hover:-translate-y-0.5 transition-all text-sm", title: "Modifica Setup del Porto" do %>
+              <span class="material-symbols-outlined" style="font-size: 20px;">edit</span>
+            <% end %>
+          </div>
         </div>
       </div>
 
-      <div class="dashboard-actions" style="margin-bottom: 1.5rem; background: #fff; padding: 1.25rem; border-radius: 18px; border: 1px solid #e2e8f0;">
-        <strong>Ingresso pubblico</strong>
-        <p style="margin: 0.45rem 0 0; color: <%= @port.public_webapp_ready? ? "#166534" : "#475569" %>;">
-          <% if @port.public_webapp_ready? %>
-            Questo port e' pronto come ingresso pubblico della web app.
-          <% elsif @port.web_app? %>
-            Questo port e' una web app, ma per essere ingresso pubblico deve essere pubblicato e avere almeno un Webapp Domain pubblicato.
+      <!-- METRICS COMPACT STRIP -->
+      <div class="bg-white rounded-[1.5rem] p-2 shadow-sm border border-slate-200/60 mb-8 grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 divide-y border-t-0 md:divide-y-0 divide-slate-100 gap-y-2 md:gap-y-0">
+        
+        <div class="p-3 flex items-center gap-3 group">
+          <div class="flex items-center justify-center w-10 h-10 rounded-xl bg-blue-50 text-blue-600 group-hover:scale-110 transition-transform shrink-0">
+            <span class="material-symbols-outlined text-[20px]">category</span>
+          </div>
+          <div class="min-w-0">
+            <p class="text-slate-400 text-[0.6rem] font-bold uppercase tracking-wider mb-0.5 truncate">Tipologia</p>
+            <p class="text-slate-800 font-bold text-sm m-0 truncate"><%= @port.port_kind_label %></p>
+          </div>
+        </div>
+
+        <div class="p-3 flex items-center gap-3 group md:border-l border-slate-100">
+          <div class="flex items-center justify-center w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 group-hover:scale-110 transition-transform shrink-0">
+            <span class="material-symbols-outlined text-[20px]">visibility</span>
+          </div>
+          <div class="min-w-0">
+            <p class="text-slate-400 text-[0.6rem] font-bold uppercase tracking-wider mb-0.5 truncate">Stato</p>
+            <p class="text-slate-800 font-bold text-sm m-0 capitalize truncate"><%= @port.content&.visibility&.humanize || "Vuoto" %></p>
+          </div>
+        </div>
+
+        <div class="p-3 flex items-center gap-3 group md:border-l border-slate-100">
+          <div class="flex items-center justify-center w-10 h-10 rounded-xl bg-orange-50 text-orange-500 group-hover:scale-110 transition-transform shrink-0">
+            <span class="material-symbols-outlined text-[20px]">my_location</span>
+          </div>
+          <div class="min-w-0">
+            <p class="text-slate-400 text-[0.6rem] font-bold uppercase tracking-wider mb-0.5 truncate">Loc.</p>
+            <p class="text-slate-800 font-bold text-sm m-0 truncate"><%= @port.x || "-" %> / <%= @port.y || "-" %></p>
+          </div>
+        </div>
+
+        <div class="p-3 flex items-center gap-3 group xl:border-l border-slate-100">
+          <div class="flex items-center justify-center w-10 h-10 rounded-xl bg-purple-50 text-purple-600 group-hover:scale-110 transition-transform shrink-0">
+            <span class="material-symbols-outlined text-[20px]">account_tree</span>
+          </div>
+          <div class="min-w-0">
+            <p class="text-slate-400 text-[0.6rem] font-bold uppercase tracking-wider mb-0.5 truncate">Ruolo</p>
+            <p class="text-slate-800 font-bold text-sm m-0 truncate">
+              <% if @port.brand_root? && @port.brand_port_id.blank? %>Master<% elsif @port.brand_root? %>Sottobrand<% else %>Interno<% end %>
+            </p>
+          </div>
+        </div>
+
+        <div class="p-3 flex items-center gap-3 group md:border-l border-slate-100">
+          <div class="flex items-center justify-center w-10 h-10 rounded-xl bg-rose-50 text-rose-600 group-hover:scale-110 transition-transform shrink-0">
+            <span class="material-symbols-outlined text-[20px]">corporate_fare</span>
+          </div>
+          <div class="min-w-0">
+            <p class="text-slate-400 text-[0.6rem] font-bold uppercase tracking-wider mb-0.5 truncate">Brand</p>
+            <p class="text-slate-800 font-bold text-sm m-0 truncate"><%= @port.brand_port&.name || "-" %></p>
+          </div>
+        </div>
+
+        <div class="p-3 flex items-center gap-3 group md:border-l border-slate-100">
+          <div class="flex items-center justify-center w-10 h-10 rounded-xl bg-amber-50 text-amber-600 group-hover:scale-110 transition-transform shrink-0">
+            <span class="material-symbols-outlined text-[20px]">toll</span>
+          </div>
+          <div class="min-w-0">
+            <p class="text-slate-400 text-[0.6rem] font-bold uppercase tracking-wider mb-0.5 truncate">Accesso</p>
+            <p class="text-slate-800 font-bold text-sm m-0 truncate"><%= @port.entry_value.presence || "Free" %></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-[2rem] p-8 mb-8 shadow-sm border border-slate-200/60 overflow-hidden relative">
+        <div class="absolute top-0 left-0 w-2 h-full bg-cyan-500"></div>
+
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8 pl-2">
+          <div>
+            <h2 class="text-2xl font-black text-slate-900 mb-1 flex items-center gap-2">
+              <span class="material-symbols-outlined text-cyan-500 text-3xl">extension</span>
+              Experiences
+            </h2>
+            <p class="text-slate-500 font-medium m-0">Unità base del port da agganciare poi alle station.</p>
+          </div>
+          <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+            <%= link_to land_map_creator_port_path(@port), class: "inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white text-slate-700 font-bold border border-slate-200 hover:bg-slate-50 transition-all text-sm shadow-sm" do %>
+              <span class="material-symbols-outlined" style="font-size: 18px;">schema</span> Apri mappa terra
+            <% end %>
+            <%= link_to creator_port_experiences_path(@port), class: "inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white text-slate-700 font-bold border border-slate-200 hover:bg-slate-50 transition-all text-sm shadow-sm" do %>
+              <span class="material-symbols-outlined" style="font-size: 18px;">list</span> Gestisci experiences
+            <% end %>
+            <%= link_to new_creator_port_experience_path(@port), class: "inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-cyan-600 text-white font-bold hover:bg-cyan-700 transition-colors shadow-lg shadow-cyan-500/20 text-sm" do %>
+              <span class="material-symbols-outlined" style="font-size: 18px;">add</span> Nuova experience
+            <% end %>
+          </div>
+        </div>
+
+        <div class="ml-2 p-6 md:p-8 rounded-[1.5rem] bg-slate-50 border border-slate-200/80 shadow-inner">
+          <% if @port.experiences.any? %>
+            <div style="display: grid; gap: 1rem;">
+              <% @port.experiences.limit(4).each do |experience| %>
+                <div style="display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; align-items: center; padding: 1rem 1.25rem; border-radius: 1rem; background: white; border: 1px solid #e2e8f0;">
+                  <div>
+                    <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+                      <strong style="font-size: 1rem; color: #0f172a;"><%= experience.name %></strong>
+                      <span style="font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: #0f766e; background: #ecfeff; border: 1px solid #a5f3fc; padding: 0.15rem 0.5rem; border-radius: 999px;"><%= experience.experience_kind_label %></span>
+                    </div>
+                    <p style="margin: 0.35rem 0 0; color: #64748b;"><%= pluralize(experience.stations.count, "station") %> · pos. <%= experience.position %></p>
+                  </div>
+                  <%= link_to "Apri", creator_port_experiences_path(@port), class: "btn btn-secondary" %>
+                </div>
+              <% end %>
+            </div>
           <% else %>
-            Questo port non e' una web app. Per ora gli ingressi pubblici autonomi esistono solo per i port di tipo web app.
+            <p style="margin: 0; color: #64748b;">Nessuna experience ancora definita per questo port.</p>
           <% end %>
-        </p>
-        <% if @port.brand_root? %>
-          <p style="margin: 0.4rem 0 0; color: #475569;">
-            <% if @port.brand_port_id.blank? %>
-              Questo port e' un <strong>brand root principale</strong> e rappresenta il titolo della sua carta nautica.
-            <% else %>
-              Questo port e' un <strong>sottobrand</strong> e compare come nodo nella carta del brand padre.
+        </div>
+      </div>
+
+      <div class="bg-white rounded-[2rem] p-8 mb-8 shadow-sm border border-slate-200/60 overflow-hidden relative">
+        <div class="absolute top-0 left-0 w-2 h-full bg-fuchsia-500"></div>
+
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8 pl-2">
+          <div>
+            <h2 class="text-2xl font-black text-slate-900 mb-1 flex items-center gap-2">
+              <span class="material-symbols-outlined text-fuchsia-500 text-3xl">route</span>
+              Linee e Station
+            </h2>
+            <p class="text-slate-500 font-medium m-0">Base della futura mappa terra del port.</p>
+          </div>
+          <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+            <%= link_to land_map_creator_port_path(@port), class: "inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white text-slate-700 font-bold border border-slate-200 hover:bg-slate-50 transition-all text-sm shadow-sm" do %>
+              <span class="material-symbols-outlined" style="font-size: 18px;">schema</span> Apri mappa terra
             <% end %>
-          </p>
+            <%= link_to creator_port_lines_path(@port), class: "inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white text-slate-700 font-bold border border-slate-200 hover:bg-slate-50 transition-all text-sm shadow-sm" do %>
+              <span class="material-symbols-outlined" style="font-size: 18px;">list</span> Gestisci linee
+            <% end %>
+            <%= link_to new_creator_port_line_path(@port), class: "inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-fuchsia-600 text-white font-bold hover:bg-fuchsia-700 transition-colors shadow-lg shadow-fuchsia-500/20 text-sm" do %>
+              <span class="material-symbols-outlined" style="font-size: 18px;">add</span> Nuova linea
+            <% end %>
+          </div>
+        </div>
+
+        <div class="ml-2 p-6 md:p-8 rounded-[1.5rem] bg-slate-50 border border-slate-200/80 shadow-inner">
+          <% if @port.lines.any? %>
+            <div style="display: grid; gap: 1rem;">
+              <% @port.lines.limit(4).each do |line| %>
+                <div style="display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; align-items: center; padding: 1rem 1.25rem; border-radius: 1rem; background: white; border: 1px solid #e2e8f0;">
+                  <div>
+                    <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+                      <strong style="font-size: 1rem; color: #0f172a;"><%= line.name %></strong>
+                      <span style="font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: #a21caf; background: #fdf4ff; border: 1px solid #f5d0fe; padding: 0.15rem 0.5rem; border-radius: 999px;"><%= line.line_kind_label %></span>
+                    </div>
+                    <p style="margin: 0.35rem 0 0; color: #64748b;"><%= pluralize(line.stations.count, "station") %> · pos. <%= line.position %></p>
+                  </div>
+                  <%= link_to "Apri", creator_port_line_stations_path(@port, line), class: "btn btn-secondary" %>
+                </div>
+              <% end %>
+            </div>
+            <% if @port.lines.count > 4 %>
+              <p style="margin: 1rem 0 0; color: #64748b;">Mostrate le prime 4 linee. Apri la gestione completa per vedere tutto.</p>
+            <% end %>
+          <% else %>
+            <p style="margin: 0; color: #64748b;">Nessuna linea ancora definita per questo port.</p>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- CONTENT SECTION SYSTEM -->
+      <div class="bg-white rounded-[2rem] p-8 mb-8 shadow-sm border border-slate-200/60 overflow-hidden relative">
+        <div class="absolute top-0 left-0 w-2 h-full bg-blue-500"></div>
+        
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8 pl-2">
+          <div>
+            <h2 class="text-2xl font-black text-slate-900 mb-1 flex items-center gap-2">
+              <span class="material-symbols-outlined text-blue-500 text-3xl">news</span>
+              Gestione Contenuto
+            </h2>
+            <p class="text-slate-500 font-medium m-0">Il cuore pulsante del port: testi aziendali, media, SEO e landing page.</p>
+          </div>
+          <div>
+            <% if @port.content.present? %>
+              <%= link_to edit_creator_port_content_path(@port), class: "inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-blue-50 text-blue-700 font-bold hover:bg-blue-100 hover:text-blue-800 transition-colors border border-blue-200/50 text-sm" do %>
+                <span class="material-symbols-outlined" style="font-size: 18px;">draw</span> Modifica Articolo
+              <% end %>
+            <% else %>
+              <%= link_to new_creator_port_content_path(@port), class: "inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-blue-600 text-white font-bold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-500/20 text-sm" do %>
+                <span class="material-symbols-outlined" style="font-size: 18px;">add_box</span> Crea Contenuto
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+
+        <% if @port.content.present? %>
+          <% content = @port.content %>
+          <div class="p-6 md:p-8 rounded-[1.5rem] bg-slate-50 border border-slate-200/80 shadow-inner ml-2">
+            <div class="flex flex-col md:flex-row justify-between gap-6">
+              <div class="space-y-4 flex-1">
+                <div>
+                  <div class="flex items-center gap-3 mb-1">
+                    <h3 class="text-2xl font-black text-slate-800 m-0"><%= content.display_title %></h3>
+                    <div class="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider <%= content.visibility == 'published' ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' : 'bg-slate-200 text-slate-600 border border-slate-300' %>">
+                      <span class="w-1.5 h-1.5 rounded-full <%= content.visibility == 'published' ? 'bg-emerald-500' : 'bg-slate-400' %>"></span>
+                      <%= content.visibility.humanize %>
+                    </div>
+                  </div>
+                  <% if content.subtitle.present? %>
+                    <p class="text-slate-600 font-bold text-xl mt-2 m-0 leading-tight"><%= content.subtitle %></p>
+                  <% end %>
+                </div>
+                
+                <div class="text-xs font-bold text-slate-400 flex items-center gap-4 flex-wrap">
+                  <% if content.display_slug.present? %>
+                    <span class="flex items-center gap-1 bg-white px-2 py-1 rounded-md border border-slate-200"><span class="material-symbols-outlined text-[14px]">link</span> <%= content.display_slug %></span>
+                  <% end %>
+                  <% if content.published_at.present? %>
+                    <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">calendar_month</span> <%= l(content.published_at, format: :short) %></span>
+                  <% end %>
+                </div>
+                
+                <% if content.description.present? %>
+                   <div class="flex items-start gap-4 p-4 rounded-xl bg-white border border-slate-200/80 shadow-sm mt-4">
+                     <span class="material-symbols-outlined text-amber-500 text-3xl">format_quote</span>
+                     <p class="text-slate-700 text-lg leading-relaxed m-0 italic">"<%= content.description %>"</p>
+                   </div>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        <% else %>
+          <div class="p-10 rounded-[1.5rem] border-2 border-dashed border-slate-300 flex flex-col items-center justify-center text-center bg-slate-50 ml-2">
+            <span class="material-symbols-outlined text-slate-300 mb-4" style="font-size: 64px;">note_stack</span>
+            <p class="text-slate-800 font-bold text-lg m-0">Nessun materiale collegato</p>
+            <p class="text-slate-500 mt-1 max-w-sm">Questa porta è vuota. Crea un contenuto per mostrare landing page, video e presentazioni ai visitatori.</p>
+          </div>
         <% end %>
       </div>
 
-      <div class="dashboard-actions" style="background: #fff; padding: 1.25rem; border-radius: 18px; border: 1px solid #e2e8f0;">
-        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
-          <span style="display: inline-block; width: 18px; height: 18px; border-radius: 999px; background: <%= @port.color_key %>; border: 2px solid rgba(15,23,42,0.12);"></span>
-          <strong>Descrizione</strong>
-        </div>
-        <p style="margin: 0;"><%= @port.description.presence || "Nessuna descrizione ancora inserita." %></p>
-      </div>
-
-      <div class="dashboard-actions" style="margin-top: 1.5rem; background: #fff; padding: 1.25rem; border-radius: 18px; border: 1px solid #e2e8f0;">
-        <div style="display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem;">
+      <!-- DOMAINS SECTION -->
+      <div class="bg-white rounded-[2rem] p-8 shadow-sm border border-slate-200/60 overflow-hidden relative">
+        <div class="absolute top-0 left-0 w-2 h-full bg-emerald-500"></div>
+        
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8 pl-2">
           <div>
-            <strong>Webapp Domains</strong>
-            <p style="margin: 0.35rem 0 0; color: #475569;">
+            <h2 class="text-2xl font-black text-slate-900 mb-1 flex items-center gap-2">
+              <span class="material-symbols-outlined text-emerald-500 text-3xl">dns</span>
+              Webapp Domains
+            </h2>
+            <p class="text-slate-500 font-medium m-0">
               <% if @port.web_app? %>
-                Collega qui i domini pubblici che aprono l'ingresso della web app.
+                La porta di accesso globale. Collega e gestisci i domini web esterni.
               <% else %>
-                I domini pubblici appartengono solo ai porti di tipo web app.
+                Modulo Web-App disabilitato per questa specifica porta.
               <% end %>
             </p>
           </div>
           <% if @port.web_app? %>
-            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
-              <%= link_to "Vedi tutti", creator_port_webapp_domains_path(@port), class: "btn btn-secondary" %>
-              <%= link_to "+ Dominio", new_creator_port_webapp_domain_path(@port), class: "btn btn-primary" %>
+            <div class="flex gap-3">
+              <%= link_to creator_port_webapp_domains_path(@port), class: "inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white text-slate-700 font-bold border border-slate-200 hover:bg-slate-50 transition-all text-sm shadow-sm" do %>
+                <span class="material-symbols-outlined" style="font-size: 18px;">list</span> Lista completa
+              <% end %>
+              <%= link_to new_creator_port_webapp_domain_path(@port), class: "inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-emerald-600 text-white font-bold hover:bg-emerald-700 transition-colors shadow-lg shadow-emerald-500/20 text-sm" do %>
+                <span class="material-symbols-outlined" style="font-size: 18px;">add_link</span> Associa Dominio
+              <% end %>
             </div>
           <% end %>
         </div>
 
-        <% if @port.web_app? %>
-          <% webapp_domains = @port.webapp_domains.order(primary: :desc, created_at: :asc) %>
-          <div style="display: grid; gap: 0.85rem;">
-            <% webapp_domains.each do |webapp_domain| %>
-              <div style="padding: 0.9rem 1rem; border-radius: 14px; border: 1px solid #e2e8f0; background: #f8fafc;">
-                <div style="display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; align-items: center;">
-                  <div>
-                    <strong><%= webapp_domain.host %></strong>
-                    <p style="margin: 0.3rem 0 0; color: #475569;">
-                      <%= webapp_domain.locale %>
-                      <% if webapp_domain.title.present? %>· <%= webapp_domain.title %><% end %>
-                    </p>
-                    <p style="margin: 0.35rem 0 0; font-size: 0.82rem; color: <%= webapp_domain.published? ? "#166534" : "#991b1b" %>;">
-                      <strong><%= webapp_domain.published? ? "Pubblico attivo" : "Non pubblicato" %></strong>
-                      · <%= webapp_domain.published? ? "Questo dominio viene risolto pubblicamente." : "Finché non è pubblicato, il dominio non viene usato dalla root pubblica." %>
-                    </p>
+        <div class="pl-2">
+          <!-- EX INGRESSO PUBBLICO CARD (integrated smoothly here) -->
+          <div class="bg-slate-50 rounded-2xl p-5 mb-8 border border-slate-200 flex gap-5 items-center">
+            <div class="w-12 h-12 rounded-full shrink-0 flex items-center justify-center <%= @port.public_webapp_ready? ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-200 text-slate-500' %>">
+              <span class="material-symbols-outlined text-2xl"><%= @port.public_webapp_ready? ? "check_circle" : "public_off" %></span>
+            </div>
+            <div>
+              <% if @port.public_webapp_ready? %>
+                <p class="text-emerald-800 font-bold text-lg m-0">Sistema Operativo Connesso</p>
+                <p class="text-emerald-600/80 text-sm m-0">Questo port risponde correttamente come ingresso pubblico alle richieste di rete.</p>
+              <% elsif @port.web_app? %>
+                <p class="text-slate-800 font-bold text-lg m-0">Ingresso non disponibile</p>
+                <p class="text-slate-500 text-sm m-0">Affinché il sistema risponda al traffico web è necessario che il Port sia "Pubblicato" e che esista almeno un dominio configurato.</p>
+              <% else %>
+                <p class="text-slate-800 font-bold text-lg m-0">Traffico in entrata negato</p>
+                <p class="text-slate-500 text-sm m-0">Solo le istanze WebApp possono gestire i domini diretti.</p>
+              <% end %>
+            </div>
+          </div>
+
+          <% if @port.web_app? %>
+            <% webapp_domains = @port.webapp_domains.order(primary: :desc, created_at: :asc) %>
+            <div class="grid gap-4">
+              <% webapp_domains.each do |webapp_domain| %>
+                <div class="p-5 rounded-2xl bg-white border-2 border-slate-100 hover:border-emerald-200 transition-colors flex flex-col lg:flex-row justify-between gap-6 items-start lg:items-center">
+                  <div class="flex items-center gap-4">
+                    <div class="w-14 h-14 rounded-2xl flex items-center justify-center <%= webapp_domain.published? ? 'bg-emerald-50 text-emerald-500' : 'bg-slate-100 text-slate-400' %> shadow-inner">
+                      <span class="material-symbols-outlined text-3xl"><%= webapp_domain.published? ? "language" : "link_off" %></span>
+                    </div>
+                    <div>
+                      <div class="flex items-center gap-3 mb-1">
+                        <h3 class="text-xl font-bold text-slate-900 m-0"><%= webapp_domain.host %></h3>
+                        <% if webapp_domain.primary? %><span class="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-widest bg-violet-100 border border-violet-200 text-violet-700">Principale</span><% end %>
+                      </div>
+                      <p class="text-slate-500 font-medium text-sm m-0">Linguaggio: <b class="uppercase"><%= webapp_domain.locale %></b> <% if webapp_domain.title.present? %><span class="mx-1 text-slate-300">|</span> <%= webapp_domain.title %><% end %></p>
+                    </div>
                   </div>
-                  <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
-                    <% if webapp_domain.primary? %><span class="btn btn-secondary" style="padding: 0.3rem 0.55rem;">Primary</span><% end %>
+                  
+                  <div class="flex flex-wrap items-center gap-3">
+                    <div class="mr-4 text-right hidden md:block">
+                      <p class="text-sm font-bold <%= webapp_domain.published? ? 'text-emerald-700' : 'text-slate-500' %> m-0 uppercase tracking-widest"><%= webapp_domain.published? ? "Live" : "Draft" %></p>
+                      <p class="text-xs text-slate-400 m-0 font-medium"><%= webapp_domain.published? ? "Traffico abilitato" : "Off grid" %></p>
+                    </div>
+
                     <%= button_to(
-                      webapp_domain.published? ? "Published" : "Draft",
                       toggle_published_creator_port_webapp_domain_path(@port, webapp_domain),
                       method: :patch,
-                      class: "btn btn-secondary",
-                      form: {
-                        style: "display: inline-block;",
-                        data: (webapp_domain.published? ? { turbo_confirm: "Sei sicuro di voler riportare questo dominio in draft?" } : {})
-                      },
-                      style: "padding: 0.3rem 0.55rem; #{webapp_domain.published? ? "background: #dcfce7; border-color: #86efac; color: #166534;" : "background: #fee2e2; border-color: #fecaca; color: #991b1b;"}"
-                    ) %>
-                    <%= link_to "Modifica", edit_creator_port_webapp_domain_path(@port, webapp_domain), class: "btn btn-secondary" %>
+                      form: { style: "display: block;" }
+                    ) do %>
+                      <div class="flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold <%= webapp_domain.published? ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100' : 'bg-slate-100 text-slate-600 border border-slate-200 hover:bg-slate-200' %> transition-all cursor-pointer shadow-sm">
+                        <span class="w-2.5 h-2.5 rounded-full <%= webapp_domain.published? ? 'bg-emerald-500' : 'bg-slate-400' %> shadow-inner"></span>
+                        <%= webapp_domain.published? ? "Disattiva" : "Metti Live" %>
+                      </div>
+                    <% end %>
+                    
+                    <%= link_to edit_creator_port_webapp_domain_path(@port, webapp_domain), class: "w-11 h-11 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-200 transition-colors shadow-sm" do %>
+                      <span class="material-symbols-outlined" style="font-size: 20px;">edit</span>
+                    <% end %>
                   </div>
                 </div>
-              </div>
-            <% end %>
+              <% end %>
 
-            <% if webapp_domains.blank? %>
-              <div style="padding: 1rem; border-radius: 14px; border: 1px dashed #cbd5e1; color: #475569;">
-                Nessun dominio collegato a questa web app.
-              </div>
-            <% end %>
-          </div>
-        <% end %>
+              <% if webapp_domains.blank? %>
+                <div class="p-8 rounded-2xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-center bg-white shadow-sm mt-2">
+                  <span class="material-symbols-outlined text-slate-300 mb-3" style="font-size: 48px;">domain_disabled</span>
+                  <p class="text-slate-800 font-bold text-lg m-0">Zero domini webapp</p>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
       </div>
+
     </div>
   </div>
 </section>

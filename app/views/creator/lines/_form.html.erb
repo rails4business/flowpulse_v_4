@@ -1,0 +1,49 @@
+<%= form_with(model: [:creator, @port, line], class: "form-standard") do |form| %>
+  <% if line.errors.any? %>
+    <div style="color: #b91c1c; margin-bottom: 1rem;">
+      <h4 style="margin: 0 0 0.5rem;">Ci sono errori:</h4>
+      <ul style="margin: 0; padding-left: 1.2rem;">
+        <% line.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="form-grid">
+    <div class="field-group">
+      <%= form.label :name, "Nome linea" %>
+      <%= form.text_field :name, required: true, placeholder: "Percorso terapeutico base" %>
+    </div>
+
+    <div class="field-group">
+      <%= form.label :slug, "Slug" %>
+      <%= form.text_field :slug, placeholder: "percorso-terapeutico-base" %>
+    </div>
+
+    <div class="field-group">
+      <%= form.label :line_kind, "Tipo linea" %>
+      <%= form.select :line_kind, Line.line_kinds.keys.map { |key| [key.humanize, key] }, {}, required: true %>
+    </div>
+
+    <div class="field-group">
+      <%= form.label :position, "Posizione" %>
+      <%= form.number_field :position, min: 0, step: 1 %>
+    </div>
+
+    <div class="field-group">
+      <%= form.label :color, "Colore linea" %>
+      <%= form.color_field :color %>
+    </div>
+
+    <div class="field-group field-group-full">
+      <%= form.label :description, "Descrizione" %>
+      <%= form.text_area :description, rows: 4, placeholder: "Uso interno creator: spiega il senso di questa line e dove va usata." %>
+    </div>
+  </div>
+
+  <div class="form-actions">
+    <%= link_to "Annulla", creator_port_lines_path(@port), class: "btn btn-secondary" %>
+    <%= form.submit line.persisted? ? "Salva linea" : "Crea linea", class: "btn btn-primary" %>
+  </div>
+<% end %>

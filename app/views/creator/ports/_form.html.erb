@@ -1,5 +1,6 @@
 <div class="port-form-container">
 <%= form_with(model: [:creator, port], class: "form-standard", data: { turbo_frame: "_top", controller: "port-form" }) do |form| %>
+  <% available_brand_roots = Current.session.user.profile.ports.where(brand_root: true).where.not(id: port.id).order(:name) %>
   <% if port.errors.any? %>
     <div style="color: red; margin-bottom: 1rem;">
       <h4>Ci sono errori:</h4>
@@ -36,79 +37,177 @@
     </div>
   </div>
 
-  <div class="port-form-grid port-form-grid-three" style="margin-bottom: 1rem;">
+  <div class="port-form-grid port-form-grid-two" style="margin-bottom: 1rem;">
     <div class="form-group">
-      <% if port.brand_root? %>
-        <label style="display: block; font-weight: 600;">Tipologia</label>
-        <div class="form-control" style="width: 100%; border: 1px solid #ccc; padding: 0.5rem; border-radius: 4px; background: #f8fafc; color: #475569;">
-          Neutra per brand root
-        </div>
-        <p style="margin: 0.35rem 0 0; color: #64748b; font-size: 0.82rem;">Quando il port e' un brand root, la tipologia non viene usata come classificazione visibile della mappa.</p>
-      <% else %>
-        <%= form.label :port_kind, "Tipologia", style: "display: block;" %>
-        <%= form.select :port_kind, [
-          ["🧩 Web App", "web_app"],
-          ["🌐 Website", "website"],
-          ["▶️ YouTube", "youtube"],
-          ["📸 Instagram", "instagram"],
-          ["💬 WhatsApp", "whatsapp"],
-          ["☎️ Phone", "phone"]
-        ], {}, class: "form-control", style: "width: 100%; border: 1px solid #ccc; padding: 0.5rem; border-radius: 4px;" %>
-      <% end %>
-    </div>
-
-    <div class="form-group">
-      <%= form.label :visibility, "Visibilità", style: "display: block;" %>
-      <%= form.select :visibility, Port.visibilities.keys.map { |v| [v.capitalize, v] }, {}, class: "form-control", style: "width: 100%; border: 1px solid #ccc; padding: 0.5rem; border-radius: 4px;" %>
+      <label style="display: inline-flex; align-items: center; gap: 0.6rem; font-weight: 600;">
+      <%= form.check_box :brand_root, data: { port_form_target: "brandRoot", action: "change->port-form#toggleBrandRoot" } %>
+      Brand root
+      </label>
+      <p style="margin: 0.45rem 0 0; color: #64748b; font-size: 0.82rem;" data-port-form-target="brandRootHint">
+        <% if port.brand_root? %>
+          Questo port e' gia' un <strong>brand root</strong>. Dalla mappa apre la sua carta nautica; la modifica principale avviene dal titolo della carta. Se ha un brand padre, viene mostrato come sottobrand nella carta del padre. La tipologia resta vuota.
+        <% else %>
+          Attiva questa opzione solo se il port deve diventare la radice di una carta brand. Quando e' brand root, la tipologia normale viene nascosta e resta vuota.
+        <% end %>
+      </p>
     </div>
 
     <div class="form-group">
       <%= form.label :brand_port_id, "Brand padre", style: "display: block;" %>
-      <%= form.collection_select :brand_port_id, Current.session.user.profile.ports.where(brand_root: true).where.not(id: port.id), :id, :name, { include_blank: "Nessun brand padre" }, class: "form-control", style: "width: 100%; border: 1px solid #ccc; padding: 0.5rem; border-radius: 4px;" %>
+      <%= form.hidden_field :brand_port_id, data: { port_form_target: "brandParentId" } %>
+      <%= text_field_tag :brand_parent_name,
+                         port.brand_port&.name,
+                         list: "creator-brand-roots",
+                         class: "form-control",
+                         style: "width: 100%; border: 1px solid #ccc; padding: 0.5rem; border-radius: 4px;",
+                         placeholder: "Cerca tra i tuoi brand",
+                         autocomplete: "off",
+                         data: { port_form_target: "brandParentInput", action: "input->port-form#syncBrandParent change->port-form#syncBrandParent" } %>
+      <datalist id="creator-brand-roots">
+        <% available_brand_roots.each do |brand_root| %>
+          <option value="<%= brand_root.name %>" data-brand-id="<%= brand_root.id %>"></option>
+        <% end %>
+      </datalist>
       <p style="margin: 0.35rem 0 0; color: #64748b; font-size: 0.82rem;">Lascia vuoto per un brand root principale. Impostalo per creare un porto interno o un sottobrand dentro una carta brand.</p>
     </div>
   </div>
 
   <div class="port-form-grid port-form-grid-two" style="margin-bottom: 1rem;">
+    <div class="form-group" data-port-form-target="portKindGroup" style="<%= port.brand_root? ? "visibility: hidden; pointer-events: none;" : "" %>">
+      <%= form.label :port_kind, "Tipologia", style: "display: block;" %>
+      <%= form.select :port_kind, [
+          ["🧩 Web App", "web_app"],
+          ["🌐 Website esterno", "website_external"],
+          ["▶️ YouTube", "youtube"],
+          ["📸 Altro social", "other_social"],
+          ["💬 WhatsApp", "whatsapp"],
+          ["☎️ Phone", "phone"]
+        ], {}, class: "form-control", style: "width: 100%; border: 1px solid #ccc; padding: 0.5rem; border-radius: 4px;", data: { port_form_target: "portKind" } %>
+    </div>
+
     <div class="form-group">
       <%= form.label :entry_value, "Valore di ingresso", style: "display: block;" %>
       <%= form.text_field :entry_value, class: "form-control", style: "width: 100%; border: 1px solid #ccc; padding: 0.5rem; border-radius: 4px;" %>
       <p style="margin: 0.35rem 0 0; color: #64748b; font-size: 0.82rem;">URL, numero, handle o identificativo del canale in base alla tipologia scelta. Per le web app il dominio pubblico si gestisce dopo nella sezione Webapp Domains.</p>
     </div>
+  </div>
 
-    <div class="form-group" style="display: flex; align-items: end;">
-      <div>
-        <label style="display: inline-flex; align-items: center; gap: 0.6rem; font-weight: 600;">
-        <%= form.check_box :brand_root %>
-        Brand root
-        </label>
-        <p style="margin: 0.45rem 0 0; color: #64748b; font-size: 0.82rem;">
-          <% if port.brand_root? %>
-            Questo port e' gia' un <strong>brand root</strong>. Dalla mappa apre la sua carta nautica; la modifica principale avviene dal titolo della carta. Se ha un brand padre, viene mostrato come sottobrand nella carta del padre.
-          <% else %>
-            Attiva questa opzione solo se il port deve diventare la radice di una carta brand. Un brand root deve essere di tipo <strong>Web App</strong>.
-          <% end %>
-        </p>
+  <div class="port-form-grid port-form-grid-two" style="margin-bottom: 1rem;">
+    <div class="form-group">
+      <%= form.label :color_key, "Colore del porto", style: "display: block;" %>
+      <div style="display: flex; align-items: center; gap: 0.85rem;">
+        <%= form.color_field :color_key, class: "form-control", style: "width: 56px; height: 42px; padding: 0.2rem; border: 1px solid #ccc; border-radius: 10px; background: white;", data: { port_form_target: "colorPicker", action: "input->port-form#syncColorText change->port-form#syncColorText" } %>
+        <%= text_field_tag :port_color_key_display, port.color_key, class: "form-control", style: "width: 140px; border: 1px solid #ccc; padding: 0.5rem; border-radius: 4px; text-transform: lowercase;", data: { port_form_target: "colorText", action: "input->port-form#syncColorPicker blur->port-form#normalizeColorText" }, autocomplete: "off", spellcheck: false %>
+      </div>
+      <p style="margin: 0.35rem 0 0; color: #64748b; font-size: 0.82rem;">Scegli direttamente il colore del porto. Il bordo esterno seguira' il colore del brand padre, se presente.</p>
+    </div>
+  </div>
+
+  <% if port.web_app? || (port.port_kind.blank? && !port.persisted?) %>
+    <div style="margin: 2rem 0 1.5rem; padding-top: 1.5rem; border-top: 1px solid #e2e8f0;">
+      <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+        <span class="material-symbols-outlined" style="color: #0f766e;">share_location</span>
+        <div>
+          <strong style="display: block; color: #0f172a;">Webapp sea chart</strong>
+          <p style="margin: 0.2rem 0 0; color: #64748b; font-size: 0.85rem;">Configurazione YAML della mappa principale della web app. Nel database viene salvata come JSON.</p>
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-bottom: 1rem;">
+        <%= form.label :webapp_sea_chart_yaml, "Sea chart YAML", style: "display: block;" %>
+        <%= form.text_area :webapp_sea_chart_yaml, value: port.webapp_sea_chart_yaml, rows: 14, class: "form-control", style: "width: 100%; border: 1px solid #ccc; padding: 0.75rem; border-radius: 8px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.88rem; line-height: 1.55;" %>
+        <p style="margin: 0.35rem 0 0; color: #64748b; font-size: 0.82rem;">Usa una struttura YAML con radice oggetto, per esempio: <code>nodes:</code>, <code>edges:</code>, <code>entry:</code>.</p>
       </div>
     </div>
-  </div>
+  <% end %>
 
-  <div class="form-group" style="margin-bottom: 1rem;">
-    <%= form.label :color_key, "Colore del porto", style: "display: block;" %>
-    <div style="display: flex; align-items: center; gap: 0.85rem;">
-      <%= form.color_field :color_key, class: "form-control", style: "width: 56px; height: 42px; padding: 0.2rem; border: 1px solid #ccc; border-radius: 10px; background: white;", data: { port_form_target: "colorPicker", action: "input->port-form#syncColorText change->port-form#syncColorText" } %>
-      <%= text_field_tag :port_color_key_display, port.color_key, class: "form-control", style: "width: 140px; border: 1px solid #ccc; padding: 0.5rem; border-radius: 4px; text-transform: lowercase;", data: { port_form_target: "colorText", action: "input->port-form#syncColorPicker blur->port-form#normalizeColorText" }, autocomplete: "off", spellcheck: false %>
+  <% if port.persisted? %>
+    <div style="margin: 2rem 0 1.5rem; padding-top: 1.5rem; border-top: 1px solid #e2e8f0;">
+      <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+        <span class="material-symbols-outlined" style="color: #4f46e5;">article</span>
+        <div>
+          <strong style="display: block; color: #0f172a;">Contenuto del port</strong>
+          <p style="margin: 0.2rem 0 0; color: #64748b; font-size: 0.85rem;">Qui modifichi direttamente il contenuto editoriale collegato a questo port.</p>
+        </div>
+      </div>
+
+      <%= form.fields_for :content do |content_form| %>
+        <div class="port-form-grid port-form-grid-two" style="margin-bottom: 1rem;">
+          <div class="form-group">
+            <%= content_form.label :subtitle, "Sottotitolo", style: "display: block;" %>
+            <%= content_form.text_field :subtitle, class: "form-control", style: "width: 100%; border: 1px solid #ccc; padding: 0.5rem; border-radius: 4px;" %>
+          </div>
+
+          <div class="form-group">
+            <%= content_form.label :visibility, "Visibilità contenuto", style: "display: block;" %>
+            <%= content_form.select :visibility, Content.visibilities.keys.map { |key| [key.humanize, key] }, {}, class: "form-control", style: "width: 100%; border: 1px solid #ccc; padding: 0.5rem; border-radius: 4px;" %>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 1rem;">
+          <%= content_form.label :description, "Descrizione editoriale", style: "display: block;" %>
+          <%= content_form.text_area :description, rows: 3, class: "form-control", style: "width: 100%; border: 1px solid #ccc; padding: 0.5rem; border-radius: 4px;" %>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 1rem;" data-controller="easy-mde">
+          <%= content_form.label :content, "Testo completo", style: "display: block;" %>
+          <%= content_form.text_area :content, rows: 10, class: "form-control", style: "width: 100%; border: 1px solid #ccc; padding: 0.5rem; border-radius: 4px;", data: { easy_mde_target: "input" } %>
+          <p style="margin: 0.35rem 0 0; color: #64748b; font-size: 0.82rem;">Per ora il contenuto viene scritto in testo/markdown semplice. Lexxy lo integriamo dopo.</p>
+        </div>
+
+        <div class="port-form-grid port-form-grid-two" style="margin-bottom: 1rem;">
+          <div class="form-group">
+            <%= content_form.label :published_at, "Data pubblicazione", style: "display: block;" %>
+            <%= content_form.datetime_local_field :published_at, class: "form-control", style: "width: 100%; border: 1px solid #ccc; padding: 0.5rem; border-radius: 4px;" %>
+          </div>
+        </div>
+
+        <div class="port-form-grid port-form-grid-two" style="margin-bottom: 1rem;">
+          <div class="form-group">
+            <%= content_form.label :thumb_url, "Thumb", style: "display: block;" %>
+            <%= content_form.url_field :thumb_url, class: "form-control", style: "width: 100%; border: 1px solid #ccc; padding: 0.5rem; border-radius: 4px;" %>
+            <p style="margin: 0.35rem 0 0; color: #64748b; font-size: 0.82rem;">Immagine principale della hero quando non c'e' video. Consigliato: 600x600.</p>
+          </div>
+
+          <div class="form-group">
+            <%= content_form.label :banner_url, "Banner largo", style: "display: block;" %>
+            <%= content_form.url_field :banner_url, class: "form-control", style: "width: 100%; border: 1px solid #ccc; padding: 0.5rem; border-radius: 4px;" %>
+            <p style="margin: 0.35rem 0 0; color: #64748b; font-size: 0.82rem;">Banner basso e largo. Consigliato: 1600x500 o rapporto simile.</p>
+          </div>
+        </div>
+
+        <div class="port-form-grid port-form-grid-two" style="margin-bottom: 1rem;">
+          <div class="form-group">
+            <%= content_form.label :vertical_cover_url, "Cover verticale", style: "display: block;" %>
+            <%= content_form.url_field :vertical_cover_url, class: "form-control", style: "width: 100%; border: 1px solid #ccc; padding: 0.5rem; border-radius: 4px;" %>
+            <p style="margin: 0.35rem 0 0; color: #64748b; font-size: 0.82rem;">Consigliato: 1080x1350 o 1080x1920.</p>
+          </div>
+
+          <div class="form-group">
+            <%= content_form.label :url_media_content, "Video / media", style: "display: block;" %>
+            <%= content_form.url_field :url_media_content, class: "form-control", style: "width: 100%; border: 1px solid #ccc; padding: 0.5rem; border-radius: 4px;" %>
+            <p style="margin: 0.35rem 0 0; color: #64748b; font-size: 0.82rem;">Se presente e riconoscibile, entra nella hero al posto dell'immagine. Usa un link pubblico apribile o embeddabile.</p>
+          </div>
+        </div>
+
+        <div class="port-form-grid port-form-grid-two" style="margin-bottom: 1rem;">
+          <div class="form-group">
+            <%= content_form.label :horizontal_cover_url, "Cover orizzontale", style: "display: block;" %>
+            <%= content_form.url_field :horizontal_cover_url, class: "form-control", style: "width: 100%; border: 1px solid #ccc; padding: 0.5rem; border-radius: 4px;" %>
+            <p style="margin: 0.35rem 0 0; color: #64748b; font-size: 0.82rem;">Immagine orizzontale di supporto. Consigliato: 1600x900, rapporto 16:9.</p>
+          </div>
+
+          <div class="form-group">
+            <%= content_form.label :mermaid, "Mermaid", style: "display: block;" %>
+            <%= content_form.text_area :mermaid, rows: 4, class: "form-control", style: "width: 100%; border: 1px solid #ccc; padding: 0.5rem; border-radius: 4px; font-family: monospace;" %>
+          </div>
+        </div>
+      <% end %>
     </div>
-    <p style="margin: 0.35rem 0 0; color: #64748b; font-size: 0.82rem;">Scegli direttamente il colore del porto. Il bordo esterno seguira' il colore del brand padre, se presente.</p>
-  </div>
-
-  <div class="form-group" style="margin-bottom: 1rem;">
-    <%= form.label :description, "Descrizione o note", style: "display: block;" %>
-    <%= form.text_area :description, class: "form-control", rows: 4, style: "width: 100%; border: 1px solid #ccc; padding: 0.5rem; border-radius: 4px;" %>
-  </div>
+  <% end %>
 
   <div style="margin-top: 2rem;">
     <%= form.submit "Salva", class: "btn btn-primary" %>
-    <%= link_to "Annulla", (local_assigns[:chart_brand_port_id].present? ? creator_brand_carta_nautica_path(brand_port_id: local_assigns[:chart_brand_port_id], edit: 1) : creator_carta_nautica_path(edit: 1)), class: "btn btn-secondary", style: "margin-left: 1rem;", data: { turbo_frame: "_top" } %>
+    <%= link_to "Annulla", (local_assigns[:chart_brand_port_id].present? ? creator_brand_carta_nautica_path(brand_port_id: local_assigns[:chart_brand_port_id], edit: 1) : current_creator_carta_nautica_path(edit: 1)), class: "btn btn-secondary", style: "margin-left: 1rem;", data: { turbo_frame: "_top" } %>
   </div>
 <% end %>

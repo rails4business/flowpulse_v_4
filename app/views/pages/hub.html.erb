@@ -1,0 +1,159 @@
+<% content_for :title, "Hub" %>
+
+<%
+  focus_cards = [
+    {
+      label: "Tempo",
+      icon: "calendar_month",
+      title: "Week Plan",
+      description: "Settimana, priorita' e slot ricorrenti.",
+      href: week_plan_path,
+      tint: "#eff6ff",
+      accent: "#2563eb"
+    },
+    {
+      label: "Oggi",
+      icon: "wb_sunny",
+      title: "Giornata Tipo",
+      description: "Routine, blocchi operativi e focus quotidiano.",
+      href: daily_plan_path,
+      tint: "#fffbeb",
+      accent: "#d97706"
+    },
+    {
+      label: "Journey",
+      icon: "route",
+      title: "Percorsi in Atto",
+      description: "Percorsi aperti, linee attive e avanzamento.",
+      href: active_paths_path,
+      tint: "#f5f3ff",
+      accent: "#7c3aed"
+    },
+    {
+      label: "Relazioni",
+      icon: "groups",
+      title: "Eventi Condivisi",
+      description: "Interazioni, ambienti, luoghi e persone.",
+      href: shared_events_path,
+      tint: "#fff1f2",
+      accent: "#e11d48"
+    },
+    {
+      label: "Direzione",
+      icon: "flag",
+      title: "Hobby e Obiettivi",
+      description: "Focus di lungo periodo e direzione personale.",
+      href: hobby_goals_path,
+      tint: "#ecfdf5",
+      accent: "#059669"
+    }
+  ]
+
+  system_cards = []
+
+  if Current.session.user.profile.present?
+    system_cards << {
+      label: "Profilo",
+      icon: "person",
+      title: "Profilo",
+      description: "Dati base, bio e impostazioni personali.",
+      href: edit_profile_path,
+      tint: "#f8fafc",
+      accent: "#475569"
+    }
+  end
+
+  system_cards << {
+    label: "Prezzi e richieste",
+    icon: "key",
+    title: "Ruoli e Accessi",
+    description: "Prezzi, richieste attive e livelli disponibili.",
+    href: dashboard_path,
+    tint: "#f8fafc",
+    accent: "#475569"
+  }
+
+  if Current.session.user.profile&.creator?
+    system_cards << {
+      label: "Creator",
+      icon: "explore",
+      title: "Carta Nautica",
+      description: "Brand, mappe e navigazione creator.",
+      href: current_creator_carta_nautica_path,
+      tint: "#f8fafc",
+      accent: "#475569"
+    }
+  end
+%>
+
+<section class="dashboard-shell">
+  <div class="app-layout">
+    <%= render "shared/app_sidebar" %>
+
+    <div class="dashboard-card" style="padding: 2.25rem; background: linear-gradient(180deg, #fdfdfc 0%, #ffffff 100%);">
+      <div style="display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
+        <div>
+          <p style="margin: 0 0 0.35rem; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: #64748b;">
+            Hub operativo
+          </p>
+
+        </div>
+
+
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.95rem; align-items: stretch;">
+        <% focus_cards.each do |card| %>
+          <%= link_to card[:href],
+            style: "display: grid; grid-template-columns: auto 1fr auto; gap: 0.9rem; align-items: start; min-height: 124px; padding: 1rem 1rem 1rem 0.95rem; border-radius: 1.35rem; text-decoration: none; color: inherit; background: #{card[:tint]}; border: 1px solid #e2e8f0; box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04); transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;",
+            onmouseover: "this.style.transform='translateY(-2px)';this.style.boxShadow='0 14px 28px -16px rgba(15,23,42,0.24)';this.style.borderColor='#{card[:accent]}33';",
+            onmouseout: "this.style.transform='none';this.style.boxShadow='0 1px 2px rgba(15, 23, 42, 0.04)';this.style.borderColor='#e2e8f0';" do %>
+            <div style="display: inline-flex; align-items: center; justify-content: center; width: 3rem; height: 3rem; border-radius: 1rem; background: white; color: <%= card[:accent] %>; box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.18);">
+              <span class="material-symbols-outlined" style="font-size: 1.5rem;"><%= card[:icon] %></span>
+            </div>
+
+            <div style="min-width: 0;">
+              <p style="margin: 0 0 0.25rem; font-size: 0.68rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: <%= card[:accent] %>;">
+                <%= card[:label] %>
+              </p>
+              <h2 style="margin: 0; font-size: 1.08rem; line-height: 1.2; font-weight: 800; color: #0f172a;">
+                <%= card[:title] %>
+              </h2>
+              <p style="margin: 0.45rem 0 0; font-size: 0.88rem; line-height: 1.45; color: #64748b; max-width: 26rem;">
+                <%= card[:description] %>
+              </p>
+            </div>
+
+            <div style="display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; border-radius: 999px; background: white; color: #94a3b8; box-shadow: inset 0 0 0 1px rgba(226, 232, 240, 1);">
+              <span class="material-symbols-outlined" style="font-size: 1.1rem;">arrow_forward</span>
+            </div>
+          <% end %>
+        <% end %>
+      </div>
+
+      <div style="margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid #e2e8f0;">
+        <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-bottom: 0.85rem;">
+          <h2 style="margin: 0; font-size: 1rem; font-weight: 800; color: #334155;">Accessi rapidi</h2>
+          <p style="margin: 0; font-size: 0.8rem; color: #94a3b8;">Sistema e navigazione</p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.85rem;">
+          <% system_cards.each do |card| %>
+            <%= link_to card[:href],
+              style: "display: grid; grid-template-columns: auto 1fr; gap: 0.75rem; align-items: start; min-height: 94px; padding: 0.9rem; border-radius: 1.15rem; text-decoration: none; color: inherit; background: #{card[:tint]}; border: 1px solid #e2e8f0; transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;",
+              onmouseover: "this.style.transform='translateY(-2px)';this.style.boxShadow='0 12px 24px -18px rgba(15,23,42,0.22)';this.style.borderColor='#{card[:accent]}33';",
+              onmouseout: "this.style.transform='none';this.style.boxShadow='none';this.style.borderColor='#e2e8f0';" do %>
+              <div style="display: inline-flex; align-items: center; justify-content: center; width: 2.6rem; height: 2.6rem; border-radius: 0.9rem; background: white; color: <%= card[:accent] %>; box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.18);">
+                <span class="material-symbols-outlined" style="font-size: 1.35rem;"><%= card[:icon] %></span>
+              </div>
+              <div>
+                <p style="margin: 0; font-size: 0.95rem; font-weight: 800; color: #0f172a;"><%= card[:title] %></p>
+                <p style="margin: 0.3rem 0 0; font-size: 0.8rem; line-height: 1.4; color: #64748b;"><%= card[:description] %></p>
+              </div>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

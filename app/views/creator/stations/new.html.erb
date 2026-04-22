@@ -1,0 +1,17 @@
+<% content_for :title, "Nuova station" %>
+
+<section class="dashboard-shell">
+  <div class="app-layout">
+    <%= render "shared/app_sidebar" %>
+
+    <div class="dashboard-card">
+      <p class="eyebrow">Creator</p>
+      <h1 class="page-title" style="margin-bottom: 0.35rem;">Nuova station per <%= @line.name %></h1>
+      <p>Definisci una tappa della line e, se serve, collega un'altra station o un altro port.</p>
+
+      <div class="dashboard-actions" style="margin-top: 2rem; background: #fff; padding: 2rem; border-radius: 8px; border: 1px solid #eee;">
+        <%= render "form", station: @station %>
+      </div>
+    </div>
+  </div>
+</section>

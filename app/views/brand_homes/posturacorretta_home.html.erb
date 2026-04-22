@@ -38,7 +38,7 @@
     <section style="display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr); gap: 1.2rem; align-items: stretch;">
       <article style="padding: 1.5rem; border-radius: 28px; background: white; border: 1px solid #dbe4ea; box-shadow: 0 20px 50px rgba(15, 23, 42, 0.06);">
         <p style="margin: 0; color: var(--brand-accent); font-size: 0.78rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase;">Home Dedicata</p>
-        <h1 style="margin: 0.5rem 0 0.75rem; max-width: none; white-space: nowrap;"><%= @webapp_domain.title.presence || @brand_port.name %></h1>
+        <h1 class="page-title" style="margin: 0.5rem 0 0.75rem;"><%= @webapp_domain.title.presence || @brand_port.name %></h1>
         <p style="margin: 0; max-width: 54ch; color: #475569; font-size: 1rem; line-height: 1.7;">
           Questa e' una homepage dedicata del brand. Il dominio resta l'ingresso pubblico, ma qui puoi introdurre un tono,
           una promessa e una gerarchia diversa dalla home standard del brand.

@@ -223,6 +223,239 @@ body.flowpulse-body {
   padding: 42px 0 64px;
 }
 
+.EasyMDEContainer {
+  border-radius: 1rem;
+}
+
+.EasyMDEContainer .editor-toolbar {
+  border: 1px solid #cbd5e1;
+  border-bottom: 0;
+  border-top-left-radius: 1rem;
+  border-top-right-radius: 1rem;
+  background: #f8fafc;
+}
+
+.EasyMDEContainer .editor-toolbar button {
+  color: #334155 !important;
+}
+
+.EasyMDEContainer .editor-toolbar button i {
+  display: none;
+}
+
+.EasyMDEContainer .editor-toolbar button::before {
+  display: inline-block;
+  font-size: 0.85rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.EasyMDEContainer .editor-toolbar button.bold::before { content: "B"; }
+.EasyMDEContainer .editor-toolbar button.italic::before { content: "I"; font-style: italic; }
+.EasyMDEContainer .editor-toolbar button.heading::before { content: "H"; }
+.EasyMDEContainer .editor-toolbar button.quote::before { content: "\""; }
+.EasyMDEContainer .editor-toolbar button.unordered-list::before { content: "•"; font-size: 1rem; }
+.EasyMDEContainer .editor-toolbar button.ordered-list::before { content: "1."; }
+.EasyMDEContainer .editor-toolbar button.link::before { content: "🔗"; font-size: 0.9rem; }
+.EasyMDEContainer .editor-toolbar button.image::before { content: "🖼"; font-size: 0.9rem; }
+.EasyMDEContainer .editor-toolbar button.table::before { content: "▦"; }
+.EasyMDEContainer .editor-toolbar button.code::before { content: "</>"; font-size: 0.72rem; }
+.EasyMDEContainer .editor-toolbar button.preview::before { content: "👁"; font-size: 0.9rem; }
+.EasyMDEContainer .editor-toolbar button.side-by-side::before { content: "▣"; }
+.EasyMDEContainer .editor-toolbar button.fullscreen::before { content: "⛶"; }
+.EasyMDEContainer .editor-toolbar button.guide::before { content: "?"; }
+
+.EasyMDEContainer .editor-toolbar button:hover,
+.EasyMDEContainer .editor-toolbar button.active {
+  background: #e2e8f0;
+  border-color: #cbd5e1;
+}
+
+.EasyMDEContainer .CodeMirror {
+  border: 1px solid #cbd5e1;
+  border-bottom-left-radius: 1rem;
+  border-bottom-right-radius: 1rem;
+  min-height: 360px;
+  background: #ffffff;
+  color: #0f172a;
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+.EasyMDEContainer .CodeMirror-sided {
+  border-right: 0;
+  border-bottom-right-radius: 0;
+}
+
+.EasyMDEContainer .editor-preview,
+.EasyMDEContainer .editor-preview-side {
+  background: #fffdf9;
+  color: #1f2937;
+  padding: 1.5rem;
+  line-height: 1.75;
+  font-size: 1rem;
+}
+
+.EasyMDEContainer .editor-preview-side {
+  border: 1px solid #cbd5e1;
+  border-left: 0;
+  border-bottom-right-radius: 1rem;
+}
+
+.EasyMDEContainer .editor-preview h1,
+.EasyMDEContainer .editor-preview-side h1 {
+  margin: 0 0 1rem;
+  font-size: 2rem;
+  line-height: 1.15;
+}
+
+.EasyMDEContainer .editor-preview h2,
+.EasyMDEContainer .editor-preview-side h2 {
+  margin: 1.75rem 0 0.9rem;
+  font-size: 1.5rem;
+  line-height: 1.2;
+}
+
+.EasyMDEContainer .editor-preview h3,
+.EasyMDEContainer .editor-preview-side h3 {
+  margin: 1.5rem 0 0.75rem;
+  font-size: 1.2rem;
+  line-height: 1.25;
+}
+
+.EasyMDEContainer .editor-preview h4,
+.EasyMDEContainer .editor-preview-side h4 {
+  margin: 1.25rem 0 0.65rem;
+  font-size: 1.05rem;
+  line-height: 1.3;
+}
+
+.EasyMDEContainer .editor-preview h5,
+.EasyMDEContainer .editor-preview-side h5 {
+  margin: 1rem 0 0.55rem;
+  font-size: 0.95rem;
+  line-height: 1.35;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.EasyMDEContainer .editor-preview h6,
+.EasyMDEContainer .editor-preview-side h6 {
+  margin: 0.9rem 0 0.5rem;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #64748b;
+}
+
+.EasyMDEContainer .editor-preview p,
+.EasyMDEContainer .editor-preview-side p {
+  margin: 0 0 1rem;
+}
+
+.EasyMDEContainer .editor-preview ul,
+.EasyMDEContainer .editor-preview ol,
+.EasyMDEContainer .editor-preview-side ul,
+.EasyMDEContainer .editor-preview-side ol {
+  margin: 0 0 1rem 1.4rem;
+  padding-left: 0.4rem;
+}
+
+.EasyMDEContainer .editor-preview ul,
+.EasyMDEContainer .editor-preview-side ul {
+  list-style: disc;
+}
+
+.EasyMDEContainer .editor-preview ol,
+.EasyMDEContainer .editor-preview-side ol {
+  list-style: decimal;
+}
+
+.EasyMDEContainer .editor-preview li,
+.EasyMDEContainer .editor-preview-side li {
+  margin: 0.35rem 0;
+}
+
+.EasyMDEContainer .editor-preview a,
+.EasyMDEContainer .editor-preview-side a {
+  color: #0f766e;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.14em;
+}
+
+.EasyMDEContainer .editor-preview a:hover,
+.EasyMDEContainer .editor-preview-side a:hover {
+  color: #115e59;
+}
+
+.EasyMDEContainer .editor-preview hr,
+.EasyMDEContainer .editor-preview-side hr {
+  border: 0;
+  border-top: 1px solid #cbd5e1;
+  margin: 2rem 0;
+}
+
+.EasyMDEContainer .editor-preview table,
+.EasyMDEContainer .editor-preview-side table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  font-size: 0.95rem;
+  background: #ffffff;
+}
+
+.EasyMDEContainer .editor-preview th,
+.EasyMDEContainer .editor-preview td,
+.EasyMDEContainer .editor-preview-side th,
+.EasyMDEContainer .editor-preview-side td {
+  border: 1px solid #cbd5e1;
+  padding: 0.75rem 0.85rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.EasyMDEContainer .editor-preview th,
+.EasyMDEContainer .editor-preview-side th {
+  background: #f8fafc;
+  font-weight: 700;
+}
+
+.EasyMDEContainer .editor-preview img,
+.EasyMDEContainer .editor-preview-side img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 1.25rem 0;
+  border-radius: 0.9rem;
+}
+
+.EasyMDEContainer .editor-preview blockquote,
+.EasyMDEContainer .editor-preview-side blockquote {
+  margin: 1.25rem 0;
+  padding: 0.85rem 1rem;
+  border-left: 4px solid #94a3b8;
+  background: #f8fafc;
+  color: #475569;
+}
+
+.EasyMDEContainer .editor-preview pre,
+.EasyMDEContainer .editor-preview-side pre,
+.EasyMDEContainer .editor-preview code,
+.EasyMDEContainer .editor-preview-side code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.EasyMDEContainer .editor-preview pre,
+.EasyMDEContainer .editor-preview-side pre {
+  overflow-x: auto;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  background: #0f172a;
+  color: #e2e8f0;
+}
+
 .app-layout {
   display: grid;
   grid-template-columns: 220px 1fr;
@@ -476,6 +709,14 @@ body.sidebar-open {
   font-size: clamp(2.2rem, 4vw, 3.8rem);
   line-height: 0.96;
   max-width: 10ch;
+}
+
+.page-title {
+  max-width: none !important;
+  white-space: normal !important;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+  line-height: 1.08 !important;
 }
 
 .dashboard-card.admin-page h1 {
@@ -1986,7 +2227,10 @@ form.button_to {
 }
 
 .blog-content-heading,
-.blog-content-heading-small {
+.blog-content-heading-small,
+.blog-content-heading-smallest,
+.blog-content-heading-mini,
+.blog-content-heading-tiny {
   margin: 1rem 0 0;
   font-weight: 800;
   letter-spacing: -0.03em;
@@ -2001,6 +2245,23 @@ form.button_to {
   font-size: 1.1rem;
 }
 
+.blog-content-heading-smallest {
+  font-size: 1rem;
+}
+
+.blog-content-heading-mini {
+  font-size: 0.92rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.blog-content-heading-tiny {
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #6b7280;
+}
+
 .blog-content-paragraph,
 .blog-content-list {
   margin: 0;
@@ -2011,4 +2272,25 @@ form.button_to {
 
 .blog-content-list {
   padding-left: 1.15rem;
+}
+
+.blog-content-list-ordered {
+  list-style: decimal;
+}
+
+.blog-content-quote {
+  margin: 0;
+  max-width: 70ch;
+  padding: 0.85rem 1rem;
+  border-left: 4px solid #94a3b8;
+  background: #f8fafc;
+  color: #475569;
+  line-height: 1.7;
+}
+
+.blog-content-divider {
+  border: 0;
+  border-top: 1px solid #d6d3d1;
+  margin: 1.5rem 0;
+  max-width: 70ch;
 }

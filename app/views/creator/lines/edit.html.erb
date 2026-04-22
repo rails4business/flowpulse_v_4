@@ -1,0 +1,17 @@
+<% content_for :title, "Modifica linea" %>
+
+<section class="dashboard-shell">
+  <div class="app-layout">
+    <%= render "shared/app_sidebar" %>
+
+    <div class="dashboard-card">
+      <p class="eyebrow">Creator</p>
+      <h1 class="page-title" style="margin-bottom: 0.35rem;">Modifica linea: <%= @line.name %></h1>
+      <p>Riallinea struttura, tipologia e posizione della linea dentro il port.</p>
+
+      <div class="dashboard-actions" style="margin-top: 2rem; background: #fff; padding: 2rem; border-radius: 8px; border: 1px solid #eee;">
+        <%= render "form", line: @line %>
+      </div>
+    </div>
+  </div>
+</section>

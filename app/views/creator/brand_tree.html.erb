@@ -1,0 +1,44 @@
+<% content_for :title, "Albero dei brand" %>
+
+<section class="dashboard-shell">
+  <div class="app-layout">
+    <%= render "shared/app_sidebar" %>
+
+    <div class="dashboard-card">
+      <p class="eyebrow">Creator</p>
+      <div style="display: flex; justify-content: space-between; gap: 1rem; align-items: flex-start; flex-wrap: wrap; margin-top: 0.5rem;">
+        <div>
+          <h1 class="page-title" style="margin: 0 0 0.35rem; font-size: 1.7rem;">Albero dei brand</h1>
+          <p style="margin: 0; color: #475569; max-width: 42rem;">
+            Prima vista semplice della struttura dei tuoi brand. Qui leggi il quadro generale prima di entrare nella carta nautica.
+          </p>
+        </div>
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+          <%= link_to "Carta nautica", current_creator_carta_nautica_path, class: "btn btn-secondary" %>
+          <%= link_to "Tutto l'albero",
+                      creator_brand_tree_path(scope: "all", tree_depth: "all"),
+                      class: (@brand_tree_scope == "all" ? "btn btn-primary" : "btn btn-secondary") %>
+          <% if current_webapp_brand_port.present? %>
+            <%= link_to "Questo brand",
+                        creator_brand_tree_path(scope: "subtree", root_brand_id: current_webapp_brand_port.id, tree_depth: "all"),
+                        class: (@brand_tree_scope == "subtree" && @brand_tree_root&.id == current_webapp_brand_port.id ? "btn btn-primary" : "btn btn-secondary") %>
+          <% end %>
+        </div>
+      </div>
+
+      <div style="margin-top: 1.75rem; max-width: 68rem;">
+        <% if @root_brand_ports.any? %>
+          <% @root_brand_ports.each_with_index do |brand_port, index| %>
+            <%= render "brand_tree_node", port: brand_port, prefix: "", is_last: index == @root_brand_ports.length - 1 %>
+          <% end %>
+        <% else %>
+          <div style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; line-height: 1.7; color: #475569;">
+            Nessun brand presente per questo creator
+          </div>
+        <% end %>
+      </div>
+
+
+    </div>
+  </div>
+</section>

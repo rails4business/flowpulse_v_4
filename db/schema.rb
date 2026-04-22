@@ -10,31 +10,83 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_13_104500) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_22_171600) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "contents", force: :cascade do |t|
+    t.string "banner_url"
+    t.text "content"
+    t.bigint "contentable_id", null: false
+    t.string "contentable_type", null: false
+    t.datetime "created_at", null: false
+    t.text "description"
+    t.string "horizontal_cover_url"
+    t.text "mermaid"
+    t.jsonb "meta", default: {}, null: false
+    t.datetime "published_at"
+    t.string "subtitle"
+    t.string "thumb_url"
+    t.datetime "updated_at", null: false
+    t.string "url_media_content"
+    t.string "vertical_cover_url"
+    t.integer "visibility", default: 0, null: false
+    t.index ["contentable_type", "contentable_id"], name: "index_contents_on_contentable"
+    t.index ["contentable_type", "contentable_id"], name: "index_contents_on_contentable_type_and_contentable_id", unique: true
+    t.index ["meta"], name: "index_contents_on_meta", using: :gin
+  end
+
+  create_table "experiences", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.text "description"
+    t.integer "experience_kind", default: 0, null: false
+    t.string "name", null: false
+    t.bigint "parent_experience_id"
+    t.bigint "port_id", null: false
+    t.integer "position", default: 0, null: false
+    t.string "slug", null: false
+    t.datetime "updated_at", null: false
+    t.index ["parent_experience_id"], name: "index_experiences_on_parent_experience_id"
+    t.index ["port_id", "position"], name: "index_experiences_on_port_id_and_position"
+    t.index ["port_id", "slug"], name: "index_experiences_on_port_id_and_slug", unique: true
+    t.index ["port_id"], name: "index_experiences_on_port_id"
+  end
+
+  create_table "lines", force: :cascade do |t|
+    t.string "color"
+    t.datetime "created_at", null: false
+    t.text "description"
+    t.integer "line_kind", default: 0, null: false
+    t.string "name", null: false
+    t.bigint "port_id", null: false
+    t.integer "position", default: 0, null: false
+    t.string "slug", null: false
+    t.datetime "updated_at", null: false
+    t.index ["port_id", "position"], name: "index_lines_on_port_id_and_position"
+    t.index ["port_id", "slug"], name: "index_lines_on_port_id_and_slug", unique: true
+    t.index ["port_id"], name: "index_lines_on_port_id"
+  end
 
   create_table "ports", force: :cascade do |t|
     t.bigint "brand_port_id"
     t.boolean "brand_root", default: false, null: false
     t.string "color_key"
     t.datetime "created_at", null: false
-    t.text "description"
     t.string "entry_value"
     t.jsonb "meta", default: {}
     t.string "name", null: false
-    t.integer "port_kind", default: 0, null: false
+    t.integer "port_kind"
     t.bigint "profile_id", null: false
-    t.datetime "published_at"
     t.string "slug", null: false
     t.datetime "updated_at", null: false
-    t.integer "visibility", default: 0, null: false
+    t.jsonb "webapp_sea_chart", default: {}, null: false
     t.integer "x"
     t.integer "y"
     t.index ["brand_port_id"], name: "index_ports_on_brand_port_id"
     t.index ["brand_root"], name: "index_ports_on_brand_root"
     t.index ["profile_id", "slug"], name: "index_ports_on_profile_id_and_slug", unique: true
     t.index ["profile_id"], name: "index_ports_on_profile_id"
+    t.index ["webapp_sea_chart"], name: "index_ports_on_webapp_sea_chart", using: :gin
   end
 
   create_table "profiles", force: :cascade do |t|
@@ -76,6 +128,28 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_13_104500) do
     t.index ["user_id"], name: "index_sessions_on_user_id"
   end
 
+  create_table "stations", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.text "description"
+    t.bigint "experience_id", null: false
+    t.bigint "line_id", null: false
+    t.bigint "link_port_id"
+    t.bigint "link_station_id"
+    t.integer "map_x"
+    t.integer "map_y"
+    t.string "name", null: false
+    t.integer "position", default: 0, null: false
+    t.string "slug", null: false
+    t.integer "station_kind", default: 0, null: false
+    t.datetime "updated_at", null: false
+    t.index ["experience_id"], name: "index_stations_on_experience_id"
+    t.index ["line_id", "position"], name: "index_stations_on_line_id_and_position"
+    t.index ["line_id", "slug"], name: "index_stations_on_line_id_and_slug", unique: true
+    t.index ["line_id"], name: "index_stations_on_line_id"
+    t.index ["link_port_id"], name: "index_stations_on_link_port_id"
+    t.index ["link_station_id"], name: "index_stations_on_link_station_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "email_address", null: false
@@ -111,6 +185,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_13_104500) do
     t.index ["host"], name: "index_webapp_domains_on_host", unique: true
   end
 
+  add_foreign_key "experiences", "experiences", column: "parent_experience_id"
+  add_foreign_key "experiences", "ports"
+  add_foreign_key "lines", "ports"
   add_foreign_key "ports", "ports", column: "brand_port_id"
   add_foreign_key "ports", "profiles"
   add_foreign_key "profiles", "users"
@@ -118,5 +195,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_13_104500) do
   add_foreign_key "sea_routes", "ports", column: "target_port_id"
   add_foreign_key "sea_routes", "profiles"
   add_foreign_key "sessions", "users"
+  add_foreign_key "stations", "experiences"
+  add_foreign_key "stations", "lines"
+  add_foreign_key "stations", "ports", column: "link_port_id"
+  add_foreign_key "stations", "stations", column: "link_station_id"
   add_foreign_key "webapp_domains", "ports", column: "brand_port_id"
 end

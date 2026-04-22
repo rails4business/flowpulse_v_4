@@ -1,0 +1,547 @@
+<% content_for :title, "Mappa terra di #{@port.name}" %>
+<% station_kind_options = Station.station_kinds.keys.map { |key| [Station.new(station_kind: key).station_kind_label, key] } %>
+<% line_kind_options = Line.line_kinds.keys.map { |key| [key.humanize, key] } %>
+<% default_line_kind = params.dig(:line, :line_kind).presence || Line.line_kinds.keys.first %>
+<% default_station_kind = params.dig(:station, :station_kind).presence || "step" %>
+<% experience_kind_options = Experience.experience_kinds.keys.map { |key| [key.humanize, key] } %>
+<% experience_picker_options = @experiences.map { |experience| { id: experience.id, name: experience.name } }.to_json %>
+<% default_existing_experience_id = params.dig(:station, :experience_id).presence || @selected_station&.experience_id %>
+<% default_existing_experience_name = @experiences.find { |experience| experience.id == default_existing_experience_id.to_i }&.name %>
+<% land_map_params = { edit: (@edit_mode ? 1 : nil), line_id: @selected_line&.id } %>
+<% preview_origin_station = @selected_station || @selected_line&.stations&.last %>
+<% preview_origin = preview_origin_station.present? ? @station_positions&.[](preview_origin_station.id) : nil %>
+<% context_line = @selected_line || @selected_station&.line %>
+<% selected_line_row = @line_map_rows&.find { |row| row[:line] == @selected_line } %>
+<% context_anchor =
+  if @selected_station.present?
+    @station_positions&.[](@selected_station.id)
+  elsif @selected_line.present?
+    first_station = @selected_line.stations.first
+    @station_positions&.[](first_station&.id) || (selected_line_row.present? ? { x: 140, y: selected_line_row[:y] } : nil)
+  end %>
+<% context_menu_width = 340 %>
+<% context_menu_left =
+  if context_anchor.present? && @map_width.present?
+    [[context_anchor[:x] - (context_menu_width / 2), 24].max, @map_width - context_menu_width - 24].min
+  else
+    24
+  end %>
+<% context_menu_top = context_anchor.present? ? (context_anchor[:y] + 34) : 24 %>
+
+<section class="dashboard-shell bg-slate-50 min-h-screen">
+  <div class="flex h-full w-full mx-auto" style="max-width: 1700px;">
+    <%= render "shared/app_sidebar" %>
+
+    <div class="flex-1 px-4 md:px-8 py-6 lg:py-8 lg:px-12 overflow-y-auto" data-controller="land-map-builder" data-land-map-builder-mode-value="<%= @active_panel %>" data-land-map-builder-clear-selection-path-value="<%= land_map_creator_port_path(@port, edit: 1) %>">
+      <div class="bg-white rounded-[1.5rem] p-6 md:p-8 mb-6 shadow-sm border border-slate-200/60">
+        <div class="flex flex-col lg:flex-row justify-between gap-4 lg:items-center">
+          <div>
+            <h1 class="page-title text-2xl md:text-3xl font-black text-slate-900 m-0">Mappa terra di <%= @port.name %></h1>
+          </div>
+          <div class="flex flex-wrap items-center gap-3">
+            <%= link_to creator_port_path(@port), class: "inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white text-slate-700 font-bold border border-slate-200 hover:bg-slate-50 hover:shadow-sm transition-all text-sm" do %>
+              <span class="material-symbols-outlined text-[18px]">arrow_back</span> Torna al port
+            <% end %>
+            <% if @edit_mode %>
+              <%= link_to land_map_creator_port_path(@port), class: "inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white text-slate-700 font-bold border border-slate-200 hover:bg-slate-50 hover:shadow-sm transition-all text-sm" do %>
+                <span class="material-symbols-outlined text-[18px]">close</span> Annulla
+              <% end %>
+            <% else %>
+              <%= link_to land_map_creator_port_path(@port, edit: 1, line_id: @selected_line&.id), class: "inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-slate-900 text-white font-bold hover:bg-slate-800 transition-all text-sm shadow-sm" do %>
+                <span class="material-symbols-outlined text-[18px]">edit</span> Modifica
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <% if @edit_mode && @active_panel.in?(%w[new_line new_station]) %>
+        <div class="mb-4 rounded-[1.25rem] border border-indigo-200 bg-indigo-50 px-5 py-4">
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <div class="text-[11px] font-black uppercase tracking-wider text-indigo-500">Modalita' piazzamento</div>
+              <p class="mt-1 text-sm font-bold text-slate-800">
+                <% if @active_panel == "new_line" %>
+                  Clicca sulla mappa per scegliere dove parte la nuova line. Dopo il click si apre il modal centrale con line, prima station ed experience iniziale.
+                <% else %>
+                  Clicca sulla mappa per scegliere dove inserire la nuova station sulla line selezionata.
+                <% end %>
+              </p>
+              <p class="mt-2 text-xs font-bold <%= @active_panel == "new_line" ? "text-indigo-600" : "text-emerald-600" %>">
+                <span data-land-map-builder-target="<%= @active_panel == "new_line" ? "lineHint" : "stationHint" %>">
+                  <%= @active_panel == "new_line" ? "In attesa del primo click sulla mappa." : "In attesa del click sulla mappa." %>
+                </span>
+              </p>
+            </div>
+            <%= link_to "Annulla", land_map_creator_port_path(@port, edit: 1, line_id: @selected_line&.id), class: "inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white text-slate-700 font-bold border border-slate-200 hover:bg-slate-50 text-xs" %>
+          </div>
+        </div>
+      <% end %>
+
+      <div class="relative bg-white rounded-[2rem] p-2 shadow-lg shadow-slate-200/40 border border-slate-200 mb-8 overflow-hidden">
+        <div class="overflow-auto rounded-[1.5rem]" style="background: radial-gradient(circle, #f8fafc 10%, #e2e8f0 100%);">
+          <div class="relative inline-block min-w-full">
+            <% if @edit_mode && @active_panel.blank? %>
+              <% if @selected_line.present? || @selected_station.present? %>
+                <div class="absolute z-10" style="left: <%= context_menu_left %>px; top: <%= context_menu_top %>px;">
+                  <div class="flex w-[220px] flex-col gap-1.5 bg-white/96 p-1 shadow-lg backdrop-blur-sm" data-land-map-builder-target="contextMenu">
+                    <div class="px-2 py-1 text-[11px] font-black uppercase tracking-wider text-slate-400">
+                      <% if @selected_station.present? %>
+                        Station selezionata
+                      <% else %>
+                        Line selezionata
+                      <% end %>
+                    </div>
+                    <% if @selected_line.present? %>
+                      <% selected_line_color = @line_map_rows.find { |row| row[:line] == @selected_line }&.dig(:color) || "#6366f1" %>
+                      <div class="flex items-center gap-2 px-2 py-1 text-xs font-bold text-slate-700">
+                        <span class="inline-block h-2.5 w-2.5 rounded-full" style="background: <%= selected_line_color %>;"></span>
+                        <span class="truncate"><%= @selected_line.name %></span>
+                      </div>
+                    <% end %>
+                    <% if @selected_station.present? %>
+                      <div class="flex items-center gap-2 px-2 py-1 text-xs font-bold text-sky-700">
+                        <span class="inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-sky-100 px-1 text-[9px] font-black text-sky-700">
+                          <%= @selected_station.opening? ? "IN" : (@selected_station.closing? ? "OUT" : "•") %>
+                        </span>
+                        <span class="truncate"><%= @selected_station.name %></span>
+                      </div>
+                    <% end %>
+                    <% if context_line.present? %>
+                      <%= link_to land_map_creator_port_path(@port, edit: 1, panel: "new_station", line_id: context_line.id, station_id: @selected_station&.id), class: "inline-flex items-center gap-2 px-3 py-2 text-xs font-black text-slate-800 hover:bg-slate-100 transition-colors" do %>
+                        <span class="material-symbols-outlined text-[16px]">add_circle</span> Aggiungi station
+                      <% end %>
+                    <% end %>
+                    <%= link_to land_map_creator_port_path(@port, edit: 1, panel: "new_line", line_id: context_line&.id), class: "inline-flex items-center gap-2 px-3 py-2 text-xs font-black text-slate-800 hover:bg-slate-100 transition-colors" do %>
+                      <span class="material-symbols-outlined text-[16px]">add_road</span> Aggiungi line
+                    <% end %>
+                    <% if @selected_line.present? %>
+                      <%= link_to land_map_creator_port_path(@port, edit: 1, panel: "edit_line", line_id: @selected_line.id, station_id: @selected_station&.id), class: "inline-flex items-center gap-2 px-3 py-2 text-xs font-black text-slate-800 hover:bg-slate-100 transition-colors" do %>
+                        <span class="material-symbols-outlined text-[16px]">edit</span> Modifica line
+                      <% end %>
+                    <% end %>
+                    <% if @selected_station.present? %>
+                      <%= link_to land_map_creator_port_path(@port, edit: 1, panel: "edit_station", line_id: @selected_line.id, station_id: @selected_station.id), class: "inline-flex items-center gap-2 px-3 py-2 text-xs font-black text-slate-800 hover:bg-slate-100 transition-colors" do %>
+                        <span class="material-symbols-outlined text-[16px]">edit</span> Modifica station
+                      <% end %>
+                    <% end %>
+                    <%= link_to land_map_creator_port_path(@port, edit: 1), class: "inline-flex items-center gap-2 px-3 py-2 text-xs font-black text-slate-500 hover:bg-slate-100 transition-colors" do %>
+                      <span class="material-symbols-outlined text-[16px]">close</span> Annulla
+                    <% end %>
+                  </div>
+                </div>
+              <% end %>
+            <% end %>
+          <% if @line_map_rows.any? %>
+            <svg viewBox="0 0 <%= @map_width %> <%= @map_height %>" style="width: 100%; min-width: 960px; height: auto; display: block;" data-land-map-builder-target="svg">
+              <defs>
+                <pattern id="land-grid" width="60" height="60" patternUnits="userSpaceOnUse">
+                  <path d="M 60 0 L 0 0 0 60" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="2" />
+                  <circle cx="0" cy="0" r="1.5" fill="#cbd5e1" />
+                </pattern>
+                <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+                  <feDropShadow dx="0" dy="4" stdDeviation="6" flood-opacity="0.1" />
+                </filter>
+              </defs>
+              <rect width="100%" height="100%" fill="url(#land-grid)" />
+
+              <% @line_map_rows.each do |row| %>
+                <% points = row[:line].stations.map { |station| "#{@station_positions.fetch(station.id)[:x]},#{@station_positions.fetch(station.id)[:y]}" }.join(" ") %>
+                <% selected = @selected_line == row[:line] %>
+                <a xlink:href="<%= land_map_creator_port_path(@port, edit: (@edit_mode ? 1 : nil), line_id: row[:line].id) %>" class="group cursor-pointer">
+                  <% if row[:line].stations.any? %>
+                    <polyline points="<%= points %>" fill="none" stroke="<%= row[:color] %>" stroke-width="<%= selected ? 16 : 12 %>" stroke-linecap="round" stroke-linejoin="round" filter="url(#shadow)" opacity="<%= selected ? "1" : "0.92" %>" />
+                  <% end %>
+                  <text x="40" y="<%= row[:y] + 6 %>" font-size="22" font-weight="900" fill="#0f172a" class="group-hover:fill-indigo-600 transition-colors"><%= row[:line].name %></text>
+                  <text x="40" y="<%= row[:y] + 30 %>" font-size="12" font-weight="700" fill="<%= selected ? row[:color] : "#64748b" %>"><%= row[:line].line_kind_label.upcase %></text>
+                </a>
+              <% end %>
+
+              <% @link_segments.each do |segment| %>
+                <line
+                  x1="<%= segment[:from][:x] %>"
+                  y1="<%= segment[:from][:y] %>"
+                  x2="<%= segment[:to][:x] %>"
+                  y2="<%= segment[:to][:y] %>"
+                  stroke="<%= segment[:selected] ? "#4f46e5" : "#94a3b8" %>"
+                  stroke-width="<%= segment[:selected] ? 9 : 6 %>"
+                  stroke-dasharray="<%= segment[:selected] ? "10 6" : "8 8" %>"
+                  opacity="<%= segment[:selected] ? "1" : "0.9" %>"
+                  stroke-linecap="round"
+                />
+              <% end %>
+
+              <% if @edit_mode && @active_panel == "new_station" && preview_origin.present? %>
+                <line
+                  x1="<%= preview_origin[:x] %>"
+                  y1="<%= preview_origin[:y] %>"
+                  x2="<%= preview_origin[:x] %>"
+                  y2="<%= preview_origin[:y] %>"
+                  stroke="#0f172a"
+                  stroke-width="5"
+                  stroke-dasharray="10 8"
+                  stroke-linecap="round"
+                  opacity="0.55"
+                  class="hidden pointer-events-none"
+                  data-land-map-builder-target="previewLine"
+                  data-origin-x="<%= preview_origin[:x] %>"
+                  data-origin-y="<%= preview_origin[:y] %>"
+                />
+              <% end %>
+
+              <% @line_map_rows.each do |row| %>
+                <% row[:line].stations.each do |station| %>
+                  <% x = @station_positions.fetch(station.id)[:x] %>
+                  <% y = @station_positions.fetch(station.id)[:y] %>
+                  <% selected_station = @selected_station == station %>
+                  <% outer_fill =
+                    if station.opening?
+                      "#dcfce7"
+                    elsif station.closing?
+                      "#fee2e2"
+                    elsif station.branch?
+                      "#fef3c7"
+                    elsif station.gate?
+                      "#e0f2fe"
+                    else
+                      "white"
+                    end %>
+                  <% marker_label =
+                    if station.opening?
+                      "IN"
+                    elsif station.closing?
+                      "OUT"
+                    elsif station.branch?
+                      "BR"
+                    elsif station.gate?
+                      "GT"
+                    end %>
+                  <% marker_color =
+                    if station.opening?
+                      "#166534"
+                    elsif station.closing?
+                      "#b91c1c"
+                    elsif station.branch?
+                      "#b45309"
+                    elsif station.gate?
+                      "#0369a1"
+                    else
+                      "#0f172a"
+                    end %>
+                  <a xlink:href="<%= land_map_creator_port_path(@port, edit: (@edit_mode ? 1 : nil), line_id: row[:line].id, station_id: station.id) %>" class="group cursor-pointer" style="outline: none;">
+                    <% if selected_station %>
+                      <circle cx="<%= x %>" cy="<%= y %>" r="31" fill="rgba(99,102,241,0.12)" stroke="rgba(99,102,241,0.28)" stroke-width="3" />
+                    <% end %>
+                    <circle cx="<%= x %>" cy="<%= y %>" r="<%= selected_station ? 25 : 22 %>" fill="<%= outer_fill %>" stroke="<%= row[:color] %>" stroke-width="<%= selected_station ? 8 : 6 %>" filter="url(#shadow)" class="transition-all duration-300 transform origin-center" style="transform-box: fill-box;" onmouseover="this.setAttribute('r', '<%= selected_station ? 28 : 26 %>'); this.setAttribute('stroke-width', '8')" onmouseout="this.setAttribute('r', '<%= selected_station ? 25 : 22 %>'); this.setAttribute('stroke-width', '<%= selected_station ? 8 : 6 %>')" />
+                    <% if station.branch? %>
+                      <rect x="<%= x - (selected_station ? 10 : 8) %>" y="<%= y - (selected_station ? 10 : 8) %>" width="<%= selected_station ? 20 : 16 %>" height="<%= selected_station ? 20 : 16 %>" rx="4" fill="<%= row[:color] %>" transform="rotate(45 <%= x %> <%= y %>)" />
+                    <% elsif station.gate? %>
+                      <rect x="<%= x - (selected_station ? 10 : 8) %>" y="<%= y - (selected_station ? 6 : 5) %>" width="<%= selected_station ? 20 : 16 %>" height="<%= selected_station ? 12 : 10 %>" rx="5" fill="<%= row[:color] %>" />
+                    <% else %>
+                      <circle cx="<%= x %>" cy="<%= y %>" r="<%= selected_station ? 9 : 7 %>" fill="<%= row[:color] %>" class="transition-all duration-300 transform origin-center" style="transform-box: fill-box;" onmouseover="this.setAttribute('r', '<%= selected_station ? 11 : 10 %>')" onmouseout="this.setAttribute('r', '<%= selected_station ? 9 : 7 %>')" />
+                    <% end %>
+                    <% if marker_label.present? %>
+                      <text x="<%= x %>" y="<%= y - 36 %>" text-anchor="middle" font-size="11" font-weight="900" fill="<%= marker_color %>"><%= marker_label %></text>
+                    <% end %>
+                    <text x="<%= x %>" y="<%= y + 48 %>" text-anchor="middle" font-size="14" font-weight="800" fill="<%= selected_station ? row[:color] : "#1e293b" %>" style="transition: fill 0.2s;" onmouseover="this.setAttribute('fill', '<%= row[:color] %>')" onmouseout="this.setAttribute('fill', '<%= selected_station ? row[:color] : "#1e293b" %>')"><%= station.name %></text>
+                    <text x="<%= x %>" y="<%= y + 68 %>" text-anchor="middle" font-size="12" font-weight="600" fill="<%= selected_station ? "#4338ca" : "#64748b" %>"><%= station.experience.name %></text>
+                    <% if station.link_port.present? %>
+                      <text x="<%= x %>" y="<%= y - 50 %>" text-anchor="middle" font-size="11" font-weight="800" fill="#ea580c">⇄ Port: <%= station.link_port.name %></text>
+                    <% end %>
+                  </a>
+                <% end %>
+              <% end %>
+              <circle cx="0" cy="0" r="16" fill="rgba(99,102,241,0.14)" stroke="#4f46e5" stroke-width="3" class="hidden pointer-events-none" data-land-map-builder-target="placementMarker" />
+              <% if @edit_mode && @active_panel.in?(%w[new_line new_station]) %>
+                <rect x="0" y="0" width="<%= @map_width %>" height="<%= @map_height %>" fill="transparent" style="cursor: crosshair;" data-action="mousemove->land-map-builder#move mouseleave->land-map-builder#leave click->land-map-builder#pick" />
+              <% end %>
+            </svg>
+          <% else %>
+            <svg viewBox="0 0 1200 720" style="width: 100%; min-width: 960px; height: auto; display: block;" data-land-map-builder-target="svg">
+              <defs>
+                <pattern id="land-grid-empty" width="60" height="60" patternUnits="userSpaceOnUse">
+                  <path d="M 60 0 L 0 0 0 60" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="2" />
+                  <circle cx="0" cy="0" r="1.5" fill="#cbd5e1" />
+                </pattern>
+              </defs>
+              <rect width="100%" height="100%" fill="url(#land-grid-empty)" />
+              <g>
+                <text x="600" y="300" text-anchor="middle" font-size="32" font-weight="900" fill="#475569">Mappa vuota</text>
+                <text x="600" y="340" text-anchor="middle" font-size="16" font-weight="600" fill="#64748b">
+                  <% if @edit_mode && @active_panel == "new_line" %>
+                    Clicca per posizionare la prima station della nuova line.
+                  <% else %>
+                    Inizia creando la prima line dalla mappa.
+                  <% end %>
+                </text>
+              </g>
+              <% if @edit_mode && @active_panel == "new_station" && preview_origin.present? %>
+                <line
+                  x1="<%= preview_origin[:x] %>"
+                  y1="<%= preview_origin[:y] %>"
+                  x2="<%= preview_origin[:x] %>"
+                  y2="<%= preview_origin[:y] %>"
+                  stroke="#0f172a"
+                  stroke-width="5"
+                  stroke-dasharray="10 8"
+                  stroke-linecap="round"
+                  opacity="0.55"
+                  class="hidden pointer-events-none"
+                  data-land-map-builder-target="previewLine"
+                  data-origin-x="<%= preview_origin[:x] %>"
+                  data-origin-y="<%= preview_origin[:y] %>"
+                />
+              <% end %>
+              <circle cx="0" cy="0" r="16" fill="rgba(99,102,241,0.14)" stroke="#4f46e5" stroke-width="3" class="hidden pointer-events-none" data-land-map-builder-target="placementMarker" />
+              <% if @edit_mode && @active_panel.in?(%w[new_line new_station]) %>
+                <rect x="0" y="0" width="1200" height="720" fill="transparent" style="cursor: crosshair;" data-action="mousemove->land-map-builder#move mouseleave->land-map-builder#leave click->land-map-builder#pick" />
+              <% end %>
+            </svg>
+          <% end %>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-4 rounded-[1.5rem] border border-slate-200/60 bg-white px-6 py-4 shadow-sm">
+        <div class="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs font-bold text-slate-600">
+          <% if @selected_line.present? %>
+            <% selected_line_color = @line_map_rows.find { |row| row[:line] == @selected_line }&.dig(:color) || "#6366f1" %>
+            <span class="inline-flex items-center gap-2">
+              <span class="inline-block h-3 w-3 rounded-full" style="background: <%= selected_line_color %>;"></span>
+              Line selezionata: <span class="text-slate-900"><%= @selected_line.name %></span>
+            </span>
+          <% end %>
+          <% if @selected_station.present? %>
+            <span class="inline-flex items-center gap-2">
+              <span class="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-sky-100 px-1.5 text-[10px] font-black text-sky-700">
+                <%= @selected_station.opening? ? "IN" : (@selected_station.closing? ? "OUT" : "•") %>
+              </span>
+              Station selezionata: <span class="text-slate-900"><%= @selected_station.name %></span>
+            </span>
+          <% end %>
+          <span><span class="inline-block px-1.5 py-0.5 bg-emerald-100 text-emerald-800 rounded font-black text-[9px] mr-1">IN</span>Apertura</span>
+          <span><span class="inline-block px-1.5 py-0.5 bg-rose-100 text-rose-800 rounded font-black text-[9px] mr-1">OUT</span>Chiusura</span>
+          <span><span class="inline-block px-1.5 py-0.5 bg-amber-100 text-amber-800 rounded font-black text-[9px] mr-1">BR</span>Ramo</span>
+          <span><span class="inline-block px-1.5 py-0.5 bg-sky-100 text-sky-800 rounded font-black text-[9px] mr-1">GT</span>Gate</span>
+        </div>
+      </div>
+
+      <% if @edit_mode && @active_panel == "new_line" %>
+        <%= form_with url: creator_port_lines_path(@port), method: :post, scope: :line, class: "hidden fixed inset-0 z-50 items-center justify-center bg-slate-950/35 p-4", data: { land_map_builder_target: "lineModal", action: "click->land-map-builder#closeModal", close_path: land_map_creator_port_path(@port, edit: 1) } do |form| %>
+          <%= form.hidden_field :source, value: "land_map" %>
+          <div class="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-[1.5rem] bg-white p-6 shadow-2xl border border-slate-200" data-land-map-builder-target="linePanel">
+            <div class="flex items-center justify-between gap-4 mb-5">
+              <div>
+                <h3 class="text-xl font-black text-slate-900" data-land-map-builder-target="lineTitle">Nuova Line</h3>
+                <p class="text-sm text-slate-500 mt-1">Completa line, prima station ed experience iniziale. `Esc` chiude il modal.</p>
+              </div>
+              <%= link_to "Annulla", land_map_creator_port_path(@port, edit: 1), class: "inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white text-slate-700 font-bold border border-slate-200 hover:bg-slate-50 text-xs" %>
+            </div>
+
+            <div class="hidden" data-land-map-builder-target="lineForm">
+              <%= form.hidden_field :initial_station_map_x, data: { land_map_builder_target: "lineX" } %>
+              <%= form.hidden_field :initial_station_map_y, data: { land_map_builder_target: "lineY" } %>
+            </div>
+
+            <div class="space-y-3 hidden" data-land-map-builder-target="lineForm">
+              <div class="space-y-1.5">
+                <label class="text-xs font-black uppercase tracking-wider text-slate-500">Nome line</label>
+                <%= form.text_field :name, placeholder: "Es. Percorso base postura", required: true, class: "w-full rounded-xl border-slate-200 bg-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2.5 px-4" %>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-3 items-end">
+                <div class="space-y-1.5">
+                  <label class="text-xs font-black uppercase tracking-wider text-slate-500">Tipo line</label>
+                  <%= form.select :line_kind, options_for_select(line_kind_options, default_line_kind), {}, required: true, class: "w-full rounded-xl border-slate-200 bg-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2.5 px-4" %>
+                </div>
+                <div class="space-y-1.5">
+                  <label class="text-xs font-black uppercase tracking-wider text-slate-500">Colore</label>
+                  <%= form.color_field :color, class: "w-full md:w-20 h-11 rounded-xl border-slate-200 bg-white shadow-sm cursor-pointer" %>
+                </div>
+              </div>
+              <div class="h-px w-full bg-indigo-100 my-1"></div>
+              <div class="space-y-1.5">
+                <label class="text-xs font-black uppercase tracking-wider text-slate-500">Nome prima station</label>
+                <%= form.text_field :initial_station_name, placeholder: "Es. Ingresso", required: true, class: "w-full rounded-xl border-slate-200 bg-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2.5 px-4" %>
+              </div>
+              <div class="space-y-1.5">
+                <label class="text-xs font-black uppercase tracking-wider text-slate-500">Tipo prima station</label>
+                <%= form.select :initial_station_kind, options_for_select(station_kind_options, "opening"), {}, required: true, class: "w-full rounded-xl border-slate-200 bg-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2.5 px-4" %>
+              </div>
+              <div class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs font-bold text-slate-600">
+                Alla prima station verra' collegata automaticamente una experience iniziale, che potrai rifinire dopo.
+              </div>
+            </div>
+
+            <div class="pt-5 hidden" data-land-map-builder-target="lineForm">
+              <%= form.submit "Crea Linea", class: "w-full py-3 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-md transition-all cursor-pointer" %>
+            </div>
+          </div>
+        <% end %>
+      <% elsif @edit_mode && @active_panel == "new_station" && @lines.any? %>
+        <%= form_with url: land_map_station_creator_port_path(@port), method: :post, scope: :station, class: "hidden fixed inset-0 z-50 items-center justify-center bg-slate-950/35 p-4", data: { land_map_builder_target: "stationModal", action: "click->land-map-builder#closeModal", close_path: land_map_creator_port_path(@port, edit: 1, line_id: @selected_line&.id) } do |form| %>
+          <div class="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-[1.5rem] bg-white p-6 shadow-2xl border border-slate-200" data-land-map-builder-target="stationPanel">
+            <div class="flex items-center justify-between gap-4 mb-5">
+              <div>
+                <h3 class="text-xl font-black text-slate-900" data-land-map-builder-target="stationTitle">Nuova Station</h3>
+                <p class="text-sm text-slate-500 mt-1">Completa il nodo e collega o crea la sua experience. `Esc` chiude il modal.</p>
+              </div>
+              <%= link_to "Annulla", land_map_creator_port_path(@port, edit: 1, line_id: @selected_line&.id), class: "inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white text-slate-700 font-bold border border-slate-200 hover:bg-slate-50 text-xs" %>
+            </div>
+
+            <div class="hidden" data-land-map-builder-target="stationForm">
+              <%= form.hidden_field :map_x, data: { land_map_builder_target: "stationX" } %>
+              <%= form.hidden_field :map_y, data: { land_map_builder_target: "stationY" } %>
+            </div>
+
+            <div class="space-y-3 hidden" data-land-map-builder-target="stationForm" data-controller="experience-mode">
+              <%= form.hidden_field :line_id, value: @selected_line&.id %>
+              <% if @selected_line.present? %>
+                <div class="rounded-xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-xs font-bold text-emerald-700">
+                  Line attiva: <span class="text-slate-900"><%= @selected_line.name %></span>
+                  <% if @selected_station.present? %>
+                    <span class="text-slate-500"> · da station <%= @selected_station.name %></span>
+                  <% end %>
+                </div>
+              <% end %>
+              <div class="space-y-1.5">
+                <label class="text-xs font-black uppercase tracking-wider text-slate-500">Nome station</label>
+                <%= form.text_field :name, placeholder: "Es. Check iniziale", required: true, class: "w-full rounded-xl border-slate-200 bg-white shadow-sm focus:border-emerald-500 focus:ring-emerald-500 text-sm py-2.5 px-4" %>
+              </div>
+              <div class="space-y-1.5">
+                <label class="text-xs font-black uppercase tracking-wider text-slate-500">Tipo station</label>
+                <%= form.select :station_kind, options_for_select(station_kind_options, default_station_kind), {}, required: true, class: "w-full rounded-xl border-slate-200 bg-white shadow-sm focus:border-emerald-500 focus:ring-emerald-500 text-sm py-2.5 px-4" %>
+              </div>
+              <div class="h-px w-full bg-emerald-100 my-1"></div>
+              <div class="space-y-1.5">
+                <label class="text-xs font-black uppercase tracking-wider text-slate-500">Modalita' experience</label>
+                <%= hidden_field_tag "station[experience_mode]", "existing", data: { experience_mode_target: "mode" } %>
+                <div class="inline-flex w-full rounded-full bg-slate-100 p-1">
+                  <button type="button" class="inline-flex items-center justify-center rounded-full bg-emerald-600 px-4 py-2 text-xs font-black text-white shadow-sm" data-mode="existing" data-experience-mode-target="existingButton" data-action="click->experience-mode#setMode">
+                    Usa experience esistente
+                  </button>
+                  <button type="button" class="inline-flex items-center justify-center rounded-full bg-white px-4 py-2 text-xs font-black text-slate-600 border border-slate-200" data-mode="new" data-experience-mode-target="newButton" data-action="click->experience-mode#setMode">
+                    Crea nuova experience
+                  </button>
+                </div>
+              </div>
+              <div class="space-y-1.5" data-experience-mode-target="existing" data-controller="experience-picker" data-experience-picker-options-value="<%= experience_picker_options %>">
+                <label class="text-xs font-black uppercase tracking-wider text-slate-500">Experience esistente</label>
+                <%= form.hidden_field :experience_id, value: default_existing_experience_id, data: { experience_mode_target: "existingInput", experience_picker_target: "idField" } %>
+                <%= text_field_tag "station[experience_search]", default_existing_experience_name, list: "station-experience-options", placeholder: "Cerca una experience esistente", class: "w-full rounded-xl border-slate-200 bg-white shadow-sm focus:border-emerald-500 focus:ring-emerald-500 text-sm py-2.5 px-4", data: { experience_mode_target: "existingInput", experience_picker_target: "search", action: "input->experience-picker#input change->experience-picker#change" } %>
+                <datalist id="station-experience-options">
+                  <% @experiences.each do |experience| %>
+                    <option value="<%= experience.name %>"></option>
+                  <% end %>
+                </datalist>
+              </div>
+              <div class="space-y-1.5 hidden" data-experience-mode-target="new">
+                <label class="text-xs font-black uppercase tracking-wider text-slate-500">Nuova experience</label>
+                <%= form.text_field :new_experience_name, placeholder: "Es. Routine iniziale", class: "w-full rounded-xl border-slate-200 bg-white shadow-sm focus:border-emerald-500 focus:ring-emerald-500 text-sm py-2.5 px-4", data: { experience_mode_target: "newInput" } %>
+              </div>
+              <div class="space-y-1.5 hidden" data-experience-mode-target="new">
+                <label class="text-xs font-black uppercase tracking-wider text-slate-500">Tipo experience</label>
+                <%= form.select :new_experience_kind, options_for_select(experience_kind_options, Experience.experience_kinds.keys.first), {}, include_blank: false, class: "w-full rounded-xl border-slate-200 bg-white shadow-sm focus:border-emerald-500 focus:ring-emerald-500 text-sm py-2.5 px-4", data: { experience_mode_target: "newInput" } %>
+              </div>
+            </div>
+
+            <div class="pt-5 hidden" data-land-map-builder-target="stationForm">
+              <%= form.submit "Aggiungi Nodo", class: "w-full py-3 px-4 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-xl shadow-md transition-all cursor-pointer" %>
+            </div>
+          </div>
+        <% end %>
+      <% elsif @edit_mode && @active_panel == "edit_line" && @selected_line.present? %>
+        <div class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/35 p-4">
+          <div class="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-[1.5rem] bg-white p-6 shadow-2xl border border-slate-200">
+            <div class="flex items-center justify-between gap-4 mb-5">
+              <div>
+                <h3 class="text-xl font-black text-slate-900">Modifica Line</h3>
+                <p class="text-sm text-slate-500 mt-1">Aggiorna dati base e colore del tracciato.</p>
+              </div>
+              <%= link_to "Chiudi", land_map_creator_port_path(@port, edit: 1, line_id: @selected_line.id), class: "inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white text-slate-700 font-bold border border-slate-200 hover:bg-slate-50 text-xs" %>
+            </div>
+
+            <%= form_with model: [:creator, @port, @selected_line], class: "space-y-4" do |form| %>
+              <div class="space-y-3">
+                <%= form.text_field :name, placeholder: "Nome linea", required: true, class: "w-full rounded-xl border-slate-200 bg-white shadow-sm focus:border-amber-500 focus:ring-amber-500 text-sm py-2.5 px-4" %>
+                <%= form.select :line_kind, line_kind_options, {}, required: true, class: "w-full rounded-xl border-slate-200 bg-white shadow-sm focus:border-amber-500 focus:ring-amber-500 text-sm py-2.5 px-4" %>
+                <%= form.color_field :color, class: "w-full h-11 rounded-xl border-slate-200 bg-white shadow-sm cursor-pointer" %>
+                <%= form.number_field :position, min: 0, step: 1, placeholder: "Posizione", class: "w-full rounded-xl border-slate-200 bg-white shadow-sm focus:border-amber-500 focus:ring-amber-500 text-sm py-2.5 px-4" %>
+                <%= form.text_area :description, rows: 4, placeholder: "Descrizione interna della line", class: "w-full rounded-xl border-slate-200 bg-white shadow-sm focus:border-amber-500 focus:ring-amber-500 text-sm py-2.5 px-4" %>
+              </div>
+
+              <div class="grid gap-3 pt-2">
+                <%= form.submit "Salva Line", class: "w-full py-3 px-4 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl shadow-md transition-all cursor-pointer" %>
+                <%= link_to land_map_creator_port_path(@port, edit: 1, panel: "new_station", line_id: @selected_line.id), class: "inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-white border border-slate-200 text-slate-700 font-bold hover:bg-slate-50 transition-colors text-sm" do %>
+                  <span class="material-symbols-outlined text-[18px]">add_circle</span> Aggiungi station a questa line
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% elsif @edit_mode && @active_panel == "edit_station" && @selected_station.present? && @selected_line.present? %>
+        <div class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/35 p-4">
+          <div class="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-[1.5rem] bg-white p-6 shadow-2xl border border-slate-200">
+            <div class="flex items-center justify-between gap-4 mb-5">
+              <div>
+                <h3 class="text-xl font-black text-slate-900">Modifica Station</h3>
+                <p class="text-sm text-slate-500 mt-1">Aggiorna nodo, coordinate e collegamenti senza uscire dalla mappa.</p>
+              </div>
+              <%= link_to "Chiudi", land_map_creator_port_path(@port, edit: 1, line_id: @selected_line.id), class: "inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white text-slate-700 font-bold border border-slate-200 hover:bg-slate-50 text-xs" %>
+            </div>
+
+            <div class="mb-5 rounded-xl border border-sky-200 bg-sky-50 px-4 py-3">
+              <div class="text-[11px] font-black uppercase tracking-wider text-sky-500">Station selezionata</div>
+              <div class="mt-1 flex items-center gap-2">
+                <span class="inline-flex items-center justify-center w-6 h-6 rounded-full text-[11px] font-black text-white" style="background: <%= @line_map_rows.find { |row| row[:line] == @selected_line }&.dig(:color) || "#0ea5e9" %>;">
+                  <%= @selected_station.opening? ? "IN" : (@selected_station.closing? ? "OUT" : "•") %>
+                </span>
+                <strong class="text-slate-900"><%= @selected_station.name %></strong>
+              </div>
+              <% if @selected_station.link_station.present? %>
+                <div class="mt-3 text-xs font-medium text-sky-700">
+                  Incrocio attivo con: <strong><%= @selected_station.link_station.name %></strong>
+                </div>
+              <% end %>
+              <% if @selected_station.link_port.present? %>
+                <div class="mt-1 text-xs font-medium text-orange-600">
+                  Porta verso: <strong><%= @selected_station.link_port.name %></strong>
+                </div>
+              <% end %>
+            </div>
+
+            <%= form_with model: [:creator, @port, @selected_line, @selected_station], class: "space-y-4" do |form| %>
+              <div class="space-y-3">
+                <div class="space-y-1.5" data-controller="experience-picker" data-experience-picker-options-value="<%= experience_picker_options %>">
+                  <label class="text-xs font-black uppercase tracking-wider text-slate-500">Experience</label>
+                  <%= form.hidden_field :experience_id, data: { experience_picker_target: "idField" } %>
+                  <%= text_field_tag "station[experience_search]", @selected_station.experience&.name, list: "edit-station-experience-options", placeholder: "Cerca una experience esistente", required: true, class: "w-full rounded-xl border-slate-200 bg-white shadow-sm focus:border-sky-500 focus:ring-sky-500 text-sm py-2.5 px-4", data: { experience_picker_target: "search", action: "input->experience-picker#input change->experience-picker#change" } %>
+                  <datalist id="edit-station-experience-options">
+                    <% @experiences.each do |experience| %>
+                      <option value="<%= experience.name %>"></option>
+                    <% end %>
+                  </datalist>
+                </div>
+                <%= form.text_field :name, placeholder: "Nome station", required: true, class: "w-full rounded-xl border-slate-200 bg-white shadow-sm focus:border-sky-500 focus:ring-sky-500 text-sm py-2.5 px-4" %>
+                <%= form.text_field :slug, placeholder: "slug-station", class: "w-full rounded-xl border-slate-200 bg-white shadow-sm focus:border-sky-500 focus:ring-sky-500 text-sm py-2.5 px-4" %>
+                <%= form.select :station_kind, station_kind_options, {}, required: true, class: "w-full rounded-xl border-slate-200 bg-white shadow-sm focus:border-sky-500 focus:ring-sky-500 text-sm py-2.5 px-4" %>
+                <%= form.number_field :position, min: 0, step: 1, placeholder: "Posizione", class: "w-full rounded-xl border-slate-200 bg-white shadow-sm focus:border-sky-500 focus:ring-sky-500 text-sm py-2.5 px-4" %>
+                <div class="grid grid-cols-2 gap-3">
+                  <%= form.number_field :map_x, placeholder: "Coord X", step: 1, class: "w-full rounded-xl border-slate-200 bg-white shadow-sm focus:border-sky-500 focus:ring-sky-500 text-sm py-2.5 px-4" %>
+                  <%= form.number_field :map_y, placeholder: "Coord Y", step: 1, class: "w-full rounded-xl border-slate-200 bg-white shadow-sm focus:border-sky-500 focus:ring-sky-500 text-sm py-2.5 px-4" %>
+                </div>
+                <%= form.collection_select :link_station_id, @linkable_stations, :id, :name, { include_blank: "Nessun link station" }, class: "w-full rounded-xl border-slate-200 bg-white shadow-sm focus:border-sky-500 focus:ring-sky-500 text-sm py-2.5 px-4" %>
+                <%= form.collection_select :link_port_id, @linkable_ports, :id, :name, { include_blank: "Nessun link port" }, class: "w-full rounded-xl border-slate-200 bg-white shadow-sm focus:border-sky-500 focus:ring-sky-500 text-sm py-2.5 px-4" %>
+                <%= form.text_area :description, rows: 4, placeholder: "Descrizione della station nel percorso", class: "w-full rounded-xl border-slate-200 bg-white shadow-sm focus:border-sky-500 focus:ring-sky-500 text-sm py-2.5 px-4" %>
+              </div>
+
+              <div class="grid gap-3 pt-2">
+                <%= form.submit "Salva Station", class: "w-full py-3 px-4 bg-sky-600 hover:bg-sky-700 text-white font-bold rounded-xl shadow-md transition-all cursor-pointer" %>
+                <%= link_to "Apri pagina edit completa", edit_creator_port_line_station_path(@port, @selected_line, @selected_station), class: "inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-white border border-slate-200 text-slate-700 font-bold hover:bg-slate-50 transition-colors text-sm" %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</section>

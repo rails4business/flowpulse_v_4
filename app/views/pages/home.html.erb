@@ -24,7 +24,7 @@
       <div class="hero-actions">
         <% if authenticated? %>
           <% if Current.session.user.profile.present? %>
-            <%= link_to "Vai alla dashboard", dashboard_path, class: "btn btn-primary" %>
+            <%= link_to "Vai all'hub", hub_dashboard_path, class: "btn btn-primary" %>
             <%= link_to "Impostazioni profilo", edit_profile_path, class: "btn btn-secondary" %>
           <% else %>
             <%= link_to "Completa profilo", new_profile_path, class: "btn btn-primary" %>
@@ -49,7 +49,7 @@
             <span class="changelog-line">Home pubblica iniziale di Flowpulse.</span>
           </button>
 
-          <button type="button" class="changelog-item" data-action="click->changelog-modal#open" data-changelog-title="UX orientata alla presentazione" data-changelog-date="2026-04-05" data-changelog-type="UX" data-changelog-body="La home e' stata trattata come pagina introduttiva, non come dashboard operativa.">
+          <button type="button" class="changelog-item" data-action="click->changelog-modal#open" data-changelog-title="UX orientata alla presentazione" data-changelog-date="2026-04-05" data-changelog-type="UX" data-changelog-body="La home e' stata trattata come pagina introduttiva, non come Hub operativa.">
             <span class="change-pill change-pill-ux">2026-04-05 · UX</span>
             <span class="changelog-line">UX orientata alla presentazione.</span>
           </button>

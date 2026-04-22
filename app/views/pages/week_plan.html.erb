@@ -1,0 +1,30 @@
+<% content_for :title, "Week Plan" %>
+
+<section class="dashboard-shell">
+  <div class="app-layout">
+    <%= render "shared/app_sidebar" %>
+
+    <div class="dashboard-card" data-controller="fullscreen" style="flex-grow: 1; padding: 3rem; overflow-y: auto; background-color: var(--founder-paper, #fffdf8); position: relative;">
+      <div style="margin-bottom: 2rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 1.5rem; padding-right: 4rem;">
+        <h1 class="page-title" style="margin: 0; font-size: 1.5rem; font-weight: 700; color: #0f172a;">
+          Week Plan
+        </h1>
+        <p style="margin: 0.5rem 0 0 0; font-size: 0.95rem; color: #64748b; max-width: 700px; line-height: 1.5;">
+          La panoramica della tua settimana tipo: blocchi di tempo, ricorrenze chiave e ritmo operativo.
+        </p>
+      </div>
+      <button
+        type="button"
+        class="btn btn-secondary"
+        data-action="click->fullscreen#toggle"
+        title="Visualizza o esci da Full screen"
+        aria-label="Full screen"
+        style="position: absolute; top: 1.5rem; right: 1.5rem; width: 38px; height: 38px; padding: 0; display: inline-flex; align-items: center; justify-content: center; font-size: 1.1rem; border: 1px solid #e2e8f0; border-radius: 8px; background: white; color: #475569; transition: all 0.2s; z-index: 50; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.05);"
+      >
+        ⛶
+      </button>
+
+      <%= render "shared/week_plan" %>
+    </div>
+  </div>
+</section>

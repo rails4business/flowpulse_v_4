@@ -26,6 +26,7 @@ Ci sono due direzioni da chiarire piu' avanti:
 - i professionisti possono creare programmi liberi
 - i creator possono creare programmi standard
 - i viaggiatori possono compilare o percorrere quei programmi
+- il `journey` del viaggiatore puo' nascere come istanza personale di un `EarthNode` di tipo `trail`
 
 ## Da non mischiare adesso
 

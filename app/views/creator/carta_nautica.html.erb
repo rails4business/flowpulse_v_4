@@ -11,14 +11,14 @@
       <div 
         class="dashboard-card sea-chart-container sea-chart-bg" 
         data-sea-chart-target="mapArea"
-        data-action="click->sea-chart#mapClicked mousemove->sea-chart#mapHovered"
+        data-action="click->sea-chart#mapClicked mousemove->sea-chart#mapHovered mousedown->sea-chart#panStart touchstart->sea-chart#panStart"
         style="flex-grow: 1; position: relative; padding: 0; background: #e0f2fe; border: 2px solid #bae6fd; overflow: hidden; user-select: none; transition: background-color 0.3s;"
       >
         <!-- BREADCRUMB FLUTTUANTE (Top Left) -->
         <div style="position: absolute; top: 1.5rem; left: 1.5rem; z-index: 50; pointer-events: auto; display: flex; align-items: center; gap: 0.75rem; background: rgba(255,255,255,0.95); backdrop-filter: blur(8px); padding: 0.35rem 0.75rem; border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.12); border: 1px solid rgba(0,0,0,0.05); min-height: 51px;">
           <% if @brand_port.present? %>
             <% previous_crumb = @brand_breadcrumbs[@brand_breadcrumbs.length - 2] if @brand_breadcrumbs.present? && @brand_breadcrumbs.length > 1 %>
-            <%= link_to "←", (previous_crumb&.dig(:path) || creator_carta_nautica_path(edit: (params[:edit].present? ? 1 : nil))), style: "display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 8px; background: #f1f5f9; color: #334155; text-decoration: none; font-weight: bold; border: 1px solid #e2e8f0; transition: all 0.2s;" %>
+            <%= link_to "←", (previous_crumb&.dig(:path) || current_creator_carta_nautica_path(edit: (params[:edit].present? ? 1 : nil))), style: "display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 8px; background: #f1f5f9; color: #334155; text-decoration: none; font-weight: bold; border: 1px solid #e2e8f0; transition: all 0.2s;" %>
           <% end %>
 
           <div style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.95rem; color: #475569; font-weight: 500; margin: 0 0.2rem;">
@@ -64,7 +64,9 @@
               <% if params[:add_port].present? %>
                 <%= link_to "Annulla", creator_chart_path_for(@brand_port, edit: 1), class: "btn btn-secondary", style: "border: none; background: #e2e8f0; font-weight: 600; padding: 0.5rem 0.85rem;" %>
               <% else %>
-                <%= link_to (@brand_port.present? ? "+ 🏝️" : "+ Brand Root"), creator_chart_path_for(@brand_port, edit: 1, add_port: true), class: "btn btn-primary", style: "box-shadow: none; padding: 0.5rem 0.85rem;" %>
+                <% if @brand_port.present? || @can_create_brand_root %>
+                  <%= link_to (@brand_port.present? ? "+ 🏝️" : "+ Brand Root"), creator_chart_path_for(@brand_port, edit: 1, add_port: true, brand_root: (@brand_port.present? ? nil : 1)), class: "btn btn-primary", style: "box-shadow: none; padding: 0.5rem 0.85rem;" %>
+                <% end %>
               <% end %>
               <div style="width: 1px; height: 24px; background: #cbd5e1; margin: 0 0.25rem;"></div>
             </div>
@@ -108,7 +110,7 @@
         </div>
 
         <!-- MOTORE DI PANNING INFINITO (Canvas) -->
-        <div data-sea-chart-target="canvas" data-action="mousedown->sea-chart#panStart touchstart->sea-chart#panStart" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%; transform-origin: 0 0; transform: translate(var(--pan-x, 0px), var(--pan-y, 0px)); will-change: transform; transition: transform 0.05s linear;">
+        <div data-sea-chart-target="canvas" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%; transform-origin: 0 0; transform: translate(var(--pan-x, 0px), var(--pan-y, 0px)); will-change: transform; transition: transform 0.05s linear;">
 
           <!-- Espansiamo gli sfondi a -5000px per renderli infiniti -->
           <div class="sea-chart-wave-layer" style="position: absolute; inset: -5000px;"></div>
@@ -324,9 +326,9 @@
                 if port.brand_root? && port.brand_port_id.blank?
                   "Brand root"
                 elsif port.brand_root?
-                  "Brand"
+                  "Sottobrand"
                 else
-                  "Porto"
+                  port.port_kind_label
                 end
               node_role_class =
                 if port.brand_root? && port.brand_port_id.blank?
@@ -341,11 +343,11 @@
               case port.port_kind
               when "web_app"
                 icon, island_kind_class = "🧩", (port.brand_root? ? "island-brand" : "island-map")
-              when "website"
+              when "website_external"
                 icon, island_kind_class = "🌐", "island-map"
               when "youtube"
                 icon, island_kind_class = "▶️", "island-blog"
-              when "instagram"
+              when "other_social"
                 icon, island_kind_class = "📸", "island-blog"
               when "whatsapp"
                 icon, island_kind_class = "💬", "island-book"

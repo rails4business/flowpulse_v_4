@@ -7,7 +7,7 @@
     <div class="dashboard-card">
       <p class="eyebrow">Creator</p>
       <div style="display: flex; justify-content: space-between; align-items: center;">
-        <h1 style="margin-bottom: 0.35rem; max-width: none; white-space: nowrap;">Modifica: <%= @port.name %></h1>
+        <h1 class="page-title" style="margin-bottom: 0.35rem;">Modifica: <%= @port.name %></h1>
         <%= button_to "Elimina Porto", creator_port_path(@port), method: :delete, form: { data: { turbo_confirm: "Sei sicuro di voler eliminare totalmente questo nodo?" } }, class: "btn btn-danger", style: "background: #dc3545; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px;" %>
       </div>
 

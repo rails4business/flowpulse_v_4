@@ -1,21 +1,24 @@
-<% content_for :title, "Dashboard" %>
+<% content_for :title, "Ruoli" %>
 
 <section class="dashboard-shell">
   <div class="app-layout">
     <%= render "shared/app_sidebar" %>
 
-    <div class="dashboard-card">
-      <p class="eyebrow">Dashboard</p>
-      
-    
-
+    <div class="dashboard-card" style="padding: 3rem; background: linear-gradient(180deg, #fdfdfc 0%, #ffffff 100%);">
+      <div style="margin-bottom: 2rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 1.5rem;">
+        <h1 class="page-title" style="margin: 0; font-size: 1.5rem; font-weight: 700; color: #0f172a;">
+          Ruoli e Accessi
+        </h1>
+        <p style="margin: 0.5rem 0 0 0; font-size: 0.95rem; color: #64748b; max-width: 700px; line-height: 1.5;">
+          Gestisci i permessi attivi nell'ecosistema, sblocca le funzionalità e controlla la tua subscription.
+        </p>
+      </div>
       <div class="dashboard-meta">
         <div class="dashboard-item">
           <span class="dashboard-label">Utente</span>
           <p><strong><%= Current.session.user.email_address %></strong></p>
         </div>
 
-        
 
         <% if Current.session.user.profile.present? %>
           <div class="dashboard-item">
@@ -32,101 +35,128 @@
       </div>
 
       <div class="dashboard-section">
-        <h2>Tre soggetti del sistema</h2>
-        <p>
-          Flowpulse tiene insieme tre soggetti: creator, professionisti e persone. Da qui il tuo spazio puo'
-          diventare mondo condiviso, servizio oppure percorso vissuto.
-        </p>
-        <div class="dashboard-grid">
-          <div class="dashboard-panel-stack">
-            <article class="dashboard-panel dashboard-panel-green">
-              <span class="dashboard-panel-kicker">Viaggiatore</span>
-              <p class="dashboard-panel-price">Spazio Gratuito</p>
-              <h3>Spazio viaggiatore</h3>
-              <p>Attraversa un percorso e costruisce nel tempo le proprie mappe del mondo.</p>
-            </article>
-            <div class="dashboard-panel-meta outside">
-              <div class="dashboard-state-tabs">
-                <span class="dashboard-state-tab is-active">Attivo</span>
+        <% if flowpulse_domain_context? %>
+
+          <h2>Hub Flowpulse</h2>
+          <p>
+            Questa dashboard e' la base di piattaforma. Qui ha senso solo il livello creator:
+            da qui si apre il proprio brand e si entra nei domini collegati quando esiste una web app da gestire.
+          </p>
+          <div class="dashboard-grid">
+            <div class="dashboard-panel-stack">
+              <article class="dashboard-panel dashboard-panel-blue">
+                <span class="dashboard-panel-kicker">Creator</span>
+                <p class="dashboard-panel-price">€79 / anno · 1 brand incluso</p>
+                <h3>Spazio creator</h3>
+                <p>Costruisce brand, carte, mondi e strutture condivise. Il piano creator parte da un brand/mondo incluso; i brand aggiuntivi si valuteranno come estensione separata.</p>
+
+                <% if Current.session.user.profile.present? && Current.session.user.profile.creator? %>
+                  <div class="dashboard-panel-status">
+                    <p class="dashboard-panel-note">Ora puoi costruire mondi, carte e strutture del tuo ecosistema e poi passare alle web app collegate.</p>
+                    <% if @creator_brand_port.present? %>
+                      <p class="dashboard-panel-note" style="margin-top: 0.75rem;">
+                        Brand attivo: <strong><%= @creator_brand_port.name %></strong>
+                        <% if @creator_webapp_domain.present? %>
+                          · Web app pubblicata su <strong><%= @creator_webapp_domain.host %></strong>
+                        <% else %>
+                          · Web app non ancora pubblicata
+                        <% end %>
+                      </p>
+                      <div class="hero-actions" style="margin-top: 1rem;">
+                        <% if @creator_webapp_domain.present? %>
+                          <%= link_to "Entra nella web app", dashboard_entry_path_for_webapp_domain(@creator_webapp_domain).then { |path| path.include?("?") ? "#{path}&_workspace=creator" : "#{path}?_workspace=creator" }, class: "btn btn-primary" %>
+                        <% else %>
+                          <%= link_to "Configura web app", creator_port_webapp_domains_path(@creator_brand_port), class: "btn btn-secondary" %>
+                        <% end %>
+                      </div>
+                    <% end %>
+                  </div>
+                <% elsif Current.session.user.profile.present? && Current.session.user.profile.creator_requested? %>
+                  <div class="dashboard-panel-status">
+                    <p class="dashboard-panel-note">La richiesta e' stata registrata. L'attivazione creator avverra' dopo conferma e pagamento.</p>
+                  </div>
+                <% elsif Current.session.user.profile.present? %>
+                  <div class="dashboard-panel-status">
+                    <p class="dashboard-panel-note">L'accesso creator abilita la creazione di branch e mappe. Il prezzo base copre un brand/mondo con gestione annuale dello spazio.</p>
+                    <%= button_to "Richiedi", request_creator_profile_path, method: :patch, class: "btn btn-primary btn-block" %>
+                  </div>
+                <% end %>
+              </article>
+              <div class="dashboard-panel-meta outside">
+                <div class="dashboard-state-tabs">
+                  <span class="dashboard-state-tab <%= "is-active" unless Current.session.user.profile&.creator? || Current.session.user.profile&.creator_requested? %>">Chiuso</span>
+                  <span class="dashboard-state-tab dashboard-state-tab-waiting <%= "is-active" if Current.session.user.profile&.creator_requested? %>">Richiesto</span>
+                  <span class="dashboard-state-tab dashboard-state-tab-success <%= "is-active" if Current.session.user.profile&.creator? %>">Attivo</span>
+                </div>
+                <% if Current.session.user.profile.present? && Current.session.user.profile.creator? %>
+                  <span class="dashboard-mini-badge"><%= Current.session.user.profile.creator_active_range_compact_label %></span>
+                <% elsif Current.session.user.profile.present? && Current.session.user.profile.creator_requested? %>
+                  <span class="dashboard-mini-badge">Richiesta aperta</span>
+                <% end %>
               </div>
-              <% if Current.session.user.profile.present? %>
-                <span class="dashboard-mini-badge">Dal <%= Current.session.user.profile.created_at_compact_label %></span>
-              <% end %>
             </div>
           </div>
 
-          <div class="dashboard-panel-stack">
-            <article class="dashboard-panel dashboard-panel-blue">
-              <span class="dashboard-panel-kicker">Creator</span>
-              <p class="dashboard-panel-price">€79 / anno</p>
-              <h3>Spazio creator</h3>
-              <p>Crea branch, mappe comuni, trail template e servizi.</p>
+        <% else %>
 
-              <% if Current.session.user.profile.present? && Current.session.user.profile.creator? %>
-                <div class="dashboard-panel-status">
-                  <p class="dashboard-panel-note">Ora puoi costruire mondi, mappe e trail del tuo ecosistema.</p>
+          <h2><%= current_webapp_domain.title.presence || current_webapp_domain.brand_port.name %></h2>
+          <p>
+            Questa e' l'entrata interna del dominio. Qui il livello di accesso parte dal brand attivo e,
+            per ora, si articola in tre ruoli locali: professionista, operatore e creator.
+          </p>
+          <div class="dashboard-grid">
+            <div class="dashboard-panel-stack">
+              <article class="dashboard-panel dashboard-panel-green">
+                <span class="dashboard-panel-kicker">Professionista</span>
+                <p class="dashboard-panel-price">€149 / anno</p>
+                <h3>Livello professionista</h3>
+                <p>Opera nel dominio attivo e lavora sui percorsi, sulle persone e sui servizi del mondo locale. Non nasce da Flowpulse globale ma dal brand.</p>
+              </article>
+              <div class="dashboard-panel-meta outside">
+                <div class="dashboard-state-tabs">
+                  <span class="dashboard-state-tab dashboard-state-tab-success is-active">Livello locale</span>
                 </div>
-              <% elsif Current.session.user.profile.present? && Current.session.user.profile.creator_requested? %>
-                <div class="dashboard-panel-status">
-                  <p class="dashboard-panel-note">La richiesta e' stata registrata. L'attivazione creator avverra' dopo conferma e pagamento.</p>
-                </div>
-              <% elsif Current.session.user.profile.present? %>
-                <div class="dashboard-panel-status">
-                  <p class="dashboard-panel-note">L'accesso creator abilita la creazione di branch e mappe. Il prezzo include accesso annuale e spese di gestione dello spazio.</p>
-                  <%= button_to "Richiedi", request_creator_profile_path, method: :patch, class: "btn btn-primary btn-block" %>
-                </div>
-              <% end %>
-            </article>
-            <div class="dashboard-panel-meta outside">
-              <div class="dashboard-state-tabs">
-                <span class="dashboard-state-tab <%= "is-active" unless Current.session.user.profile&.creator? || Current.session.user.profile&.creator_requested? %>">Chiuso</span>
-                <span class="dashboard-state-tab dashboard-state-tab-waiting <%= "is-active" if Current.session.user.profile&.creator_requested? %>">Richiesto</span>
-                <span class="dashboard-state-tab dashboard-state-tab-success <%= "is-active" if Current.session.user.profile&.creator? %>">Attivo</span>
+                <span class="dashboard-mini-badge">Dipende dal creator del brand</span>
               </div>
-              <% if Current.session.user.profile.present? && Current.session.user.profile.creator? %>
-                <span class="dashboard-mini-badge"><%= Current.session.user.profile.creator_active_range_compact_label %></span>
-              <% elsif Current.session.user.profile.present? && Current.session.user.profile.creator_requested? %>
-                <span class="dashboard-mini-badge">Richiesta aperta</span>
-              <% end %>
+            </div>
+
+            <div class="dashboard-panel-stack">
+              <article class="dashboard-panel dashboard-panel-red">
+                <span class="dashboard-panel-kicker">Operatore</span>
+                <p class="dashboard-panel-price">€49 / anno</p>
+                <h3>Livello operatore</h3>
+                <p>Agisce su parti piu' locali del mondo e potra' affiancare il professionista nell'erogazione concreta, senza coincidere con il creator.</p>
+              </article>
+              <div class="dashboard-panel-meta outside">
+                <div class="dashboard-state-tabs">
+                  <span class="dashboard-state-tab dashboard-state-tab-success is-active">Livello locale</span>
+                </div>
+                <span class="dashboard-mini-badge">Sotto-livello del brand</span>
+              </div>
+            </div>
+
+            <div class="dashboard-panel-stack">
+              <article class="dashboard-panel dashboard-panel-blue">
+                <span class="dashboard-panel-kicker">Creator</span>
+                <p class="dashboard-panel-price">€290 1 brand * 1 anno </p>
+                <h3>Livello creator del brand</h3>
+                <p>Governa il brand, puo' creare sottolivelli e tiene la visione completa della mappa, del dominio e della struttura del mondo. Può creare 1 brand, sempre sotto il brand del creator che rilascia la licenza.</p>
+                <% if Current.session.user.profile&.creator? %>
+                  <div class="dashboard-panel-status">
+                    <%= link_to "Apri carta nautica", current_creator_carta_nautica_path, class: "btn btn-primary btn-block" %>
+                  </div>
+                <% end %>
+              </article>
+              <div class="dashboard-panel-meta outside">
+                <div class="dashboard-state-tabs">
+                  <span class="dashboard-state-tab dashboard-state-tab-success is-active"><%= current_workspace_mode == "creator" ? "Attivo" : "Livello locale" %></span>
+                </div>
+                <span class="dashboard-mini-badge">Origine dei livelli del brand</span>
+              </div>
             </div>
           </div>
+        <% end %>
 
-          <div class="dashboard-panel-stack">
-            <article class="dashboard-panel dashboard-panel-red">
-              <span class="dashboard-panel-kicker">Professionista</span>
-              <p class="dashboard-panel-price">€149 / anno</p>
-              <h3>Spazio professional</h3>
-              <p>Porta formazione, servizi e valore professionale dentro mappe e percorsi.</p>
-
-              <% if Current.session.user.profile.present? && Current.session.user.profile.professional? %>
-                <div class="dashboard-panel-status">
-                  <p class="dashboard-panel-note">Ora puoi gestire servizi, formazione e proposte di percorso.</p>
-                </div>
-              <% elsif Current.session.user.profile.present? && Current.session.user.profile.professional_requested? %>
-                <div class="dashboard-panel-status">
-                  <p class="dashboard-panel-note">La richiesta e' stata registrata. L'attivazione professional avverra' dopo conferma e pagamento.</p>
-                </div>
-              <% elsif Current.session.user.profile.present? %>
-                <div class="dashboard-panel-status">
-                  <p class="dashboard-panel-note">L'accesso professional abilita listino, formazione e operativita'. Il prezzo include accesso annuale e spese di gestione.</p>
-                  <%= button_to "Richiedi", request_professional_profile_path, method: :patch, class: "btn btn-primary btn-block" %>
-                </div>
-              <% end %>
-            </article>
-            <div class="dashboard-panel-meta outside">
-              <div class="dashboard-state-tabs">
-                <span class="dashboard-state-tab <%= "is-active" unless Current.session.user.profile&.professional? || Current.session.user.profile&.professional_requested? %>">Chiuso</span>
-                <span class="dashboard-state-tab dashboard-state-tab-waiting <%= "is-active" if Current.session.user.profile&.professional_requested? %>">Richiesto</span>
-                <span class="dashboard-state-tab dashboard-state-tab-success <%= "is-active" if Current.session.user.profile&.professional? %>">Attivo</span>
-              </div>
-              <% if Current.session.user.profile.present? && Current.session.user.profile.professional? %>
-                <span class="dashboard-mini-badge"><%= Current.session.user.profile.professional_active_range_compact_label %></span>
-              <% elsif Current.session.user.profile.present? && Current.session.user.profile.professional_requested? %>
-                <span class="dashboard-mini-badge">Richiesta aperta</span>
-              <% end %>
-            </div>
-          </div>
-        </div>
       </div>
 
       <div class="dashboard-actions">

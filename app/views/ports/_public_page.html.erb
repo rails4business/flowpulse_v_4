@@ -1,0 +1,82 @@
+<% embed_url = content&.url_media_content.present? ? embeddable_media_url(content.url_media_content) : nil %>
+
+<section class="mb-20 max-w-7xl mx-auto px-6 py-12 lg:py-20">
+  <div class="grid lg:grid-cols-2 gap-12 items-center">
+    <div class="space-y-6">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider" style="color: var(--brand-accent); background: color-mix(in srgb, var(--brand-accent) 15%, transparent);">
+        <span class="material-symbols-outlined text-sm">verified</span>
+        <%= port.name %>
+      </div>
+      <% if content&.subtitle.present? %>
+        <h1 class="text-4xl md:text-5xl font-black leading-[1.1] tracking-[-0.033em] text-[#111518]">  <%= content.subtitle %></h1>
+      <% end %>
+
+
+      <div class="text-lg text-slate-600 leading-relaxed max-w-xl">
+        <% if content&.description.present? %>
+          <%= simple_format(content.description) %>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="relative">
+      <div class="absolute -top-10 -left-10 w-72 h-72 rounded-full blur-3xl z-[-1]" style="background: color-mix(in srgb, var(--brand-accent) 20%, transparent);"></div>
+
+      <% if embed_url.present? %>
+        <div class="relative bg-slate-200 rounded-3xl overflow-hidden aspect-video shadow-2xl border-4 border-white">
+          <iframe
+            src="<%= embed_url %>"
+            title="<%= port.name %>"
+            class="w-full h-full"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowfullscreen
+          ></iframe>
+        </div>
+      <% elsif content&.thumb_url.present? || content&.horizontal_cover_url.present? || content&.vertical_cover_url.present? %>
+        <div class="relative flex justify-center items-center">
+          <img alt="<%= port.name %>" class="max-w-full h-auto max-h-[600px] rounded-3xl shadow-2xl border-4 border-white" src="<%= content.thumb_url.presence || content.horizontal_cover_url.presence || content.vertical_cover_url %>">
+        </div>
+      <% end %>
+    </div>
+  </div>
+</section>
+
+<% if content&.banner_url.present? %>
+  <section class="max-w-7xl mx-auto px-6 -mt-8 mb-16">
+    <div class="rounded-3xl overflow-hidden bg-slate-200 shadow-xl border border-white/70">
+      <img alt="<%= port.name %> banner" class="w-full aspect-[16/5] object-cover" src="<%= content.banner_url %>">
+    </div>
+  </section>
+<% end %>
+
+<% if content&.content.present? %>
+  <section class="w-full bg-white py-20 lg:py-32 border-t border-slate-100 relative z-10 shadow-[0_-20px_40px_-20px_rgba(0,0,0,0.05)] mt-12">
+    <div class="max-w-[800px] mx-auto px-6 md:px-12">
+      <!-- Decorator line -->
+      <div class="w-20 h-1.5 rounded-full mb-14 shadow-sm" style="background: var(--brand-accent);"></div>
+      
+      <div class="prose prose-lg md:prose-xl prose-slate max-w-none
+                  prose-headings:font-black prose-headings:tracking-tight prose-headings:text-slate-900
+                  prose-h1:text-4xl md:prose-h1:text-5xl prose-h1:leading-tight prose-h1:mb-10
+                  prose-h2:text-3xl md:prose-h2:text-4xl prose-h2:mt-16 prose-h2:mb-8
+                  prose-h3:text-2xl prose-h3:mt-12 prose-h3:mb-6
+                  prose-p:leading-[1.8] prose-p:text-slate-700 prose-p:mb-8
+                  prose-a:text-[color:var(--brand-accent)] prose-a:font-bold prose-a:decoration-[color:var(--brand-accent)] hover:prose-a:decoration-4 prose-a:underline-offset-4 prose-a:transition-all
+                  prose-blockquote:border-l-4 prose-blockquote:border-[color:var(--brand-accent)] prose-blockquote:bg-slate-50 prose-blockquote:py-6 prose-blockquote:px-8 prose-blockquote:rounded-r-2xl prose-blockquote:font-medium prose-blockquote:text-slate-800 prose-blockquote:shadow-sm prose-blockquote:italic
+                  prose-strong:font-black prose-strong:text-slate-900
+                  prose-ul:my-8 prose-li:my-3 prose-li:marker:text-[color:var(--brand-accent)]
+                  prose-img:rounded-3xl prose-img:shadow-2xl prose-img:border prose-img:border-slate-100 prose-img:my-12
+                  tracking-normal">
+        <%= render_markdown(content.content) %>
+      </div>
+      
+      <!-- Bottom delimiter -->
+      <div class="mt-24 flex justify-center">
+        <div class="w-14 h-14 rounded-full flex items-center justify-center bg-slate-50 border border-slate-100 text-slate-300 shadow-sm relative overflow-hidden group">
+          <div class="absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity" style="background: var(--brand-accent);"></div>
+          <span class="material-symbols-outlined group-hover:scale-110 transition-transform duration-300" style="color: var(--brand-accent);">auto_awesome</span>
+        </div>
+      </div>
+    </div>
+  </section>
+<% end %>

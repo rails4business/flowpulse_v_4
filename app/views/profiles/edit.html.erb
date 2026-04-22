@@ -34,9 +34,13 @@
         </div>
       <% elsif !@profile.creator? && !@profile.creator_requested? %>
         <div class="request-creator-box">
-          <p class="request-price">€79 / anno</p>
+          <p class="request-price">€79 / anno · 1 brand incluso</p>
           <p>
             Se vuoi creare branch e mappe puoi richiedere il piano creator.
+            Il piano base copre un brand/mondo.
+            Eventuali brand aggiuntivi verranno gestiti come estensione separata.
+          </p>
+          <p>
             L'attivazione annuale avverra' dopo conferma e pagamento.
           </p>
           <%= button_to "Richiedi piano creator", request_creator_profile_path, method: :patch, class: "btn btn-primary btn-block" %>
@@ -62,6 +66,9 @@
           <p class="request-price">€149 / anno</p>
           <p>
             Se vuoi attivare l'area professionale puoi richiedere il piano professional.
+            Questo piano resta separato dal piano creator e non dipende dal numero di iscritti del brand.
+          </p>
+          <p>
             L'attivazione annuale avverra' dopo conferma e pagamento.
           </p>
           <%= button_to "Richiedi piano professional", request_professional_profile_path, method: :patch, class: "btn btn-primary btn-block" %>

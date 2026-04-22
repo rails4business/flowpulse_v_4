@@ -2,9 +2,11 @@ require "set"
 
 class CreatorController < ApplicationController
   before_action :require_creator
+  helper_method :creator_chart_path_for, :brand_tree_children_for
 
   def carta_nautica
     profile = Current.session.user.profile
+    @can_create_brand_root = Current.session.user.superadmin? || !profile.ports.where(brand_root: true).exists?
     @brand_port = profile.ports.find_by(id: params[:brand_port_id], brand_root: true) if params[:brand_port_id].present?
     @brand_breadcrumbs = build_brand_breadcrumbs(profile, @brand_port)
 
@@ -44,6 +46,8 @@ class CreatorController < ApplicationController
           brand_port: @brand_port
         )
       else
+        return if !@can_create_brand_root
+
         profile.ports.new(
           x: params[:x],
           y: params[:y],
@@ -55,6 +59,26 @@ class CreatorController < ApplicationController
   def branch_map
   end
 
+  def brand_tree
+    profile = Current.session.user.profile
+    @brand_tree_scope = params[:scope].presence_in(%w[all subtree]) || default_brand_tree_scope
+    @brand_tree_depth = params[:tree_depth].presence_in(%w[all children]) || "all"
+    @brand_tree_root =
+      if @brand_tree_scope == "subtree" && params[:root_brand_id].present?
+        profile.ports.find_by(id: params[:root_brand_id], brand_root: true)
+      end
+
+    @root_brand_ports =
+      if @brand_tree_scope == "subtree" && @brand_tree_root.present?
+        [@brand_tree_root]
+      else
+        profile.ports
+          .where(brand_root: true)
+          .where("brand_port_id IS NULL OR brand_port_id = ports.id")
+          .order(created_at: :asc)
+      end
+  end
+
   def journey
   end
 
@@ -63,15 +87,13 @@ class CreatorController < ApplicationController
 
   private
 
-  helper_method :creator_chart_path_for
-
   def require_creator
     redirect_to dashboard_path, alert: "Accesso creator non abilitato." unless Current.session.user.profile&.creator?
   end
 
   def creator_chart_path_for(brand_port = nil, extra_params = {})
     params_hash = extra_params.compact
-    return creator_carta_nautica_path(params_hash) if brand_port.blank?
+    return current_creator_carta_nautica_path(params_hash) if brand_port.blank?
 
     creator_brand_carta_nautica_path(brand_port_id: brand_port.id, **params_hash)
   end
@@ -80,7 +102,7 @@ class CreatorController < ApplicationController
     breadcrumbs = [
       {
         label: "Brands",
-        path: creator_carta_nautica_path
+        path: current_creator_carta_nautica_path
       }
     ]
 
@@ -108,5 +130,23 @@ class CreatorController < ApplicationController
     end
 
     breadcrumbs
+  end
+
+  def brand_tree_children_for(parent_port)
+    if @brand_tree_scope == "subtree" && @brand_tree_depth == "children" && @brand_tree_root.present? && parent_port.id != @brand_tree_root.id
+      return Current.session.user.profile.ports.none
+    end
+
+    children = Current.session.user.profile
+      .ports
+      .where(brand_root: true, brand_port_id: parent_port.id)
+      .where.not(id: parent_port.id)
+      .order(created_at: :asc)
+
+    children
+  end
+
+  def default_brand_tree_scope
+    webapp_domain_context? && current_webapp_domain&.brand_port_id.present? ? "subtree" : "all"
   end
 end

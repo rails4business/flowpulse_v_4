@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Medicina dei Semplici – Ezio Abbiati</title>
+
+<style>
+:root{
+  --vitali:#2ecc71;
+  --liquidi:#1e88e5;
+  --nervoso:#2b0a3d;
+  --ormonale:#fdd835;
+  --immunitario:#e53935;
+
+  --white:rgba(255,255,255,.95);
+  --bg:#ffffff;
+
+  --outer: min(86vw, 740px);
+  --border: 12px;
+  --cross: 10px;
+
+  --node: 145px;
+  --center: 168px;
+}
+
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  min-height:100vh;
+  display:grid;
+  place-items:center;
+  background:radial-gradient(circle at top,#f3f4f6,#d1d5db 65%);
+  font-family:system-ui,-apple-system,Segoe UI,Roboto;
+}
+
+.top-nav{
+  position:fixed;
+  top:14px;
+  left:20px;
+  right:20px;
+  width:auto;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  z-index:20;
+}
+.back-link{
+  border:1px solid rgba(15,23,42,.25);
+  background:rgba(255,255,255,.92);
+  color:#0f172a;
+  padding:10px 14px;
+  border-radius:999px;
+  font-size:14px;
+  font-weight:800;
+  letter-spacing:.02em;
+  text-decoration:none;
+}
+.tabs{
+  display:inline-flex;
+  flex-wrap:wrap;
+  gap:8px;
+  padding:6px;
+  border-radius:999px;
+  background:rgba(255,255,255,.85);
+  border:1px solid rgba(15,23,42,.16);
+}
+.tab-link{
+  padding:8px 14px;
+  border-radius:999px;
+  text-decoration:none;
+  color:#0f172a;
+  font-weight:700;
+}
+.tab-link.active{
+  background:#0f172a;
+  color:#fff;
+}
+
+.diagram{
+  width:var(--outer);
+  aspect-ratio:1;
+  position:relative;
+  border-radius:50%;
+  background:linear-gradient(135deg,#4b5563,#374151);
+  border:var(--border) solid var(--white);
+  box-shadow:0 24px 50px rgba(0,0,0,.22);
+}
+
+/* Titoli */
+.title{
+  position:absolute;
+  top:5%;
+  left:50%;
+  transform:translateX(-50%);
+  text-align:center;
+  font-weight:900;
+  letter-spacing:.6px;
+  padding:0;
+}
+
+.title h1{
+  margin:0;
+  font-size:clamp(16px,2.4vw,22px);
+  color:#fff;
+}
+
+.title p{
+  margin:4px 0 0;
+  font-size:clamp(11px,2vw,13px);
+  opacity:.95;
+  color:#f8fafc;
+}
+
+/* Testo curvo interno sul bordo inferiore (circa ore 8 -> ore 4) */
+.ring-label{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  z-index:1;
+}
+.ring-label svg{
+  width:100%;
+  height:100%;
+  display:block;
+}
+.ring-label text{
+  fill:#fff;
+  font-weight:900;
+  font-size:2.7px;
+  letter-spacing:0;
+  text-transform:uppercase;
+  paint-order:stroke;
+  stroke:rgba(15,23,42,.45);
+  stroke-width:.17px;
+}
+
+/* Croce */
+.cross{
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  background:var(--white);
+  border-radius:999px;
+}
+
+.cross.v{
+  width:var(--cross);
+  height:64%;
+}
+
+.cross.h{
+  height:var(--cross);
+  width:64%;
+}
+
+/* Nodi */
+.node{
+  position:absolute;
+  width:var(--node);
+  height:var(--node);
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  text-align:center;
+  font-weight:900;
+  padding:14px;
+  text-transform:uppercase;
+  border:10px solid var(--white);
+  box-shadow:0 16px 36px rgba(0,0,0,.18);
+}
+.node.clickable{cursor:pointer}
+
+.node span{
+  font-size:clamp(12px,2vw,15px);
+  line-height:1.1;
+}
+
+/* Posizioni */
+.top{top:14%;left:50%;transform:translateX(-50%)}
+.right{right:14%;top:50%;transform:translateY(-50%)}
+.bottom{bottom:14%;left:50%;transform:translateX(-50%)}
+.left{left:14%;top:50%;transform:translateY(-50%)}
+
+/* Colori */
+.vitali{background:linear-gradient(135deg,#43e97b,#1e824c)}
+.liquidi{background:linear-gradient(135deg,#4facfe,#1e88e5)}
+.nervoso{background:linear-gradient(135deg,#3b0a5f,#120019);color:#fff}
+.ormonale{background:linear-gradient(135deg,#fff176,#fbc02d)}
+
+.center{
+  width:var(--center);
+  height:var(--center);
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  background:linear-gradient(135deg,#ff6b6b,#c62828);
+  color:#fff;
+}
+</style>
+</head>
+
+<body>
+<div class="top-nav">
+  <a class="back-link" href="<%= posturacorretta_mappa_path %>" aria-label="Torna alla mappa">← Mappa</a>
+  <div class="tabs" aria-label="Navigazione Aree Ambiti Medicina dei semplici">
+    <a class="tab-link" href="<%= posturacorretta_aree_path %>">Aree</a>
+    <a class="tab-link" href="<%= posturacorretta_ambiti_path %>">Ambiti</a>
+    <a class="tab-link active" href="<%= posturacorretta_medicina_path %>">Medicina dei semplici</a>
+  </div>
+</div>
+
+<div class="diagram">
+
+  <!-- Titolo -->
+  <div class="title">
+    <h1>MEDICINA DEI SEMPLICI</h1>
+    <p>Ezio Abbiati</p>
+  </div>
+
+  <div class="ring-label" aria-hidden="true">
+    <svg viewBox="0 0 100 100">
+      <defs>
+        <path id="innerRingLabelArc" d="M 6 76 Q 50 106 94 76" />
+      </defs>
+      <text>
+        <textPath href="#innerRingLabelArc" startOffset="0%" dy="-0.6">
+          CORPO · BIOMECCANICA · STRUTTURA · POSTURA
+        </textPath>
+      </text>
+    </svg>
+  </div>
+
+  <!-- Croce -->
+  <div class="cross v"></div>
+  <div class="cross h"></div>
+
+  <!-- Vertici -->
+  <div id="nodeAspettiVitali" class="node vitali top clickable" aria-label="Vai a Oriente Occidente"><span>Aspetti<br>vitali</span></div>
+  <div class="node ormonale right"><span>Sistema<br>ormonale</span></div>
+  <div class="node liquidi bottom"><span>Liquidi</span></div>
+  <div class="node nervoso left"><span>Sistema<br>nervoso</span></div>
+
+  <!-- Centro -->
+  <div class="node center"><span>Sistema<br>immunitario</span></div>
+
+</div>
+
+<script>
+(() => {
+  const nodeAspettiVitali = document.getElementById("nodeAspettiVitali");
+  nodeAspettiVitali?.addEventListener("click", (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    window.location.href = "<%= posturacorretta_oriente_occidente_path %>";
+  });
+})();
+</script>
+
+</body>
+</html>

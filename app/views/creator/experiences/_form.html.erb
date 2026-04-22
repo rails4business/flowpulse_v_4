@@ -1,0 +1,49 @@
+<%= form_with(model: [:creator, @port, experience], class: "form-standard") do |form| %>
+  <% if experience.errors.any? %>
+    <div style="color: #b91c1c; margin-bottom: 1rem;">
+      <h4 style="margin: 0 0 0.5rem;">Ci sono errori:</h4>
+      <ul style="margin: 0; padding-left: 1.2rem;">
+        <% experience.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="form-grid">
+    <div class="field-group">
+      <%= form.label :name, "Nome experience" %>
+      <%= form.text_field :name, required: true, placeholder: "Valutazione iniziale" %>
+    </div>
+
+    <div class="field-group">
+      <%= form.label :slug, "Slug" %>
+      <%= form.text_field :slug, placeholder: "valutazione-iniziale" %>
+    </div>
+
+    <div class="field-group">
+      <%= form.label :experience_kind, "Tipo experience" %>
+      <%= form.select :experience_kind, Experience.experience_kinds.keys.map { |key| [key.humanize, key] }, {}, required: true %>
+    </div>
+
+    <div class="field-group">
+      <%= form.label :position, "Posizione" %>
+      <%= form.number_field :position, min: 0, step: 1 %>
+    </div>
+
+    <div class="field-group">
+      <%= form.label :parent_experience_id, "Experience parent" %>
+      <%= form.collection_select :parent_experience_id, @parent_experiences, :id, :name, { include_blank: "Nessuna parent experience" } %>
+    </div>
+
+    <div class="field-group field-group-full">
+      <%= form.label :description, "Descrizione" %>
+      <%= form.text_area :description, rows: 4, placeholder: "Spiega il ruolo di questa experience nel port." %>
+    </div>
+  </div>
+
+  <div class="form-actions">
+    <%= link_to "Annulla", creator_port_experiences_path(@port), class: "btn btn-secondary" %>
+    <%= form.submit experience.persisted? ? "Salva experience" : "Crea experience", class: "btn btn-primary" %>
+  </div>
+<% end %>

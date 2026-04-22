@@ -1,0 +1,174 @@
+<%= form_with(
+  model: content,
+  url: (content.persisted? ? creator_port_content_path(port) : creator_port_content_path(port)),
+  class: "flex flex-col gap-8 pb-10"
+) do |form| %>
+
+  <% if content.errors.any? %>
+    <div class="p-6 rounded-[1.5rem] bg-rose-50 border border-rose-200 shadow-inner">
+      <div class="flex items-center gap-3 mb-3">
+        <span class="material-symbols-outlined text-rose-500 text-2xl">error</span>
+        <h4 class="text-rose-800 font-bold m-0 text-lg">Ci sono <%= pluralize(content.errors.count, "errore", "errori") %> da correggere:</h4>
+      </div>
+      <ul class="list-disc pl-10 text-rose-700 font-medium m-0 space-y-1">
+        <% content.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <!-- BASIC INFO CARD -->
+  <div class="bg-white rounded-[2rem] p-8 shadow-sm border border-slate-200/60 transition-all hover:border-slate-300">
+    <div class="flex items-center gap-3 mb-6">
+      <span class="material-symbols-outlined text-indigo-500 text-3xl">text_fields</span>
+      <h3 class="text-xl font-black text-slate-800 m-0 tracking-tight">Testi Principali</h3>
+    </div>
+    
+    <div class="space-y-6">
+      <!-- Target Reference Block -->
+      <div class="p-4 rounded-2xl bg-indigo-50/50 border border-indigo-100 flex items-center justify-between">
+        <div>
+           <p class="text-[0.65rem] font-bold text-indigo-400 uppercase tracking-widest mb-0.5">Collegato a</p>
+           <strong class="text-indigo-900 text-lg"><%= content.contentable.name %></strong>
+        </div>
+        <% if content.contentable.respond_to?(:slug) && content.contentable.slug.present? %>
+          <div class="px-3 py-1.5 bg-white rounded-lg border border-indigo-100 shadow-sm flex items-center gap-1.5">
+            <span class="material-symbols-outlined text-[14px] text-indigo-400">link</span>
+            <code class="text-indigo-600 font-bold text-sm"><%= content.contentable.slug %></code>
+          </div>
+        <% end %>
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <%= form.label :subtitle, "Sottotitolo", class: "font-bold text-slate-700 ml-1 text-sm" %>
+        <%= form.text_field :subtitle, class: "w-full border border-slate-200 bg-slate-50 rounded-2xl px-5 py-3.5 text-lg font-bold text-slate-800 focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all shadow-inner placeholder:text-slate-300 placeholder:font-normal", placeholder: "Es: Con la postura riattiva la tua fisiologia..." %>
+        <p class="m-0 text-sm text-slate-500">Il titolo principale viene dal port collegato. Qui definisci solo il sottotitolo editoriale.</p>
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <%= form.label :description, "Descrizione breve editoriale", class: "font-bold text-slate-700 ml-1 text-sm" %>
+        <%= form.text_area :description, rows: 3, class: "w-full border border-slate-200 bg-slate-50 rounded-2xl px-5 py-4 text-slate-700 focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all shadow-inner", placeholder: "Descrivi sinteticamente il valore del corso o della risorsa (max 2/3 righe)..." %>
+      </div>
+
+      <div class="flex flex-col gap-2 mt-2" data-controller="easy-mde">
+        <div class="flex justify-between items-end mb-1">
+          <%= form.label :content, "Testo completo", class: "font-bold text-slate-700 ml-1 text-sm" %>
+          <span class="text-[0.65rem] font-bold px-2 py-0.5 bg-slate-100 text-slate-500 rounded-md tracking-widest uppercase">Per ora markdown semplice</span>
+        </div>
+        <%= form.text_area :content, rows: 12, class: "w-full border border-slate-200 bg-slate-50 rounded-2xl px-5 py-5 text-slate-700 font-medium focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all shadow-inner leading-relaxed", placeholder: "Scrivi il testo principale del portale, le sezioni o gli approfondimenti...", data: { easy_mde_target: "input" } %>
+        <p class="m-0 text-sm text-slate-500">Lexxy qui non e' ancora integrato. Questo campo resta testo/markdown fino allo step dedicato.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- MEDIA CARD -->
+  <div class="bg-white rounded-[2rem] p-8 shadow-sm border border-slate-200/60 transition-all hover:border-slate-300">
+    <div class="flex items-center gap-3 mb-6">
+      <span class="material-symbols-outlined text-emerald-500 text-3xl">image</span>
+      <h3 class="text-xl font-black text-slate-800 m-0 tracking-tight">Media e Copertine</h3>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      
+      <div class="flex flex-col gap-2">
+        <%= form.label :thumb_url, "Miniatura (Thumb)", class: "font-bold text-slate-700 text-sm ml-1" %>
+        <div class="relative">
+          <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">add_photo_alternate</span>
+          <%= form.url_field :thumb_url, class: "w-full border border-slate-200 bg-slate-50 rounded-xl pl-11 pr-4 py-3.5 text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all text-sm truncate shadow-inner", placeholder: "https://..." %>
+        </div>
+        <p class="m-0 text-sm text-slate-500">Immagine principale della hero quando non c'e' video. Consigliato: 600x600.</p>
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <%= form.label :banner_url, "Banner largo", class: "font-bold text-slate-700 text-sm ml-1" %>
+        <div class="relative">
+          <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">panorama</span>
+          <%= form.url_field :banner_url, class: "w-full border border-slate-200 bg-slate-50 rounded-xl pl-11 pr-4 py-3.5 text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all text-sm truncate shadow-inner", placeholder: "https://..." %>
+        </div>
+        <p class="m-0 text-sm text-slate-500">Banner basso e largo. Consigliato: 1600x500 o rapporto simile.</p>
+      </div>
+
+      <div class="flex flex-col gap-2 md:col-span-2 lg:col-span-1 border-t border-slate-100 pt-5 mt-2">
+        <%= form.label :horizontal_cover_url, "Cover orizzontale", class: "font-bold text-slate-700 text-sm ml-1" %>
+        <div class="relative">
+          <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">crop_16_9</span>
+          <%= form.url_field :horizontal_cover_url, class: "w-full border border-slate-200 bg-slate-50 rounded-xl pl-11 pr-4 py-3.5 text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all text-sm truncate shadow-inner", placeholder: "https://..." %>
+        </div>
+        <p class="m-0 text-sm text-slate-500">Immagine orizzontale di supporto. Consigliato: 1600x900, rapporto 16:9.</p>
+      </div>
+
+      <div class="flex flex-col gap-2 md:col-span-2 lg:col-span-1 border-t border-slate-100 pt-5 mt-2">
+        <%= form.label :vertical_cover_url, "Cover verticale", class: "font-bold text-slate-700 text-sm ml-1" %>
+        <div class="relative">
+          <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">crop_portrait</span>
+          <%= form.url_field :vertical_cover_url, class: "w-full border border-slate-200 bg-slate-50 rounded-xl pl-11 pr-4 py-3.5 text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all text-sm truncate shadow-inner", placeholder: "https://..." %>
+        </div>
+        <p class="m-0 text-sm text-slate-500">Consigliato: 1080x1350 o 1080x1920.</p>
+      </div>
+
+      <div class="flex flex-col gap-2 md:col-span-2 lg:col-span-1 border-t border-slate-100 pt-5 mt-2">
+        <%= form.label :url_media_content, "Video / media", class: "font-bold text-slate-700 text-sm ml-1" %>
+        <div class="relative">
+          <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">smart_display</span>
+          <%= form.url_field :url_media_content, class: "w-full border border-slate-200 bg-slate-50 rounded-xl pl-11 pr-4 py-3.5 text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all text-sm truncate shadow-inner", placeholder: "https://..." %>
+        </div>
+        <p class="m-0 text-sm text-slate-500">Se presente e riconoscibile, entra nella hero al posto dell'immagine. Usa un link pubblico apribile o embeddabile.</p>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+    
+    <!-- PUBLISHING CARD -->
+    <div class="bg-white rounded-[2rem] p-8 shadow-sm border border-slate-200/60 transition-all hover:border-slate-300">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="material-symbols-outlined text-orange-500 text-3xl">public</span>
+        <h3 class="text-xl font-black text-slate-800 m-0 tracking-tight">Pubblicazione</h3>
+      </div>
+      
+      <div class="space-y-6">
+        <div class="flex flex-col gap-2">
+          <%= form.label :visibility, "Visibilità Modulo", class: "font-bold text-slate-700 ml-1 text-sm" %>
+          <div class="relative">
+            <%= form.select :visibility, Content.visibilities.keys.map { |key| [key.humanize, key] }, {}, class: "w-full border border-slate-200 bg-slate-50 rounded-xl px-4 py-3.5 text-slate-800 font-bold focus:outline-none focus:ring-2 focus:ring-orange-500/30 focus:border-orange-500 transition-all appearance-none cursor-pointer shadow-inner" %>
+            <span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">expand_content</span>
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-2">
+          <%= form.label :published_at, "Data Rilascio", class: "font-bold text-slate-700 ml-1 text-sm" %>
+          <div class="relative">
+            <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">calendar_month</span>
+            <%= form.datetime_local_field :published_at, class: "w-full border border-slate-200 bg-slate-50 rounded-xl pl-12 pr-4 py-3.5 text-slate-700 focus:outline-none focus:ring-2 focus:ring-orange-500/30 focus:border-orange-500 transition-all shadow-inner" %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ADVANCED CONFIG CARD -->
+    <div class="bg-white rounded-[2rem] p-8 shadow-sm border border-slate-200/60 transition-all hover:border-slate-300">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="material-symbols-outlined text-purple-500 text-3xl">schema</span>
+        <h3 class="text-xl font-black text-slate-800 m-0 tracking-tight">Mermaid JS</h3>
+      </div>
+      
+      <div class="flex flex-col gap-2">
+        <div class="flex justify-between items-end mb-1">
+          <%= form.label :mermaid, "Script Diagramma", class: "font-bold text-slate-700 ml-1 text-sm" %>
+          <span class="text-[0.65rem] font-bold px-2 py-0.5 bg-slate-100 text-slate-500 rounded-md tracking-widest uppercase">Codice Sorgente</span>
+        </div>
+        <%= form.text_area :mermaid, rows: 6, class: "w-full border border-slate-200 bg-slate-900 text-purple-300 rounded-2xl px-5 py-4 font-mono text-sm focus:outline-none focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 transition-all shadow-inner leading-relaxed", placeholder: "graph TD;\n  A-->B;\n  B-->C;" %>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- FIXED FLOATING ACTION BAR -->
+  <div class="flex flex-col sm:flex-row items-center gap-4 mt-2 bg-white/80 backdrop-blur-md p-6 rounded-3xl border border-slate-200 shadow-xl sticky bottom-6 z-40">
+    <%= form.submit "Salva Contenuto", class: "w-full sm:w-auto px-10 py-4 rounded-[1.25rem] bg-indigo-600 text-white font-bold tracking-wide shadow-md shadow-indigo-600/20 hover:shadow-xl hover:-translate-y-0.5 hover:bg-indigo-700 transition-all cursor-pointer text-[15px]" %>
+    <%= link_to "Torna al cruscotto", creator_port_path(port), class: "w-full sm:w-auto px-8 py-4 rounded-[1.25rem] bg-slate-100 text-slate-600 font-bold hover:bg-slate-200 transition-colors text-center text-[15px]" %>
+  </div>
+
+<% end %>

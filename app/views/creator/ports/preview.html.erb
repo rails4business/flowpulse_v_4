@@ -1,0 +1,65 @@
+<% content_for :title, @webapp_domain&.seo_title.presence || @webapp_domain&.title.presence || @port.name %>
+
+<% content = @port.content %>
+<% theme = brand_public_theme(@webapp_domain) %>
+<% brand_title = brand_public_title(@webapp_domain, @brand_port) %>
+<% nav_links = brand_public_nav_links(@brand_nav_routes) %>
+
+<section
+  style="
+    --brand-header-bg: <%= theme[:header_bg] %>;
+    --brand-header-text: <%= theme[:header_text] %>;
+    --brand-accent: <%= theme[:accent] %>;
+    --brand-background: <%= theme[:background] %>;
+    min-height: 100vh;
+    background: var(--brand-background);
+  "
+>
+  <%= render "shared/public_nav",
+    brand_title: brand_title,
+    logo_horizontal_url: @webapp_domain&.horizontal_logo_url,
+    logo_square_url: @webapp_domain&.square_logo_url,
+    home_path: root_path,
+    accent_color: theme[:accent],
+    background_color: theme[:background],
+    header_bg_color: theme[:header_bg],
+    header_text_color: theme[:header_text],
+    nav_links: nav_links %>
+
+  <main style="min-height: calc(100vh - 78px); width: 100%; overflow-x: hidden;">
+    <section style="max-width: 1280px; margin: 0 auto; padding: 1rem 1.5rem 0;">
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.8rem; flex-wrap: wrap;">
+        <div style="display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.45rem 0.8rem; border-radius: 999px; background: #fff7ed; color: #9a3412; font-size: 0.78rem; font-weight: 800; letter-spacing: 0.02em; border: 1px solid #fdba74;">
+          Anteprima privata creator
+          <% if content.present? %>
+            · <%= content.visibility.humanize %>
+            <% if content.published_at.present? %>· <%= l(content.published_at, format: :short) %><% end %>
+          <% else %>
+            · Nessun contenuto
+          <% end %>
+        </div>
+        <div style="display: flex; gap: 0.6rem; flex-wrap: wrap;">
+          <%= link_to(content.present? ? "Modifica contenuto" : "Aggiungi contenuto", content.present? ? edit_creator_port_content_path(@port) : new_creator_port_content_path(@port), style: "display: inline-flex; align-items: center; justify-content: center; min-height: 38px; padding: 0 0.9rem; border-radius: 999px; text-decoration: none; white-space: nowrap; background: white; color: #0f172a; font-weight: 700; border: 1px solid #cbd5e1;") %>
+          <%= link_to "Modifica port", edit_creator_port_path(@port), style: "display: inline-flex; align-items: center; justify-content: center; min-height: 38px; padding: 0 0.9rem; border-radius: 999px; text-decoration: none; white-space: nowrap; background: #0f172a; color: white; font-weight: 700; border: 1px solid #0f172a;" %>
+          <% if @port.public_webapp_ready? %>
+            <%= link_to "Apri pubblico", root_path, style: "display: inline-flex; align-items: center; justify-content: center; min-height: 38px; padding: 0 0.9rem; border-radius: 999px; text-decoration: none; white-space: nowrap; background: #dcfce7; color: #166534; font-weight: 700; border: 1px solid #86efac;" %>
+          <% end %>
+        </div>
+      </div>
+    </section>
+
+    <%= render "ports/public_page", port: @port, content: content %>
+  </main>
+
+  <% if development_domain_simulation_active? %>
+    <footer style="padding: 0.85rem 1.25rem 1.1rem; text-align: center;">
+      <span style="display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.35rem 0.6rem; border-radius: 999px; background: #e0f2fe; color: #0c4a6e; font-size: 0.72rem; font-weight: 700;">
+        Dev domain: <code style="font-size: 0.72rem; font-weight: 800;"><%= resolved_domain_host %></code> · Port <code style="font-size: 0.72rem; font-weight: 800;"><%= @port.id %></code>
+      </span>
+    </footer>
+  <% end %>
+
+  <% if @webapp_domain&.custom_css.present? %>
+    <style><%= @webapp_domain.custom_css.html_safe %></style>
+  <% end %>
+</section>

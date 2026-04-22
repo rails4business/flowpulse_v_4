@@ -10,70 +10,99 @@
   header_text_color ||= "#0f172a"
 %>
 
-<header style="position: sticky; top: 0; z-index: 50; width: 100%; background: color-mix(in srgb, <%= header_bg_color %> 90%, <%= background_color %> 10%); backdrop-filter: blur(18px); border-bottom: 1px solid color-mix(in srgb, <%= header_text_color %> 16%, transparent);">
-  <div style="max-width: 1180px; margin: 0 auto; padding: 0.9rem 1.25rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem;">
+<header class="sticky top-0 z-50 w-full backdrop-blur-xl border-b transition-all duration-300" style="background: color-mix(in srgb, <%= header_bg_color %> 88%, transparent); border-color: rgba(15, 23, 42, 0.06);">
+  <div class="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between gap-4">
     <%= link_to home_path, style: "display: inline-flex; align-items: center; text-decoration: none; color: #{header_text_color};" do %>
       <% if logo_horizontal_url.present? %>
-        <img src="<%= logo_horizontal_url %>" alt="<%= brand_title %>" style="height: 36px; width: auto; display: block;" class="brand-public-logo-desktop" />
+        <img src="<%= logo_horizontal_url %>" alt="<%= brand_title %>" style="height: 32px; width: auto; display: block;" class="brand-public-logo-desktop" />
       <% elsif logo_square_url.present? %>
-        <img src="<%= logo_square_url %>" alt="<%= brand_title %>" style="height: 36px; width: 36px; border-radius: 10px; display: block;" class="brand-public-logo-desktop" />
+        <img src="<%= logo_square_url %>" alt="<%= brand_title %>" style="height: 32px; width: 32px; border-radius: 9px; display: block;" class="brand-public-logo-desktop" />
       <% else %>
-        <div style="height: 36px; padding: 0 0.85rem; border-radius: 999px; background: <%= accent_color %>; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; color: white;" class="brand-public-logo-desktop">
+        <div style="height: 32px; padding: 0 0.75rem; border-radius: 999px; background: <%= accent_color %>; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; color: white; box-shadow: 0 2px 8px color-mix(in srgb, <%= accent_color %> 24%, transparent);" class="brand-public-logo-desktop">
           <%= brand_title %>
         </div>
       <% end %>
 
       <% if logo_square_url.present? %>
-        <img src="<%= logo_square_url %>" alt="<%= brand_title %>" style="height: 36px; width: 36px; border-radius: 10px; display: none;" class="brand-public-logo-mobile" />
+        <img src="<%= logo_square_url %>" alt="<%= brand_title %>" style="height: 32px; width: 32px; border-radius: 9px; display: none;" class="brand-public-logo-mobile shadow-sm" />
       <% elsif logo_horizontal_url.present? %>
-        <img src="<%= logo_horizontal_url %>" alt="<%= brand_title %>" style="height: 36px; width: auto; max-width: 36px; object-fit: contain; display: none;" class="brand-public-logo-mobile" />
+        <img src="<%= logo_horizontal_url %>" alt="<%= brand_title %>" style="height: 32px; width: auto; max-width: 32px; object-fit: contain; display: none;" class="brand-public-logo-mobile" />
       <% else %>
-        <div style="width: 36px; height: 36px; border-radius: 10px; background: <%= accent_color %>; display: none; align-items: center; justify-content: center; font-weight: 800; color: white;" class="brand-public-logo-mobile">
+        <div style="width: 34px; height: 34px; border-radius: 9px; background: <%= accent_color %>; display: none; align-items: center; justify-content: center; font-weight: 800; color: white; box-shadow: 0 2px 8px color-mix(in srgb, <%= accent_color %> 24%, transparent);" class="brand-public-logo-mobile">
           <%= brand_title.first&.upcase %>
         </div>
       <% end %>
     <% end %>
 
-    <nav style="display: none; gap: 1.1rem; align-items: center;" class="brand-public-nav-desktop">
+    <nav class="hidden md:flex gap-8 items-center brand-public-nav-desktop">
       <% nav_links.each do |link| %>
-        <%= link_to link[:label], link[:href], style: "text-decoration: none; color: color-mix(in srgb, #{header_text_color} 72%, transparent); font-weight: 600;" %>
+        <%= link_to link[:href], class: "relative text-[15px] font-bold tracking-tight py-1 transition-all group", style: "color: #{header_text_color};" do %>
+          <span class="opacity-70 group-hover:opacity-100 transition-opacity"><%= link[:label] %></span>
+          <span class="absolute -bottom-[1px] left-0 w-0 h-px rounded-full transition-all duration-300 group-hover:w-full" style="background: color-mix(in srgb, <%= accent_color %> 70%, transparent);"></span>
+        <% end %>
       <% end %>
     </nav>
 
-    <div style="display: flex; align-items: center; gap: 0.65rem;">
+    <div class="flex items-center gap-3 md:gap-5">
       <% if authenticated? %>
-        <details style="position: relative;">
-          <summary style="list-style: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 999px; background: color-mix(in srgb, <%= accent_color %> 14%, white); color: <%= header_text_color %>; font-weight: 800;">
+        <details class="relative group" id="user-dropdown-nav">
+          <summary class="list-none cursor-pointer flex items-center justify-center w-[38px] h-[38px] rounded-full font-black text-[14px] shadow-sm transition-transform hover:scale-105" style="background: color-mix(in srgb, <%= accent_color %> 12%, white); color: <%= accent_color %>; border: 2px solid white;">
             <span><%= Current.session.user.email_address.first.upcase %></span>
           </summary>
-          <div style="position: absolute; right: 0; top: calc(100% + 10px); min-width: 180px; border-radius: 16px; background: white; border: 1px solid color-mix(in srgb, <%= accent_color %> 18%, white); box-shadow: 0 18px 34px rgba(15, 23, 42, 0.12); padding: 0.45rem;">
-            <%= link_to "Dashboard", dashboard_path, style: "display: block; padding: 0.65rem 0.75rem; border-radius: 12px; text-decoration: none; color: #{header_text_color}; font-weight: 600;" %>
+          <div class="absolute right-0 top-14 w-56 rounded-2xl bg-white border border-slate-100 shadow-xl p-2 z-[60] flex flex-col gap-1">
+            <div class="px-4 py-2 mb-1 border-b border-slate-50">
+              <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Account</p>
+              <p class="text-sm font-bold text-slate-800 truncate"><%= Current.session.user.email_address %></p>
+            </div>
+            <%= link_to hub_dashboard_path, class: "flex items-center gap-3 px-4 py-3 rounded-xl text-slate-700 font-bold hover:bg-slate-50 hover:text-indigo-600 transition-colors mt-1" do %>
+              <span class="material-symbols-outlined text-xl">grid_view</span> Hub Dashboard
+            <% end %>
             <% if Current.session.user.profile.present? %>
-              <%= link_to "Profilo", edit_profile_path(anchor: "profile-main"), style: "display: block; padding: 0.65rem 0.75rem; border-radius: 12px; text-decoration: none; color: #{header_text_color}; font-weight: 600;" %>
+              <%= link_to edit_profile_path(anchor: "profile-main"), class: "flex items-center gap-3 px-4 py-3 rounded-xl text-slate-700 font-bold hover:bg-slate-50 hover:text-indigo-600 transition-colors" do %>
+                <span class="material-symbols-outlined text-xl">manage_accounts</span> Il tuo Profilo
+              <% end %>
             <% end %>
           </div>
         </details>
       <% else %>
-        <%= link_to "Iscriviti", new_registration_path, style: "display: inline-flex; align-items: center; justify-content: center; min-height: 40px; padding: 0 1rem; border-radius: 999px; text-decoration: none; white-space: nowrap; background: #{accent_color}; color: white; font-weight: 700; border: 1px solid #{accent_color};" %>
-        <%= link_to "Accedi", new_session_path, style: "display: inline-flex; align-items: center; justify-content: center; min-height: 40px; padding: 0 1rem; border-radius: 999px; text-decoration: none; white-space: nowrap; background: transparent; color: #{header_text_color}; font-weight: 700; border: 1px solid color-mix(in srgb, #{header_text_color} 18%, transparent);" %>
+        <div class="hidden sm:flex items-center gap-2">
+          <%= link_to "Accedi", new_session_path, class: "px-5 py-2 rounded-full font-bold text-[15px] transition-all hover:bg-slate-100/60", style: "color: #{header_text_color};" %>
+          <%= link_to "Iscriviti", new_registration_path, class: "px-6 py-2 rounded-full font-bold text-[15px] shadow text-white hover:shadow-lg transition-all transform hover:-translate-y-0.5", style: "background: #{accent_color};" %>
+        </div>
       <% end %>
 
-      <details class="brand-public-nav-mobile" style="position: relative;">
-        <summary style="list-style: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 999px; background: white; border: 1px solid color-mix(in srgb, <%= accent_color %> 18%, white); color: <%= header_text_color %>; font-size: 1rem; font-weight: 800;">☰</summary>
-        <div style="position: absolute; right: 0; top: calc(100% + 10px); min-width: 220px; border-radius: 18px; background: white; border: 1px solid color-mix(in srgb, <%= accent_color %> 18%, white); box-shadow: 0 18px 34px rgba(15, 23, 42, 0.12); padding: 0.55rem;">
+      <!-- MOBILE MENU DROPDOWN -->
+      <details class="md:hidden relative group">
+        <summary class="list-none cursor-pointer flex items-center justify-center w-[38px] h-[38px] rounded-xl bg-white shadow-sm text-slate-700 hover:bg-slate-50 transition-colors relative" style="border: 1px solid color-mix(in srgb, <%= accent_color %> 20%, white);">
+           <span class="material-symbols-outlined group-open:opacity-0 transition-opacity absolute">menu</span>
+           <span class="material-symbols-outlined opacity-0 group-open:opacity-100 transition-opacity absolute">close</span>
+        </summary>
+        <div class="absolute right-0 top-14 w-64 rounded-3xl bg-white border border-slate-100 shadow-2xl p-3 z-[60] flex flex-col gap-1">
           <% nav_links.each do |link| %>
-            <%= link_to link[:label], link[:href], style: "display: block; padding: 0.75rem 0.85rem; border-radius: 12px; text-decoration: none; color: #{header_text_color}; font-weight: 700;" %>
+            <%= link_to link[:href], class: "px-5 py-4 rounded-2xl font-bold text-slate-800 hover:bg-slate-50 transition-colors flex items-center justify-between" do %>
+              <span><%= link[:label] %></span>
+              <span class="material-symbols-outlined text-slate-300 text-sm">chevron_right</span>
+            <% end %>
           <% end %>
+          
+          <div class="h-px bg-slate-100 my-2 mx-2"></div>
+          
           <% if authenticated? %>
-            <div style="height: 1px; background: color-mix(in srgb, <%= accent_color %> 18%, white); margin: 0.35rem 0;"></div>
-            <%= link_to "Dashboard", dashboard_path, style: "display: block; padding: 0.75rem 0.85rem; border-radius: 12px; text-decoration: none; color: #{header_text_color}; font-weight: 700;" %>
+            <div class="px-5 py-2 mb-1">
+              <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Loggato come</p>
+              <p class="text-sm font-bold text-slate-800 truncate"><%= Current.session.user.email_address %></p>
+            </div>
+            <%= link_to hub_dashboard_path, class: "flex items-center gap-4 px-5 py-4 rounded-2xl text-slate-700 font-bold bg-slate-50/70 hover:bg-slate-100 transition-colors" do %>
+               <div class="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-indigo-500"><span class="material-symbols-outlined text-[18px]">grid_view</span></div> Hub Dashboard
+            <% end %>
             <% if Current.session.user.profile.present? %>
-              <%= link_to "Profilo", edit_profile_path(anchor: "profile-main"), style: "display: block; padding: 0.75rem 0.85rem; border-radius: 12px; text-decoration: none; color: #{header_text_color}; font-weight: 700;" %>
+              <%= link_to edit_profile_path(anchor: "profile-main"), class: "flex items-center gap-4 px-5 py-4 rounded-2xl text-slate-700 font-bold bg-slate-50/70 hover:bg-slate-100 transition-colors mt-2" do %>
+                 <div class="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-indigo-500"><span class="material-symbols-outlined text-[18px]">manage_accounts</span></div> Impostazioni
+              <% end %>
             <% end %>
           <% else %>
-            <div style="height: 1px; background: color-mix(in srgb, <%= accent_color %> 18%, white); margin: 0.35rem 0;"></div>
-            <%= link_to "Iscriviti", new_registration_path, style: "display: block; padding: 0.75rem 0.85rem; border-radius: 12px; text-decoration: none; color: #{header_text_color}; font-weight: 700;" %>
-            <%= link_to "Accedi", new_session_path, style: "display: block; padding: 0.75rem 0.85rem; border-radius: 12px; text-decoration: none; color: #{header_text_color}; font-weight: 700;" %>
+            <%= link_to "Accedi", new_session_path, class: "px-5 py-4 rounded-2xl text-slate-700 font-bold flex justify-center hover:bg-slate-50 transition-colors" %>
+            <%= link_to "Iscriviti al portale", new_registration_path, class: "mt-2 mx-1 px-5 py-3.5 rounded-xl font-bold text-center shadow-md", style: "background: #{accent_color}; color: white;" %>
           <% end %>
         </div>
       </details>

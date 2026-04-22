@@ -1,0 +1,38 @@
+<%
+  children = brand_tree_children_for(port)
+  root_level = prefix.to_s.empty?
+  connector = root_level ? "" : (is_last ? "└── " : "├── ")
+  line_prefix = "#{prefix}#{connector}"
+  tree_focus_active = @brand_tree_root&.id == port.id && @brand_tree_scope == "subtree"
+  tree_children_active = @brand_tree_root&.id == port.id && @brand_tree_scope == "subtree" && @brand_tree_depth == "children"
+  child_prefix = if root_level
+    "    "
+  else
+    "#{prefix}#{is_last ? "    " : "│   "}"
+  end
+%>
+
+<div style="margin-top: 0.4rem;">
+  <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; flex-wrap: wrap;">
+    <div style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 1rem; line-height: 1.6; color: #0f172a;">
+      <span style="color: #475569; white-space: pre;"><%= line_prefix %></span><%= link_to port.name, creator_port_path(port), style: "color: #0f172a; text-decoration: none; font-weight: 700;" %>
+    </div>
+    <div style="display: flex; gap: 0.55rem; flex-wrap: wrap;">
+      <%= link_to "◎",
+                  creator_brand_tree_path(scope: "subtree", root_brand_id: port.id, tree_depth: "all"),
+                  title: "Usa questo brand come radice dell'albero",
+                  aria: { label: "Usa questo brand come radice dell'albero" },
+                  style: "display: inline-flex; align-items: center; justify-content: center; width: 1.75rem; height: 1.75rem; border-radius: 999px; border: 1px solid #{tree_focus_active ? "#7dd3fc" : "#cbd5e1"}; background: #{tree_focus_active ? "#e0f2fe" : "transparent"}; color: #{tree_focus_active ? "#0369a1" : "#475569"}; text-decoration: none; font-size: 0.78rem; line-height: 1;" %>
+      <%= link_to "↳",
+                  creator_brand_tree_path(scope: "subtree", root_brand_id: port.id, tree_depth: "children"),
+                  title: "Mostra solo i figli diretti di questo brand",
+                  aria: { label: "Mostra solo i figli diretti di questo brand" },
+                  style: "display: inline-flex; align-items: center; justify-content: center; width: 1.75rem; height: 1.75rem; border-radius: 999px; border: 1px solid #{tree_children_active ? "#7dd3fc" : "#cbd5e1"}; background: #{tree_children_active ? "#e0f2fe" : "transparent"}; color: #{tree_children_active ? "#0369a1" : "#475569"}; text-decoration: none; font-size: 0.78rem; line-height: 1;" %>
+      <%= link_to "⛵", creator_brand_carta_nautica_path(brand_port_id: port.id), title: "Carta nautica", aria: { label: "Carta nautica" }, style: "display: inline-flex; align-items: center; justify-content: center; width: 1.75rem; height: 1.75rem; border-radius: 999px; border: 1px solid #cbd5e1; color: #475569; text-decoration: none; font-size: 0.82rem; line-height: 1;" %>
+    </div>
+  </div>
+
+  <% children.each_with_index do |child_port, index| %>
+    <%= render "brand_tree_node", port: child_port, prefix: child_prefix, is_last: index == children.length - 1 %>
+  <% end %>
+</div>

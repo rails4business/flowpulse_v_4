@@ -58,6 +58,27 @@ class PagesController < ApplicationController
     ]
   end
 
+  def week_plan
+  end
+
+  def daily_plan
+  end
+
+  def prenotazioni
+  end
+
+  def hub
+  end
+
+  def hobby_goals
+  end
+
+  def active_paths
+  end
+
+  def shared_events
+  end
+
   private
     def unresolved_public_webapp_domain?
       Rails.env.production? && resolved_domain_host.present? && resolved_domain_host != "flowpulse.net" && current_webapp_domain.blank?
@@ -66,6 +87,13 @@ class PagesController < ApplicationController
     def render_webapp_domain_home
       @webapp_domain = current_webapp_domain
       @brand_port = @webapp_domain.brand_port
+      @port = @brand_port
+
+      unless @port.public_webapp_ready?
+        return redirect_to preview_creator_port_path(@port) if creator_owner_preview_allowed?
+
+        return render :webapp_coming_soon, status: :ok
+      end
 
       if @webapp_domain.home_page_key.present?
         custom_home_path = brand_home_path_for(@webapp_domain.home_page_key)
@@ -84,12 +112,15 @@ class PagesController < ApplicationController
     end
 
     def load_standard_brand_home_data
-      @port = @brand_port
       @webapp_domains = @brand_port.webapp_domains.where(published: true).order(primary: :desc, locale: :asc)
       @brand_nav_routes =
         @brand_port.outgoing_sea_routes
-          .includes(:target_port)
+          .includes(target_port: :content)
           .ordered
-          .select { |route| route.target_port.published? }
+          .select { |route| route.target_port.content&.publicly_visible? }
+    end
+
+    def creator_owner_preview_allowed?
+      creator_owner_for_port?(@port)
     end
 end

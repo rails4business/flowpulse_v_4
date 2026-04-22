@@ -60,7 +60,7 @@
   <div class="form-group" style="margin-bottom: 1rem;">
     <%= form.label :home_page_key, "Home page key", style: "display: block;" %>
     <%= form.text_field :home_page_key, class: "form-control", placeholder: "posturacorretta_home", style: "width: 100%; border: 1px solid #ccc; padding: 0.5rem; border-radius: 4px;" %>
-    <p style="margin: 0.35rem 0 0; color: #64748b; font-size: 0.82rem;">Lascia vuoto per usare la pagina pubblica del brand port. Se compili una chiave, il dominio passa a un'action dedicata del controller <code>BrandHomesController</code>.</p>
+    <p style="margin: 0.35rem 0 0; color: #64748b; font-size: 0.82rem;">Lascia vuoto per usare la pagina pubblica del port web app. Se compili una chiave, il dominio passa a un'action dedicata del controller <code>BrandHomesController</code>.</p>
     <p style="margin: 0.2rem 0 0; color: #64748b; font-size: 0.82rem;">Convenzione: <code>home_page_key</code> = nome dell'action ammessa, con controller fissato. Esempio: <code>posturacorretta_home</code> -> <code>BrandHomesController#posturacorretta_home</code>.</p>
     <p style="margin: 0.2rem 0 0; color: #64748b; font-size: 0.82rem;">Chiavi disponibili ora: <code><%= WebappDomain::AVAILABLE_HOME_PAGE_KEYS.join("</code>, <code>").html_safe %></code></p>
   </div>

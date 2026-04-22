@@ -1,0 +1,56 @@
+<% content_for :title, @webapp_domain&.seo_title.presence || @webapp_domain&.title.presence || @brand_port.name %>
+<% theme = brand_public_theme(@webapp_domain) %>
+<% brand_title = brand_public_title(@webapp_domain, @brand_port) %>
+<% nav_links = brand_public_nav_links(nil) %>
+
+<section
+  style="
+    --brand-header-bg: <%= theme[:header_bg] %>;
+    --brand-header-text: <%= theme[:header_text] %>;
+    --brand-accent: <%= theme[:accent] %>;
+    --brand-background: <%= theme[:background] %>;
+    min-height: 100vh;
+    background: var(--brand-background);
+  "
+>
+  <%= render "shared/public_nav",
+    brand_title: brand_title,
+    logo_horizontal_url: @webapp_domain&.horizontal_logo_url,
+    logo_square_url: @webapp_domain&.square_logo_url,
+    home_path: root_path,
+    accent_color: theme[:accent],
+    background_color: theme[:background],
+    header_bg_color: theme[:header_bg],
+    header_text_color: theme[:header_text],
+    nav_links: nav_links %>
+
+  <main style="min-height: calc(100vh - 78px); width: 100%; display: flex; align-items: center; justify-content: center; padding: 2rem;">
+    <section style="width: 100%; max-width: 760px; background: rgba(255,255,255,0.82); border: 1px solid rgba(15,23,42,0.08); border-radius: 28px; padding: 3rem 2.4rem; box-shadow: 0 24px 48px rgba(15,23,42,0.08); text-align: center;">
+      <% if creator_owner_for_port?(@port) && @port.web_app? %>
+        <div style="margin-bottom: 1.2rem; display: inline-flex; align-items: center; gap: 0.6rem; padding: 0.45rem 0.55rem 0.45rem 0.8rem; border-radius: 999px; background: #eff6ff; color: #1d4ed8; font-size: 0.78rem; font-weight: 800; letter-spacing: 0.02em; border: 1px solid #93c5fd;">
+          Accesso creator
+          <%= link_to "Vai ad anteprima", preview_creator_port_path(@port), style: "display: inline-flex; align-items: center; justify-content: center; min-height: 30px; padding: 0 0.8rem; border-radius: 999px; text-decoration: none; white-space: nowrap; background: white; color: #1d4ed8; font-weight: 700; border: 1px solid #bfdbfe;" %>
+        </div>
+      <% end %>
+
+      <div style="display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.45rem 0.8rem; border-radius: 999px; background: color-mix(in srgb, var(--brand-accent) 12%, white); color: var(--brand-accent); font-size: 0.78rem; font-weight: 800; letter-spacing: 0.02em; text-transform: uppercase;">
+        Web app in preparazione
+      </div>
+
+      <h1 style="margin: 1.25rem 0 0; font-size: clamp(2.4rem, 5vw, 3.4rem); line-height: 1.08; letter-spacing: -0.03em; color: #0f172a;">
+        <%= @brand_port.name %>
+      </h1>
+
+      <p style="margin: 1rem auto 0; max-width: 620px; font-size: 1.1rem; line-height: 1.7; color: #475569;">
+        Questa web app è collegata correttamente al dominio, ma la pagina pubblica non è ancora stata pubblicata.
+        Torna presto: qui comparirà l’ingresso ufficiale del brand.
+      </p>
+
+      <% if @webapp_domain&.seo_description.present? %>
+        <p style="margin: 1.1rem auto 0; max-width: 620px; font-size: 0.98rem; line-height: 1.7; color: #64748b;">
+          <%= @webapp_domain.seo_description %>
+        </p>
+      <% end %>
+    </section>
+  </main>
+</section>

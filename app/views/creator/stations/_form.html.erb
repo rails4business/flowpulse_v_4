@@ -1,0 +1,74 @@
+<%= form_with(model: [:creator, @port, @line, station], class: "form-standard") do |form| %>
+  <% if station.errors.any? %>
+    <div style="color: #b91c1c; margin-bottom: 1rem;">
+      <h4 style="margin: 0 0 0.5rem;">Ci sono errori:</h4>
+      <ul style="margin: 0; padding-left: 1.2rem;">
+        <% station.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="form-grid">
+    <div class="field-group">
+      <%= form.label :experience_id, "Experience" %>
+      <%= form.collection_select :experience_id, @experiences, :id, :name, {}, required: true %>
+      <small style="display: block; color: #64748b; margin-top: 0.35rem;">La station aggancia una experience a questa line.</small>
+    </div>
+
+    <div class="field-group">
+      <%= form.label :name, "Nome station" %>
+      <%= form.text_field :name, required: true, placeholder: "Valutazione iniziale" %>
+    </div>
+
+    <div class="field-group">
+      <%= form.label :slug, "Slug" %>
+      <%= form.text_field :slug, placeholder: "valutazione-iniziale" %>
+    </div>
+
+    <div class="field-group">
+      <%= form.label :station_kind, "Tipo station" %>
+      <%= form.select :station_kind, Station.station_kinds.keys.map { |key| [key.humanize, key] }, {}, required: true %>
+    </div>
+
+    <div class="field-group">
+      <%= form.label :position, "Posizione" %>
+      <%= form.number_field :position, min: 0, step: 1 %>
+    </div>
+
+    <div class="field-group">
+      <%= form.label :map_x, "Mappa X" %>
+      <%= form.number_field :map_x, step: 1, placeholder: "140" %>
+      <small style="display: block; color: #64748b; margin-top: 0.35rem;">Coordinata orizzontale della station nella mappa terra.</small>
+    </div>
+
+    <div class="field-group">
+      <%= form.label :map_y, "Mappa Y" %>
+      <%= form.number_field :map_y, step: 1, placeholder: "180" %>
+      <small style="display: block; color: #64748b; margin-top: 0.35rem;">Coordinata verticale della station nella mappa terra.</small>
+    </div>
+
+    <div class="field-group">
+      <%= form.label :link_station_id, "Link ad altra station" %>
+      <%= form.collection_select :link_station_id, @linkable_stations, :id, :name, { include_blank: "Nessun link station" } %>
+      <small style="display: block; color: #64748b; margin-top: 0.35rem;">Usa una station di un'altra line dello stesso port.</small>
+    </div>
+
+    <div class="field-group">
+      <%= form.label :link_port_id, "Link ad altro port" %>
+      <%= form.collection_select :link_port_id, @linkable_ports, :id, :name, { include_blank: "Nessun link port" } %>
+      <small style="display: block; color: #64748b; margin-top: 0.35rem;">Utile per interscambi verso un altro port.</small>
+    </div>
+
+    <div class="field-group field-group-full">
+      <%= form.label :description, "Descrizione" %>
+      <%= form.text_area :description, rows: 4, placeholder: "Spiega il senso della station nel percorso." %>
+    </div>
+  </div>
+
+  <div class="form-actions">
+    <%= link_to "Annulla", creator_port_line_stations_path(@port, @line), class: "btn btn-secondary" %>
+    <%= form.submit station.persisted? ? "Salva station" : "Crea station", class: "btn btn-primary" %>
+  </div>
+<% end %>

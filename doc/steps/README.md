@@ -10,7 +10,11 @@ Gli step ancora aperti o attuali stanno in:
 
 Step attuale:
 
-- [`todo/planning_develop_step_0011.md`](todo/planning_develop_step_0011.md)
+- [`todo/planning_develop_step_0016.md`](todo/planning_develop_step_0016.md)
+
+Step successivo gia' preparato:
+
+- [`todo/planning_develop_step_0016.md`](todo/planning_develop_step_0016.md)
 
 ## Todo Next
 
@@ -25,6 +29,9 @@ Prime note:
 - [`todonext/multi_role_sea_participation.md`](todonext/multi_role_sea_participation.md)
 - [`todonext/gente_che_puo_cambiare_il_mondo.md`](todonext/gente_che_puo_cambiare_il_mondo.md)
 - [`todonext/public_content_and_program_models.md`](todonext/public_content_and_program_models.md)
+- [`todonext/operator_guide_teacher_professional_roles.md`](todonext/operator_guide_teacher_professional_roles.md)
+- [`todonext/line_journey_program_service_prototype.md`](todonext/line_journey_program_service_prototype.md)
+- [`todonext/experience_word_academy_translation.md`](todonext/experience_word_academy_translation.md)
 
 ## Done
 
@@ -44,3 +51,8 @@ Step completati:
 - [`done/planning_develop_step_0008.md`](done/planning_develop_step_0008.md)
 - [`done/planning_develop_step_0009.md`](done/planning_develop_step_0009.md)
 - [`done/planning_develop_step_0010.md`](done/planning_develop_step_0010.md)
+- [`done/planning_develop_step_0011.md`](done/planning_develop_step_0011.md)
+- [`done/planning_develop_step_0012.md`](done/planning_develop_step_0012.md)
+- [`done/planning_develop_step_0013.md`](done/planning_develop_step_0013.md)
+- [`done/planning_develop_step_0014.md`](done/planning_develop_step_0014.md)
+- [`done/planning_develop_step_0015.md`](done/planning_develop_step_0015.md)

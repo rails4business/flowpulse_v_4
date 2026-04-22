@@ -6,12 +6,9 @@ one:
   name: MyString
   slug: MyString
   port_kind: 1
-  visibility: 1
-  description: MyText
   x: 1
   'y': 1
   meta: 
-  published_at: 2026-04-09 08:57:29
 
 two:
   profile: two
@@ -19,9 +16,6 @@ two:
   name: MyString
   slug: MyString
   port_kind: 1
-  visibility: 1
-  description: MyText
   x: 1
   'y': 1
   meta: 
-  published_at: 2026-04-09 08:57:29

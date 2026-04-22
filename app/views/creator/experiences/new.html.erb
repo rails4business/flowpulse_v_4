@@ -1,0 +1,17 @@
+<% content_for :title, "Nuova experience" %>
+
+<section class="dashboard-shell">
+  <div class="app-layout">
+    <%= render "shared/app_sidebar" %>
+
+    <div class="dashboard-card">
+      <p class="eyebrow">Creator</p>
+      <h1 class="page-title" style="margin-bottom: 0.35rem;">Nuova experience per <%= @port.name %></h1>
+      <p>Crea prima le esperienze del port. Le station le agganceranno alle linee.</p>
+
+      <div class="dashboard-actions" style="margin-top: 2rem; background: #fff; padding: 2rem; border-radius: 8px; border: 1px solid #eee;">
+        <%= render "form", experience: @experience %>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,53 @@
+<% content_for :title, "Linee di #{@port.name}" %>
+
+<section class="dashboard-shell">
+  <div class="app-layout">
+    <%= render "shared/app_sidebar" %>
+
+    <div class="dashboard-card">
+      <p class="eyebrow">Creator</p>
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; flex-wrap: wrap;">
+        <div>
+          <h1 class="page-title" style="margin-bottom: 0.35rem;">Linee di <%= @port.name %></h1>
+          <p style="margin: 0; color: #64748b;">Prima base operativa della mappa terra del port.</p>
+        </div>
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+          <%= link_to "Torna al port", creator_port_path(@port), class: "btn btn-secondary" %>
+          <%= link_to "Nuova linea", new_creator_port_line_path(@port), class: "btn btn-primary" %>
+        </div>
+      </div>
+
+      <div class="dashboard-actions" style="margin-top: 2rem; background: #fff; padding: 1.5rem; border-radius: 8px; border: 1px solid #eee;">
+        <% if @lines.any? %>
+          <div style="display: grid; gap: 1rem;">
+            <% @lines.each do |line| %>
+              <article style="border: 1px solid #e2e8f0; border-radius: 16px; padding: 1rem 1.25rem; background: #fff;">
+                <div style="display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; align-items: center;">
+                  <div>
+                    <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+                      <h2 style="margin: 0; font-size: 1.1rem;"><%= line.name %></h2>
+                      <span style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; background: #eff6ff; color: #1d4ed8; border-radius: 999px; padding: 0.2rem 0.55rem;"><%= line.line_kind_label %></span>
+                      <span style="font-size: 0.75rem; color: #64748b;">pos. <%= line.position %></span>
+                    </div>
+                    <p style="margin: 0.35rem 0 0; color: #64748b;"><%= line.slug %> · <%= pluralize(line.stations.count, "station") %></p>
+                    <% if line.description.present? %>
+                      <p style="margin: 0.75rem 0 0; color: #334155;"><%= line.description %></p>
+                    <% end %>
+                  </div>
+
+                  <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                    <%= link_to "Station", creator_port_line_stations_path(@port, line), class: "btn btn-secondary" %>
+                    <%= link_to "Modifica", edit_creator_port_line_path(@port, line), class: "btn btn-secondary" %>
+                    <%= button_to "Elimina", creator_port_line_path(@port, line), method: :delete, form: { data: { turbo_confirm: "Eliminare questa linea e tutte le sue station?" } }, class: "btn btn-danger" %>
+                  </div>
+                </div>
+              </article>
+            <% end %>
+          </div>
+        <% else %>
+          <p style="margin: 0; color: #64748b;">Nessuna linea ancora definita per questo port.</p>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</section>
