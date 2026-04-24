@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_22_171600) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_24_203000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -131,14 +131,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_22_171600) do
   create_table "stations", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.text "description"
-    t.bigint "experience_id", null: false
+    t.bigint "experience_id"
     t.bigint "line_id", null: false
+    t.integer "link_order", default: 0, null: false
     t.bigint "link_port_id"
     t.bigint "link_station_id"
     t.integer "map_x"
     t.integer "map_y"
     t.string "name", null: false
+    t.boolean "port_entry", default: false, null: false
     t.integer "position", default: 0, null: false
+    t.integer "shared_group_angle", default: 0, null: false
     t.string "slug", null: false
     t.integer "station_kind", default: 0, null: false
     t.datetime "updated_at", null: false

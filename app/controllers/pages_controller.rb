@@ -1,8 +1,12 @@
 class PagesController < ApplicationController
-  allow_unauthenticated_access only: %i[home about fondatore]
-  layout "brand_public", only: %i[home about fondatore]
+  allow_unauthenticated_access only: %i[home about fondatore markpostura]
+  layout "brand_public", only: %i[home about fondatore markpostura]
 
   def home
+    if markpostura_gallery_domain?
+      return redirect_to markpostura_path
+    end
+
     if unresolved_public_webapp_domain?
       return render :domain_not_configured, status: :not_found
     end
@@ -58,6 +62,9 @@ class PagesController < ApplicationController
     ]
   end
 
+  def markpostura
+  end
+
   def week_plan
   end
 
@@ -82,6 +89,10 @@ class PagesController < ApplicationController
   private
     def unresolved_public_webapp_domain?
       Rails.env.production? && resolved_domain_host.present? && resolved_domain_host != "flowpulse.net" && current_webapp_domain.blank?
+    end
+
+    def markpostura_gallery_domain?
+      resolved_domain_host.to_s.downcase.in?(%w[markpostura.it markpostura.com])
     end
 
     def render_webapp_domain_home

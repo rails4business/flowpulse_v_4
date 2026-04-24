@@ -33,6 +33,18 @@
     </div>
 
     <div class="field-group">
+      <%= form.label :link_order, "Ordine nel nodo condiviso" %>
+      <%= form.number_field :link_order, step: 1, placeholder: "0" %>
+      <small style="display: block; color: #64748b; margin-top: 0.35rem;">Usa valori negativi o positivi per ordinare i membri del gruppo condiviso attorno alla station principale.</small>
+    </div>
+
+    <div class="field-group">
+      <%= form.label :shared_group_angle, "Angolo nodo condiviso" %>
+      <%= form.select :shared_group_angle, Station.shared_group_angles.keys.map { |key| [key.humanize, key] }, {}, required: true %>
+      <small style="display: block; color: #64748b; margin-top: 0.35rem;">Controlla l'orientamento del nodo condiviso a cui questa station appartiene.</small>
+    </div>
+
+    <div class="field-group">
       <%= form.label :position, "Posizione" %>
       <%= form.number_field :position, min: 0, step: 1 %>
     </div>
@@ -59,6 +71,14 @@
       <%= form.label :link_port_id, "Link ad altro port" %>
       <%= form.collection_select :link_port_id, @linkable_ports, :id, :name, { include_blank: "Nessun link port" } %>
       <small style="display: block; color: #64748b; margin-top: 0.35rem;">Utile per interscambi verso un altro port.</small>
+    </div>
+
+    <div class="field-group">
+      <label style="display: flex; align-items: center; gap: 0.6rem; font-weight: 700;">
+        <%= form.check_box :port_entry %>
+        Entry station del port
+      </label>
+      <small style="display: block; color: #64748b; margin-top: 0.35rem;">Usa questo flag per indicare che il port puo' iniziare da questa station.</small>
     </div>
 
     <div class="field-group field-group-full">

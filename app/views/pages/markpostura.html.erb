@@ -1,0 +1,153 @@
+<% content_for :title, "Markpostura" %>
+<% gallery_images = (1..12).map { |index| asset_path("progetto_flowpulse/#{index}.png") } %>
+
+<style>
+  .markpostura-gallery-page {
+    min-height: 100vh;
+    background:
+      radial-gradient(circle at top, rgba(255, 255, 255, 0.08), transparent 30%),
+      #06070a;
+  }
+
+  .markpostura-gallery-shell {
+    min-height: 100vh;
+    display: grid;
+    grid-template-rows: 1fr auto;
+    padding: 18px;
+    gap: 14px;
+  }
+
+  .markpostura-gallery-stage {
+    position: relative;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border-radius: 28px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.45);
+  }
+
+  .markpostura-gallery-image {
+    display: block;
+    width: 100%;
+    height: calc(100vh - 110px);
+    object-fit: contain;
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+
+  .markpostura-gallery-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 54px;
+    height: 54px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: rgba(15, 23, 42, 0.58);
+    backdrop-filter: blur(12px);
+    color: white;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.18s ease, transform 0.18s ease;
+  }
+
+  .markpostura-gallery-nav:hover {
+    background: rgba(15, 23, 42, 0.78);
+  }
+
+  .markpostura-gallery-nav.prev {
+    left: 20px;
+  }
+
+  .markpostura-gallery-nav.next {
+    right: 20px;
+  }
+
+  .markpostura-gallery-dots {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding-bottom: 6px;
+  }
+
+  .markpostura-gallery-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    border: none;
+    background: rgba(255, 255, 255, 0.24);
+    cursor: pointer;
+    transition: transform 0.18s ease, background 0.18s ease;
+  }
+
+  .markpostura-gallery-dot.is-active {
+    background: white;
+    transform: scale(1.25);
+  }
+
+  @media (max-width: 700px) {
+    .markpostura-gallery-shell {
+      padding: 10px;
+      gap: 10px;
+    }
+
+    .markpostura-gallery-stage {
+      border-radius: 18px;
+    }
+
+    .markpostura-gallery-image {
+      height: calc(100vh - 84px);
+    }
+
+    .markpostura-gallery-nav {
+      width: 46px;
+      height: 46px;
+    }
+
+    .markpostura-gallery-nav.prev {
+      left: 10px;
+    }
+
+    .markpostura-gallery-nav.next {
+      right: 10px;
+    }
+  }
+</style>
+
+<section
+  class="markpostura-gallery-page"
+  data-controller="markpostura-gallery"
+  data-markpostura-gallery-images-value="<%= gallery_images.to_json %>">
+  <div class="markpostura-gallery-shell">
+    <div class="markpostura-gallery-stage">
+      <button type="button" class="markpostura-gallery-nav prev" data-action="click->markpostura-gallery#previous" aria-label="Immagine precedente">
+        <span class="material-symbols-outlined">chevron_left</span>
+      </button>
+
+      <img class="markpostura-gallery-image" data-markpostura-gallery-target="image" alt="Markpostura gallery">
+
+      <button type="button" class="markpostura-gallery-nav next" data-action="click->markpostura-gallery#next" aria-label="Immagine successiva">
+        <span class="material-symbols-outlined">chevron_right</span>
+      </button>
+    </div>
+
+    <div class="markpostura-gallery-dots">
+      <% gallery_images.each_with_index do |_image, index| %>
+        <button
+          type="button"
+          class="markpostura-gallery-dot <%= "is-active" if index.zero? %>"
+          data-markpostura-gallery-target="dot"
+          data-index="<%= index %>"
+          data-action="click->markpostura-gallery#goTo"
+          aria-label="Vai all'immagine <%= index + 1 %>"></button>
+      <% end %>
+    </div>
+  </div>
+</section>

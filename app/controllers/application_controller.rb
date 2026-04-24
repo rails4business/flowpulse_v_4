@@ -63,7 +63,7 @@ class ApplicationController < ActionController::Base
     end
 
     def public_flow_controller?
-      return true if controller_name == "pages" && action_name.in?(%w[home about])
+      return true if controller_name == "pages" && action_name.in?(%w[home about fondatore markpostura])
       return true if controller_name == "brand_homes"
       return true if controller_name == "ports" && action_name == "public"
       return true if controller_name == "blog"

@@ -1,23 +1,60 @@
 <% content_for :title, "Mappa terra di #{@port.name}" %>
 <% station_kind_options = Station.station_kinds.keys.map { |key| [Station.new(station_kind: key).station_kind_label, key] } %>
+<% shared_group_angle_options = Station.shared_group_angles.keys.map { |key| [key.humanize, key] } %>
 <% line_kind_options = Line.line_kinds.keys.map { |key| [key.humanize, key] } %>
 <% default_line_kind = params.dig(:line, :line_kind).presence || Line.line_kinds.keys.first %>
-<% default_station_kind = params.dig(:station, :station_kind).presence || "step" %>
+<% default_station_kind = params.dig(:station, :station_kind).presence || "normal" %>
+<% default_station_relative_position = params.dig(:station, :relative_position).presence_in(%w[before after]) || "after" %>
 <% experience_kind_options = Experience.experience_kinds.keys.map { |key| [key.humanize, key] } %>
 <% experience_picker_options = @experiences.map { |experience| { id: experience.id, name: experience.name } }.to_json %>
-<% default_existing_experience_id = params.dig(:station, :experience_id).presence || @selected_station&.experience_id %>
+<% port_picker_options = @linkable_ports.to_a.map { |port| { id: port.id, name: port.name } }.to_json %>
+<% default_existing_experience_id = params.dig(:station, :experience_id).presence || @selected_station&.canonical_experience&.id %>
 <% default_existing_experience_name = @experiences.find { |experience| experience.id == default_existing_experience_id.to_i }&.name %>
+<% default_existing_port_id = params.dig(:station, :link_port_id).presence || @selected_station&.link_port_id %>
+<% default_existing_port_name = @linkable_ports.to_a.find { |port| port.id == default_existing_port_id.to_i }&.name %>
+<% station_picker_options = @lines.flat_map { |line|
+  ordered_stations = line.stations.sort_by { |station| [station.position, station.created_at] }
+  ordered_stations.map.with_index do |station, index|
+    position = @rendered_station_positions&.[](station.id)
+    next if position.blank?
+
+    previous_station = index.positive? ? ordered_stations[index - 1] : nil
+    previous_position = previous_station.present? ? @rendered_station_positions&.[](previous_station.id) : nil
+    next_station = ordered_stations[index + 1]
+    next_position = next_station.present? ? @rendered_station_positions&.[](next_station.id) : nil
+
+    {
+      id: station.id,
+      primaryStationId: station.primary_station.id,
+      lineId: station.line_id,
+      x: position[:x],
+      y: position[:y],
+      name: station.primary_station.name,
+      first: previous_station.blank?,
+      terminal: next_station.blank?,
+      prevX: previous_position&.dig(:x),
+      prevY: previous_position&.dig(:y),
+      nextX: next_position&.dig(:x),
+      nextY: next_position&.dig(:y)
+    }
+  end
+}.flatten.compact.to_json %>
 <% land_map_params = { edit: (@edit_mode ? 1 : nil), line_id: @selected_line&.id } %>
-<% preview_origin_station = @selected_station || @selected_line&.stations&.last %>
-<% preview_origin = preview_origin_station.present? ? @station_positions&.[](preview_origin_station.id) : nil %>
+<% preview_origin_station =
+  if @active_panel == "new_line"
+    @selected_station&.primary_station
+  else
+    @selected_station || @selected_line&.stations&.last
+  end %>
+<% preview_origin = preview_origin_station.present? ? @rendered_station_positions&.[](preview_origin_station.id) : nil %>
 <% context_line = @selected_line || @selected_station&.line %>
 <% selected_line_row = @line_map_rows&.find { |row| row[:line] == @selected_line } %>
 <% context_anchor =
   if @selected_station.present?
-    @station_positions&.[](@selected_station.id)
+    @rendered_station_positions&.[](@selected_station.id)
   elsif @selected_line.present?
     first_station = @selected_line.stations.first
-    @station_positions&.[](first_station&.id) || (selected_line_row.present? ? { x: 140, y: selected_line_row[:y] } : nil)
+    @rendered_station_positions&.[](first_station&.id) || (selected_line_row.present? ? { x: 140, y: selected_line_row[:y] } : nil)
   end %>
 <% context_menu_width = 340 %>
 <% context_menu_left =
@@ -27,44 +64,44 @@
     24
   end %>
 <% context_menu_top = context_anchor.present? ? (context_anchor[:y] + 34) : 24 %>
+<% selected_station_group = @selected_station.present? ? @shared_station_group_map[@selected_station.id] : nil %>
 
 <section class="dashboard-shell bg-slate-50 min-h-screen">
   <div class="flex h-full w-full mx-auto" style="max-width: 1700px;">
     <%= render "shared/app_sidebar" %>
 
-    <div class="flex-1 px-4 md:px-8 py-6 lg:py-8 lg:px-12 overflow-y-auto" data-controller="land-map-builder" data-land-map-builder-mode-value="<%= @active_panel %>" data-land-map-builder-clear-selection-path-value="<%= land_map_creator_port_path(@port, edit: 1) %>">
-      <div class="bg-white rounded-[1.5rem] p-6 md:p-8 mb-6 shadow-sm border border-slate-200/60">
-        <div class="flex flex-col lg:flex-row justify-between gap-4 lg:items-center">
-          <div>
-            <h1 class="page-title text-2xl md:text-3xl font-black text-slate-900 m-0">Mappa terra di <%= @port.name %></h1>
-          </div>
-          <div class="flex flex-wrap items-center gap-3">
-            <%= link_to creator_port_path(@port), class: "inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white text-slate-700 font-bold border border-slate-200 hover:bg-slate-50 hover:shadow-sm transition-all text-sm" do %>
-              <span class="material-symbols-outlined text-[18px]">arrow_back</span> Torna al port
+    <div class="flex-1 px-4 md:px-8 py-6 lg:py-8 lg:px-12 overflow-y-auto" data-controller="land-map-builder" data-land-map-builder-mode-value="<%= @active_panel %>" data-land-map-builder-clear-selection-path-value="<%= land_map_creator_port_path(@port, edit: 1) %>" data-land-map-builder-stations-value="<%= station_picker_options %>" data-land-map-builder-selected-line-id-value="<%= @selected_line&.id || 0 %>">
+      <div class="mb-6 flex items-center gap-4">
+        <div class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-2 py-2 shadow-sm">
+          <%= link_to creator_port_path(@port), class: "inline-flex h-10 w-10 items-center justify-center rounded-full text-slate-700 hover:bg-slate-50 transition-colors", title: "Torna al port", aria: { label: "Torna al port" } do %>
+            <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+          <% end %>
+          <% if @edit_mode %>
+            <%= link_to land_map_creator_port_path(@port, edit: 1, panel: "new_line", line_id: @selected_line&.id, station_id: @selected_station&.id), class: "inline-flex h-10 w-10 items-center justify-center rounded-full bg-slate-900 text-white hover:bg-slate-800 transition-colors", title: "Nuova line", aria: { label: "Nuova line" } do %>
+              <span class="material-symbols-outlined text-[18px]">add_road</span>
             <% end %>
-            <% if @edit_mode %>
-              <%= link_to land_map_creator_port_path(@port), class: "inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white text-slate-700 font-bold border border-slate-200 hover:bg-slate-50 hover:shadow-sm transition-all text-sm" do %>
-                <span class="material-symbols-outlined text-[18px]">close</span> Annulla
-              <% end %>
-            <% else %>
-              <%= link_to land_map_creator_port_path(@port, edit: 1, line_id: @selected_line&.id), class: "inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-slate-900 text-white font-bold hover:bg-slate-800 transition-all text-sm shadow-sm" do %>
-                <span class="material-symbols-outlined text-[18px]">edit</span> Modifica
-              <% end %>
+            <%= link_to land_map_creator_port_path(@port), class: "inline-flex h-10 w-10 items-center justify-center rounded-full text-slate-700 hover:bg-slate-50 transition-colors", title: "Annulla", aria: { label: "Annulla" } do %>
+              <span class="material-symbols-outlined text-[18px]">close</span>
             <% end %>
-          </div>
+          <% else %>
+            <%= link_to land_map_creator_port_path(@port, edit: 1, line_id: @selected_line&.id), class: "inline-flex h-10 w-10 items-center justify-center rounded-full bg-slate-900 text-white hover:bg-slate-800 transition-colors", title: "Modifica", aria: { label: "Modifica" } do %>
+              <span class="material-symbols-outlined text-[18px]">edit</span>
+            <% end %>
+          <% end %>
         </div>
+
+        <h1 class="page-title text-2xl md:text-3xl font-black text-slate-900 m-0">Mappa terra di <%= @port.name %></h1>
       </div>
 
       <% if @edit_mode && @active_panel.in?(%w[new_line new_station]) %>
         <div class="mb-4 rounded-[1.25rem] border border-indigo-200 bg-indigo-50 px-5 py-4">
           <div class="flex items-start justify-between gap-4">
             <div>
-              <div class="text-[11px] font-black uppercase tracking-wider text-indigo-500">Modalita' piazzamento</div>
               <p class="mt-1 text-sm font-bold text-slate-800">
                 <% if @active_panel == "new_line" %>
-                  Clicca sulla mappa per scegliere dove parte la nuova line. Dopo il click si apre il modal centrale con line, prima station ed experience iniziale.
+                  Muovi il cursore sulla mappa: se passi vicino a una station, la nuova line partira' da quel nodo; altrimenti nascera' da un punto libero.
                 <% else %>
-                  Clicca sulla mappa per scegliere dove inserire la nuova station sulla line selezionata.
+                  Muovi il cursore sulla mappa: se passi vicino a una station della line, la nuova station partira' da quel nodo; altrimenti si posizionera' su un punto libero.
                 <% end %>
               </p>
               <p class="mt-2 text-xs font-bold <%= @active_panel == "new_line" ? "text-indigo-600" : "text-emerald-600" %>">
@@ -107,27 +144,59 @@
                         <span class="truncate"><%= @selected_station.name %></span>
                       </div>
                     <% end %>
-                    <% if context_line.present? %>
-                      <%= link_to land_map_creator_port_path(@port, edit: 1, panel: "new_station", line_id: context_line.id, station_id: @selected_station&.id), class: "inline-flex items-center gap-2 px-3 py-2 text-xs font-black text-slate-800 hover:bg-slate-100 transition-colors" do %>
-                        <span class="material-symbols-outlined text-[16px]">add_circle</span> Aggiungi station
-                      <% end %>
+                    <% if @selected_station.present? %>
+                      <%= link_to safe_join([content_tag(:span, "north", class: "material-symbols-outlined text-[16px]"), " Nuova station prima"]), land_map_creator_port_path(@port, edit: 1, panel: "new_station", line_id: context_line.id, station_id: @selected_station&.id, station: { relative_position: "before" }), class: "inline-flex items-center gap-2 px-3 py-2 text-xs font-black text-slate-800 hover:bg-slate-100 transition-colors" %>
+                      <%= link_to safe_join([content_tag(:span, "south", class: "material-symbols-outlined text-[16px]"), " Nuova station dopo"]), land_map_creator_port_path(@port, edit: 1, panel: "new_station", line_id: context_line.id, station_id: @selected_station&.id, station: { relative_position: "after" }), class: "inline-flex items-center gap-2 px-3 py-2 text-xs font-black text-slate-800 hover:bg-slate-100 transition-colors" %>
+                    <% elsif context_line.present? %>
+                      <%= link_to safe_join([content_tag(:span, "south", class: "material-symbols-outlined text-[16px]"), " Nuova station finale"]), land_map_creator_port_path(@port, edit: 1, panel: "new_station", line_id: context_line.id, station: { relative_position: "after" }), class: "inline-flex items-center gap-2 px-3 py-2 text-xs font-black text-slate-800 hover:bg-slate-100 transition-colors" %>
                     <% end %>
-                    <%= link_to land_map_creator_port_path(@port, edit: 1, panel: "new_line", line_id: context_line&.id), class: "inline-flex items-center gap-2 px-3 py-2 text-xs font-black text-slate-800 hover:bg-slate-100 transition-colors" do %>
-                      <span class="material-symbols-outlined text-[16px]">add_road</span> Aggiungi line
-                    <% end %>
+                    <%= link_to safe_join([content_tag(:span, "add_road", class: "material-symbols-outlined text-[16px]"), " Aggiungi line"]), land_map_creator_port_path(@port, edit: 1, panel: "new_line", line_id: context_line&.id, station_id: @selected_station&.id), class: "inline-flex items-center gap-2 px-3 py-2 text-xs font-black text-slate-800 hover:bg-slate-100 transition-colors" %>
                     <% if @selected_line.present? %>
-                      <%= link_to land_map_creator_port_path(@port, edit: 1, panel: "edit_line", line_id: @selected_line.id, station_id: @selected_station&.id), class: "inline-flex items-center gap-2 px-3 py-2 text-xs font-black text-slate-800 hover:bg-slate-100 transition-colors" do %>
-                        <span class="material-symbols-outlined text-[16px]">edit</span> Modifica line
-                      <% end %>
+                      <%= link_to safe_join([content_tag(:span, "edit", class: "material-symbols-outlined text-[16px]"), " Modifica line"]), land_map_creator_port_path(@port, edit: 1, panel: "edit_line", line_id: @selected_line.id, station_id: @selected_station&.id), class: "inline-flex items-center gap-2 px-3 py-2 text-xs font-black text-slate-800 hover:bg-slate-100 transition-colors" %>
                     <% end %>
                     <% if @selected_station.present? %>
-                      <%= link_to land_map_creator_port_path(@port, edit: 1, panel: "edit_station", line_id: @selected_line.id, station_id: @selected_station.id), class: "inline-flex items-center gap-2 px-3 py-2 text-xs font-black text-slate-800 hover:bg-slate-100 transition-colors" do %>
-                        <span class="material-symbols-outlined text-[16px]">edit</span> Modifica station
+                      <%= link_to safe_join([content_tag(:span, "edit", class: "material-symbols-outlined text-[16px]"), " Modifica station"]), land_map_creator_port_path(@port, edit: 1, panel: "edit_station", line_id: @selected_line.id, station_id: @selected_station.id), class: "inline-flex items-center gap-2 px-3 py-2 text-xs font-black text-slate-800 hover:bg-slate-100 transition-colors" %>
+                      <% if @selected_station.connector? %>
+                        <div class="mt-1 border-t border-slate-100 pt-1">
+                          <div class="px-3 py-1 text-[10px] font-black uppercase tracking-wider text-slate-400">Nodo condiviso</div>
+                          <div class="grid grid-cols-2 gap-1 px-1 pb-1">
+                            <%= button_to creator_port_line_station_path(@port, @selected_line, @selected_station), method: :patch, params: { return_to: "land_map", station: { link_order: @selected_station.link_order.to_i - 1 } }, class: "inline-flex w-full items-center justify-center gap-1 px-2 py-2 text-[11px] font-black text-slate-700 hover:bg-slate-100 transition-colors" do %>
+                              <span class="material-symbols-outlined text-[14px]">west</span>
+                              Dietro
+                            <% end %>
+                            <%= button_to creator_port_line_station_path(@port, @selected_line, @selected_station), method: :patch, params: { return_to: "land_map", station: { link_order: @selected_station.link_order.to_i + 1 } }, class: "inline-flex w-full items-center justify-center gap-1 px-2 py-2 text-[11px] font-black text-slate-700 hover:bg-slate-100 transition-colors" do %>
+                              <span class="material-symbols-outlined text-[14px]">east</span>
+                              Avanti
+                            <% end %>
+                          </div>
+                        </div>
+                      <% end %>
+                      <% if selected_station_group.present? %>
+                        <div class="grid grid-cols-2 gap-1 px-1 pb-1">
+                          <%= button_to creator_port_line_station_path(@port, @selected_line, @selected_station), method: :patch, params: { return_to: "land_map", station: { shared_group_angle: "horizontal" } }, class: "inline-flex w-full items-center justify-center gap-1 px-2 py-2 text-[11px] font-black #{ @selected_station.primary_station.shared_group_angle == 'horizontal' ? 'bg-slate-900 text-white' : 'text-slate-700 hover:bg-slate-100' } transition-colors" do %>
+                            <span class="material-symbols-outlined text-[14px]">switch_left</span>
+                            Orizzontale
+                          <% end %>
+                          <%= button_to creator_port_line_station_path(@port, @selected_line, @selected_station), method: :patch, params: { return_to: "land_map", station: { shared_group_angle: "vertical" } }, class: "inline-flex w-full items-center justify-center gap-1 px-2 py-2 text-[11px] font-black #{ @selected_station.primary_station.shared_group_angle == 'vertical' ? 'bg-slate-900 text-white' : 'text-slate-700 hover:bg-slate-100' } transition-colors" do %>
+                            <span class="material-symbols-outlined text-[14px]">switch_right</span>
+                            Verticale
+                          <% end %>
+                          <%= button_to creator_port_line_station_path(@port, @selected_line, @selected_station), method: :patch, params: { return_to: "land_map", station: { shared_group_angle: "diagonal_up" } }, class: "inline-flex w-full items-center justify-center gap-1 px-2 py-2 text-[11px] font-black #{ @selected_station.primary_station.shared_group_angle == 'diagonal_up' ? 'bg-slate-900 text-white' : 'text-slate-700 hover:bg-slate-100' } transition-colors" do %>
+                            <span class="material-symbols-outlined text-[14px]">north_east</span>
+                            Diag su
+                          <% end %>
+                          <%= button_to creator_port_line_station_path(@port, @selected_line, @selected_station), method: :patch, params: { return_to: "land_map", station: { shared_group_angle: "diagonal_down" } }, class: "inline-flex w-full items-center justify-center gap-1 px-2 py-2 text-[11px] font-black #{ @selected_station.primary_station.shared_group_angle == 'diagonal_down' ? 'bg-slate-900 text-white' : 'text-slate-700 hover:bg-slate-100' } transition-colors" do %>
+                            <span class="material-symbols-outlined text-[14px]">south_east</span>
+                            Diag giu
+                          <% end %>
+                        </div>
+                      <% end %>
+                      <%= button_to creator_port_line_station_path(@port, @selected_line, @selected_station), method: :delete, form: { data: { turbo_confirm: "Eliminare questa station?" } }, class: "inline-flex w-full items-center gap-2 px-3 py-2 text-xs font-black text-rose-700 hover:bg-rose-50 transition-colors text-left" do %>
+                        <span class="material-symbols-outlined text-[16px]">delete</span>
+                        Elimina station
                       <% end %>
                     <% end %>
-                    <%= link_to land_map_creator_port_path(@port, edit: 1), class: "inline-flex items-center gap-2 px-3 py-2 text-xs font-black text-slate-500 hover:bg-slate-100 transition-colors" do %>
-                      <span class="material-symbols-outlined text-[16px]">close</span> Annulla
-                    <% end %>
+                    <%= link_to safe_join([content_tag(:span, "close", class: "material-symbols-outlined text-[16px]"), " Annulla"]), land_map_creator_port_path(@port, edit: 1), class: "inline-flex items-center gap-2 px-3 py-2 text-xs font-black text-slate-500 hover:bg-slate-100 transition-colors" %>
                   </div>
                 </div>
               <% end %>
@@ -146,14 +215,16 @@
               <rect width="100%" height="100%" fill="url(#land-grid)" />
 
               <% @line_map_rows.each do |row| %>
-                <% points = row[:line].stations.map { |station| "#{@station_positions.fetch(station.id)[:x]},#{@station_positions.fetch(station.id)[:y]}" }.join(" ") %>
+                <% points = row[:line].stations.map { |station| "#{@rendered_station_positions.fetch(station.id)[:x]},#{@rendered_station_positions.fetch(station.id)[:y]}" }.join(" ") %>
                 <% selected = @selected_line == row[:line] %>
                 <a xlink:href="<%= land_map_creator_port_path(@port, edit: (@edit_mode ? 1 : nil), line_id: row[:line].id) %>" class="group cursor-pointer">
                   <% if row[:line].stations.any? %>
-                    <polyline points="<%= points %>" fill="none" stroke="<%= row[:color] %>" stroke-width="<%= selected ? 16 : 12 %>" stroke-linecap="round" stroke-linejoin="round" filter="url(#shadow)" opacity="<%= selected ? "1" : "0.92" %>" />
+                    <polyline points="<%= points %>" fill="none" stroke="<%= row[:color] %>" stroke-width="<%= selected ? 15 : 12 %>" stroke-linecap="round" stroke-linejoin="round" filter="url(#shadow)" opacity="1" />
                   <% end %>
-                  <text x="40" y="<%= row[:y] + 6 %>" font-size="22" font-weight="900" fill="#0f172a" class="group-hover:fill-indigo-600 transition-colors"><%= row[:line].name %></text>
-                  <text x="40" y="<%= row[:y] + 30 %>" font-size="12" font-weight="700" fill="<%= selected ? row[:color] : "#64748b" %>"><%= row[:line].line_kind_label.upcase %></text>
+                  <% if selected %>
+                    <text x="40" y="<%= row[:y] + 6 %>" font-size="20" font-weight="900" fill="#0f172a"><%= row[:line].name %></text>
+                    <text x="40" y="<%= row[:y] + 28 %>" font-size="12" font-weight="700" fill="<%= row[:color] %>"><%= row[:line].line_kind_label.upcase %></text>
+                  <% end %>
                 </a>
               <% end %>
 
@@ -163,15 +234,103 @@
                   y1="<%= segment[:from][:y] %>"
                   x2="<%= segment[:to][:x] %>"
                   y2="<%= segment[:to][:y] %>"
-                  stroke="<%= segment[:selected] ? "#4f46e5" : "#94a3b8" %>"
-                  stroke-width="<%= segment[:selected] ? 9 : 6 %>"
-                  stroke-dasharray="<%= segment[:selected] ? "10 6" : "8 8" %>"
-                  opacity="<%= segment[:selected] ? "1" : "0.9" %>"
+                  stroke="#111827"
+                  stroke-width="<%= segment[:selected] ? 9 : 7 %>"
+                  opacity="1"
                   stroke-linecap="round"
                 />
               <% end %>
 
-              <% if @edit_mode && @active_panel == "new_station" && preview_origin.present? %>
+              <% @shared_station_groups.each do |group| %>
+                <% bounds = group[:bounds] %>
+                <% sorted_members =
+                  group[:render_members].sort_by { |member| member[:order_index].to_i } %>
+                <% shared_points = sorted_members.map { |member| "#{member[:x]},#{member[:y]}" }.join(" ") %>
+                <% if sorted_members.size > 1 %>
+                  <polyline
+                    points="<%= shared_points %>"
+                    fill="none"
+                    stroke="#111827"
+                    stroke-width="<%= group[:selected] ? 9 : 7 %>"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    opacity="1"
+                  />
+                  <polyline
+                    points="<%= shared_points %>"
+                    fill="none"
+                    stroke="white"
+                    stroke-width="<%= group[:selected] ? 4.5 : 3.5 %>"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    opacity="1"
+                  />
+                <% end %>
+                <% group[:render_members].each do |member| %>
+                  <% member_station = member[:station] %>
+                  <% point_x = member[:x] %>
+                  <% point_y = member[:y] %>
+                  <% member_selected = @selected_station == member_station %>
+                  <% primary_member = member_station == group[:primary_station] %>
+                  <a xlink:href="<%= land_map_creator_port_path(@port, edit: (@edit_mode ? 1 : nil), line_id: member_station.line_id, station_id: member_station.id) %>" class="group cursor-pointer" style="outline: none;">
+                    <% if member_selected %>
+                      <circle cx="<%= point_x %>" cy="<%= point_y %>" r="11" fill="rgba(99,102,241,0.12)" stroke="rgba(99,102,241,0.28)" stroke-width="2.5" />
+                    <% end %>
+                    <% if member_station.port_entry? %>
+                      <path
+                        d="M <%= point_x - 8 %> <%= point_y - 15 %> Q <%= point_x %> <%= point_y - 24 %> <%= point_x + 8 %> <%= point_y - 15 %>"
+                        fill="none"
+                        stroke="#111827"
+                        stroke-width="2.5"
+                        stroke-linecap="round"
+                      />
+                      <line
+                        x1="<%= point_x - 8 %>"
+                        y1="<%= point_y - 15 %>"
+                        x2="<%= point_x - 8 %>"
+                        y2="<%= point_y - 8 %>"
+                        stroke="#111827"
+                        stroke-width="2.5"
+                        stroke-linecap="round"
+                      />
+                      <line
+                        x1="<%= point_x + 8 %>"
+                        y1="<%= point_y - 15 %>"
+                        x2="<%= point_x + 8 %>"
+                        y2="<%= point_y - 8 %>"
+                        stroke="#111827"
+                        stroke-width="2.5"
+                        stroke-linecap="round"
+                      />
+                    <% end %>
+                    <circle
+                      cx="<%= point_x %>"
+                      cy="<%= point_y %>"
+                      r="<%= member_selected ? 8.5 : 7 %>"
+                      fill="white"
+                      stroke="#111827"
+                      stroke-width="<%= member_selected ? 3.2 : 2.7 %>"
+                      filter="url(#shadow)"
+                    />
+                    <% if primary_member %>
+                      <circle
+                        cx="<%= point_x %>"
+                        cy="<%= point_y %>"
+                        r="<%= member_selected ? 3.2 : 2.6 %>"
+                        fill="#111827"
+                      />
+                    <% end %>
+                  </a>
+                <% end %>
+                <% primary_member = group[:render_members].find { |member| member[:station] == group[:primary_station] } %>
+                <% primary_point = primary_member.present? ? { x: primary_member[:x], y: primary_member[:y] } : nil %>
+                <% if primary_point.present? %>
+                  <text x="<%= primary_point[:x] %>" y="<%= bounds[:y] + bounds[:height] + 16 %>" text-anchor="middle" font-size="13" font-weight="800" fill="#1e293b"><%= group[:primary_station].name %></text>
+                  <text x="<%= primary_point[:x] %>" y="<%= bounds[:y] + bounds[:height] + 30 %>" text-anchor="middle" font-size="11" font-weight="600" fill="#64748b"><%= group[:primary_station].canonical_experience&.name %></text>
+                <% end %>
+              <% end %>
+
+              <% if @edit_mode && @active_panel.in?(%w[new_line new_station]) && preview_origin.present? %>
                 <line
                   x1="<%= preview_origin[:x] %>"
                   y1="<%= preview_origin[:y] %>"
@@ -191,9 +350,11 @@
 
               <% @line_map_rows.each do |row| %>
                 <% row[:line].stations.each do |station| %>
-                  <% x = @station_positions.fetch(station.id)[:x] %>
-                  <% y = @station_positions.fetch(station.id)[:y] %>
+                  <% x = @rendered_station_positions.fetch(station.id)[:x] %>
+                  <% y = @rendered_station_positions.fetch(station.id)[:y] %>
                   <% selected_station = @selected_station == station %>
+                  <% shared_group = @shared_station_group_map[station.id] %>
+                  <% in_shared_group = shared_group.present? %>
                   <% outer_fill =
                     if station.opening?
                       "#dcfce7"
@@ -229,32 +390,102 @@
                       "#0f172a"
                     end %>
                   <a xlink:href="<%= land_map_creator_port_path(@port, edit: (@edit_mode ? 1 : nil), line_id: row[:line].id, station_id: station.id) %>" class="group cursor-pointer" style="outline: none;">
-                    <% if selected_station %>
-                      <circle cx="<%= x %>" cy="<%= y %>" r="31" fill="rgba(99,102,241,0.12)" stroke="rgba(99,102,241,0.28)" stroke-width="3" />
+                    <% if selected_station && !in_shared_group %>
+                      <circle cx="<%= x %>" cy="<%= y %>" r="18" fill="rgba(99,102,241,0.12)" stroke="rgba(99,102,241,0.28)" stroke-width="3" />
                     <% end %>
-                    <circle cx="<%= x %>" cy="<%= y %>" r="<%= selected_station ? 25 : 22 %>" fill="<%= outer_fill %>" stroke="<%= row[:color] %>" stroke-width="<%= selected_station ? 8 : 6 %>" filter="url(#shadow)" class="transition-all duration-300 transform origin-center" style="transform-box: fill-box;" onmouseover="this.setAttribute('r', '<%= selected_station ? 28 : 26 %>'); this.setAttribute('stroke-width', '8')" onmouseout="this.setAttribute('r', '<%= selected_station ? 25 : 22 %>'); this.setAttribute('stroke-width', '<%= selected_station ? 8 : 6 %>')" />
-                    <% if station.branch? %>
-                      <rect x="<%= x - (selected_station ? 10 : 8) %>" y="<%= y - (selected_station ? 10 : 8) %>" width="<%= selected_station ? 20 : 16 %>" height="<%= selected_station ? 20 : 16 %>" rx="4" fill="<%= row[:color] %>" transform="rotate(45 <%= x %> <%= y %>)" />
+                    <% if in_shared_group %>
+                    <% elsif station.connector? %>
+                      <% connector_width = selected_station ? 34 : 30 %>
+                      <% connector_height = selected_station ? 16 : 14 %>
+                      <rect
+                        x="<%= x - (connector_width / 2.0) %>"
+                        y="<%= y - (connector_height / 2.0) %>"
+                        width="<%= connector_width %>"
+                        height="<%= connector_height %>"
+                        rx="<%= connector_height / 2.0 %>"
+                        fill="white"
+                        stroke="<%= row[:color] %>"
+                        stroke-width="<%= selected_station ? 4 : 3 %>"
+                        filter="url(#shadow)"
+                      />
+                      <rect
+                        x="<%= x - (connector_width / 2.0) + 4 %>"
+                        y="<%= y - (connector_height / 2.0) + 4 %>"
+                        width="<%= connector_width - 8 %>"
+                        height="<%= connector_height - 8 %>"
+                        rx="<%= (connector_height - 8) / 2.0 %>"
+                        fill="<%= row[:color] %>"
+                        opacity="0.16"
+                      />
+                      <circle cx="<%= x - 8 %>" cy="<%= y %>" r="<%= selected_station ? 2.5 : 2 %>" fill="white" stroke="<%= row[:color] %>" stroke-width="1.5" />
+                      <circle cx="<%= x %>" cy="<%= y %>" r="<%= selected_station ? 2.5 : 2 %>" fill="white" stroke="<%= row[:color] %>" stroke-width="1.5" />
+                      <circle cx="<%= x + 8 %>" cy="<%= y %>" r="<%= selected_station ? 2.5 : 2 %>" fill="white" stroke="<%= row[:color] %>" stroke-width="1.5" />
+                    <% elsif station.branch? %>
+                      <circle cx="<%= x %>" cy="<%= y %>" r="<%= selected_station ? 8 : 6.5 %>" fill="<%= row[:color] %>" filter="url(#shadow)" />
+                      <rect x="<%= x - (selected_station ? 5 : 4.5) %>" y="<%= y - (selected_station ? 5 : 4.5) %>" width="<%= selected_station ? 10 : 9 %>" height="<%= selected_station ? 10 : 9 %>" rx="2" fill="white" transform="rotate(45 <%= x %> <%= y %>)" />
                     <% elsif station.gate? %>
-                      <rect x="<%= x - (selected_station ? 10 : 8) %>" y="<%= y - (selected_station ? 6 : 5) %>" width="<%= selected_station ? 20 : 16 %>" height="<%= selected_station ? 12 : 10 %>" rx="5" fill="<%= row[:color] %>" />
+                      <circle cx="<%= x %>" cy="<%= y %>" r="<%= selected_station ? 8 : 6.5 %>" fill="<%= row[:color] %>" filter="url(#shadow)" />
+                      <rect x="<%= x - (selected_station ? 5 : 4.5) %>" y="<%= y - (selected_station ? 3 : 2.5) %>" width="<%= selected_station ? 10 : 9 %>" height="<%= selected_station ? 6 : 5 %>" rx="2.5" fill="white" />
                     <% else %>
-                      <circle cx="<%= x %>" cy="<%= y %>" r="<%= selected_station ? 9 : 7 %>" fill="<%= row[:color] %>" class="transition-all duration-300 transform origin-center" style="transform-box: fill-box;" onmouseover="this.setAttribute('r', '<%= selected_station ? 11 : 10 %>')" onmouseout="this.setAttribute('r', '<%= selected_station ? 9 : 7 %>')" />
+                      <circle
+                        cx="<%= x %>"
+                        cy="<%= y %>"
+                        r="<%= selected_station ? 10 : 9 %>"
+                        fill="white"
+                        stroke="#111827"
+                        stroke-width="<%= selected_station ? 4 : 3.2 %>"
+                        filter="url(#shadow)"
+                        class="transition-all duration-300 transform origin-center"
+                        style="transform-box: fill-box;"
+                        onmouseover="this.setAttribute('r', '<%= selected_station ? 11 : 10 %>')"
+                        onmouseout="this.setAttribute('r', '<%= selected_station ? 10 : 9 %>')"
+                      />
                     <% end %>
-                    <% if marker_label.present? %>
+                    <% if station.port_entry? && !in_shared_group %>
+                      <path
+                        d="M <%= x - 10 %> <%= y - 18 %> Q <%= x %> <%= y - 28 %> <%= x + 10 %> <%= y - 18 %>"
+                        fill="none"
+                        stroke="#111827"
+                        stroke-width="<%= selected_station ? 3.2 : 2.6 %>"
+                        stroke-linecap="round"
+                      />
+                      <line
+                        x1="<%= x - 10 %>"
+                        y1="<%= y - 18 %>"
+                        x2="<%= x - 10 %>"
+                        y2="<%= y - 9 %>"
+                        stroke="#111827"
+                        stroke-width="<%= selected_station ? 3.2 : 2.6 %>"
+                        stroke-linecap="round"
+                      />
+                      <line
+                        x1="<%= x + 10 %>"
+                        y1="<%= y - 18 %>"
+                        x2="<%= x + 10 %>"
+                        y2="<%= y - 9 %>"
+                        stroke="#111827"
+                        stroke-width="<%= selected_station ? 3.2 : 2.6 %>"
+                        stroke-linecap="round"
+                      />
+                    <% end %>
+                    <% if marker_label.present? && !in_shared_group %>
                       <text x="<%= x %>" y="<%= y - 36 %>" text-anchor="middle" font-size="11" font-weight="900" fill="<%= marker_color %>"><%= marker_label %></text>
                     <% end %>
-                    <text x="<%= x %>" y="<%= y + 48 %>" text-anchor="middle" font-size="14" font-weight="800" fill="<%= selected_station ? row[:color] : "#1e293b" %>" style="transition: fill 0.2s;" onmouseover="this.setAttribute('fill', '<%= row[:color] %>')" onmouseout="this.setAttribute('fill', '<%= selected_station ? row[:color] : "#1e293b" %>')"><%= station.name %></text>
-                    <text x="<%= x %>" y="<%= y + 68 %>" text-anchor="middle" font-size="12" font-weight="600" fill="<%= selected_station ? "#4338ca" : "#64748b" %>"><%= station.experience.name %></text>
+                    <% unless in_shared_group %>
+                      <text x="<%= x %>" y="<%= y + 48 %>" text-anchor="middle" font-size="14" font-weight="800" fill="<%= selected_station ? row[:color] : "#1e293b" %>" style="transition: fill 0.2s;" onmouseover="this.setAttribute('fill', '<%= row[:color] %>')" onmouseout="this.setAttribute('fill', '<%= selected_station ? row[:color] : "#1e293b" %>')"><%= station.name %></text>
+                      <text x="<%= x %>" y="<%= y + 68 %>" text-anchor="middle" font-size="12" font-weight="600" fill="<%= selected_station ? "#4338ca" : "#64748b" %>"><%= station.connector? ? "Collegamento" : station.canonical_experience&.name %></text>
+                    <% end %>
                     <% if station.link_port.present? %>
                       <text x="<%= x %>" y="<%= y - 50 %>" text-anchor="middle" font-size="11" font-weight="800" fill="#ea580c">⇄ Port: <%= station.link_port.name %></text>
                     <% end %>
                   </a>
                 <% end %>
               <% end %>
-              <circle cx="0" cy="0" r="16" fill="rgba(99,102,241,0.14)" stroke="#4f46e5" stroke-width="3" class="hidden pointer-events-none" data-land-map-builder-target="placementMarker" />
               <% if @edit_mode && @active_panel.in?(%w[new_line new_station]) %>
                 <rect x="0" y="0" width="<%= @map_width %>" height="<%= @map_height %>" fill="transparent" style="cursor: crosshair;" data-action="mousemove->land-map-builder#move mouseleave->land-map-builder#leave click->land-map-builder#pick" />
               <% end %>
+              <circle cx="0" cy="0" r="16" fill="rgba(99,102,241,0.14)" stroke="#4f46e5" stroke-width="3" class="hidden pointer-events-none" data-land-map-builder-target="placementMarker" />
+              <circle cx="0" cy="0" r="34" fill="rgba(37,99,235,0.10)" stroke="#2563eb" stroke-width="5" class="hidden pointer-events-none" data-land-map-builder-target="candidateMarker" />
             </svg>
           <% else %>
             <svg viewBox="0 0 1200 720" style="width: 100%; min-width: 960px; height: auto; display: block;" data-land-map-builder-target="svg">
@@ -275,7 +506,7 @@
                   <% end %>
                 </text>
               </g>
-              <% if @edit_mode && @active_panel == "new_station" && preview_origin.present? %>
+              <% if @edit_mode && @active_panel.in?(%w[new_line new_station]) && preview_origin.present? %>
                 <line
                   x1="<%= preview_origin[:x] %>"
                   y1="<%= preview_origin[:y] %>"
@@ -292,10 +523,11 @@
                   data-origin-y="<%= preview_origin[:y] %>"
                 />
               <% end %>
-              <circle cx="0" cy="0" r="16" fill="rgba(99,102,241,0.14)" stroke="#4f46e5" stroke-width="3" class="hidden pointer-events-none" data-land-map-builder-target="placementMarker" />
               <% if @edit_mode && @active_panel.in?(%w[new_line new_station]) %>
                 <rect x="0" y="0" width="1200" height="720" fill="transparent" style="cursor: crosshair;" data-action="mousemove->land-map-builder#move mouseleave->land-map-builder#leave click->land-map-builder#pick" />
               <% end %>
+              <circle cx="0" cy="0" r="16" fill="rgba(99,102,241,0.14)" stroke="#4f46e5" stroke-width="3" class="hidden pointer-events-none" data-land-map-builder-target="placementMarker" />
+              <circle cx="0" cy="0" r="34" fill="rgba(37,99,235,0.10)" stroke="#2563eb" stroke-width="5" class="hidden pointer-events-none" data-land-map-builder-target="candidateMarker" />
             </svg>
           <% end %>
           </div>
@@ -341,9 +573,16 @@
             <div class="hidden" data-land-map-builder-target="lineForm">
               <%= form.hidden_field :initial_station_map_x, data: { land_map_builder_target: "lineX" } %>
               <%= form.hidden_field :initial_station_map_y, data: { land_map_builder_target: "lineY" } %>
+              <%= form.hidden_field :source_station_id, value: "", data: { land_map_builder_target: "lineSourceStation" } %>
             </div>
 
             <div class="space-y-3 hidden" data-land-map-builder-target="lineForm">
+              <div class="hidden rounded-xl border border-indigo-100 bg-indigo-50 px-4 py-3 text-xs font-bold text-indigo-700" data-land-map-builder-target="lineAttachSummary">
+                La nuova line partira' da una station esistente. La prima station nascera' come collegamento, senza experience autonoma.
+              </div>
+              <div class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs font-bold text-slate-600" data-land-map-builder-target="lineFreeSummary">
+                La nuova line partira' da un punto libero e la prima station sara' principale.
+              </div>
               <div class="space-y-1.5">
                 <label class="text-xs font-black uppercase tracking-wider text-slate-500">Nome line</label>
                 <%= form.text_field :name, placeholder: "Es. Percorso base postura", required: true, class: "w-full rounded-xl border-slate-200 bg-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2.5 px-4" %>
@@ -361,13 +600,16 @@
               <div class="h-px w-full bg-indigo-100 my-1"></div>
               <div class="space-y-1.5">
                 <label class="text-xs font-black uppercase tracking-wider text-slate-500">Nome prima station</label>
-                <%= form.text_field :initial_station_name, placeholder: "Es. Ingresso", required: true, class: "w-full rounded-xl border-slate-200 bg-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2.5 px-4" %>
+                <%= form.text_field :initial_station_name, placeholder: "Es. Ingresso", required: true, class: "w-full rounded-xl border-slate-200 bg-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2.5 px-4", data: { land_map_builder_target: "lineInitialName" } %>
               </div>
               <div class="space-y-1.5">
                 <label class="text-xs font-black uppercase tracking-wider text-slate-500">Tipo prima station</label>
-                <%= form.select :initial_station_kind, options_for_select(station_kind_options, "opening"), {}, required: true, class: "w-full rounded-xl border-slate-200 bg-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2.5 px-4" %>
+                <%= form.select :initial_station_kind, options_for_select(station_kind_options, "normal"), {}, required: true, class: "w-full rounded-xl border-slate-200 bg-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2.5 px-4", data: { land_map_builder_target: "lineInitialKind" } %>
               </div>
-              <div class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs font-bold text-slate-600">
+              <div class="hidden rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs font-bold text-slate-600" data-land-map-builder-target="lineAttachSummary">
+                Se confermi l'aggancio, la prima station della line nascera' come station di collegamento.
+              </div>
+              <div class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs font-bold text-slate-600" data-land-map-builder-target="lineFreeSummary">
                 Alla prima station verra' collegata automaticamente una experience iniziale, che potrai rifinire dopo.
               </div>
             </div>
@@ -391,6 +633,9 @@
             <div class="hidden" data-land-map-builder-target="stationForm">
               <%= form.hidden_field :map_x, data: { land_map_builder_target: "stationX" } %>
               <%= form.hidden_field :map_y, data: { land_map_builder_target: "stationY" } %>
+              <%= form.hidden_field :source_station_id, value: @selected_station&.id, data: { land_map_builder_target: "stationSourceStation" } %>
+              <%= form.hidden_field :relative_position, value: default_station_relative_position, data: { land_map_builder_target: "stationRelativePosition" } %>
+              <%= form.hidden_field :link_station_id, value: "", data: { land_map_builder_target: "stationLinkStation" } %>
             </div>
 
             <div class="space-y-3 hidden" data-land-map-builder-target="stationForm" data-controller="experience-mode">
@@ -403,6 +648,22 @@
                   <% end %>
                 </div>
               <% end %>
+              <div class="hidden space-y-3" data-land-map-builder-target="stationSourceOptions">
+                <div class="space-y-1.5">
+                  <label class="text-xs font-black uppercase tracking-wider text-slate-500">Relazione con la station selezionata</label>
+                  <div class="inline-flex w-full rounded-full bg-slate-100 p-1">
+                    <button type="button" class="inline-flex items-center justify-center rounded-full px-4 py-2 text-xs font-black" data-station-relative-position="before" data-land-map-builder-target="stationBeforeButton" data-action="click->land-map-builder#setStationRelativePosition">
+                      Prima
+                    </button>
+                    <button type="button" class="inline-flex items-center justify-center rounded-full px-4 py-2 text-xs font-black" data-station-relative-position="after" data-land-map-builder-target="stationAfterButton" data-action="click->land-map-builder#setStationRelativePosition">
+                      Dopo
+                    </button>
+                  </div>
+                </div>
+                <div class="rounded-xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-xs font-bold text-emerald-700" data-land-map-builder-target="stationModeSummary">
+                  La nuova station verra' aggiunta dopo la station selezionata.
+                </div>
+              </div>
               <div class="space-y-1.5">
                 <label class="text-xs font-black uppercase tracking-wider text-slate-500">Nome station</label>
                 <%= form.text_field :name, placeholder: "Es. Check iniziale", required: true, class: "w-full rounded-xl border-slate-200 bg-white shadow-sm focus:border-emerald-500 focus:ring-emerald-500 text-sm py-2.5 px-4" %>
@@ -410,6 +671,16 @@
               <div class="space-y-1.5">
                 <label class="text-xs font-black uppercase tracking-wider text-slate-500">Tipo station</label>
                 <%= form.select :station_kind, options_for_select(station_kind_options, default_station_kind), {}, required: true, class: "w-full rounded-xl border-slate-200 bg-white shadow-sm focus:border-emerald-500 focus:ring-emerald-500 text-sm py-2.5 px-4" %>
+              </div>
+              <div class="space-y-1.5" data-controller="experience-picker" data-experience-picker-options-value="<%= port_picker_options %>">
+                <label class="text-xs font-black uppercase tracking-wider text-slate-500">Port collegato opzionale</label>
+                <%= form.hidden_field :link_port_id, value: default_existing_port_id, data: { experience_picker_target: "idField" } %>
+                <%= text_field_tag "station[link_port_search]", default_existing_port_name, list: "station-port-options", placeholder: "Cerca un port da collegare", class: "w-full rounded-xl border-slate-200 bg-white shadow-sm focus:border-emerald-500 focus:ring-emerald-500 text-sm py-2.5 px-4", data: { experience_picker_target: "search", action: "input->experience-picker#input change->experience-picker#change" } %>
+                <datalist id="station-port-options">
+                  <% @linkable_ports.each do |port| %>
+                    <option value="<%= port.name %>"></option>
+                  <% end %>
+                </datalist>
               </div>
               <div class="h-px w-full bg-emerald-100 my-1"></div>
               <div class="space-y-1.5">
@@ -441,6 +712,13 @@
               <div class="space-y-1.5 hidden" data-experience-mode-target="new">
                 <label class="text-xs font-black uppercase tracking-wider text-slate-500">Tipo experience</label>
                 <%= form.select :new_experience_kind, options_for_select(experience_kind_options, Experience.experience_kinds.keys.first), {}, include_blank: false, class: "w-full rounded-xl border-slate-200 bg-white shadow-sm focus:border-emerald-500 focus:ring-emerald-500 text-sm py-2.5 px-4", data: { experience_mode_target: "newInput" } %>
+              </div>
+              <div class="space-y-1.5">
+                <label class="inline-flex items-center gap-3 text-sm font-bold text-slate-700">
+                  <%= form.check_box :port_entry, class: "rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" %>
+                  Entry station del port
+                </label>
+                <p class="text-[11px] font-bold text-slate-500">Attivalo se il port puo' iniziare da questa station.</p>
               </div>
             </div>
 
@@ -510,28 +788,78 @@
             </div>
 
             <%= form_with model: [:creator, @port, @selected_line, @selected_station], class: "space-y-4" do |form| %>
+              <%= hidden_field_tag :return_to, "land_map" %>
               <div class="space-y-3">
                 <div class="space-y-1.5" data-controller="experience-picker" data-experience-picker-options-value="<%= experience_picker_options %>">
                   <label class="text-xs font-black uppercase tracking-wider text-slate-500">Experience</label>
                   <%= form.hidden_field :experience_id, data: { experience_picker_target: "idField" } %>
-                  <%= text_field_tag "station[experience_search]", @selected_station.experience&.name, list: "edit-station-experience-options", placeholder: "Cerca una experience esistente", required: true, class: "w-full rounded-xl border-slate-200 bg-white shadow-sm focus:border-sky-500 focus:ring-sky-500 text-sm py-2.5 px-4", data: { experience_picker_target: "search", action: "input->experience-picker#input change->experience-picker#change" } %>
+                  <%= text_field_tag "station[experience_search]", @selected_station.canonical_experience&.name, list: "edit-station-experience-options", placeholder: "Cerca una experience esistente", required: true, class: "w-full rounded-xl border-slate-200 bg-white shadow-sm focus:border-sky-500 focus:ring-sky-500 text-sm py-2.5 px-4", data: { experience_picker_target: "search", action: "input->experience-picker#input change->experience-picker#change" } %>
                   <datalist id="edit-station-experience-options">
                     <% @experiences.each do |experience| %>
                       <option value="<%= experience.name %>"></option>
                     <% end %>
                   </datalist>
                 </div>
-                <%= form.text_field :name, placeholder: "Nome station", required: true, class: "w-full rounded-xl border-slate-200 bg-white shadow-sm focus:border-sky-500 focus:ring-sky-500 text-sm py-2.5 px-4" %>
-                <%= form.text_field :slug, placeholder: "slug-station", class: "w-full rounded-xl border-slate-200 bg-white shadow-sm focus:border-sky-500 focus:ring-sky-500 text-sm py-2.5 px-4" %>
-                <%= form.select :station_kind, station_kind_options, {}, required: true, class: "w-full rounded-xl border-slate-200 bg-white shadow-sm focus:border-sky-500 focus:ring-sky-500 text-sm py-2.5 px-4" %>
-                <%= form.number_field :position, min: 0, step: 1, placeholder: "Posizione", class: "w-full rounded-xl border-slate-200 bg-white shadow-sm focus:border-sky-500 focus:ring-sky-500 text-sm py-2.5 px-4" %>
-                <div class="grid grid-cols-2 gap-3">
-                  <%= form.number_field :map_x, placeholder: "Coord X", step: 1, class: "w-full rounded-xl border-slate-200 bg-white shadow-sm focus:border-sky-500 focus:ring-sky-500 text-sm py-2.5 px-4" %>
-                  <%= form.number_field :map_y, placeholder: "Coord Y", step: 1, class: "w-full rounded-xl border-slate-200 bg-white shadow-sm focus:border-sky-500 focus:ring-sky-500 text-sm py-2.5 px-4" %>
+                <div class="space-y-1.5">
+                  <label class="text-xs font-black uppercase tracking-wider text-slate-500">Nome station</label>
+                  <%= form.text_field :name, placeholder: "Nome station", required: true, class: "w-full rounded-xl border-slate-200 bg-white shadow-sm focus:border-sky-500 focus:ring-sky-500 text-sm py-2.5 px-4" %>
                 </div>
-                <%= form.collection_select :link_station_id, @linkable_stations, :id, :name, { include_blank: "Nessun link station" }, class: "w-full rounded-xl border-slate-200 bg-white shadow-sm focus:border-sky-500 focus:ring-sky-500 text-sm py-2.5 px-4" %>
-                <%= form.collection_select :link_port_id, @linkable_ports, :id, :name, { include_blank: "Nessun link port" }, class: "w-full rounded-xl border-slate-200 bg-white shadow-sm focus:border-sky-500 focus:ring-sky-500 text-sm py-2.5 px-4" %>
-                <%= form.text_area :description, rows: 4, placeholder: "Descrizione della station nel percorso", class: "w-full rounded-xl border-slate-200 bg-white shadow-sm focus:border-sky-500 focus:ring-sky-500 text-sm py-2.5 px-4" %>
+                <div class="space-y-1.5">
+                  <label class="text-xs font-black uppercase tracking-wider text-slate-500">Slug</label>
+                  <%= form.text_field :slug, placeholder: "slug-station", class: "w-full rounded-xl border-slate-200 bg-white shadow-sm focus:border-sky-500 focus:ring-sky-500 text-sm py-2.5 px-4" %>
+                </div>
+                <div class="space-y-1.5">
+                  <label class="text-xs font-black uppercase tracking-wider text-slate-500">Tipo station</label>
+                  <%= form.select :station_kind, station_kind_options, {}, required: true, class: "w-full rounded-xl border-slate-200 bg-white shadow-sm focus:border-sky-500 focus:ring-sky-500 text-sm py-2.5 px-4" %>
+                </div>
+                <div class="space-y-1">
+                  <label class="text-xs font-black uppercase tracking-wider text-slate-500">Ordine nel nodo condiviso</label>
+                  <%= form.number_field :link_order, step: 1, placeholder: "0", class: "w-full rounded-xl border-slate-200 bg-white shadow-sm focus:border-sky-500 focus:ring-sky-500 text-sm py-2.5 px-4" %>
+                </div>
+                <div class="space-y-1">
+                  <label class="text-xs font-black uppercase tracking-wider text-slate-500">Angolo nodo condiviso</label>
+                  <%= form.select :shared_group_angle, options_for_select(shared_group_angle_options, @selected_station.primary_station.shared_group_angle), {}, class: "w-full rounded-xl border-slate-200 bg-white shadow-sm focus:border-sky-500 focus:ring-sky-500 text-sm py-2.5 px-4" %>
+                  <p class="text-[11px] font-bold text-slate-500">L'angolo viene salvato sulla station principale del nodo condiviso.</p>
+                </div>
+                <div class="space-y-1.5">
+                  <label class="text-xs font-black uppercase tracking-wider text-slate-500">Posizione nella line</label>
+                  <%= form.number_field :position, min: 0, step: 1, placeholder: "Posizione", class: "w-full rounded-xl border-slate-200 bg-white shadow-sm focus:border-sky-500 focus:ring-sky-500 text-sm py-2.5 px-4" %>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                  <div class="space-y-1.5">
+                    <label class="text-xs font-black uppercase tracking-wider text-slate-500">Coordinata X</label>
+                    <%= form.number_field :map_x, placeholder: "Coord X", step: 1, class: "w-full rounded-xl border-slate-200 bg-white shadow-sm focus:border-sky-500 focus:ring-sky-500 text-sm py-2.5 px-4" %>
+                  </div>
+                  <div class="space-y-1.5">
+                    <label class="text-xs font-black uppercase tracking-wider text-slate-500">Coordinata Y</label>
+                    <%= form.number_field :map_y, placeholder: "Coord Y", step: 1, class: "w-full rounded-xl border-slate-200 bg-white shadow-sm focus:border-sky-500 focus:ring-sky-500 text-sm py-2.5 px-4" %>
+                  </div>
+                </div>
+                <div class="space-y-1.5">
+                  <label class="text-xs font-black uppercase tracking-wider text-slate-500">Link ad altra station</label>
+                  <%= form.collection_select :link_station_id, @linkable_stations, :id, :name, { include_blank: "Nessun link station" }, class: "w-full rounded-xl border-slate-200 bg-white shadow-sm focus:border-sky-500 focus:ring-sky-500 text-sm py-2.5 px-4" %>
+                </div>
+                <% if @selected_station.link_station.present? %>
+                  <p class="text-xs font-bold text-slate-500">Lascia vuoto per sganciare il collegamento dalla station principale.</p>
+                <% end %>
+                <div class="space-y-1.5">
+                  <label class="text-xs font-black uppercase tracking-wider text-slate-500">Link ad altro port</label>
+                  <%= form.collection_select :link_port_id, @linkable_ports, :id, :name, { include_blank: "Nessun link port" }, class: "w-full rounded-xl border-slate-200 bg-white shadow-sm focus:border-sky-500 focus:ring-sky-500 text-sm py-2.5 px-4" %>
+                </div>
+                <% if @selected_station.link_port.present? %>
+                  <p class="text-xs font-bold text-slate-500">Lascia vuoto per rimuovere il passaggio verso l'altro port.</p>
+                <% end %>
+                <div class="space-y-1.5">
+                  <label class="inline-flex items-center gap-3 text-sm font-bold text-slate-700">
+                    <%= form.check_box :port_entry, class: "rounded border-slate-300 text-sky-600 focus:ring-sky-500" %>
+                    Entry station del port
+                  </label>
+                  <p class="text-[11px] font-bold text-slate-500">Attivalo se il port puo' iniziare da questa station.</p>
+                </div>
+                <div class="space-y-1.5">
+                  <label class="text-xs font-black uppercase tracking-wider text-slate-500">Descrizione</label>
+                  <%= form.text_area :description, rows: 4, placeholder: "Descrizione della station nel percorso", class: "w-full rounded-xl border-slate-200 bg-white shadow-sm focus:border-sky-500 focus:ring-sky-500 text-sm py-2.5 px-4" %>
+                </div>
               </div>
 
               <div class="grid gap-3 pt-2">

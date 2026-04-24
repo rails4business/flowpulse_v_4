@@ -86,6 +86,7 @@ Rails.application.routes.draw do
   get "eventi_condivisi", to: "pages#shared_events", as: :shared_events
   get "about", to: "pages#about", as: :about
   get "fondatore", to: "pages#fondatore", as: :fondatore
+  get "markpostura", to: "pages#markpostura", as: :markpostura
   get "week_plan", to: "pages#week_plan", as: :week_plan
   get "daily_plan", to: "pages#daily_plan", as: :daily_plan
   get "prenota", to: "pages#prenotazioni", as: :public_prenotazioni

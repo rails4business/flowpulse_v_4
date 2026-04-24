@@ -66,18 +66,7 @@ module Creator
           @line = @port.lines.new(line_params)
           @line.save!
 
-          experience = line_land_map_experience
-          raise ActiveRecord::RecordInvalid, experience if experience.invalid?
-
-          @line.stations.create!(
-            name: initial_station_name,
-            slug: initial_station_slug.presence,
-            station_kind: initial_station_kind,
-            position: 0,
-            map_x: initial_station_map_x,
-            map_y: initial_station_map_y,
-            experience: experience
-          )
+          @line.stations.create!(initial_station_attributes)
         end
 
         redirect_to land_map_creator_port_path(@port), notice: "Linea e prima station create dalla mappa."
@@ -85,6 +74,28 @@ module Creator
         redirect_to land_map_creator_port_path(@port), alert: e.record.errors.full_messages.to_sentence.presence || "Non sono riuscito a creare la linea dalla mappa."
       rescue ArgumentError => e
         redirect_to land_map_creator_port_path(@port), alert: e.message
+      end
+
+      def initial_station_attributes
+        attrs = {
+            name: initial_station_name,
+            slug: initial_station_slug.presence,
+            station_kind: initial_station_kind,
+            position: 0,
+            map_x: initial_station_map_x,
+            map_y: initial_station_map_y
+          }
+
+        if source_station.present?
+          attrs[:link_station] = source_station
+        else
+          experience = line_land_map_experience
+          raise ActiveRecord::RecordInvalid, experience if experience.invalid?
+
+          attrs[:experience] = experience
+        end
+
+        attrs
       end
 
       def line_land_map_experience
@@ -115,7 +126,10 @@ module Creator
       end
 
       def initial_station_name
-        params.dig(:line, :initial_station_name).presence || "Inizio"
+        return params.dig(:line, :initial_station_name).presence if params.dig(:line, :initial_station_name).present?
+        return "Collegamento a #{source_station.name}" if source_station.present?
+
+        "Inizio"
       end
 
       def initial_station_slug
@@ -123,7 +137,7 @@ module Creator
       end
 
       def initial_station_kind
-        params.dig(:line, :initial_station_kind).presence || "opening"
+        params.dig(:line, :initial_station_kind).presence || "normal"
       end
 
       def initial_station_map_x
@@ -132,6 +146,16 @@ module Creator
 
       def initial_station_map_y
         params.dig(:line, :initial_station_map_y).presence
+      end
+
+      def source_station
+        return @source_station if defined?(@source_station)
+
+        station_id = params.dig(:line, :source_station_id).presence
+        @source_station =
+          if station_id.present?
+            Station.joins(:line).where(lines: { port_id: @port.id }).find_by(id: station_id)&.primary_station
+          end
       end
   end
 end
