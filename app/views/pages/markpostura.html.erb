@@ -115,7 +115,6 @@
       align-items: center;
       justify-content: center;
       gap: 10px;
-      padding-bottom: 4px;
     }
 
     .markpostura-gallery-stage .markpostura-gallery-nav {
@@ -132,7 +131,6 @@
 
     .markpostura-gallery-dots {
       gap: 8px;
-      padding-bottom: 0;
     }
 
     .markpostura-gallery-dot {
@@ -158,21 +156,21 @@
       </button>
     </div>
 
+    <div class="markpostura-gallery-dots">
+      <% gallery_images.each_with_index do |_image, index| %>
+        <button
+          type="button"
+          class="markpostura-gallery-dot <%= "is-active" if index.zero? %>"
+          data-gallery-dot
+          data-index="<%= index %>"
+          aria-label="Vai all'immagine <%= index + 1 %>"></button>
+      <% end %>
+    </div>
+
     <div class="markpostura-gallery-controls">
       <button type="button" class="markpostura-gallery-nav prev" data-gallery-previous aria-label="Immagine precedente">
         <span class="material-symbols-outlined">chevron_left</span>
       </button>
-
-      <div class="markpostura-gallery-dots">
-        <% gallery_images.each_with_index do |_image, index| %>
-          <button
-            type="button"
-            class="markpostura-gallery-dot <%= "is-active" if index.zero? %>"
-            data-gallery-dot
-            data-index="<%= index %>"
-            aria-label="Vai all'immagine <%= index + 1 %>"></button>
-        <% end %>
-      </div>
 
       <button type="button" class="markpostura-gallery-nav next" data-gallery-next aria-label="Immagine successiva">
         <span class="material-symbols-outlined">chevron_right</span>
@@ -189,8 +187,8 @@
 
       const images = JSON.parse(root.dataset.galleryImages || "[]")
       const image = root.querySelector("[data-gallery-image]")
-      const previous = root.querySelector("[data-gallery-previous]")
-      const next = root.querySelector("[data-gallery-next]")
+      const previousButtons = Array.from(root.querySelectorAll("[data-gallery-previous]"))
+      const nextButtons = Array.from(root.querySelectorAll("[data-gallery-next]"))
       const dots = Array.from(root.querySelectorAll("[data-gallery-dot]"))
       if (!image || images.length === 0) return
 
@@ -203,14 +201,18 @@
         })
       }
 
-      previous?.addEventListener("click", () => {
-        index = (index - 1 + images.length) % images.length
-        render()
+      previousButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+          index = (index - 1 + images.length) % images.length
+          render()
+        })
       })
 
-      next?.addEventListener("click", () => {
-        index = (index + 1) % images.length
-        render()
+      nextButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+          index = (index + 1) % images.length
+          render()
+        })
       })
 
       dots.forEach((dot) => {
