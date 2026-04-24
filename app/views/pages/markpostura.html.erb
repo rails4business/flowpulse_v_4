@@ -123,17 +123,16 @@
 
 <section
   class="markpostura-gallery-page"
-  data-controller="markpostura-gallery"
-  data-markpostura-gallery-images-value="<%= gallery_images.to_json %>">
+  data-gallery-images="<%= gallery_images.to_json %>">
   <div class="markpostura-gallery-shell">
     <div class="markpostura-gallery-stage">
-      <button type="button" class="markpostura-gallery-nav prev" data-action="click->markpostura-gallery#previous" aria-label="Immagine precedente">
+      <button type="button" class="markpostura-gallery-nav prev" data-gallery-previous aria-label="Immagine precedente">
         <span class="material-symbols-outlined">chevron_left</span>
       </button>
 
-      <img class="markpostura-gallery-image" data-markpostura-gallery-target="image" alt="Markpostura gallery">
+      <img class="markpostura-gallery-image" data-gallery-image alt="Markpostura gallery">
 
-      <button type="button" class="markpostura-gallery-nav next" data-action="click->markpostura-gallery#next" aria-label="Immagine successiva">
+      <button type="button" class="markpostura-gallery-nav next" data-gallery-next aria-label="Immagine successiva">
         <span class="material-symbols-outlined">chevron_right</span>
       </button>
     </div>
@@ -143,11 +142,68 @@
         <button
           type="button"
           class="markpostura-gallery-dot <%= "is-active" if index.zero? %>"
-          data-markpostura-gallery-target="dot"
+          data-gallery-dot
           data-index="<%= index %>"
-          data-action="click->markpostura-gallery#goTo"
           aria-label="Vai all'immagine <%= index + 1 %>"></button>
       <% end %>
     </div>
   </div>
 </section>
+
+<script>
+  (() => {
+    const bootGallery = () => {
+      const root = document.querySelector("[data-gallery-images]")
+      if (!root) return
+
+      const images = JSON.parse(root.dataset.galleryImages || "[]")
+      const image = root.querySelector("[data-gallery-image]")
+      const previous = root.querySelector("[data-gallery-previous]")
+      const next = root.querySelector("[data-gallery-next]")
+      const dots = Array.from(root.querySelectorAll("[data-gallery-dot]"))
+      if (!image || images.length === 0) return
+
+      let index = 0
+
+      const render = () => {
+        image.src = images[index]
+        dots.forEach((dot, dotIndex) => {
+          dot.classList.toggle("is-active", dotIndex === index)
+        })
+      }
+
+      previous?.addEventListener("click", () => {
+        index = (index - 1 + images.length) % images.length
+        render()
+      })
+
+      next?.addEventListener("click", () => {
+        index = (index + 1) % images.length
+        render()
+      })
+
+      dots.forEach((dot) => {
+        dot.addEventListener("click", () => {
+          index = Number(dot.dataset.index || 0)
+          render()
+        })
+      })
+
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "ArrowLeft") {
+          index = (index - 1 + images.length) % images.length
+          render()
+        }
+        if (event.key === "ArrowRight") {
+          index = (index + 1) % images.length
+          render()
+        }
+      })
+
+      render()
+    }
+
+    document.addEventListener("turbo:load", bootGallery, { once: true })
+    document.addEventListener("DOMContentLoaded", bootGallery, { once: true })
+  })()
+</script>
