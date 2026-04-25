@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_24_203000) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_25_133014) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -38,7 +38,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_24_203000) do
 
   create_table "experiences", force: :cascade do |t|
     t.datetime "created_at", null: false
-    t.text "description"
     t.integer "experience_kind", default: 0, null: false
     t.string "name", null: false
     t.bigint "parent_experience_id"
@@ -55,7 +54,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_24_203000) do
   create_table "lines", force: :cascade do |t|
     t.string "color"
     t.datetime "created_at", null: false
-    t.text "description"
     t.integer "line_kind", default: 0, null: false
     t.string "name", null: false
     t.bigint "port_id", null: false

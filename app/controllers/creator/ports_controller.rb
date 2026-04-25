@@ -46,6 +46,7 @@ module Creator
       @lines = @port.lines.includes(stations: [:experience, :link_station, :link_port])
       @experiences = @port.experiences.order(:position, :created_at)
       @edit_mode = ActiveModel::Type::Boolean.new.cast(params[:edit])
+      @move_mode = @edit_mode && ActiveModel::Type::Boolean.new.cast(params[:move])
       @active_panel = params[:panel].presence_in(%w[new_line new_station edit_line edit_station])
       @selected_station = find_selected_station
       @selected_line = @selected_station&.line || (@port.lines.find_by(id: params[:line_id]) if params[:line_id].present?)

@@ -34,7 +34,7 @@ export default class extends Controller {
     "stationTitle",
     "contextMenu"
   ]
-  static values = { mode: String, clearSelectionPath: String, stations: String, selectedLineId: Number }
+  static values = { mode: String, moveMode: Boolean, clearSelectionPath: String, stations: String, selectedLineId: Number }
 
   connect() {
     this.boundKeydown = this.handleKeydown.bind(this)
@@ -42,6 +42,9 @@ export default class extends Controller {
     document.addEventListener("keydown", this.boundKeydown)
     document.addEventListener("click", this.boundDocumentClick)
     this.candidateStation = null
+    this.dragState = null
+    this.pendingMoveSelection = null
+    this.liveStationPositions = {}
     this.stationNodes = this.parseStations()
     this.initialStationSourceId = this.hasStationSourceStationTarget ? this.stationSourceStationTarget.value : ""
     this.resetPlacementState()
@@ -95,6 +98,7 @@ export default class extends Controller {
 
   pick(event) {
     if (!this.hasSvgTarget) return
+    if (this.dragState) return
 
     const svg = this.svgTarget
     const point = svg.createSVGPoint()
@@ -148,6 +152,10 @@ export default class extends Controller {
 
   move(event) {
     if (!this.hasSvgTarget) return
+    if (this.dragState) {
+      this.updateDrag(event)
+      return
+    }
     if (!["new_line", "new_station"].includes(this.modeValue)) return
 
     const { x, y } = this.localCoordinates(event)
@@ -206,6 +214,8 @@ export default class extends Controller {
   }
 
   leave() {
+    if (this.dragState) return
+
     if (this.modeValue === "new_line" || this.modeValue === "new_station") {
       if (this.hasPlacementMarkerTarget) {
         this.placementMarkerTarget.classList.add("hidden")
@@ -243,6 +253,7 @@ export default class extends Controller {
   }
 
   handleDocumentClick(event) {
+    if (this.dragState) return
     if (this.modeValue) return
     if (!this.hasContextMenuTarget) return
     if (!this.hasClearSelectionPathValue) return
@@ -250,6 +261,243 @@ export default class extends Controller {
     if (event.target.closest("a, button, input, select, textarea, label")) return
 
     window.location.href = this.clearSelectionPathValue
+  }
+
+  backgroundClick(event) {
+    if (this.dragState) return
+    if (this.modeValue) return
+    if (!this.hasClearSelectionPathValue) return
+    if (event.target.closest("a")) return
+
+    window.location.href = this.clearSelectionPathValue
+  }
+
+  stationMouseDown(event) {
+    if (!this.moveModeValue) return
+
+    const link = event.currentTarget
+    const stationId = Number(link.dataset.stationId)
+    event.preventDefault()
+    if (!stationId) return
+
+    this.pendingMoveSelection = {
+      stationId,
+      x: Number(link.dataset.stationX),
+      y: Number(link.dataset.stationY),
+      href: link.getAttribute("href") || link.getAttribute("xlink:href"),
+      repositionPath: link.dataset.repositionPath,
+      startClientX: event.clientX,
+      startClientY: event.clientY,
+      dragging: false
+    }
+
+    this.boundPendingMove = this.handlePendingMove.bind(this)
+    this.boundPendingUp = this.handlePendingUp.bind(this)
+    document.addEventListener("mousemove", this.boundPendingMove)
+    document.addEventListener("mouseup", this.boundPendingUp)
+  }
+
+  startDrag(event) {
+    event?.preventDefault()
+    if (!this.hasSvgTarget) return
+    const selectedStationLink = document.querySelector(`a[data-station-id="${this.currentSelectedStationId()}"]`)
+    if (!selectedStationLink) return
+
+    const stationId = Number(selectedStationLink.dataset.stationId)
+    const x = Number(selectedStationLink.dataset.stationX)
+    const y = Number(selectedStationLink.dataset.stationY)
+    const repositionPath = selectedStationLink.dataset.repositionPath
+    const href = selectedStationLink.getAttribute("href") || selectedStationLink.getAttribute("xlink:href")
+
+    this.beginDrag(stationId, x, y, repositionPath, href)
+  }
+
+  updateDrag(event) {
+    if (!this.dragState || !this.hasSvgTarget) return
+
+    const { x, y } = this.localCoordinates(event)
+    this.dragState.x = x
+    this.dragState.y = y
+    this.applyLiveDrag(x - this.dragState.originX, y - this.dragState.originY)
+    this.showPlacementMarker(x, y, true)
+    this.showCandidateMarker({ x, y })
+  }
+
+  async finishDrag(event) {
+    if (!this.dragState || !this.dragState.repositionPath) return
+
+    document.removeEventListener("mousemove", this.boundDragMove)
+    document.removeEventListener("mouseup", this.boundDragEnd)
+
+    const { x, y } = this.localCoordinates(event)
+    const path = this.dragState.repositionPath
+
+    try {
+      const response = await fetch(path, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]')?.content || "",
+          "Accept": "application/json"
+        },
+        body: JSON.stringify({
+          map_x: x,
+          map_y: y
+        })
+      })
+
+      if (!response.ok) throw new Error("reposition failed")
+      window.location.href = this.dragState.returnHref || window.location.href
+    } catch (_error) {
+      window.location.href = this.dragState.returnHref || window.location.href
+    }
+  }
+
+  currentSelectedStationId() {
+    const stationIdParam = new URL(window.location.href).searchParams.get("station_id")
+    return stationIdParam ? Number(stationIdParam) : null
+  }
+
+  beginDrag(stationId, x, y, repositionPath, returnHref = null) {
+    if (!stationId || !this.hasSvgTarget || !repositionPath) return
+
+    this.dragState = {
+      stationId,
+      repositionPath,
+      returnHref,
+      originX: x,
+      originY: y,
+      movingStationIds: this.movingStationIdsFor(stationId)
+    }
+    this.liveStationPositions = this.currentStationPositions()
+    this.showPlacementMarker(x, y, true)
+    this.showCandidateMarker({ x, y })
+
+    this.boundDragMove = this.updateDrag.bind(this)
+    this.boundDragEnd = this.finishDrag.bind(this)
+    document.addEventListener("mousemove", this.boundDragMove)
+    document.addEventListener("mouseup", this.boundDragEnd)
+  }
+
+  handlePendingMove(event) {
+    if (!this.pendingMoveSelection) return
+
+    const dx = event.clientX - this.pendingMoveSelection.startClientX
+    const dy = event.clientY - this.pendingMoveSelection.startClientY
+    if (Math.hypot(dx, dy) < 6) return
+
+    this.pendingMoveSelection.dragging = true
+    const pending = this.pendingMoveSelection
+    this.clearPendingMoveListeners()
+    this.pendingMoveSelection = null
+    this.beginDrag(pending.stationId, pending.x, pending.y, pending.repositionPath, pending.href)
+    this.updateDrag(event)
+  }
+
+  handlePendingUp() {
+    if (!this.pendingMoveSelection) return
+
+    const pending = this.pendingMoveSelection
+    this.clearPendingMoveListeners()
+    this.pendingMoveSelection = null
+    if (pending.href) {
+      window.location.href = pending.href
+    }
+  }
+
+  clearPendingMoveListeners() {
+    document.removeEventListener("mousemove", this.boundPendingMove)
+    document.removeEventListener("mouseup", this.boundPendingUp)
+  }
+
+  movingStationIdsFor(stationId) {
+    const node = document.querySelector(`[data-station-id="${stationId}"]`)
+    if (!node) return [stationId]
+
+    const primaryStationId = Number(node.dataset.primaryStationId || stationId)
+    return Array.from(document.querySelectorAll(`[data-primary-station-id="${primaryStationId}"]`))
+      .map((element) => Number(element.dataset.stationId))
+      .filter((id) => Number.isFinite(id))
+  }
+
+  currentStationPositions() {
+    return Array.from(document.querySelectorAll("[data-station-id]")).reduce((positions, element) => {
+      positions[element.dataset.stationId] = {
+        x: Number(element.dataset.stationX),
+        y: Number(element.dataset.stationY)
+      }
+      return positions
+    }, {})
+  }
+
+  applyLiveDrag(dx, dy) {
+    if (!this.dragState) return
+
+    this.dragState.movingStationIds.forEach((stationId) => {
+      const element = document.querySelector(`[data-station-id="${stationId}"]`)
+      const original = this.liveStationPositions[String(stationId)]
+      if (!element || !original) return
+
+      element.setAttribute("transform", `translate(${dx} ${dy})`)
+      element.dataset.currentX = String(original.x + dx)
+      element.dataset.currentY = String(original.y + dy)
+    })
+
+    this.refreshLivePaths()
+  }
+
+  refreshLivePaths() {
+    document.querySelectorAll("[data-line-station-ids]").forEach((polyline) => {
+      const stationIds = (polyline.dataset.lineStationIds || "").split(",").map((id) => id.trim()).filter(Boolean)
+      const points = stationIds.map((stationId) => {
+        const position = this.currentPositionFor(stationId)
+        return position ? `${position.x},${position.y}` : null
+      }).filter(Boolean)
+
+      if (points.length) polyline.setAttribute("points", points.join(" "))
+    })
+
+    document.querySelectorAll("[data-link-from-id]").forEach((segment) => {
+      const from = this.currentPositionFor(segment.dataset.linkFromId)
+      const to = this.currentPositionFor(segment.dataset.linkToId)
+      if (!from || !to) return
+
+      segment.setAttribute("x1", from.x)
+      segment.setAttribute("y1", from.y)
+      segment.setAttribute("x2", to.x)
+      segment.setAttribute("y2", to.y)
+    })
+
+    document.querySelectorAll("[data-shared-group-station-ids]").forEach((polyline) => {
+      const stationIds = (polyline.dataset.sharedGroupStationIds || "").split(",").map((id) => id.trim()).filter(Boolean)
+      const points = stationIds.map((stationId) => {
+        const position = this.currentPositionFor(stationId)
+        return position ? `${position.x},${position.y}` : null
+      }).filter(Boolean)
+
+      if (points.length) polyline.setAttribute("points", points.join(" "))
+    })
+
+    document.querySelectorAll("[data-shared-group-labels]").forEach((labelGroup) => {
+      const primaryStationId = labelGroup.dataset.sharedGroupLabels
+      const current = this.currentPositionFor(primaryStationId)
+      const originX = Number(labelGroup.dataset.labelOriginX)
+      const originY = Number(labelGroup.dataset.labelOriginY)
+      if (!current || !Number.isFinite(originX) || !Number.isFinite(originY)) return
+
+      labelGroup.setAttribute("transform", `translate(${current.x - originX} ${current.y - originY})`)
+    })
+  }
+
+  currentPositionFor(stationId) {
+    const element = document.querySelector(`[data-station-id="${stationId}"]`)
+    if (!element) return null
+
+    const x = Number(element.dataset.currentX || element.dataset.stationX)
+    const y = Number(element.dataset.currentY || element.dataset.stationY)
+    if (!Number.isFinite(x) || !Number.isFinite(y)) return null
+
+    return { x, y }
   }
 
   toggleLineForm(forceVisible = null) {

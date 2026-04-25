@@ -38,8 +38,8 @@
                         · <%= pluralize(experience.child_experiences.count, "figlio", "figli") %>
                       <% end %>
                     </p>
-                    <% if experience.description.present? %>
-                      <p style="margin: 0.75rem 0 0; color: #334155;"><%= experience.description %></p>
+                    <% if experience.content&.description.present? %>
+                      <p style="margin: 0.75rem 0 0; color: #334155;"><%= experience.content.description %></p>
                     <% end %>
                   </div>
 

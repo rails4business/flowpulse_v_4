@@ -9,6 +9,7 @@ Rails.application.routes.draw do
   end
   namespace :admin do
     resources :creator_requests, only: :index
+    resources :formats, only: :index
     resources :profiles, only: :index
     resources :users, only: :index
   end
@@ -58,6 +59,7 @@ Rails.application.routes.draw do
       resources :experiences, except: :show
       resources :lines, except: :show do
         resources :stations, except: :show
+        patch "stations/:id/reposition", to: "stations#reposition", as: :reposition_station
       end
       resources :webapp_domains, except: :show do
         patch :toggle_published, on: :member

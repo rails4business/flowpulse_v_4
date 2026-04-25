@@ -255,6 +255,43 @@
         }
       })
 
+      const stage = root.querySelector(".markpostura-gallery-stage")
+      if (stage) {
+        let touchStartX = 0
+        let touchEndX = 0
+
+        stage.addEventListener('touchstart', (e) => {
+          touchStartX = e.changedTouches[0].screenX
+        }, {passive: true})
+
+        stage.addEventListener('touchend', (e) => {
+          touchEndX = e.changedTouches[0].screenX
+          const swipeThreshold = 50
+          if (touchEndX < touchStartX - swipeThreshold) {
+            index = (index + 1) % images.length
+            render()
+          } else if (touchEndX > touchStartX + swipeThreshold) {
+            index = (index - 1 + images.length) % images.length
+            render()
+          }
+        }, {passive: true})
+
+        stage.addEventListener('click', (e) => {
+          if (e.target.closest('.markpostura-gallery-nav')) return
+
+          const rect = stage.getBoundingClientRect()
+          const clickX = e.clientX - rect.left
+          
+          if (clickX < rect.width / 2) {
+            index = (index - 1 + images.length) % images.length
+            render()
+          } else {
+            index = (index + 1) % images.length
+            render()
+          }
+        })
+      }
+
       render()
     }
 

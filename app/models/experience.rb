@@ -3,10 +3,12 @@ class Experience < ApplicationRecord
 
   belongs_to :port
   belongs_to :parent_experience, class_name: "Experience", optional: true
+  has_one :content, as: :contentable, dependent: :destroy
   has_many :stations, -> { order(:position, :created_at) }, dependent: :restrict_with_exception
   has_many :child_experiences, -> { order(:position, :created_at) }, class_name: "Experience", foreign_key: :parent_experience_id, dependent: :nullify
 
   enum :experience_kind, { lesson: 0, program: 1, quiz: 2, blog: 3, book: 4, course: 5, exercise: 6, page: 7, video: 8, sheet: 9 }
+  accepts_nested_attributes_for :content, update_only: true
 
   before_validation :set_slug_from_name, :normalize_slug
 

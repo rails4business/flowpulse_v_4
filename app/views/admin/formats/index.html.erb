@@ -1,0 +1,60 @@
+<% content_for :title, "Formati" %>
+
+<section class="dashboard-shell">
+  <div class="app-layout">
+    <%= render "shared/app_sidebar" %>
+
+    <div class="dashboard-card admin-page">
+      <p class="eyebrow">Superadmin</p>
+      <h1>Formati</h1>
+      <p>
+        Matrice di standardizzazione dei formati. Qui fissiamo come si combinano line, station, experience, children e subchildren.
+      </p>
+
+      <div class="admin-section">
+        <h2>Matrice formati</h2>
+        <div style="overflow-x: auto; margin-top: 1rem;">
+          <table style="width: 100%; min-width: 860px; border-collapse: separate; border-spacing: 0; background: white; border: 1px solid #e2e8f0; border-radius: 20px; overflow: hidden;">
+            <thead>
+              <tr style="background: #f8fafc;">
+                <th style="text-align: left; padding: 0.9rem 1rem; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; color: #64748b; border-bottom: 1px solid #e2e8f0;">Schema</th>
+                <% @format_columns.each do |column| %>
+                  <th style="text-align: left; padding: 0.9rem 1rem; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; color: #64748b; border-bottom: 1px solid #e2e8f0;"><%= column[:label] %></th>
+                <% end %>
+              </tr>
+            </thead>
+            <tbody>
+              <% @format_rows.each do |row| %>
+                <tr>
+                  <td style="padding: 1rem; border-bottom: 1px solid #e2e8f0; vertical-align: top;">
+                    <strong style="color: #0f172a;"><%= row[:name] %></strong>
+                  </td>
+                  <% @format_columns.each do |column| %>
+                    <% value = row[:values][column[:key]] %>
+                    <td style="padding: 1rem; border-bottom: 1px solid #e2e8f0; vertical-align: top;">
+                      <% if value.present? %>
+                        <span style="display: inline-flex; align-items: center; gap: 0.45rem; font-weight: 700; color: #0f172a;">
+                          <span style="display: inline-flex; width: 1.25rem; height: 1.25rem; align-items: center; justify-content: center; border-radius: 999px; background: #dcfce7; color: #166534; font-size: 0.82rem;">✓</span>
+                          <%= value %>
+                        </span>
+                      <% else %>
+                        <span style="display: inline-flex; align-items: center; gap: 0.45rem; color: #94a3b8; font-weight: 700;">
+                          <span style="display: inline-flex; width: 1.25rem; height: 1.25rem; align-items: center; justify-content: center; border-radius: 999px; background: #f1f5f9; color: #94a3b8; font-size: 0.82rem;">×</span>
+                          -
+                        </span>
+                      <% end %>
+                    </td>
+                  <% end %>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+
+        <p class="small-note" style="margin-top: 1rem;">
+          Questa tabella e' il riferimento di standard. I nomi attuali del modello possono ancora cambiare, ma la struttura deve restare leggibile qui.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>

@@ -8,6 +8,10 @@ Gli step ancora aperti o attuali stanno in:
 
 - [`todo/`](todo/)
 
+Target di prodotto attuale:
+
+- [`todo/planning_target_product_route.md`](todo/planning_target_product_route.md)
+
 Step attuale:
 
 - [`todo/planning_develop_step_0017.md`](todo/planning_develop_step_0017.md)

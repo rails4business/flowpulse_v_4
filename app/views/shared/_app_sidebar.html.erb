@@ -10,7 +10,7 @@
       <span>Menu</span>
       <button type="button" class="app-sidebar-close" data-action="sidebar#close" aria-label="Chiudi">×</button>
     </div>
-
+ 
     <a href="<%= root_path %>" class="app-sidebar-brand" style="text-decoration: none; color: inherit; transition: opacity 0.2s;" onmouseover="this.style.opacity=0.8" onmouseout="this.style.opacity=1">
       <span class="brand-dot"></span>
       <div>
@@ -21,12 +21,18 @@
         <% end %>
       </div>
     </a>
+    <% if content_for?(:sidebar_extra) %>
+      <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(148, 163, 184, 0.25);">
+        <%= yield :sidebar_extra %>
+      </div>
+    <% end %>
 
     <nav class="app-sidebar-nav" style="flex: 0 0 auto; padding-top: 0; margin-bottom: 1rem;">
       <div class="sidebar-group">
         <%= link_to "Hub Operativo", hub_dashboard_path, class: current_page?(hub_dashboard_path) ? "active" : nil, data: { action: "click->sidebar#close" } %>
       </div>
     </nav>
+    
 
     <div class="workspace-switcher">
       <p class="sidebar-group-label">Spazio attivo</p>
@@ -90,11 +96,14 @@
       <% if current_workspace_mode == "superadmin" && Current.session.user.superadmin? %>
         <div class="sidebar-group sidebar-group-superadmin">
           <%= link_to "Richieste accessi", admin_creator_requests_path, class: current_page?(admin_creator_requests_path) ? "active" : nil, data: { action: "click->sidebar#close" } %>
+          <%= link_to "Formati", admin_formats_path, class: current_page?(admin_formats_path) ? "active" : nil, data: { action: "click->sidebar#close" } %>
           <%= link_to "Persone", admin_users_path, class: current_page?(admin_users_path) || current_page?(admin_profiles_path) ? "active" : nil, data: { action: "click->sidebar#close" } %>
         </div>
       <% end %>
 
     </nav>
+
+   
 
     <% if development_domain_simulation_active? %>
       <div style="margin-top: auto; padding-top: 1rem; border-top: 1px solid rgba(148, 163, 184, 0.25);">

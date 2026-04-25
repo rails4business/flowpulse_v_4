@@ -10,6 +10,7 @@ module Creator
 
     def new
       @line = @port.lines.new(position: next_line_position)
+      @line.build_content(visibility: :draft) if @line.content.blank?
     end
 
     def create
@@ -25,6 +26,7 @@ module Creator
     end
 
     def edit
+      @line.build_content(visibility: :draft) if @line.content.blank?
     end
 
     def update
@@ -54,7 +56,27 @@ module Creator
       end
 
       def line_params
-        params.require(:line).permit(:name, :slug, :line_kind, :position, :color, :description)
+        params.require(:line).permit(
+          :name,
+          :slug,
+          :line_kind,
+          :position,
+          :color,
+          content_attributes: [
+            :id,
+            :subtitle,
+            :description,
+            :content,
+            :mermaid,
+            :banner_url,
+            :thumb_url,
+            :horizontal_cover_url,
+            :vertical_cover_url,
+            :url_media_content,
+            :visibility,
+            :published_at
+          ]
+        )
       end
 
       def next_line_position

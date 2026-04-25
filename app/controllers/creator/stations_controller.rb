@@ -3,7 +3,7 @@ module Creator
     before_action :require_creator
     before_action :set_port
     before_action :set_line, except: :create_from_land_map
-    before_action :set_station, only: %i[edit update destroy]
+    before_action :set_station, only: %i[edit update destroy reposition]
 
     def index
       @stations = @line.stations.includes(:link_station, :link_port)
@@ -41,6 +41,21 @@ module Creator
     def destroy
       @station.destroy
       redirect_to land_map_creator_port_path(@port, edit: 1), notice: "Station eliminata."
+    end
+
+    def reposition
+      x = params[:map_x].to_i
+      y = params[:map_y].to_i
+
+      if shared_group_station?(@station)
+        reposition_group!(@station.primary_station, x, y)
+      else
+        @station.update!(map_x: x, map_y: y)
+      end
+
+      render json: { status: "ok" }
+    rescue ActiveRecord::RecordInvalid => e
+      render json: { status: "error", error: e.record.errors.full_messages.to_sentence }, status: :unprocessable_entity
     end
 
     def create_from_land_map
@@ -256,6 +271,30 @@ module Creator
         else
           creator_port_line_stations_path(@port, @line)
         end
+      end
+
+      def reposition_group!(primary_station, target_x, target_y)
+        members = Station.joins(:line).where(lines: { port_id: @port.id }).where(id: group_member_ids_for(primary_station))
+        primary = members.find { |station| station.id == primary_station.id } || primary_station
+        delta_x = target_x - primary.map_x.to_i
+        delta_y = target_y - primary.map_y.to_i
+
+        Station.transaction do
+          members.each do |member|
+            member.update!(
+              map_x: member.map_x.to_i + delta_x,
+              map_y: member.map_y.to_i + delta_y
+            )
+          end
+        end
+      end
+
+      def group_member_ids_for(primary_station)
+        [primary_station.id] + Station.where(link_station_id: primary_station.id).pluck(:id)
+      end
+
+      def shared_group_station?(station)
+        station.connector? || Station.exists?(link_station_id: station.id)
       end
 
       def resolve_experience_id_from_search

@@ -10,6 +10,7 @@ module Creator
 
     def new
       @experience = @port.experiences.new(position: next_experience_position)
+      @experience.build_content(visibility: :draft) if @experience.content.blank?
       load_parent_experiences
     end
 
@@ -25,6 +26,7 @@ module Creator
     end
 
     def edit
+      @experience.build_content(visibility: :draft) if @experience.content.blank?
       load_parent_experiences
     end
 
@@ -56,7 +58,27 @@ module Creator
       end
 
       def experience_params
-        params.require(:experience).permit(:name, :slug, :experience_kind, :position, :description, :parent_experience_id)
+        params.require(:experience).permit(
+          :name,
+          :slug,
+          :experience_kind,
+          :position,
+          :parent_experience_id,
+          content_attributes: [
+            :id,
+            :subtitle,
+            :description,
+            :content,
+            :mermaid,
+            :banner_url,
+            :thumb_url,
+            :horizontal_cover_url,
+            :vertical_cover_url,
+            :url_media_content,
+            :visibility,
+            :published_at
+          ]
+        )
       end
 
       def next_experience_position

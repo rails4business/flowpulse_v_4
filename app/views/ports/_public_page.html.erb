@@ -23,7 +23,7 @@
       <div class="absolute -top-10 -left-10 w-72 h-72 rounded-full blur-3xl z-[-1]" style="background: color-mix(in srgb, var(--brand-accent) 20%, transparent);"></div>
 
       <% if embed_url.present? %>
-        <div class="relative bg-slate-200 rounded-3xl overflow-hidden aspect-video shadow-2xl border-4 border-white">
+        <div class="relative overflow-hidden aspect-video">
           <iframe
             src="<%= embed_url %>"
             title="<%= port.name %>"
@@ -34,7 +34,7 @@
         </div>
       <% elsif content&.thumb_url.present? || content&.horizontal_cover_url.present? || content&.vertical_cover_url.present? %>
         <div class="relative flex justify-center items-center">
-          <img alt="<%= port.name %>" class="max-w-full h-auto max-h-[600px] rounded-3xl shadow-2xl border-4 border-white" src="<%= content.thumb_url.presence || content.horizontal_cover_url.presence || content.vertical_cover_url %>">
+          <img alt="<%= port.name %>" class="max-w-full h-auto max-h-[600px] rounded-3xl" src="<%= content.thumb_url.presence || content.horizontal_cover_url.presence || content.vertical_cover_url %>">
         </div>
       <% end %>
     </div>
@@ -43,7 +43,7 @@
 
 <% if content&.banner_url.present? %>
   <section class="max-w-7xl mx-auto px-6 -mt-8 mb-16">
-    <div class="rounded-3xl overflow-hidden bg-slate-200 shadow-xl border border-white/70">
+    <div class="rounded-3xl overflow-hidden">
       <img alt="<%= port.name %> banner" class="w-full aspect-[16/5] object-cover" src="<%= content.banner_url %>">
     </div>
   </section>

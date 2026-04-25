@@ -35,11 +35,75 @@
       <%= form.label :color, "Colore linea" %>
       <%= form.color_field :color %>
     </div>
+  </div>
 
-    <div class="field-group field-group-full">
-      <%= form.label :description, "Descrizione" %>
-      <%= form.text_area :description, rows: 4, placeholder: "Uso interno creator: spiega il senso di questa line e dove va usata." %>
+  <div style="margin: 2rem 0 1.5rem; padding-top: 1.5rem; border-top: 1px solid #e2e8f0;">
+    <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+      <span class="material-symbols-outlined" style="color: #4f46e5;">article</span>
+      <div>
+        <strong style="display: block; color: #0f172a;">Content della line</strong>
+        <p style="margin: 0.2rem 0 0; color: #64748b; font-size: 0.85rem;">Layer editoriale condiviso per testo, media, visibilita' e pubblicazione.</p>
+      </div>
     </div>
+
+    <%= form.fields_for :content do |content_form| %>
+      <div class="form-grid">
+        <div class="field-group">
+          <%= content_form.label :subtitle, "Sottotitolo" %>
+          <%= content_form.text_field :subtitle, placeholder: "Sottotitolo editoriale della line" %>
+        </div>
+
+        <div class="field-group">
+          <%= content_form.label :visibility, "Visibilita'" %>
+          <%= content_form.select :visibility, Content.visibilities.keys.map { |key| [key.humanize, key] }, {} %>
+        </div>
+
+        <div class="field-group field-group-full">
+          <%= content_form.label :description, "Descrizione editoriale" %>
+          <%= content_form.text_area :description, rows: 3, placeholder: "Descrizione pubblica o editoriale della line." %>
+        </div>
+
+        <div class="field-group field-group-full" data-controller="easy-mde">
+          <%= content_form.label :content, "Testo completo" %>
+          <%= content_form.text_area :content, rows: 10, placeholder: "Contenuto completo della line.", data: { easy_mde_target: "input" } %>
+        </div>
+
+        <div class="field-group">
+          <%= content_form.label :published_at, "Data pubblicazione" %>
+          <%= content_form.datetime_local_field :published_at %>
+        </div>
+
+        <div class="field-group">
+          <%= content_form.label :thumb_url, "Thumb" %>
+          <%= content_form.url_field :thumb_url %>
+        </div>
+
+        <div class="field-group">
+          <%= content_form.label :banner_url, "Banner largo" %>
+          <%= content_form.url_field :banner_url %>
+        </div>
+
+        <div class="field-group">
+          <%= content_form.label :vertical_cover_url, "Cover verticale" %>
+          <%= content_form.url_field :vertical_cover_url %>
+        </div>
+
+        <div class="field-group">
+          <%= content_form.label :horizontal_cover_url, "Cover orizzontale" %>
+          <%= content_form.url_field :horizontal_cover_url %>
+        </div>
+
+        <div class="field-group">
+          <%= content_form.label :url_media_content, "Video / media" %>
+          <%= content_form.url_field :url_media_content %>
+        </div>
+
+        <div class="field-group field-group-full">
+          <%= content_form.label :mermaid, "Mermaid" %>
+          <%= content_form.text_area :mermaid, rows: 4 %>
+        </div>
+      </div>
+    <% end %>
   </div>
 
   <div class="form-actions">

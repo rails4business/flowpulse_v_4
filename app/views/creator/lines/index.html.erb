@@ -30,8 +30,8 @@
                       <span style="font-size: 0.75rem; color: #64748b;">pos. <%= line.position %></span>
                     </div>
                     <p style="margin: 0.35rem 0 0; color: #64748b;"><%= line.slug %> · <%= pluralize(line.stations.count, "station") %></p>
-                    <% if line.description.present? %>
-                      <p style="margin: 0.75rem 0 0; color: #334155;"><%= line.description %></p>
+                    <% if line.content&.description.present? %>
+                      <p style="margin: 0.75rem 0 0; color: #334155;"><%= line.content.description %></p>
                     <% end %>
                   </div>
 
