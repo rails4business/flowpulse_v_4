@@ -201,12 +201,26 @@
       if (!image || images.length === 0) return
 
       let index = 0
+      const preloaded = new Set()
+
+      const preloadAt = (targetIndex) => {
+        const normalizedIndex = (targetIndex + images.length) % images.length
+        const src = images[normalizedIndex]
+        if (!src || preloaded.has(src)) return
+
+        const preloadImage = new Image()
+        preloadImage.src = src
+        preloaded.add(src)
+      }
 
       const render = () => {
         image.src = images[index]
         dots.forEach((dot, dotIndex) => {
           dot.classList.toggle("is-active", dotIndex === index)
         })
+
+        preloadAt(index + 1)
+        preloadAt(index - 1)
       }
 
       previousButtons.forEach((button) => {
